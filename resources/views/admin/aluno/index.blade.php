@@ -230,7 +230,7 @@
                     <div class="divImplantarAluno" style="border-bottom:none;">
                         <i class="ion-ios-football" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">Atleta Marexaer</label>
-                        <select class="custom-select" name="atleta_marexaer" style="margin-top:5px;" onchange="if($(this).val()=='S'){ $('input#modalidade').prop('disabled', false); $('input#habilidades').prop('disabled', false); } else { $('input#modalidade').prop('disabled', true); $('input#habilidades').prop('disabled', true); $('input#modalidade option[value=0]').prop('selected', true); $('input#habilidades').prop('value', null); $('input#modalidade').prop('value', null);}">
+                        <select {{ ($ownauthcontroller->PermissaoCheck(1)) ? '' : 'disabled' }} class="custom-select" name="atleta_marexaer" style="margin-top:5px;" onchange="if($(this).val()=='S'){ $('input#modalidade').prop('disabled', false); $('input#habilidades').prop('disabled', false); } else { $('input#modalidade').prop('disabled', true); $('input#habilidades').prop('disabled', true); $('input#modalidade option[value=0]').prop('selected', true); $('input#habilidades').prop('value', null); $('input#modalidade').prop('value', null);}">
                             <option value="0" disabled selected hidden>Atleta</option>
                             <option value="S" {{ (isset($aluno) && $aluno->atleta_marexaer) == 'S' ? 'selected' : ''}}>Sim</option>
                             <option value="N" {{ (isset($aluno) && $aluno->atleta_marexaer) == 'N' ? 'selected' : ''}}>Não</option>

@@ -5522,4 +5522,10 @@ class AjaxAdminController extends Controller
         $this->classLog->RegistrarLog('Atualizou informações de alunos em situações diversas', auth()->user()->email);
         return $data;
     }
+
+    public function ViewLancamentos(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
+    {
+
+        return view('lancamentos.lancamentosIndex')->with('ownauthcontroller', $ownauthcontroller);
+    }
 }

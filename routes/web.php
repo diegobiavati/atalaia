@@ -26,6 +26,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::post('gravar-taf-aluno', ['as' => 'gravar-taf-aluno', 'uses' => 'Ajax\AjaxAdminController@GravarTafAluno']);
     Route::post('atualizar-taf-aluno', ['as' => 'atualizar-taf-aluno', 'uses' => 'Ajax\AjaxAdminController@AtualizarTafAluno']);
     Route::get('alunos', ['as' => 'alunos', 'uses' => 'Ajax\AjaxAdminController@GerenciarAlunos']);
+    Route::get('lancamentos', ['as' => 'lancamentos', 'uses' => 'Ajax\AjaxAdminController@ViewLancamentos']);
     Route::get('voluntarios-para-aviacao', ['as' => 'voluntarios-para-aviacao', 'uses' => 'Ajax\AjaxAdminController@VoluntariosParaAviacao']);
     Route::get('escolha-de-qms', ['as' => 'escolha-de-qms', 'uses' => 'Ajax\AjaxAdminController@EscolhaDeQms']);
     Route::get('precedencia-desempate', ['as' => 'precedencia-desempate', 'uses' => 'Ajax\AjaxAdminController@PrecedenciaDesempate']);
