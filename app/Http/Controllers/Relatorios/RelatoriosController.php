@@ -1,0 +1,1274 @@
+<?php
+
+namespace App\Http\Controllers\Relatorios;
+
+/* MODELS */
+
+//use App\Models\AnoFormacao;
+use App\Models\Alunos;
+use App\Models\AlunosClassificacao;
+use App\Models\AlunosConselhoEscolar;
+use App\Models\AlunosSitDivHistorico;
+use App\Models\AlunosSitDiv;
+use App\Models\AlunosVoluntAv;
+use App\Models\AnoFormacao;
+use App\Models\Areas;
+use App\Models\AvaliacaoTaf;
+use App\Models\Avaliacoes;
+use App\Models\AvaliacoesNotas;
+use App\Models\AvaliacoesProntoFaltas;
+use App\Models\AvaliacoesProntoFaltasStatus;
+use App\Models\Disciplinas;
+use App\Models\EscolhaQMSAlunosOpcoes;
+use App\Models\Mencoes;
+use App\Models\OMCT;
+use App\Models\QMS;
+use App\Models\TelegramAlunoAuth;
+use App\Models\ConfDemonstrativos;
+
+/* CONTROLLERS */
+
+use App\Http\Controllers\OwnAuthController;
+
+/*
+
+OUTRAS CLASSES
+
+*/
+
+use App\Http\OwnClasses\EscolhaQMSLoader;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+
+class RelatoriosController extends Controller
+{
+
+    protected $classLog;
+    protected $ownauthcontroller;
+
+    public function __construct(\App\Http\OwnClasses\ClassLog $classLog, OwnAuthController $ownauthcontroller){
+        $this->classLog = $classLog;
+        $this->ownauthcontroller = $ownauthcontroller;
+        $classLog->ip=$_SERVER['REMOTE_ADDR'];      
+    }    
+
+    public function LoadHistoricoAluno(OwnAuthController $ownauthcontroller, Request $request){
+        $alunos = AlunosSitDivHistorico::where('aluno', $request->alunoHistoricoID)->get();
+        $this->classLog->RegistrarLog('Acessou histórico escolar de aluno', auth()->user()->email);
+        return view('relatorios.historico-escolar-aluno')->with('alunos', $alunos);         
+    }
+    
+    public function DadosEstatisticosDeAvaliacoes(OwnAuthController $ownauthcontroller, Request $request) {
+
+        // requests
+        
+        //ano_formacao_id
+        //avaliacaoID
+
+        //dd($request->all());
+
+        $ava = Avaliacoes::find($request->avaliacaoID);
+
+        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id);
+
+        $avaliacoes_notas = AvaliacoesNotas::where('avaliacao_id', $request->avaliacaoID)->get();
+
+        $mencoes = Mencoes::orderBy('id', 'desc')->get();
+        foreach($avaliacoes_notas as $item){
+            foreach($mencoes as $mencao){
+                $nota = number_format($item->getNota(), 3, '.', '');
+                if($nota>=$mencao->inicio && $nota<=$mencao->fim){
+                    $total_mencao[$mencao->mencao][] = 1;
+                    break; 
+                }
+            }
+            $total_notas_array[] = 1;
+        }
+
+        $total_notas = (isset($total_notas_array))?array_sum($total_notas_array):0;
+
+        if(isset($total_mencao)){
+            foreach($mencoes as $mencao){
+                if(isset($total_mencao[$mencao->mencao])) {
+                    $mencao_qtde[$mencao->mencao] = array_sum($total_mencao[$mencao->mencao]);
+                } else {
+                    $mencao_qtde[$mencao->mencao] = 0;
+                }              
+            }
+                        
+        }
+        $this->classLog->RegistrarLog('Acessou dados estatísticos de avaliação', auth()->user()->email);
+        return view('relatorios.dados-estatisticos-avaliacoes')->with('mencao_qtde', $mencao_qtde)
+                                                               ->with('total_notas', $total_notas)       
+                                                               ->with('ano_selecionado', $ano_selecionado)       
+                                                               ->with('ava', $ava)       
+                                                               ->with('mencoes', $mencoes);       
+
+        
+    }
+
+    public function AlunosEmRecPorDisciplina(OwnAuthController $ownauthcontroller, Request $request) {
+
+
+        $disciplina = Disciplinas::find($request->disciplina_id);
+
+        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id);
+
+        // SELECIONANDO TODAS AS AVALIAÇÕES DA DISCIPLINA ACIMA SELECIONADA (inclusive 2 chamadas)
+
+        $avaliacoes = Avaliacoes::where('disciplinas_id', $request->disciplina_id)->where('avaliacao_recuperacao', 0)->get();
+
+        foreach($avaliacoes as $avaliacao){
+            if($avaliacao->chamada==1){
+                $disciplina_razao[] = 1; 
+            }
+
+            $avaliacoesIDs[] = $avaliacao->id;
+
+        }
+
+        $avaliacoesIDs = (isset($avaliacoesIDs))?array_unique($avaliacoesIDs):array(0);
+        $razao = (isset($disciplina_razao))?array_sum($disciplina_razao):1;
+
+        // SELECIONANDO TODAS AS NOTAS (avaliacoes_notas) DE TODAS AVALIAÇÕES EM $avaliacoesIDs
+
+        $notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get();
+        
+        foreach($notas as $item){
+            if(!is_null($item->alunos_id)){
+                $aluno_notas[$item->alunos_id][] = $item->getNota();
+            }
+        }
+
+        if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20)){
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
+        } else {
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
+        }
+
+
+        foreach($alunos as $aluno){
+            if(isset($aluno_notas[$aluno->id])){
+                if((array_sum($aluno_notas[$aluno->id])/$razao)<5){
+                    $nd_aluno[$aluno->id] = number_format(array_sum($aluno_notas[$aluno->id])/$razao, 3, ',', ''); 
+                    $alunos_em_recuperacao[] = $aluno->id;
+                }
+            }    
+        }
+
+        $nd_aluno = ($nd_aluno)??array(0);
+        $alunos_em_recuperacao = ($alunos_em_recuperacao)??array(0);
+
+        if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20)){
+            $alunos = Alunos::whereIn('id', $alunos_em_recuperacao)->orderBy('omcts_id', 'asc')->get();
+        } else {
+            $alunos = Alunos::whereIn('id', $alunos_em_recuperacao)->where('omcts_id', session()->get('login.omctID'))->orderBy('omcts_id', 'asc')->get();
+        }
+        $this->classLog->RegistrarLog('Acessou lista de alunos em recuperação', auth()->user()->email);
+        return view('relatorios.alunos-em-recuperacao-por-disciplina')->with('alunos', $alunos)
+                                                                      ->with('ownauthcontroller', $ownauthcontroller)
+                                                                      ->with('nd_aluno', $nd_aluno)
+                                                                      ->with('ano_selecionado', $ano_selecionado)
+                                                                      ->with('disciplina', $disciplina);       
+
+        
+    }
+
+    public function AlunosConselhoEscolar(Request $request) {
+
+        // SELECIONANDO O ANO DE FORMAÇÃO DO RELATÓRIO
+        
+        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id);
+        
+        // SELECIONANDO TODOS OS ALUNOS DO ANO DE FORMAÇÃO
+
+        $alunosID = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
+
+        // SELECIONANDO TODAS AS DISCIPLINAS DO ANO DE FORMAÇÃO
+
+        $disciplinas = Disciplinas::where('ano_formacao_id', $request->ano_formacao_id)->get();
+        
+        foreach($disciplinas as $disc){
+            $disciplina[$disc->id] = array(
+                "nome_disciplina" => $disc['nome_disciplina'],
+                "nome_disciplina_abrev" => $disc['nome_disciplina_abrev']
+            );
+        }
+
+        $disciplina[99999] = array(
+            "nome_disciplina" => 'TESTE DE APITIDÃO FÍSICA',
+            "nome_disciplina_abrev" => 'TAF'
+        );        
+        
+        // SELECIONANDO TODAS AS OMCTS
+
+        $omcts = OMCT::where('id', '<>', 1)->get();
+
+        // SELECIONANDO TODOS OS ALUNOS APROVADOS EM CONSELHO
+
+        $alunos_conselho = AlunosConselhoEscolar::whereIn('aluno_id', $alunosID)->get();
+        $this->classLog->RegistrarLog('Acessou lista de alunos em conselho escolar', auth()->user()->email);
+        return view('relatorios.alunos-em-conselho')->with('alunos', $alunos_conselho)
+                                                    ->with('ano_selecionado', $ano_selecionado)
+                                                    ->with('disciplina', $disciplina)
+                                                    ->with('omcts', $omcts);
+        
+    }
+
+    public function RelatoriosEscolhaQMS (OwnAuthController $ownauthcontroller, Request $request, EscolhaQMSLoader $escolhaQMS) {
+        
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+            
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+            
+        } else {
+            
+            $escolhaQMS->ano_formacao = $request->ano_formacao_id;
+            $escolhaQMS->escolha_qms_id = $request->escolhaQMS;
+    
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+            $ano_selecionado = (isset($ano_formacao->formacao))? $ano_formacao->formacao:'---';
+
+            // CASO SEJA ESCOLHA DE QMS AVIAÇÃO MASC OU FEM
+
+            if($request->tipo_relatorio==3 || $request->tipo_relatorio==4){
+
+                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
+                $segmento = ($request->tipo_relatorio==3)?'M':'F';
+                return view('relatorios.escolha-qms-aviacao')->with('alunos', $escolhaQMS->getAlunosAviacao($segmento))
+                                                             ->with('ano_selecionado', $ano_selecionado);
+                                                             
+            } else if($request->tipo_relatorio==11 || $request->tipo_relatorio==12){
+                
+                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
+                $segmento = ($request->tipo_relatorio==11)?'M':'F';
+                return view('relatorios.escolha-qms-aviacao')->with('alunos', $escolhaQMS->getAlunosAviacao($segmento, 'S'))
+                                                             ->with('ano_selecionado', $ano_selecionado);
+            
+            } else if($request->tipo_relatorio==1 || $request->tipo_relatorio==2){
+                
+                $segmento = ($request->tipo_relatorio==1)?'M':'F';
+
+                if($segmento=='M'){
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao')->get();
+                } else {
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao_feminino')->get();
+                }
+
+                foreach($qms as $item){
+                    $qms_id_nome[$item->id] = $item->qms_sigla;
+                }
+
+
+                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
+                return view('relatorios.escolha-qms-comb-log')->with('alunos', $escolhaQMS->designacaoFinalQMS($segmento, 'por_area'))
+                                                              ->with('total_opcoes', count($qms))
+                                                              ->with('qms_id_nome', $qms_id_nome)
+                                                              ->with('ano_selecionado', $ano_selecionado);
+                
+
+            } else if($request->tipo_relatorio==7 || $request->tipo_relatorio==8){
+                
+                $segmento = ($request->tipo_relatorio==7)?'M':'F';
+
+                if($segmento=='M'){
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao')->get();
+                } else {
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao_feminino')->get();
+                }
+
+                foreach($qms as $item){
+                    $qms_id_nome[$item->id] = $item->qms_sigla;
+                }
+
+
+                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
+                return view('relatorios.escolha-qms-comb-log')->with('alunos', $escolhaQMS->designacaoFinalQMS($segmento, 'por_area', 'S'))
+                                                              ->with('total_opcoes', count($qms))
+                                                              ->with('qms_id_nome', $qms_id_nome)
+                                                              ->with('ano_selecionado', $ano_selecionado);
+                
+
+            } else if($request->tipo_relatorio==5 || $request->tipo_relatorio==6) {
+                
+                $segmento = ($request->tipo_relatorio==5)?'M':'F';
+                
+                if($segmento=='M'){
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao')->get();
+                } else {
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao_feminino')->get();
+                }
+
+                foreach($qms as $item){
+                    $qms_id_nome[$item->id] = $item->qms_sigla;
+                }
+
+                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
+                return view('relatorios.escolha-qms-por-qms')->with('alunos', $escolhaQMS->designacaoFinalQMS($segmento, 'por_qms'))
+                                                             ->with('qms_id_nome', $qms_id_nome)
+                                                             ->with('qms', $qms)
+                                                             ->with('ano_selecionado', $ano_selecionado);
+
+
+            } else if($request->tipo_relatorio==9 || $request->tipo_relatorio==10) {
+                
+                $segmento = ($request->tipo_relatorio==9)?'M':'F';
+                
+                if($segmento=='M'){
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao')->get();
+                } else {
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao_feminino')->get();
+                }
+
+                foreach($qms as $item){
+                    $qms_id_nome[$item->id] = $item->qms_sigla;
+                }
+
+                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
+                return view('relatorios.escolha-qms-por-qms')->with('alunos', $escolhaQMS->designacaoFinalQMS($segmento, 'por_qms', 'S'))
+                                                             ->with('qms_id_nome', $qms_id_nome)
+                                                             ->with('qms', $qms)
+                                                             ->with('ano_selecionado', $ano_selecionado);
+
+
+            } else if($request->tipo_relatorio==13 || $request->tipo_relatorio==14) {
+                
+                $segmento = ($request->tipo_relatorio==13)?'M':'F';
+                
+                if($segmento=='M'){
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao')->get();
+                } else {
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao_feminino')->get();
+                }
+
+                foreach($qms as $item){
+                    $qms_id_nome[$item->id] = $item->qms_sigla;
+                }
+
+                //dd($escolhaQMS->designacaoFinalQMSDetalhada($segmento));
+
+                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
+                return view('relatorios.escolha-qms-comb-log-detalhada')->with('data', $escolhaQMS->designacaoFinalQMSDetalhada($segmento, 'N'))
+                                                                        ->with('total_opcoes', count($qms))
+                                                                        ->with('qms_id_nome', $qms_id_nome)
+                                                                        ->with('ano_selecionado', $ano_selecionado)
+                                                                        ->with('ownauthcontroller', $this->ownauthcontroller);
+
+
+            } else if($request->tipo_relatorio==15 || $request->tipo_relatorio==16) {
+                
+                $segmento = ($request->tipo_relatorio==15)?'M':'F';
+                
+                if($segmento=='M'){
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao')->get();
+                } else {
+                    $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao_feminino')->get();
+                }
+
+                foreach($qms as $item){
+                    $qms_id_nome[$item->id] = $item->qms_sigla;
+                }
+
+                //dd($escolhaQMS->designacaoFinalQMSDetalhada($segmento));
+
+                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
+                return view('relatorios.escolha-qms-comb-log-detalhada')->with('data', $escolhaQMS->designacaoFinalQMSDetalhada($segmento, 'S'))
+                                                                        ->with('total_opcoes', count($qms))
+                                                                        ->with('qms_id_nome', $qms_id_nome)
+                                                                        ->with('ano_selecionado', $ano_selecionado);
+
+
+            }
+
+
+            //$qms = $escolhaQMS->getQMS();
+
+            //dd($escolhaQMS->getClassificacao());
+
+            //dd($escolhaQMS->getAlunosOpcoes([12, 21]));
+
+            //dd($escolhaQMS->getVagasQMSAviacao('M'));
+
+
+        }
+
+    }
+
+    public function ProntoDeFaltas(Request $request) {
+        
+        /* SELECIONANDO OMCTS */
+
+        $omcts = OMCT::get();
+        $status_pronto_faltas = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $request->avaliacaoID)->get(); 
+        $pronto_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->avaliacaoID)->get(); 
+        $avaliacao = Avaliacoes::find($request->avaliacaoID);
+
+        /**
+         *  Verifico se é avaliação de 2 chamada.
+         *  Caso seja avaliação de segunda chamada, vefifico a avaliação de referencia
+         *  
+         */
+
+        if($avaliacao->chamada==2){
+            // AVALIAÇAO DE REFERENCIA
+            //$avaliacao->chamada_refer_id
+            $ava_ref = Avaliacoes::find($avaliacao->chamada_refer_id);
+            $status_pronto_faltas_av_ref = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $ava_ref->id)->get();
+        }
+
+        $status_pronto_faltas_av_ref = ($status_pronto_faltas_av_ref)??[];
+
+        $this->classLog->RegistrarLog('Acessou relatório do pronto de faltas', auth()->user()->email);
+        return view('relatorios.pronto-de-faltas')->with('omcts', $omcts)
+                                                  ->with('status_pronto_faltas', $status_pronto_faltas)
+                                                  ->with('avaliacao', $avaliacao)
+                                                  ->with('status_pronto_faltas_av_ref', $status_pronto_faltas_av_ref)
+                                                  ->with('pronto_faltas', $pronto_faltas);    
+    }
+
+    public function AlunosRecuperacao(OwnAuthController $ownauthcontroller, Request $request) {
+        
+        $omcts = OMCT::get();
+        $disciplinas = Disciplinas::get();
+
+        foreach($disciplinas as $disciplina){
+            $disciplina_array[$disciplina->id] = $disciplina->nome_disciplina_abrev;
+        }
+
+        $disciplina_array[99999] = 'TAF';
+        
+        // SELECIONANDO O ANO DE FORMAÇÃO DO RELATÓRIO
+        
+        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id);        
+        
+        if($ownauthcontroller->PermissaoCheck(1)){
+
+            // selecioando todos os alunos do ano de formação selecionado de todas OMCTs
+
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->orderBy('omcts_id', 'asc')->get(['id']);
+            
+        } else {
+
+            // selecioando todos os alunos do ano de formação selecionado DA OMCT DO OPERADOR
+            
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
+        }
+
+        if($alunos){
+            foreach($alunos as $aluno){
+                $alunosIDs[] = $aluno->id;
+            }
+        }
+
+        if(isset($alunosIDs)){
+
+            $alunos_classificacao = AlunosClassificacao::whereIn('aluno_id', $alunosIDs)->where('reprovado', 'S')->get();
+
+        } else {
+            return '<div style="text-align: center;">SEM ALUNOS NO UNIVERSO PARA EXIBIÇÃO</div>';
+        }
+        $this->classLog->RegistrarLog('Acessou relatório de alunos em recuperação', auth()->user()->email);
+        return view('relatorios.alunos-em-recuperacao')->with('alunos_classificacao', $alunos_classificacao)
+                                                       ->with('omcts', $omcts)
+                                                       ->with('ano_selecionado', $ano_selecionado)
+                                                       ->with('disciplinas', $disciplina_array);
+
+    }
+
+    public function ClassificacaoGeral(OwnAuthController $ownauthcontroller, Request $request){
+
+        if($ownauthcontroller->PermissaoCheck(1)){
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+            $ano_selecionado = (isset($ano_formacao->formacao))? $ano_formacao->formacao:'---';
+
+            // SELECIONANDO DISCIPLINAS
+
+            $disciplinas = Disciplinas::where('ano_formacao_id', $request->ano_formacao_id)->get();
+
+            // SELECIONANDO TODAS AS AREAS
+
+            $areas = Areas::whereNotIn('id', [4,5])->get();
+
+            $alunos_classificacao = AlunosClassificacao::where('ano_formacao_id', $request->ano_formacao_id)->orderBy('nota_final', 'desc')->get();
+
+            // VERIFICANDO SE HÁ NOTAS REPETIDAS
+
+            foreach($alunos_classificacao as $nota){
+                $notas_array[] = ''.$nota->nota_final.'';
+                $notas_data_array[$nota->aluno_id] = array(
+                    "NPB" => $nota->nota_final,
+                    "data_demonstrativo" => unserialize($nota->data_demonstrativo)
+                ); 
+            }
+
+            if(isset($notas_array)){
+                foreach(array_count_values($notas_array) as $key => $val) {
+                    if($val>1){
+                        $nota_final[str_replace('.', ',', $key)] = $val;
+                    }
+                }
+            } else {
+                $nota_final = array();                
+            }
+
+            //dd($nota_final);
+
+            $mencoes = Mencoes::get();
+
+            $this->classLog->RegistrarLog('Acessou lista de classificação geral de alunos', auth()->user()->email);
+            return view('relatorios.classificacao-geral')->with('alunos_classificacao', $alunos_classificacao)
+                                                         ->with('notas_data_array', $notas_data_array)
+                                                         ->with('nota_final_empatada', $nota_final)
+                                                         ->with('areas', $areas)
+                                                         ->with('disciplinas', $disciplinas)
+                                                         ->with('mencoes', $mencoes)
+                                                         ->with('ano_selecionado', $ano_selecionado);
+
+        } else {
+            $this->classLog->RegistrarLog('Teve acesso negado ao tenter acessar a classificação geral de alunos', auth()->user()->email);
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+        }
+
+    }
+
+    public function AlunosNaoEscolheramQMS(OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+            $this->classLog->RegistrarLog('Teve acesso negado ao tenter acessar a lista de alunos que não escolheram QMS', auth()->user()->email);
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            /*
+            
+                Selecioando todos os alunos que preencheram a escolha de QMS com ID recebido do select name=escolhaQMS e que
+                estão com o status de finalizada
+
+            */
+
+            $alunos_que_fizeramID = EscolhaQMSAlunosOpcoes::where('escolha_qms_id', $request->escolhaQMS)->where('finalizada', 'S')->get(['aluno_id']);
+
+            if($request->omctID!='todas_omct'){
+                $omct = OMCT::find($request->omctID);
+                 $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)
+                                    ->where('omcts_id', $request->omctID)
+                                    ->where('area_id', 1)
+                                    ->whereNotIn('id', $alunos_que_fizeramID)
+                                    ->orderBy('omcts_id', 'asc')
+                                    ->orderBy('numero', 'asc')
+                                    ->get();
+                    
+            } else {
+                $omct = null;
+                $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)
+                                    ->where('area_id', 1)
+                                    ->whereNotIn('id', $alunos_que_fizeramID)
+                                    ->orderBy('numero', 'asc')->get();
+            }
+
+            $this->classLog->RegistrarLog('Acessou alunos que não escolheram QMS', auth()->user()->email);
+            return view('relatorios.alunos-sem-escolha-qms')->with('ano_formacao', $ano_formacao)
+                                                                     ->with('ownauthcontroller', $ownauthcontroller)
+                                                                     ->with('omct', $omct)
+                                                                     ->with('alunos', $alunos);
+
+        }
+
+    }
+    
+    public function ComprovanteEscolhaQMS(OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+            $this->classLog->RegistrarLog('Obteve acesso negado ao tentar acessar a lista de comprovamte de escolha de QMS', auth()->user()->email);
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            $omct = OMCT::find($request->omctID);
+
+            if($omct){
+                $omct_nome = $omct->omct;
+            } else {
+                $omct_nome = '';
+            }
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            // SELECIOANANDO TODOS OS ALUNOS DA OMCT SELECIONADA
+            
+            $alunos = Alunos::where('omcts_id', $request->omctID)->where('area_id', 1)->where('data_matricula', $request->ano_formacao_id)->orderBy('numero', 'asc')->get();
+
+            foreach($alunos as $aluno){
+                $alunosID[] = $aluno->id;
+            }
+
+            $alunosID = ($alunosID)??array();
+
+            // SELECIONANDO TODAS AS OPÇÕES DOS ALUNOS $alunosID DA ESCOLHA DE QMS DO ID $request->escolhaQMS
+            
+            $opcoes_alunos = EscolhaQMSAlunosOpcoes::where('finalizada', 'S')->whereIn('aluno_id', $alunosID)->where('escolha_qms_id', $request->escolhaQMS)->get();
+            
+            foreach($opcoes_alunos as $opcoes){
+                $opcao_aluno[$opcoes->aluno_id] = array("opcoes" => $opcoes->opcoes,
+                    "finalizada" => $opcoes->finalizada
+                );
+            }
+
+            $opcao_aluno = ($opcao_aluno)??array();
+
+            // SELECIONANDO AS QMS PARA GUARDAR SEUS NOMES EM UMA ARRAY
+
+            $qms_list = QMS::where('escolha_qms_id', $request->escolhaQMS)->get();
+
+            foreach($qms_list as $qms){
+                $qms_data[$qms->id] = $qms->qms;
+            }
+            $this->classLog->RegistrarLog('Acessou canhoto para assinatura de escolha de QMS', auth()->user()->email);
+            return view('relatorios.comprovante-escolha-qms')->with('ano_formacao', $ano_formacao)
+                                                                     ->with('ownauthcontroller', $ownauthcontroller)
+                                                                     ->with('opcao_aluno', $opcao_aluno)
+                                                                     ->with('qms_data', $qms_data)
+                                                                     ->with('omct_nome', $omct_nome)
+                                                                     ->with('alunos', $alunos);
+
+        }
+
+    }
+
+    public function ProntoLancamentoNotas(Request $request) {
+        
+        /* SELECIONANDO OMCTS */
+
+        $omcts = OMCT::get();
+
+        /* SELECIONANDO AS AVALIAÇÕES DE REFERÊNCIA  */
+
+        $avaliacao_ref = Avaliacoes::where('chamada_refer_id', $request->avaliacaoID)->get();
+
+        foreach($avaliacao_ref as $avaliacao){
+            $avaliacoesIDs[] = $avaliacao->id;
+        }
+        
+        $avaliacoesIDs[] = $request->avaliacaoID;
+
+        // SELECIONO TODOS IDs DE ALUNOS QUE POSSUEM NOTA NAS AVALIAÇÕES $avaliacoesIDs[]
+
+        $avaliacoes_notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get(['alunos_id']);
+        foreach($avaliacoes_notas as $aluno){
+            if($aluno->alunos_id!=null){
+                $alunosIDs[] = $aluno->alunos_id;
+            }
+        }
+
+        $alunosIDs = ($alunosIDs)??array();
+
+        // SELECIONO OS ALUNOS DO ANO DE FORMAÇÃO QUE NÃO ESTEJAM EM $alunosIDs[] (POIS JÁ POSSUEM NOTA NA AVALIAÇÃO)
+
+        $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+        $alunos = DB::select('SELECT * FROM alunos WHERE data_matricula='.$request->ano_formacao_id.' AND id NOT IN('.implode(',', $alunosIDs).')');
+        
+        $avaliacao = Avaliacoes::find($request->avaliacaoID);
+        $this->classLog->RegistrarLog('Acessou pronto de lançamento de notas', auth()->user()->email);
+        return view('relatorios.pronto-lancamento-notas')->with('omcts', $omcts)
+                                                         ->with('alunos', $alunos)
+                                                         ->with('avaliacao', $avaliacao);
+                                                      
+    }
+
+    public function ProntoLancamentoNotasAR(OwnAuthController $ownauthcontroller, Request $request) {
+
+        $omcts = OMCT::get();
+
+        $avaliacao_data = Avaliacoes::find($request->avaliacaoID);
+        
+        $disciplina = Disciplinas::find($avaliacao_data->disciplinas->id);
+
+        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id);
+
+        // SELECIONANDO TODAS AS AVALIAÇÕES DA DISCIPLINA ACIMA SELECIONADA (inclusive 2 chamadas)
+
+        $avaliacoes = Avaliacoes::where('disciplinas_id', $disciplina->id)->where('avaliacao_recuperacao', 0)->get();
+
+        foreach($avaliacoes as $avaliacao){
+            if($avaliacao->chamada==1){
+                $disciplina_razao[] = 1; 
+            }
+
+            $avaliacoesIDs[] = $avaliacao->id;
+
+        }
+
+        $avaliacoesIDs = (isset($avaliacoesIDs))?array_unique($avaliacoesIDs):array(0);
+        $razao = (isset($disciplina_razao))?array_sum($disciplina_razao):1;
+
+        // SELECIONANDO TODAS AS NOTAS (avaliacoes_notas) DE TODAS AVALIAÇÕES EM $avaliacoesIDs
+
+        $notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get();
+        
+        foreach($notas as $item){
+            if(!is_null($item->alunos_id)){
+                $aluno_notas[$item->alunos_id][] = $item->getNota();
+            }
+        }
+
+        if($ownauthcontroller->PermissaoCheck(1)){
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
+        } else {
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
+        }
+
+
+        foreach($alunos as $aluno){
+            if(isset($aluno_notas[$aluno->id])){
+                if((array_sum($aluno_notas[$aluno->id])/$razao)<5){
+                    $alunos_em_recuperacao[] = $aluno->id;
+                }
+            }    
+        }
+
+        $alunos_em_recuperacao = ($alunos_em_recuperacao)??array(0);
+
+        $avaliacao_notas = AvaliacoesNotas::whereIn('alunos_id', $alunos_em_recuperacao)->where('avaliacao_id', $request->avaliacaoID)->get();
+
+        foreach($avaliacao_notas as $item){
+            $aluno_fizeram_ar[]=$item->alunos_id;
+        }
+
+        $aluno_fizeram_ar = ($aluno_fizeram_ar)??array(0);
+
+        foreach($alunos_em_recuperacao as $item){
+            if(!in_array($item, $aluno_fizeram_ar)){
+                $alunosIDs[] = $item;
+            }
+        }
+
+        $alunosIDs = ($alunosIDs)??array(0);
+
+        $alunos = Alunos::whereIn('id', $alunosIDs)->get();
+
+        //dd($alunos_em_recuperacao);
+        
+        //dd(array_diff($alunos_em_recuperacao, $aluno_fizeram_ar));
+        $this->classLog->RegistrarLog('Acessou pronto de lançamento de notas das avaliações de recuperação', auth()->user()->email);
+        return view('relatorios.pronto-lancamento-notas-ar')->with('omcts', $omcts)
+                                                         ->with('alunos', $alunos)
+                                                         ->with('avaliacao', $avaliacao_data);
+                                                      
+    }
+
+    public function ProntoLancamentoTAF(Request $request) {
+        
+        // SELECIONADO OS ALUNOS DO ANO DE FORMAÇÃO $request->ano_formacao_id;
+
+        $avaliacoes_lancadas = AvaliacaoTaf::get();
+
+        foreach($avaliacoes_lancadas as $aluno){
+            if(isset($aluno->aluno->data_matricula) && $aluno->aluno->data_matricula==$request->ano_formacao_id){
+                $alunosIDs[] = $aluno->aluno_id;
+            }
+        }
+
+        $alunosIDs = ($alunosIDs)??array();
+
+        // SELECIONO OS ALUNOS DO ANO DE FORMAÇÃO QUE NÃO ESTEJAM EM $alunosIDs[]
+
+        //$alunos = DB::select('SELECT * FROM alunos WHERE data_matricula='.$request->ano_formacao_id.' AND id NOT IN('.implode(',', $alunosIDs).') ORDER BY omcts_id');
+        $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->whereNotIn('id', $alunosIDs)->orderBy('omcts_id', 'asc')->get();
+
+        //dd($alunos);
+        $this->classLog->RegistrarLog('Acessou pronto de lançamento do TAF', auth()->user()->email);
+        return view('relatorios.pronto-lancamento-taf')->with('alunos', $alunos);
+                                                      
+    }
+
+    public function RelacaoAtletasMarexaer(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request) {
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            if($request->omctID!='todas_omct'){
+                $omct = OMCT::find($request->omctID);
+                $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('atleta_marexaer', 'S')->where('omcts_id', $request->omctID)->orderBy('omcts_id', 'asc')->orderBy('numero', 'asc')->get();
+            } else {
+                $omct = null;
+                $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('atleta_marexaer', 'S')->orderBy('numero', 'asc')->get();
+            }
+            $this->classLog->RegistrarLog('Acessou relação de alunos atletas da MAREXAER', auth()->user()->email);
+            return view('relatorios.alunos-atletas-marexaer')->with('ano_formacao', $ano_formacao)
+                                                                     ->with('ownauthcontroller', $ownauthcontroller)
+                                                                     ->with('omct', $omct)
+                                                                     ->with('alunos', $alunos);
+
+        }
+
+    }
+
+    public function DemonstrativoNotas(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            if(isset($request->alunos_ids) && $request->omctID!=1){
+                $alunosID = Alunos::whereIn('id', $request->alunos_ids)->where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->get(['id']);
+            } else if(isset($request->alunos_ids) && $request->omctID==1){
+                $alunosID = Alunos::whereIn('id', $request->alunos_ids)->where('data_matricula', $request->ano_formacao_id)->get(['id']);    
+            } else if(!isset($request->alunos_ids) && $request->omctID==1){
+                $alunosID = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
+            } else {
+                $alunosID = Alunos::where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->get(['id']);
+            }
+
+            $alunos_classif = AlunosClassificacao::orderBy('classificacao', 'asc')->get();
+            foreach($alunos_classif as $classificacao){
+                
+                if(isset($classificacao->aluno->sexo)){
+                    $class_por_area_seg[$classificacao->aluno->sexo][$classificacao->aluno->area_id][] = $classificacao->aluno_id;
+                }
+                
+                // CLASSIFICAÇÃO GERAL                
+
+                $class_geral[] = $classificacao->aluno_id; 
+
+            }
+           
+            $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)->get();
+
+            $mencoes = Mencoes::get();
+            $this->classLog->RegistrarLog('Acessou demonstrativo de notas', auth()->user()->email);
+            return view('relatorios.demonstrativo-notas')->with('alunos_classif', $alunos_classif)
+                                                         ->with('mencoes', $mencoes)        
+                                                         ->with('class_por_area_seg', $class_por_area_seg)      
+                                                         ->with('class_geral', $class_geral);        
+        
+        }
+
+    }
+
+    function ListaAssinavelDemonstrativoNotas(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            //omctID
+            //avaliacaoID
+
+            // PEGANDO OS DADOS DA AVALIAÇÃO
+
+            $avaliacao = Avaliacoes::find($request->avaliacaoID);
+
+            // FAZENDO UMA ARRAY COM OS IDs DOS ALUNOS QUE TEM NOTA NA AVALIAÇÃO
+
+            $alunos = AvaliacoesNotas::where('avaliacao_id', $request->avaliacaoID)->get(['alunos_id']);
+            
+            foreach ($alunos as $aluno_rows) {
+                $array_alunos_id[] = $aluno_rows->alunos_id;
+            }
+                                   
+            $array_alunos_id = ($array_alunos_id)??array();
+            
+            // FILTRANDO, SELECIONANDO ALUNOS SOMENTE DA OMCT SELECIONADA
+            
+            $alunos = Alunos::where('omcts_id', $request->omctID)->whereIn('id', $array_alunos_id)->orderBy('numero', 'asc')->get();
+            
+            foreach($alunos as $aluno_rows){
+                $turmas[] =  $aluno_rows->turma_id;
+            }
+            
+            $turmas = ($turmas)??array();
+
+            sort($turmas);
+            
+            $turmas = array_unique($turmas);
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+            $this->classLog->RegistrarLog('Acessou lista assinável do demonstrativo de notas', auth()->user()->email);
+            return view('relatorios.assinatura-demonstrativo')->with('avaliacao', $avaliacao)
+                                                              ->with('ano_formacao', $ano_formacao)
+                                                              ->with('turmas', $turmas)
+                                                              ->with('alunos', $alunos);
+
+        }        
+    }
+
+    function ListaAssinavelDemonstrativoNotasPorAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            //omctID
+            //avaliacaoID
+
+            // PEGANDO OS DADOS DA AVALIAÇÃO
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            $avaliacao = Avaliacoes::find($request->avaliacaoID);
+
+            $alunos = Alunos::whereIn('id', $request->aluno_id)->orderBy('omcts_id', 'asc')->orderBy('numero', 'asc')->get();
+            $this->classLog->RegistrarLog('Acessou lista assinável do demonstrativo de notas por aluno', auth()->user()->email);
+            return view('relatorios.assinatura-demonstrativo-por-aluno')->with('avaliacao', $avaliacao)
+                                                                        ->with('ano_formacao', $ano_formacao)
+                                                                        ->with('alunos', $alunos);
+
+        }        
+    }
+
+    function RelacaoAlunosProntos(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            if(isset($request->segmento)){
+                    $segmento_array = $request->segmento;         
+            } else {
+                $segmento_array = array('M', 'F');
+            }
+
+            if(isset($request->areas)){
+                $areas_array = $request->areas;
+            } else {
+                $areas_array = array();
+            }
+
+            $alunos = Alunos::whereIn('sexo', $segmento_array)->whereIn('area_id', $areas_array)->where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->orderBy('numero', 'asc')->get();
+            
+            $omct = OMCT::find($request->omctID);
+            $this->classLog->RegistrarLog('Acessou lista de alunos prontos', auth()->user()->email);
+            return view('relatorios.relacao-alunos-prontos')->with('ano_formacao', $ano_formacao)
+                                                            ->with('omct', $omct)
+                                                            ->with('alunos', $alunos);
+
+        }        
+    }
+
+    function RelacaoAlunosSituacoesDiversas(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            if(isset($request->segmento)){
+                    $segmento_array = $request->segmento;         
+            } else {
+                $segmento_array = array('M', 'F');
+            }
+
+            if(isset($request->areas)){
+                $areas_array = $request->areas;
+            } else {
+                $areas_array = array();
+            }
+
+            if(isset($request->situacoes_diversas)){
+                $situacoes_array = $request->situacoes_diversas;
+            } else {
+                $situacoes_array = array();
+            }
+
+            $alunos = AlunosSitDiv::whereIn('sexo', $segmento_array)->whereIn('area_id', $areas_array)->whereIn('situacoes_diversas_id', $situacoes_array)->where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->orderBy('numero', 'asc')->get();
+            
+            $omct = OMCT::find($request->omctID);
+            $this->classLog->RegistrarLog('Acessou lista de alunos em situações diversas', auth()->user()->email);
+            return view('relatorios.relacao-alunos-situacoes-diversas')->with('ano_formacao', $ano_formacao)
+                                                                       ->with('omct', $omct)
+                                                                       ->with('alunos', $alunos);
+
+        }        
+    }
+
+    function RelacaoVoluntariosQMSAviacao(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            switch($request->filtro_voluntarios){
+                case 1:
+                    $filtro_voluntario = 'VOLUNTÁRIOS';
+                    break;
+                case 2:
+                    $filtro_voluntario = 'SELECIONADOS PARA OS EXAMES COMPLEMENTARES';
+                    break;
+                case 3:
+                    $filtro_voluntario = 'APTOS';
+                    break;
+                case 4:
+                    $filtro_voluntario = 'INAPTOS';
+                    break;
+                default:
+                    $filtro_voluntario = '';
+            }
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            /* SELECIONANDO TODOS OS VOLUNTÁRIOS NA TABELA alunos_voluntarios_aviacao */
+
+            if($request->filtro_voluntarios==1){
+                $alunos_voluntarios_aviacao = AlunosVoluntAv::get();
+            } else if($request->filtro_voluntarios==2){
+                $alunos_voluntarios_aviacao = AlunosVoluntAv::get();
+            } else if($request->filtro_voluntarios==3){
+                $alunos_voluntarios_aviacao = AlunosVoluntAv::where('apto', 1)->get();
+            } else if($request->filtro_voluntarios==4){
+                $alunos_voluntarios_aviacao = AlunosVoluntAv::where('apto', 0)->get();
+            }
+
+            /* FAZENDO UMA ARRAY COM OS ids DOS ALUNOS VOLUNTARIOS DO ANO DE FORMAÇÃO SELECIONADO */
+
+            foreach($alunos_voluntarios_aviacao as $aluno_voluntario_aviacao){
+                if(isset($aluno_voluntario_aviacao->aluno->data_matricula) && $aluno_voluntario_aviacao->aluno->data_matricula==$request->ano_formacao_id){
+                    $alunos_ids[] = $aluno_voluntario_aviacao->alunos_id;
+                }
+            }
+
+            $alunos_ids = ($alunos_ids)??array();
+
+            if($request->omctID!='todas_omct'){
+                $omct = OMCT::find($request->omctID);
+                $alunos = Alunos::whereIn('id', $alunos_ids)->where('omcts_id', $request->omctID)->orderBy('omcts_id', 'asc')->orderBy('numero', 'asc')->get();
+            } else {
+                $omct = null;
+                $alunos = Alunos::whereIn('id', $alunos_ids)->orderBy('numero', 'asc')->get();
+            }
+            $this->classLog->RegistrarLog('Acessou lista de alunos voluntários para QMS aviação', auth()->user()->email);
+            return view('relatorios.relacao-voluntarios-qms-aviacao')->with('ano_formacao', $ano_formacao)
+                                                                     ->with('ownauthcontroller', $ownauthcontroller)
+                                                                     ->with('omct', $omct)
+                                                                     ->with('filtro_voluntario', $filtro_voluntario)
+                                                                     ->with('alunos', $alunos);
+
+        }        
+    }
+
+    public function RelacaoAlunosSemCadastroTelegram(Request $request) {
+        
+        $omct = OMCT::find($request->omctID);
+        $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+        // SELECIONAR TODOS OS ALUNOS QUE NÃO TEM chat_id NO TELEGRAM
+
+        $alunos = TelegramAlunoAuth::whereNull('chat_id')->get();
+
+        foreach($alunos as $aluno){
+            $aluno_omct = ($aluno->aluno->omcts_id)??0;
+            if($aluno_omct==$omct->id && $aluno->aluno->data_matricula==$ano_formacao->id) {
+                $alunosIDs[] = $aluno->aluno_id;
+            }
+        }
+
+        $alunosIDs = ($alunosIDs)??array();
+
+        $alunos = Alunos::whereIn('id', $alunosIDs)->orderBy('turma_id', 'asc')->orderBy('numero', 'asc')->get();
+        $this->classLog->RegistrarLog('Acessou lista de alunos sem cadastro no TELEGRAM', auth()->user()->email);
+        return view('relatorios.alunos-sem-cadastro-telegram')->with('omct', $omct)
+                                                              ->with('alunos', $alunos)
+                                                              ->with('ano_formacao', $ano_formacao);
+    }
+
+    public function relacaoFinalPeriodoBasico(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request) {
+        
+        $mencao = new Mencoes;
+        $ano_corrente_data = AnoFormacao::find($request->ano_formacao_id);
+        $ano_corrente = ($ano_corrente_data->id)??0;
+        if(!$ownauthcontroller->PermissaoCheck(23)){
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+        } else {
+            $rfpb = \App\Models\AlunosClassificacao::join('alunos', 'alunos_classificacao.aluno_id', '=', 'alunos.id')->where([
+                ['ano_formacao_id', '=', $request->ano_formacao_id],
+                ['reprovado', '=', 'N']
+                ])->orderBy('classificacao', 'asc')->get();
+
+            if(count($rfpb)==0){
+                return '<div style="text-align: center;">RELAÇÃO NÃO DISPONÍVEL PARA O ANO DE FORMAÇÃO '.$ano_corrente_data->formacao.'</div>';
+            } else {
+
+                $data[] = '<div style="text-align: center; margin-top: 44px;">
+                            <h3>RELAÇÃO FINAL DO PERÍODO BÁSICO ANO DE FORMAÇÃO '.$ano_corrente_data->formacao.'</h3>
+                            </div>';
+                $data[] = '<table style="border-collapse: collapse; border: 1px solid #696969; text-align: center; margin: 0 auto; margin-top: 44px;">
+                                <tr style="border: 1px solid #696969; font-weight: bold; background-color: #f2f2f2;">
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    Número
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    ARMT
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    IIB
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    TOPO
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    PTRL
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    IG
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    GLO
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    LM
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    ETI
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    TFM
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    NPB
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    NPB Arred.
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    MENÇÃO
+                                    </td>
+                                    <td style="border: 1px solid #696969; padding: 12px;">
+                                    CLASS
+                                    </td>
+                                </tr>';
+                foreach($rfpb as $item){
+                    $data_demonstrativo = unserialize($item->data_demonstrativo);
+                    $data[] = '<tr style="border: 1px solid #696969; padding: 12px;">
+                                <td>
+                                    '.$item->numero.'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$data_demonstrativo[0]['media'].'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$data_demonstrativo[1]['media'].'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$data_demonstrativo[2]['media'].'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$data_demonstrativo[3]['media'].'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$data_demonstrativo[4]['media'].'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$data_demonstrativo[5]['media'].'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$data_demonstrativo[6]['media'].'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$data_demonstrativo[7]['media'].'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$data_demonstrativo[8]['media'].'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$item->nota_final.'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$item->nota_final_arredondada.'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$mencao->getMencao($item->nota_final).'
+                                </td>
+                                <td style="border: 1px solid #696969; padding: 12px;">
+                                    '.$item->classificacao.'
+                                </td>
+
+                                </tr>';
+                }
+                $data[] = '</table>';
+            }
+            return implode('', $data);
+        }
+        
+    }
+
+    public function ResultadoAvaliacaoPorNota(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request) {
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+            $this->classLog->RegistrarLog('Teve acesso negado ao tentar acessar o resultado da avaliação por nota, maior ou menor que 5', auth()->user()->email);
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+            
+            $avaliacao = Avaliacoes::find($request->avaliacaoID);
+        
+            $omct = OMCT::find($request->omctID);
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            //$request->avaliacaoID
+
+            //$request->notas_minimas
+
+            $alunos_notas = AvaliacoesNotas::where('avaliacao_id', $request->avaliacaoID)->get();
+
+            // SELECIONANDO TODOS OS ALUNOS COM AS NOTAS (notas_minimas)
+
+            foreach($alunos_notas as $aluno_nota){
+                $aluno_omct = ($aluno_nota->aluno->omcts_id)??0;
+                if($request->notas_minimas==1){ // NOTA >= 5
+                    if($aluno_nota->getNota()>=5 && $aluno_omct==$request->omctID){
+                        $alunosIds[] = $aluno_nota->alunos_id;
+                        $alunoNota[$aluno_nota->alunos_id] = $aluno_nota->getNota();
+                    }
+                } else if($request->notas_minimas==2){
+                    if($aluno_nota->getNota()<5 && $aluno_omct==$request->omctID){
+                        $alunosIds[] = $aluno_nota->alunos_id;
+                        $alunoNota[$aluno_nota->alunos_id] = $aluno_nota->getNota();
+                    }
+                }
+            }
+
+            $alunosIds = ($alunosIds)??array();
+            
+            $alunoNota = ($alunoNota)??array();
+
+            // SELECIONANDO SOMENTE O $alunosIds[]
+
+            $alunos = Alunos::whereIn('id', $alunosIds)->get();
+            $this->classLog->RegistrarLog('Acessou resultado da avaliação por nota, maior ou menor que 5', auth()->user()->email);
+            return view('relatorios.resultado-avaliacao-por-nota')->with('omct', $omct)
+                                                                  ->with('alunos', $alunos)
+                                                                  ->with('avaliacao', $avaliacao)
+                                                                  ->with('alunoNota', $alunoNota)
+                                                                  ->with('ano_formacao', $ano_formacao);
+
+        }
+                                                                        
+    }
+
+}

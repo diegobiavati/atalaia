@@ -1,0 +1,234 @@
+.scroll_style_01::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+.scroll_style_01::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+ 
+/* Handle */
+.scroll_style_01::-webkit-scrollbar-thumb {
+    background: #888; 
+}
+
+/* Handle on hover */
+.scroll_style_01::-webkit-scrollbar-thumb:hover {
+    background: #555; 
+}
+
+div#back_to_top{
+    display: none;
+    position: fixed;
+    background-color: #0B6121;
+    line-height: 48px;
+    font-size: 24px;
+    color: #ffffff;
+    width: 46px;
+    height: 46px;
+    text-align: center;
+    border-radius: 50%;
+    top: 100%;
+    left: 100%;
+    margin-left: -64px;
+    margin-top: -64px;
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: 2px 2px 5px #888888;
+}
+
+div#status_top{
+    display: none;
+    position: fixed;
+    padding: 6px;
+    background-color: #D8F6CE;
+    border: 1px solid #0B6121;
+    border-radius: 2px;
+    color: #0B6121;
+    width: 310px;
+    top: 100%;
+    left: 100%;
+    margin-left: -380px;
+    z-index: 10;
+    box-shadow: 2px 2px 5px #888888;
+}
+
+div.card-header i {
+    margin-right: 8px;
+    vertical-align: middle;
+    font-size: 1.75em;
+    color: #1c1c1c;
+}
+
+td.botao-action-table i {
+    margin-right: 8px;
+    font-size: 18px; 
+}
+
+input.pesquisar-in-card-title {
+    display: none;
+    width: 210px;
+    border: none;
+    outline: none;
+    background: none;
+    padding-left: 8px;
+}
+
+input.pesquisar-in-card-title2 {
+    width: 260px;
+    border: none;
+    outline: none;
+    background: none;
+    padding-left: 8px;
+}
+
+a.no-style{
+    text-decoration: none;
+    color: #696969;
+}
+
+a.no-style:hover{
+    text-decoration: none;
+    color: #363636;
+}
+
+input.no-style{
+    outline: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: none;
+}
+
+div.box-pesquisa-not-found{
+    text-align:center; 
+    font-size: 16px;
+    display: none;
+}
+
+div.box-registro-not-found{
+    text-align:center;
+    font-size: 16px;
+}
+
+div#modalDinamica div.modal-header{
+    display: none;
+}
+
+div#modalDinamica div.modal-footer{
+    display: none;
+}
+
+div#modal-dinamica-box-loading{
+    text-align: center;
+}
+
+div#modal-dinamica-box-loading img{
+    vertical-align: middle;
+    margin-right: 10px;
+    width: 28px;
+}
+
+div.imagem_perfil{
+    width: 90px;
+    height: 90px;    
+    border-radius: 50%;
+}
+
+div.imagem_perfil_info{
+    width: 120px;
+    height: 120px;    
+    border-radius: 50%;
+}
+
+div.imagem_perfil div{
+    margin: 60px 0 0 60px;
+    line-height: 34px;
+    font-size: 24px;
+    position: absolute;
+    background-color: #ccc;
+    width: 34px;
+    height: 34px;    
+    border-radius: 50%;
+    text-align: center;
+}
+
+input.line-bottom{
+    padding: 1px 4px;
+    outline: none;
+    border: none;
+    border-bottom: 1px solid #cccccc;
+    color: #696969; 
+}
+
+input.line-bottom:focus{
+    border-bottom: 1px solid #363636;
+    color: #363636; 
+}
+
+div.errors-cadastro-operador{
+    display: none;
+}
+
+div.errors-meu-cadastro,
+div.errors-cadastro-ano-formacao, 
+div.errors-adicionar-disciplinas, 
+div.errors-adicionar-disciplinas2, 
+div.errors-importar-disciplinas, 
+div.errors-adicionar-avaliacoes, 
+div.errors-adicionar-avaliacoes2, 
+div.errors-editar-avaliacoes, 
+div.errors-adicionar-portaria, 
+div.errors-adicionar-portaria2, 
+div.status-opcoes-sufuciencia-portaria, 
+div.status-opcoes-portaria, 
+div.errors-adicionar-escolha-qms, 
+div.errors-adicionar-escolha-qms2,
+div.errors-implantar-aluno,
+div.success-implantar-aluno,
+div.errors-editar-cadastro-aluno,
+div.alert-alunos,
+div.opcoes-de-listagem,
+div.error_aluno_situacao_diversa,
+div.errors-liberar-escolha-aviacao,
+div.status-aptos-aviacao,
+div.documentacao-relatorios,
+div#tip_rematricular{
+    width: 80%;
+    margin: 0 auto;
+    display: none;
+}
+
+.accordion-style-button{
+    text-decoration: none;
+    color: #696969;
+    font-weight: bold;
+}
+
+.accordion-style-button:hover, .accordion-style-button:focus{
+    text-decoration: none;
+}
+
+div.box-taf-opcoes {
+    display: inline-block;
+    margin-right: 32px;
+    margin-top: 14px;
+    width: 90px;
+    text-align: center;
+    font-size: 12px;
+}
+
+div.box-option-menu-docs-rels{
+    width: 100px;
+    height: 146px;
+    display: inline-block;
+    margin-right: 16px;
+    margin-left: 16px;
+    text-align: center;
+    color: #ffffff;
+    vertical-align: middle;
+}
+
+div.box-option-menu-docs-rels span{
+    color: #696969;
+}

@@ -1,0 +1,670 @@
+<?php
+
+namespace App\Http\Controllers\Relatorios;
+
+/* MODELS */
+
+//use App\Models\AnoFormacao;
+use App\Models\Alunos;
+use App\Models\AlunosSitDiv;
+use App\Models\AlunosVoluntAv;
+use App\Models\AnoFormacao;
+use App\Models\AvaliacaoTaf;
+use App\Models\Avaliacoes;
+use App\Models\AvaliacoesNotas;
+use App\Models\AvaliacoesProntoFaltas;
+use App\Models\AvaliacoesProntoFaltasStatus;
+use App\Models\Disciplinas;
+use App\Models\Mencoes;
+use App\Models\OMCT;
+use App\Models\TelegramAlunoAuth;
+use App\Models\ConfDemonstrativos;
+
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+
+class RelatoriosController extends Controller
+{
+    public function ProntoDeFaltas(Request $request) {
+        
+        /* SELECIONANDO OMCTS */
+
+        $omcts = OMCT::get();
+        $status_pronto_faltas = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $request->avaliacaoID)->get(); 
+        $pronto_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->avaliacaoID)->get(); 
+        $avaliacao = Avaliacoes::find($request->avaliacaoID);
+
+        return view('relatorios.pronto-de-faltas')->with('omcts', $omcts)
+                                                  ->with('status_pronto_faltas', $status_pronto_faltas)
+                                                  ->with('avaliacao', $avaliacao)
+                                                  ->with('pronto_faltas', $pronto_faltas);    
+    }
+
+    public function ProntoLancamentoNotas(Request $request) {
+        
+        /* SELECIONANDO OMCTS */
+
+        $omcts = OMCT::get();
+
+        /* SELECIONANDO AS AVALIAÇÕES DE REFERÊNCIA  */
+
+        $avaliacao_ref = Avaliacoes::where('chamada_refer_id', $request->avaliacaoID)->get();
+
+        foreach($avaliacao_ref as $avaliacao){
+            $avaliacoesIDs[] = $avaliacao->id;
+        }
+        
+        $avaliacoesIDs[] = $request->avaliacaoID;
+
+        // SELECIONO TODOS IDs DE ALUNOS QUE POSSUEM NOTA NAS AVALIAÇÕES $avaliacoesIDs[]
+
+        $avaliacoes_notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get(['alunos_id']);
+        foreach($avaliacoes_notas as $aluno){
+            if($aluno->alunos_id!=null){
+                $alunosIDs[] = $aluno->alunos_id;
+            }
+        }
+
+        $alunosIDs = ($alunosIDs)??array();
+
+        // SELECIONO OS ALUNOS DO ANO DE FORMAÇÃO QUE NÃO ESTEJAM EM $alunosIDs[] (POIS JÁ POSSUEM NOTA NA AVALIAÇÃO)
+
+        $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+        //$alunos = Alunos::whereNotIn('id', $alunosIDs)->where('data_matricula', $request->ano_formacao_id)->get();
+        $alunos = DB::select('SELECT * FROM alunos WHERE data_matricula=1 AND id NOT IN('.implode(',', $alunosIDs).')');
+
+        $avaliacao = Avaliacoes::find($request->avaliacaoID);
+
+        return view('relatorios.pronto-lancamento-notas')->with('omcts', $omcts)
+                                                         ->with('alunos', $alunos)
+                                                         ->with('avaliacao', $avaliacao);
+                                                      
+    }
+
+    public function DemonstrativoNotas(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center; margin-top: 44px;">NÃO AUTORIZADO!<br />NÃO É POSSÍVEL ACESSAR O DEMONSTRATIVO DE NOTAS DE ALUNOS DE OUTRAS OMCT</div>';
+
+        } else {
+
+            // SELECIONANDO TODAS AS DISCIPLINAS DO ANO DE FORMAÇÃO SELECIONADO
+
+            $disciplinas = Disciplinas::where('ano_formacao_id', $request->ano_formacao_id)->get();
+            
+            /* MONTANDO ARRAY COM IDs DAS DISCIPLINAS */
+            
+            foreach ($disciplinas as $disciplina) {
+                $disciplinasID[] = $disciplina->id;
+            }
+
+            // $disciplinasID = [1,2,3,4,5,6,7];
+            
+            // SELECIONANDO SOMENTE AS AVALIAÇÕES DAS DISCIPLINAS DO ANO DE FORMAÇÃO SELECIONADO 
+
+            //$avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinasID)->get();
+            
+            $get_avaliacoes = ConfDemonstrativos::first();
+
+            // AVALIAÇÕES SELECIONADAS ARRAY
+
+            $ava_sel_array = ($get_avaliacoes->avaliacoes!='')?explode(',', $get_avaliacoes->avaliacoes):array();
+
+            $show_taf = (in_array(99999, $ava_sel_array))?1:0;
+
+            if($show_taf==1){
+                $nota_taf = AvaliacaoTaf::get();
+                foreach($nota_taf as $notas){
+                    if($notas->aluno->data_matricula == $request->ano_formacao_id){
+                        $aluno_nota_taf[$notas->aluno_id] = array(
+                            "corrida" => number_format($notas->corrida_nota, '3', ',', ''),
+                            "flex_bra" => number_format($notas->flexao_braco_nota, '3', ',', ''),
+                            "flex_barr" => number_format($notas->flexao_barra_nota, '3', ',', ''),
+                            "abdom" => $notas->abdominal_suficiencia,
+                            "media" => number_format($notas->media, '3', ',', ''),
+                            "media_float" => $notas->media
+                        );
+                    }
+                }
+            } else {
+                $aluno_nota_taf = array();
+            }
+
+            // SELECIONANDO AS AVALIAÇÕES DE 2º CHAMADA DAS AVALIAÇÕES DE REFÊNCIA
+
+            $avaliacoes_2_chamada = Avaliacoes::whereIn('chamada_refer_id', $ava_sel_array)->get();
+
+            foreach($avaliacoes_2_chamada as $avaliacao2chamada){
+                $xyz[] = $avaliacao2chamada->id;
+            }
+
+
+            // PEGANDO AS AVALIAÇÕES DE 1º E 2º CHAMADAS E MESCLANDO OS IDs
+
+            $avaliacoes_xyz = array_merge($ava_sel_array, $xyz);
+
+            $avaliacoes = Avaliacoes::whereIn('id', $avaliacoes_xyz)->get();
+            
+            // MONTANDO UMA ARRAY COM OS IDs DAS AVALIAÇÕES DO ANO DE FORMAÇÃO SELECIONADO
+            
+            foreach($avaliacoes as $avaliacao){
+                
+                $avaliacoesID[] = $avaliacao->id;
+                
+            }
+            
+            
+            $avaliacoesID = ($avaliacoesID)??array(0);
+
+            //$avaliacoesID = [1,3,4,6,...];
+
+            // SELECIONANDO AS NOTAS DAS AVALIAÇÕES DO ANO DE FORMAÇÃO SELECIONADO 
+
+            $avaliacoes_notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesID)->get();
+            
+            foreach($avaliacoes_notas as $avaliacao_nota){
+                
+                // GUARDANDO EM UMA ARRAY AS NOTAS DE CADA ALUNO EM TODAS AVALIAÇÕES
+
+                $alunos_notas[$avaliacao_nota->alunos_id][$avaliacao_nota->avaliacao_id] = array(
+                    "gbo" => $avaliacao_nota->gbo,
+                    "nota" => $avaliacao_nota->getNota()
+                );
+
+                //$alunos_notas[817][1] = ("gbo"=>52, "nota"=>6.789)
+
+                if(isset($avaliacao_nota->aluno->area_id)){
+                    
+                    // BUSCANDO CLASSIFICAÇÃO DO ALUNO POR AREA
+    
+                    // COMBATENTE/LOGISTICA/AVIAÇÃO
+
+                    if($avaliacao_nota->aluno->area_id==1) {
+
+                        if(isset($alunos_class_comb[$avaliacao_nota->alunos_id])){
+
+                            // PEGA A NOTA DO TAF SOMENTE UMA VEZ
+
+                            if(isset($aluno_nota_taf[$avaliacao_nota->alunos_id])){
+                                $add_nota_taf = $aluno_nota_taf[$avaliacao_nota->alunos_id]['media_float'];
+                            } else {
+                                $add_nota_taf = 0;
+                            }
+
+                            $alunos_class_comb[$avaliacao_nota->alunos_id]["soma_das_notas"] = $alunos_class_comb[$avaliacao_nota->alunos_id]["soma_das_notas"] + $avaliacao_nota->getNota() + $add_nota_taf;
+                        } else {
+                            $alunos_class_comb[$avaliacao_nota->alunos_id] = array(
+                                "aluno_id" => $avaliacao_nota->alunos_id,
+                                "soma_das_notas" => $avaliacao_nota->getNota(),
+                                "aluno_area" => $avaliacao_nota->aluno->area_id
+                            );
+                        }
+
+                        // $alunos_class_comb[$avaliacao_nota->alunos_id]["soma_das_notas"] = 4
+
+                    }
+    
+                    // SAÚDE
+                    
+                    
+                    if($avaliacao_nota->aluno->area_id==2) {
+
+                        if(isset($alunos_class_sau[$avaliacao_nota->alunos_id])){
+                            
+                            // PEGA A NOTA DO TAF SOMENTE UMA VEZ
+
+                            if(isset($aluno_nota_taf[$avaliacao_nota->alunos_id])){
+                                $add_nota_taf = $aluno_nota_taf[$avaliacao_nota->alunos_id]['media_float'];
+                            } else {
+                                $add_nota_taf = 0;
+                            }
+
+                            $alunos_class_sau[$avaliacao_nota->alunos_id]["soma_das_notas"] = $alunos_class_sau[$avaliacao_nota->alunos_id]["soma_das_notas"] + $avaliacao_nota->getNota() + $add_nota_taf;
+                        } else {
+                            $alunos_class_sau[$avaliacao_nota->alunos_id] = array(
+                                "aluno_id" => $avaliacao_nota->alunos_id,
+                                "soma_das_notas" => $avaliacao_nota->getNota(),
+                                "aluno_area" =>$avaliacao_nota->aluno->area_id
+                            );
+                        }
+                    }
+
+                    // MÚSICA
+
+                    if($avaliacao_nota->aluno->area_id==3) {
+
+                        if(isset($alunos_class_mus[$avaliacao_nota->alunos_id])){
+
+                            // PEGA A NOTA DO TAF SOMENTE UMA VEZ
+
+                            if(isset($aluno_nota_taf[$avaliacao_nota->alunos_id])){
+                                $add_nota_taf = $aluno_nota_taf[$avaliacao_nota->alunos_id]['media_float'];
+                            } else {
+                                $add_nota_taf = 0;
+                            }
+
+                            $alunos_class_mus[$avaliacao_nota->alunos_id]["soma_das_notas"] = $alunos_class_mus[$avaliacao_nota->alunos_id]["soma_das_notas"] + $avaliacao_nota->getNota() + $add_nota_taf;
+                        } else {
+                            $alunos_class_mus[$avaliacao_nota->alunos_id] = array(
+                                "aluno_id" => $avaliacao_nota->alunos_id,
+                                "soma_das_notas" => $avaliacao_nota->getNota(),
+                                "aluno_area" => $avaliacao_nota->aluno->area_id
+                            );                            
+                        }
+
+                    }
+
+                    // AVIACAO DESIGNADO
+
+                    if($avaliacao_nota->aluno->area_id==3) {
+
+                        $demonstrativos = ConfDemonstrativos::get(['avaliacoes']);
+
+                        if(isset($alunos_class_avi[$avaliacao_nota->alunos_id])){
+
+                            // PEGA A NOTA DO TAF SOMENTE UMA VEZ
+
+                            if(isset($aluno_nota_taf[$avaliacao_nota->alunos_id])){
+                                $add_nota_taf = $aluno_nota_taf[$avaliacao_nota->alunos_id]['media_float'];
+                            } else {
+                                $add_nota_taf = 0;
+                            }
+                            
+                            $alunos_class_avi[$avaliacao_nota->alunos_id]["soma_das_notas"] = $alunos_class_avi[$avaliacao_nota->alunos_id]["soma_das_notas"] + $avaliacao_nota->getNota() + $add_nota_taf;
+                        } else {
+                            $alunos_class_avi[$avaliacao_nota->alunos_id] = array(
+                                "aluno_id" => $avaliacao_nota->alunos_id,
+                                "soma_das_notas" => $avaliacao_nota->getNota(),
+                                "aluno_area" => $avaliacao_nota->aluno->area_id
+                            );                            
+                        }
+
+                    }
+                }
+            }
+
+            //dd($alunos_class_comb);
+
+            
+
+            // ORDENANDO COMBATENTES
+            
+            if(isset($alunos_class_comb)){
+                usort($alunos_class_comb, function($a, $b){
+                    return $a['soma_das_notas'] < $b['soma_das_notas'];
+                });
+
+                foreach($alunos_class_comb as $key=>$val){
+                    if(!empty($val['aluno_id'])){
+                        $data_aluno[$val['aluno_id']] = array("class_geral" => $key+1);
+                    }
+                }
+            }
+            
+            
+            // ORDENANDO SAÚDE
+            
+            if(isset($alunos_class_sau)){
+                usort($alunos_class_sau, function($a, $b){
+                     return $a['soma_das_notas'] < $b['soma_das_notas'];
+                });
+                foreach($alunos_class_sau as $key=>$val){
+                    if(!empty($val['aluno_id'])){
+                        $data_aluno[$val['aluno_id']] = array("class_geral" => $key+1);
+                    }
+                }
+            }
+            
+            // ORDENANDO MÚSICA
+            
+            if(isset($alunos_class_mus)){
+                usort($alunos_class_mus, function($a, $b){
+                    return $a['soma_das_notas'] < $b['soma_das_notas'];
+                });
+                foreach($alunos_class_sau as $key=>$val){
+                    if(!empty($val['aluno_id'])){
+                        $data_aluno[$val['aluno_id']] = array("class_geral" => $key+1);
+                    }
+                }
+            }
+
+            // ORDENANDO AVIAÇÃO DESIGNADO
+            
+            if(isset($alunos_class_avi)){
+                usort($alunos_class_avi, function($a, $b){
+                    return $a['soma_das_notas'] < $b['soma_das_notas'];
+                });
+                foreach($alunos_class_avi as $key=>$val){
+                    if(!empty($val['aluno_id'])){
+                        $data_aluno[$val['aluno_id']] = array("class_geral" => $key+1);
+                    }
+                }
+            }
+
+            // FORMATO $alunos_notas[alunoID][avaliacaoID] 
+
+            if($request->aluno_id==null){
+                $alunos = Alunos::where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->get();
+            } else {
+                $alunos = Alunos::whereIn('id', $request->aluno_id)->get();
+            }
+
+
+            $mencoes = Mencoes::get();
+
+            $alunos_notas = ($alunos_notas)??array();
+            $data_aluno = ($data_aluno)??array();
+
+            //dd($data_aluno);
+
+            return view('relatorios.demonstrativo-notas')->with('disciplinas', $disciplinas)
+                                                         ->with('show_taf', $show_taf)
+                                                         ->with('aluno_nota_taf', $aluno_nota_taf)
+                                                         ->with('avaliacoes', $avaliacoes)
+                                                         ->with('alunos', $alunos)
+                                                         ->with('alunos_notas', $alunos_notas)
+                                                         ->with('data_aluno', $data_aluno)
+                                                         ->with('mencoes', $mencoes)
+                                                         ->with('ownauthcontroller', $ownauthcontroller)
+                                                         ->with('avaliacoes_notas', $avaliacoes_notas);
+        }
+    }
+
+    function ListaAssinavelDemonstrativoNotas(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            //omctID
+            //avaliacaoID
+
+            // PEGANDO OS DADOS DA AVALIAÇÃO
+
+            $avaliacao = Avaliacoes::find($request->avaliacaoID);
+
+            // FAZENDO UMA ARRAY COM OS IDs DOS ALUNOS QUE TEM NOTA NA AVALIAÇÃO
+
+            $alunos = AvaliacoesNotas::where('avaliacao_id', $request->avaliacaoID)->get(['id']);
+            
+            foreach ($alunos as $aluno_rows) {
+                $array_alunos_id[] = $aluno_rows->id;
+            }
+            
+            
+            
+            $array_alunos_id = ($array_alunos_id)??array();
+            
+            // FILTRANDO, SELECIONANDO ALUNOS SOMENTE DA OMCT SELECIONADA
+            
+            $alunos = Alunos::where('omcts_id', $request->omctID)->whereIn('id', $array_alunos_id)->orderBy('numero', 'asc')->get();
+            
+            foreach($alunos as $aluno_rows){
+                $turmas[] =  $aluno_rows->turma_id;
+            }
+            
+            $turmas = ($turmas)??array();
+
+            sort($turmas);
+            
+            $turmas = array_unique($turmas);
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            return view('relatorios.assinatura-demonstrativo')->with('avaliacao', $avaliacao)
+                                                              ->with('ano_formacao', $ano_formacao)
+                                                              ->with('turmas', $turmas)
+                                                              ->with('alunos', $alunos);
+
+        }        
+    }
+
+    function ListaAssinavelDemonstrativoNotasPorAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            //omctID
+            //avaliacaoID
+
+            // PEGANDO OS DADOS DA AVALIAÇÃO
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            $avaliacao = Avaliacoes::find($request->avaliacaoID);
+
+            $alunos = Alunos::whereIn('id', $request->aluno_id)->orderBy('omcts_id', 'asc')->orderBy('numero', 'asc')->get();
+
+            return view('relatorios.assinatura-demonstrativo-por-aluno')->with('avaliacao', $avaliacao)
+                                                                        ->with('ano_formacao', $ano_formacao)
+                                                                        ->with('alunos', $alunos);
+
+        }        
+    }
+
+    function RelacaoAlunosProntos(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            if(isset($request->segmento)){
+                    $segmento_array = $request->segmento;         
+            } else {
+                $segmento_array = array('M', 'F');
+            }
+
+            if(isset($request->areas)){
+                $areas_array = $request->areas;
+            } else {
+                $areas_array = array();
+            }
+
+            $alunos = Alunos::whereIn('sexo', $segmento_array)->whereIn('area_id', $areas_array)->where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->orderBy('numero', 'asc')->get();
+            
+            $omct = OMCT::find($request->omctID);
+
+            return view('relatorios.relacao-alunos-prontos')->with('ano_formacao', $ano_formacao)
+                                                            ->with('omct', $omct)
+                                                            ->with('alunos', $alunos);
+
+        }        
+    }
+
+    function RelacaoAlunosSituacoesDiversas(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            if(isset($request->segmento)){
+                    $segmento_array = $request->segmento;         
+            } else {
+                $segmento_array = array('M', 'F');
+            }
+
+            if(isset($request->areas)){
+                $areas_array = $request->areas;
+            } else {
+                $areas_array = array();
+            }
+
+            if(isset($request->situacoes_diversas)){
+                $situacoes_array = $request->situacoes_diversas;
+            } else {
+                $situacoes_array = array();
+            }
+
+            $alunos = AlunosSitDiv::whereIn('sexo', $segmento_array)->whereIn('area_id', $areas_array)->whereIn('situacoes_diversas_id', $situacoes_array)->where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->orderBy('numero', 'asc')->get();
+            
+            $omct = OMCT::find($request->omctID);
+
+            return view('relatorios.relacao-alunos-situacoes-diversas')->with('ano_formacao', $ano_formacao)
+                                                                       ->with('omct', $omct)
+                                                                       ->with('alunos', $alunos);
+
+        }        
+    }
+
+    function RelacaoVoluntariosQMSAviacao(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            switch($request->filtro_voluntarios){
+                case 1:
+                    $filtro_voluntario = 'VOLUNTÁRIOS';
+                    break;
+                case 2:
+                    $filtro_voluntario = 'SELECIONADOS PARA OS EXAMES COMPLEMENTARES';
+                    break;
+                case 3:
+                    $filtro_voluntario = 'APTOS';
+                    break;
+                case 4:
+                    $filtro_voluntario = 'INAPTOS';
+                    break;
+                default:
+                    $filtro_voluntario = '';
+            }
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            /* SELECIONANDO TODOS OS VOLUNTÁRIOS NA TABELA alunos_voluntarios_aviacao */
+
+            if($request->filtro_voluntarios==1){
+                $alunos_voluntarios_aviacao = AlunosVoluntAv::get();
+            } else if($request->filtro_voluntarios==2){
+                $alunos_voluntarios_aviacao = AlunosVoluntAv::get();
+            } else if($request->filtro_voluntarios==3){
+                $alunos_voluntarios_aviacao = AlunosVoluntAv::where('apto', 1)->get();
+            } else if($request->filtro_voluntarios==4){
+                $alunos_voluntarios_aviacao = AlunosVoluntAv::where('apto', 0)->get();
+            }
+
+            /* FAZENDO UMA ARRAY COM OS ids DOS ALUNOS VOLUNTARIOS DO ANO DE FORMAÇÃO SELECIONADO */
+
+            foreach($alunos_voluntarios_aviacao as $aluno_voluntario_aviacao){
+                if($aluno_voluntario_aviacao->aluno->data_matricula==$request->ano_formacao_id){
+                    $alunos_ids[] = $aluno_voluntario_aviacao->alunos_id;
+                }
+            }
+
+            $alunos_ids = ($alunos_ids)??array();
+
+            if($request->omctID!='todas_omct'){
+                $omct = OMCT::find($request->omctID);
+                $alunos = Alunos::whereIn('id', $alunos_ids)->where('omcts_id', $request->omctID)->orderBy('omcts_id', 'asc')->orderBy('numero', 'asc')->get();
+            } else {
+                $omct = null;
+                $alunos = Alunos::whereIn('id', $alunos_ids)->orderBy('numero', 'asc')->get();
+            }
+
+            return view('relatorios.relacao-voluntarios-qms-aviacao')->with('ano_formacao', $ano_formacao)
+                                                                     ->with('ownauthcontroller', $ownauthcontroller)
+                                                                     ->with('omct', $omct)
+                                                                     ->with('filtro_voluntario', $filtro_voluntario)
+                                                                     ->with('alunos', $alunos);
+
+        }        
+    }
+
+    public function RelacaoAlunosSemCadastroTelegram(Request $request) {
+        
+        $omct = OMCT::find($request->omctID);
+        $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+        // SELECIONAR TODOS OS ALUNOS QUE NÃO TEM chat_id NO TELEGRAM
+
+        $alunos = TelegramAlunoAuth::whereNull('chat_id')->get();
+
+        foreach($alunos as $aluno){
+            $aluno_omct = ($aluno->aluno->omcts_id)??0;
+            if($aluno_omct==$omct->id && $aluno->aluno->data_matricula==$ano_formacao->id) {
+                $alunosIDs[] = $aluno->aluno_id;
+            }
+        }
+
+        $alunosIDs = ($alunosIDs)??array();
+
+        $alunos = Alunos::whereIn('id', $alunosIDs)->orderBy('turma_id', 'asc')->orderBy('numero', 'asc')->get();
+
+        return view('relatorios.alunos-sem-cadastro-telegram')->with('omct', $omct)
+                                                              ->with('alunos', $alunos)
+                                                              ->with('ano_formacao', $ano_formacao);
+    }
+
+    public function ResultadoAvaliacaoPorNota(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request) {
+
+        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+            
+            $avaliacao = Avaliacoes::find($request->avaliacaoID);
+        
+            $omct = OMCT::find($request->omctID);
+
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+
+            //$request->avaliacaoID
+
+            //$request->notas_minimas
+
+            $alunos_notas = AvaliacoesNotas::where('avaliacao_id', $request->avaliacaoID)->get();
+
+            // SELECIONANDO TODOS OS ALUNOS COM AS NOTAS (notas_minimas)
+
+            foreach($alunos_notas as $aluno_nota){
+                $aluno_omct = ($aluno_nota->aluno->omcts_id)??0;
+                if($request->notas_minimas==1){ // NOTA >= 5
+                    if($aluno_nota->getNota()>=5 && $aluno_omct==$request->omctID){
+                        $alunosIds[] = $aluno_nota->alunos_id;
+                        $alunoNota[$aluno_nota->alunos_id] = $aluno_nota->getNota();
+                    }
+                } else if($request->notas_minimas==2){
+                    if($aluno_nota->getNota()<5 && $aluno_omct==$request->omctID){
+                        $alunosIds[] = $aluno_nota->alunos_id;
+                        $alunoNota[$aluno_nota->alunos_id] = $aluno_nota->getNota();
+                    }
+                }
+            }
+
+            $alunosIds = ($alunosIds)??array();
+            
+            $alunoNota = ($alunoNota)??array();
+
+            // SELECIONANDO SOMENTE O $alunosIds[]
+
+            $alunos = Alunos::whereIn('id', $alunosIds)->get();
+
+            return view('relatorios.resultado-avaliacao-por-nota')->with('omct', $omct)
+                                                                  ->with('alunos', $alunos)
+                                                                  ->with('avaliacao', $avaliacao)
+                                                                  ->with('alunoNota', $alunoNota)
+                                                                  ->with('ano_formacao', $ano_formacao);
+
+        }
+                                                                        
+    }
+
+}

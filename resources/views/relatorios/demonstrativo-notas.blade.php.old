@@ -1,0 +1,227 @@
+@extends('relatorios.template-relatorios')
+
+@section('title', 'Atalaia :: Relatório::Demonstrativo de notas')
+
+@section('titulo-relatorio', '')
+
+@section('content')
+
+
+    @foreach($alunos as $aluno)
+
+        @if(!$ownauthcontroller->PermissaoCheck(1) && (isset($_GET['aluno_id']) && $aluno->omcts_id!=session()->get('login.omctID')))
+
+            <div style="text-align: center;">NÃO AUTORIZADO!<br />NÃO É POSSÍVEL ACESSAR O DEMONSTRATIVO DE NOTAS DE ALUNOS DE OUTRAS UETE</div>
+
+        @else
+        
+            <div style="width: 940px; margin: 12px auto 56px auto; page-break-after: always;">
+                    <div style="border: 1px solid #000000; padding: 6px;">
+                        <b>ALUNO(A):</b> {{$aluno->numero}} {{$aluno->nome_completo}}<br />
+                        <b>UETE:</b> {{$aluno->omct->sigla_omct}}<br />
+                        <b>TURMA:</b> {{$aluno->turma->turma or 'NÃO INFORMADA'}}
+                        <div style="float: right; margin-top: -38px;">
+                            <b>AREA:</b> {{$aluno->area->area}}
+                        </div>
+                        <div style="clear: both;"></div>
+                    </div>
+                    @php
+
+                        $disciplinas_com_avaliacoes = 0;
+
+                    @endphp
+
+                    @foreach($disciplinas as $disciplina)
+
+                        <!--
+                        
+                            // CONTANDO NR DE AVALIAÇÕES DE 1 CHAMADA DA DISCIPLINA
+
+                        -->
+
+                        @php
+
+                            foreach($avaliacoes as $avaliacao){
+                                if($avaliacao->disciplinas_id==$disciplina->id){
+                                    if(isset($alunos_notas[$aluno->id][$avaliacao->id]["nota"])){
+                                        $notas[] = $alunos_notas[$aluno->id][$avaliacao->id]["nota"];
+                                    } else {
+                                        $notas[] = 0;
+                                    }
+                                    
+                                    if($avaliacao->chamada==1){
+                                        $razao[] = 1;
+                                    } else {
+                                        $razao[] = 0;
+                                    }
+
+                                }
+                            }
+                            
+                            //print_r($notas);
+
+                            $notas = (!isset($notas))?array(0):$notas;
+                            $razao = (!isset($razao))?array(0):$razao;
+
+                            $sum_notas = array_sum($notas);
+                            $sum_razao = array_sum($razao);
+
+                            // SE $sum_razao FOR MAIOR QUE 0 PRECISO LEVAR EM CONTA ESSA DISCIPLINA PARA O CALCULO DA MÉDIA FINAL
+
+                            if($sum_razao>0){
+                                $disciplinas_com_avaliacoes++; // RAZAO NA SOMA NAS NOTAS DAS DISCIPLINAS    
+                            }
+
+                            unset($notas);
+                            unset($razao);
+                            
+
+                        @endphp
+
+                        <div style="margin: 8px;">
+                            <b>{{$loop->index +1}}. {{$disciplina->nome_disciplina}}</b>
+                        </div>                
+                        <table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 100%;">
+                            <tr>
+                                @foreach($avaliacoes as $avaliacao)
+                                    @if($avaliacao->disciplinas_id==$disciplina->id)
+                                        @php
+                                            $chamada = ($avaliacao->chamada>1)?'('.$avaliacao->chamada.'ª chamada)':'';
+                                        @endphp
+                                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>{{$avaliacao->nome_abrev}} {{$chamada}}</b></td>
+                                    @endif
+                                @endforeach
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND</b></td>
+                            </tr>
+                            <tr>
+                                @foreach($avaliacoes as $avaliacao)
+                                    @if($avaliacao->disciplinas_id==$disciplina->id)
+                                        @if(isset($alunos_notas[$aluno->id][$avaliacao->id]["nota"]))
+                                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($alunos_notas[$aluno->id][$avaliacao->id]['nota'], 3, ',', '')}}</td>
+                                        @else
+                                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">NR</td>
+                                        @endif
+                                    @endif
+                                @endforeach
+                                @php
+                                    $sum_ND[] = ($sum_razao!=0) ? $avaliacao->getNotaByNota($sum_notas/$sum_razao, '.'):0;
+                                @endphp
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                                    @if($sum_razao!=0)
+                                        {{$avaliacao->getNotaByNota($sum_notas/$sum_razao)}}
+                                    @else
+                                        0,000
+                                    @endif
+                                </td>
+                            </tr>                             
+                        </table>
+                        @php
+
+                            $next_index = $loop->index +2;
+
+
+                        @endphp
+                    
+                    @endforeach
+
+                    @php
+                        // INCREMENTANDO NOTA DO TAF SFC
+                        if($show_taf==1){
+                            $disciplinas_com_avaliacoes++;
+                            if(isset($aluno_nota_taf[$aluno->id])){
+                                $sum_ND[] = $aluno_nota_taf[$aluno->id]['media'];   
+                            }
+                        }
+
+                        $nota = ($disciplinas_com_avaliacoes!=0)?number_format(array_sum($sum_ND)/$disciplinas_com_avaliacoes, 3, ',', ''):'0,000';
+                    @endphp
+
+                    @if($show_taf==1)
+
+                    <div style="margin: 8px;">
+                        <b>{{$next_index}}. TAF</b>
+                    </div>
+
+                    <table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 100%;">
+                            <tr>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>CORRIDA</b></td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>FLEXÃO BRAÇO</b></td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>FLEXÃO BARRA</b></td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ABDOMINAL</b></td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ATLETA</b></td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND</b></td>
+                            </tr>
+                            <tr>
+                                @if(isset($aluno_nota_taf[$aluno->id]['corrida']))
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno_nota_taf[$aluno->id]['corrida']}}</td>
+                                @else
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">-</td>
+                                @endif
+                                @if(isset($aluno_nota_taf[$aluno->id]['flex_bra']))
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno_nota_taf[$aluno->id]['flex_bra']}}</td>
+                                @else
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">-</td>
+                                @endif
+                                @if(isset($aluno_nota_taf[$aluno->id]['flex_barr']))
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno_nota_taf[$aluno->id]['flex_barr']}}</td>
+                                @else
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">-</td>
+                                @endif
+                                @if(isset($aluno_nota_taf[$aluno->id]['abdom']))
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno_nota_taf[$aluno->id]['abdom']}}</td>
+                                @else
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">-</td>
+                                @endif
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->atleta_marexaer}}</td>
+                                @if(isset($aluno_nota_taf[$aluno->id]['media']))
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno_nota_taf[$aluno->id]['media']}}</td>
+                                @else
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">-</td>
+                                @endif
+                            </tr>                                                           
+                        </table>
+
+                    @endif
+                    
+
+                    <div style="margin: 8px;">
+                        <b>POSIÇÃO</b>
+                    </div>                   
+                    <table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 100%;">
+                        <tr>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>MENÇÃO</b></td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>CLASSIFICAÇÃO</b></td>
+                        </tr>
+                        <tr>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$nota}}</td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                                @php
+
+                                    foreach($mencoes as $mencao){
+                                        if($nota>=$mencao->inicio && $nota<=$mencao->fim){
+                                            $mencao_aluno = $mencao->mencao;
+                                            break;
+                                        }
+                                    }
+
+                                @endphp
+                                {{$mencao_aluno or 'Não calculada'}}
+                            </td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                                {{$data_aluno[$aluno->id]["class_geral"] or "INDISPONÍVEL"}}
+                            </td>
+                        </tr>
+                    </table>
+                    <p><b>Obs:</b> <i>A Nota da Disciplina(ND) é atualizada somente quando finda-se o prazo para o lançamento do grau nas respectivas avaliações.</i></p>
+
+            </div>
+            @php
+                unset($sum_ND);
+            @endphp
+
+        @endif    
+
+    @endforeach
+
+@stop
