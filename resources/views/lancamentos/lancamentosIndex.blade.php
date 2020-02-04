@@ -10,35 +10,17 @@
 </style>
 
 <div style="text-align: center; margin-top: 22px; color:  #696969;">
-    <h4>PARÂMETROS & IMPORTAÇÕES</h4>
+    <h4>Lançamentos</h4>
 </div>
 <div class="alert documentacao-relatorios" role="alert" style="margin-top: 44px"></div>
 <div style="margin: 44px auto; width: 530px; text-align: center; margin-top: 84px;">
 
     <div class="box-option-menu-docs-rels">
-        <a href="javascript: void(0);" class="no-style" id="parametros">
+        <a href="javascript: void(0);" class="no-style" id="lancarFO">
             <div style="border-radius: 36px; width: 84px; height: 84px; background-color: #0A2A1B; margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
-                <i class="ion-android-clipboard" style="font-size: 44px;"></i>
+                <i class="ion-android-list" style="font-size: 44px;"></i>
             </div>
-            <span>Parâmetros</span>
-        </a>
-    </div>
-
-    <div class="box-option-menu-docs-rels">
-        <a href="javascript: void(0);" class="no-style" id="alunoConcurso">
-            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: #0A2A1B; margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
-                <i class="ion-ios-people" style="font-size: 44px;"></i>
-            </div>
-            <span>Aluno (Concurso)</span>
-        </a>
-    </div>
-
-    <div class="box-option-menu-docs-rels">
-        <a href="javascript: void(0);" class="no-style" id="alunoCursoConcurso">
-            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: #0A2A1B; margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
-                <i class="ion-android-archive" style="font-size: 44px;"></i>
-            </div>
-            <span>Aluno Curso (Concurso)</span>
+            <span>Lançar FO</span>
         </a>
     </div>
 
@@ -70,16 +52,8 @@
 
 <script>
     $(document).ready(function() {
-        $('#parametros').click(function() {
-            carregaOpcao('parametros', 'parametros');
-        });
-
-        $('#alunoConcurso').click(function() {
-            carregaOpcao('importacoes', 'alunoConcurso');
-        });
-
-        $('#alunoCursoConcurso').click(function() {
-            carregaOpcao('importacoes', 'alunoCursoConcurso');
+        $('#lancarFO').click(function() {
+            carregaOpcao('lancamentos', 'lancarFO');
         });
     });
 
@@ -113,50 +87,4 @@
         });
     }
 
-    function enviaArquivoExcel() {
-        var fd = new FormData(document.getElementById('importar_concurso'));
-
-        $.ajax({
-            cache: false,
-            dataType: 'json',
-            url: '/ajax/importacoes',
-            type: "POST",
-            data: fd,
-            enctype: 'multipart/form-data',
-            xhr: function() {
-                var xhr = $.ajaxSettings.xhr();
-                xhr.upload.onprogress = function(e) {
-                    $('div.progress div').css('width', (Math.floor(e.loaded / e.total * 100)) - (1) + '%');
-                };
-                return xhr;
-            },
-            beforeSend: function() {
-                $('div.alert-success').html(null).slideUp();
-                $('div.alert-danger').html(null).slideUp();
-                $('div.progress').slideDown(100);
-            },
-            success: function(data) {
-
-                $('div.progress div').css('width', '100%');
-                setTimeout(function() {
-                    $('div.progress').slideUp(100, function() {
-                        $('div.progress div').css('width', '0%');
-                    });
-                }, 400);
-                if (data.status == 'ok') {
-                    $('div.alert-success').html(data.response).slideDown();
-                } else {
-                    $('div.alert-danger').html(data.error).slideDown();
-                }
-
-            },
-            error: function(jqxhr) {
-                $('div.alert-danger').html('Houve um erro ao tentar enviar o arquivo').slideDown();
-                $('div.progress div').css('width', '0%');
-            },
-            processData: false, // tell jQuery not to process the data
-            contentType: false // tell jQuery not to set contentType
-        });
-
-    }
 </script>

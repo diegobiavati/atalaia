@@ -55,7 +55,7 @@
     </a>                
 </li>
 <li class="list-group-item justify-content-between align-items-center menu-list-01">
-    <a id="lancamentos" href="javascript: void(0);">
+    <a id="viewLancamentos" href="javascript: void(0);">
         <i class="ion-paper-airplane"></i>
         Lançamentos
         <span class="badge badge-primary badge-pill"></span>
