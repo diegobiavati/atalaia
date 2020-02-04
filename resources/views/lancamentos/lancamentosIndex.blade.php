@@ -53,30 +53,28 @@
 <script>
     $(document).ready(function() {
         $('#lancarFO').click(function() {
-            carregaOpcao('lancamentos', 'lancarFO');
+            carregaOpcaoAjaxContent('lancamentos', 'lancarFO');
         });
     });
 
-    function carregaOpcao(tipo, item) {
+    function carregaOpcaoAjaxContent(tipo, item) {
 
         $('div.alert-success').html(null).slideUp();
         $('div.alert-danger').html(null).slideUp();
 
         $.ajax({
             type: 'GET',
-            dataType: 'json',
             url: '/ajax/' + tipo + '/' + item,
             beforeSend: function() {
                 $('#full-modal').modal('show');
-                $('div#title-full-modal').empty();
                 $('div#body-full-modal').empty();
                 $('div#title-full-modal').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
             },
             success: function(data) {
                 $('div#temp').fadeOut(300, function() {
                     $(this).remove();
-                    $('div#title-full-modal').html(data.modalTitle);
-                    $('div#body-full-modal').html(data.response);
+                    $('div#body-full-modal').empty();
+                    $('div#body-full-modal').html(data);
                 });
             },
             error: function(jqxhr) {
@@ -86,5 +84,4 @@
             }
         });
     }
-
 </script>

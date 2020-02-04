@@ -81,19 +81,15 @@ class FuncoesController
     public static function retornaBotaoAnoFormacao(){
         $anos_formacao = AnoFormacao::orderBy('formacao', 'desc')->get();
         if(count($anos_formacao)>0){
-            $response_ano_formacao[] = '<div style="text-align: center; margin-top: 52px;">
-                                            <div class="btn-group btn-group-toggle" data-toggle="buttons">';
+            $response_ano_formacao[] = '<div style="text-align: center; margin-top: 52px;"><div class="btn-group btn-group-toggle" data-toggle="buttons">';
             $i=0;
             foreach($anos_formacao as $ano_formacao){
                 $status_active_label = ($i==0)?'active':'';
                 $status_checked_input = ($i==0)?'checked':'';
-                $response_ano_formacao[] = '<label class="btn btn-secondary '.$status_active_label.'" style="text-align: center;" >
-                                                <input type="radio" name="ano_formacao" value="'.$ano_formacao->id.'" '.$status_checked_input.' /> '.$ano_formacao->formacao.'
-                                            </label>';
+                $response_ano_formacao[] = '<label class="btn btn-secondary '.$status_active_label.'" style="text-align: center;" ><input type="radio" name="ano_formacao" value="'.$ano_formacao->id.'" '.$status_checked_input.' /> '.$ano_formacao->formacao.'</label>';
                 $i++;
             }
-            $response_ano_formacao[] = '    </div>
-                                        </div>';
+            $response_ano_formacao[] = '</div></div>';
         } else {
             $response_ano_formacao[] = '<div style="text-align: center;">NÃO HÁ ANO DE FORMAÇÃO CADASTRADO NO SISTEMA</div>';
         }
