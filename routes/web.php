@@ -40,7 +40,8 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::post('parametrosUpdateInfo', 'Ajax\ParametrosController@updateInfo');
     Route::get('parametrosDeleteInfo/{id}', 'Ajax\ParametrosController@deleteInfo');
     Route::resource('lancamentos', 'Ajax\LancamentosController');
-    
+    Route::post('lancamentosTurma', 'Ajax\LancamentosController@ViewTurma');
+
 
     /* ROTA PARA O CHAT COM ALUNO VIA TELEGRAM */
 
@@ -235,7 +236,7 @@ Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
     Route::get('relacao-mapa-efetivo-desligado', ['as' => 'relacao-mapa-efetivo-desligado', 'uses' => 'Relatorios\MapaEfetivoController@RelacaoMapaEfetivoDesligado']);
     Route::get('relacao-evasao-escolar', ['as' => 'relacao-evasao-escolar', 'uses' => 'Relatorios\MapaEfetivoController@RelacaoMapaEvasaoEscolar']);
     Route::get('relacao-ficha-individual-aluno', ['as' => 'relacao-ficha-individual-aluno', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioRelacaoAlunos']);
-    
+
 
     Route::get('relacao-dados-estatisticos-geral', ['as' => 'relacao-dados-estatisticos-geral', 'uses' => 'Relatorios\DadosEstatisticosGeraisController@RelacaoEstatistica']);
 
@@ -260,7 +261,6 @@ Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
     Route::get('analise-parcial-npb/', ['as' => 'analise_parcial_npb', 'uses' => 'Relatorios\AnalisesNotasController@AnaliseParcialNPB']);
 
     Route::get('graficos/', ['as' => 'graficos', 'uses' => 'Relatorios\AnalisesNotasController@AnaliseDeResultados']);
-    
 });
 
 /* AUTENTICAÇÃO ROTAS */

@@ -15,6 +15,10 @@ class Operadores extends Model
         return $this->belongsTo('App\Models\PostoGrad');
     }
 
+    public function posto(){
+        return $this->belongsTo('App\Models\PostoGrad', 'postograd_id', 'id');
+    }
+
     public function omcts(){
         return $this->belongsTo('App\Models\OMCT', 'omcts_id', 'id');
     }

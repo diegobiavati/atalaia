@@ -93,7 +93,6 @@ class FuncoesController
         } else {
             $response_ano_formacao[] = '<div style="text-align: center;">NÃO HÁ ANO DE FORMAÇÃO CADASTRADO NO SISTEMA</div>';
         }
-        
         return implode('', $response_ano_formacao);
     }
 
