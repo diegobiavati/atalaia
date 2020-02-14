@@ -59,7 +59,7 @@
         <i class="ion-paper-airplane"></i>
         Lançamentos
         <span class="badge badge-primary badge-pill"></span>
-    </a>                
+    </a>
 </li>
 <li class="list-group-item justify-content-between align-items-center menu-list-01">
     <a id="voluntarios-para-aviacao" href="javascript: void(0);">                

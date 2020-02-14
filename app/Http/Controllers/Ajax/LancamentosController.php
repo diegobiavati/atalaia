@@ -8,6 +8,7 @@ use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\Alunos;
 use App\Models\ConteudoAtitudinal;
+use App\Models\LancamentoFo;
 use App\Models\OMCT;
 use App\Models\Operadores;
 use App\Models\TurmasPB;
@@ -53,13 +54,33 @@ class LancamentosController extends Controller
      */
     public function store(Request $request)
     {
+        $retorno['status'] = 'err';
+        $retorno['response'] = 'Ocorreu um Erro, Relogue no Sistema';
+
         if (!is_null(FuncoesController::validaSessao())) {
             return;
         }
 
         $dataFO = (is_null($request->dataFO) ? date('Y/m/d') : date('Y/m/d', strtotime($request->dataFO)));
 
-        dd($request);
+        $lancamentoFo = new LancamentoFo();
+        $lancamentoFo->ano_formacao_id = $request->ano_formacao;
+        $lancamentoFo->omct_id = $request->omctID;
+        $lancamentoFo->operador_id = session()->get('login')['operadorID'];
+        $lancamentoFo->tipo = $request->radioTipoFO;
+        $lancamentoFo->observacao = $request->textAreaObservacaoFO;
+        $lancamentoFo->providencia = $request->textAreaProvidencias;
+        $lancamentoFo->turma_id = $request->turmaID;
+        $lancamentoFo->data_obs = $dataFO;
+
+        if ($lancamentoFo->save()) {
+            $retorno['status'] = 'success';
+            $retorno['response'] = 'Fato Observado Registrado.';
+        } else {
+            $retorno['response'] = 'Ocorreu um Erro Ao Salvar o Registro!!';
+        }
+
+        return response()->json($retorno);
     }
 
     /**
@@ -89,8 +110,28 @@ class LancamentosController extends Controller
 
                 $rotaTurma = 'ajax/lancamentosTurma';
 
-                return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma'))
+                $operadores = Operadores::find(session()->get('login')['operadorID']);
+                $funcaoOperador = explode(',', $operadores->id_funcao_operador);
+
+                $readOnly = '';
+
+                return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'funcaoOperador', 'readOnly'))
                     ->with('ownauthcontroller', $this->_ownauthcontroller);
+            case 'consultarFO':
+
+                $conteudoAtitudinal = ConteudoAtitudinal::all();
+                $turmas = TurmasPB::all();
+
+                $rotaTurma = 'ajax/lancamentosTurmaConsulta';
+
+                $operadores = Operadores::find(session()->get('login')['operadorID']);
+                $funcaoOperador = explode(',', $operadores->id_funcao_operador);
+
+                $readOnly = 'readonly';
+
+                LancamentoFo::all();
+
+                return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas',  'rotaTurma', 'funcaoOperador', 'readOnly'));
         }
     }
 
@@ -102,8 +143,8 @@ class LancamentosController extends Controller
         }
 
         $alunosTurma = DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra
-                        , omcts.id, omcts.sigla_omct, omcts.omct, omcts.gu
-                        , turmas_pb.id, turmas_pb.turma
+                        , omcts.id AS omct_id, omcts.sigla_omct, omcts.omct, omcts.gu
+                        , turmas_pb.id AS turmas_id, turmas_pb.turma
                         FROM alunos
                             INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
                             INNER JOIN turmas_pb ON (turmas_pb.id = alunos.turma_id)

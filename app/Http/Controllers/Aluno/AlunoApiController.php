@@ -121,7 +121,8 @@ class AlunoApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    { }
+    {
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -131,7 +132,6 @@ class AlunoApiController extends Controller
      */
     public function store(Request $request)
     {
-
         $retorno['status'] = 'err';
         $retorno['response'] = 'Houve um Erro';
 
@@ -146,11 +146,22 @@ class AlunoApiController extends Controller
 
         $validador = Validator::make($dados, $this->aluno->regras(), [], $this->aluno->atributos());
 
+        $validaAluno = Alunos::where([['nome_guerra', '=', $dados['nome_guerra']], ['data_matricula', '=', $dados['data_matricula']]])->get();
+        if (sizeof($validaAluno) > 0) {
+            $retorno['response'] = ['O Nome de Guerra já está sendo utilizado.'];
+            return response()->json($retorno);
+        }
+
+        if (!preg_match('|^[\pL\s]+$|u', $dados['nome_guerra'])) {
+            $retorno['response'] = ['Existem Caracteres Não Permitidos, Utilize Somente Letras.'];
+            return response()->json($retorno);
+        }
+
         if ($validador->passes()) {
             $retorno['status'] = 'ok';
 
             $insert = $this->aluno->create($dados);
-            
+
             // Verifica se inseriu com sucesso
             // Redireciona para a listagem das categorias
             // Passa uma session flash success (sessão temporária)
@@ -162,7 +173,7 @@ class AlunoApiController extends Controller
                 $alunoCurso->id_qmsnaipe = 99;
 
                 $alunoCurso->save();
-                
+
                 //Dependentes
                 if (isset($request->id_parentesco)) {
 
@@ -212,25 +223,25 @@ class AlunoApiController extends Controller
         $id = trim(explode('-', $id)[0]);
 
         $aluno = Alunos::with('ano_formacao')->with('dependentes')->with('imagem_aluno')->find($id);
-        
-        if(!isset($aluno)){
+
+        if (!isset($aluno)) {
             $alunoSitDiv = AlunosSitDiv::with('situacaoDivHistorico')->find($id);
 
             $unserialize = unserialize($alunoSitDiv->situacaoDivHistorico->data);
-            
-            foreach(TurmasPB::all() as $turma){
+
+            foreach (TurmasPB::all() as $turma) {
                 $turmas[$turma['turma']] = $turma;
             }
 
-            foreach(OMCT::all() as $omct){
+            foreach (OMCT::all() as $omct) {
                 $omcts[$omct['sigla_omct']] = $omct;
             }
 
-            foreach(Areas::all() as $area){
+            foreach (Areas::all() as $area) {
                 $areas[$area['area']] = $area;
             }
 
-            if(isset($unserialize['cadastro']['ano_formacao'])){
+            if (isset($unserialize['cadastro']['ano_formacao'])) {
                 //Precisa converter porque o Julião salva com outro nome alguns campos...
                 $unserialize['cadastro']['data_matricula'] = AnoFormacao::where('formacao', $unserialize['cadastro']['ano_formacao'])->first()->id;
                 $unserialize['cadastro']['atleta_marexaer'] = $unserialize['cadastro']['atleta'];
@@ -242,11 +253,11 @@ class AlunoApiController extends Controller
 
             $aluno = new Alunos($unserialize['cadastro']);
             $aluno->id = $id;
-           
+
             $aluno->load('imagem_aluno')->load('dependentes')->load('ano_formacao');
-            
+
             $compact['situacaoAtuals'] = SituacoesDiversas::find($alunoSitDiv->situacoes_diversas_id)->situacao;
-        }else{
+        } else {
             $compact['situacaoAtuals'] = SituacaoMatricula::find($aluno->id_situacao_matricula)->situacao_matricula;
         }
 
@@ -269,7 +280,8 @@ class AlunoApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
-    { }
+    {
+    }
 
     /**
      * Update the specified resource in storage.
@@ -296,6 +308,24 @@ class AlunoApiController extends Controller
         $dados['doc_idt_militar_dt_exp'] = FuncoesController::formatDateBrtoEn($dados['doc_idt_militar_dt_exp']);
 
         $validador = Validator::make($dados, $aluno->regras(), [], $this->aluno->atributos());
+
+        if (
+            trim($dados['nome_guerra']) <> trim($aluno->nome_guerra)
+            || ($dados['data_matricula'] <> $aluno->data_matricula)
+        ) {
+
+            $validaAluno = Alunos::where([['nome_guerra', '=', $dados['nome_guerra']], ['data_matricula', '=', $dados['data_matricula']]])->get();
+
+            if (sizeof($validaAluno) > 0) {
+                $retorno['response'] = ['O Nome de Guerra já está sendo utilizado.'];
+                return response()->json($retorno);
+            }
+        }
+
+        if (!preg_match('|^[\pL\s]+$|u', $dados['nome_guerra'])) {
+            $retorno['response'] = ['Existem Caracteres Não Permitidos, Utilize Somente Letras.'];
+            return response()->json($retorno);
+        }
 
         if ($validador->passes()) {
 

@@ -3,13 +3,20 @@
 <link href="/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
 
 <form id="lancamentoFatoObservado">
-    <div class="alert alert-danger errors-lancamento-fo" role="alert"></div>
-    <div class="alert alert-success success-lancamento-fo" role="alert"></div>
 
     <input type="hidden" name="_token" value="{{csrf_token()}}" />
     <input type="hidden" name="rotaTurma" value="{{$rotaTurma}}" />
 
     {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao() !!}
+
+    <div style="width: 40%; margin: 22px auto; text-align: center; border-bottom: 2px solid #ccc;">
+        <div>
+            <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Consultar Fato Observado</label>
+        </div>
+        <div>
+
+        </div>
+    </div>
 
     <div style="width: 40%; margin: 22px auto; text-align: center; border-bottom: 0px solid #ccc;">
         <div style="margin-bottom: 15px;">
@@ -17,7 +24,7 @@
                 <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Uete</label>
             </div>
             <div>
-                <select name="omctID" class="custom-select required_to_show_button">
+                <select name="omctID" class="custom-select required_to_show_button" {{ $readOnly }}>
                     <option value="0" disabled selected hidden>Selecione uma UETE</option>
                     @foreach ($uetes as $uete)
                     <option value={{$uete->id}}>{{ $uete->omct }}</option>
@@ -40,15 +47,15 @@
             </div>
 
             <div class="custom-control custom-radio custom-control-inline">
-                <input type="radio" class="custom-control-input" id="radio1" name="radioTipoFO">
+                <input type="radio" class="custom-control-input" id="radio1" name="radioTipoFO" value="0" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
                 <label class="custom-control-label" for="radio1">Negativo</label>
             </div>
             <div class="custom-control custom-radio custom-control-inline">
-                <input type="radio" class="custom-control-input" id="radio2" name="radioTipoFO">
+                <input type="radio" class="custom-control-input" id="radio2" name="radioTipoFO" value="1" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
                 <label class="custom-control-label" for="radio2">Neutro</label>
             </div>
             <div class="custom-control custom-radio custom-control-inline">
-                <input type="radio" class="custom-control-input" id="radio3" name="radioTipoFO">
+                <input type="radio" class="custom-control-input" id="radio3" name="radioTipoFO" value="2" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
                 <label class="custom-control-label" for="radio3">Positivo</label>
             </div>
             </label>
@@ -62,7 +69,7 @@
                 </label>
             </div>
             <div>
-                <textarea class="form-control" name="textAreaObservacaoFO" rows="3" style="display: inline;"></textarea>
+                <textarea class="form-control" name="textAreaObservacaoFO" rows="3" style="display: inline;" {{ $readOnly }}></textarea>
             </div>
         </div>
 
@@ -76,13 +83,15 @@
             <div>
                 @foreach($conteudoAtitudinal as $conteudo)
                 <div class="custom-control custom-checkbox custom-control-inline" style="width: 30%;text-align:left;margin-right:0px">
-                    <input type="checkbox" class="custom-control-input" id="atitudinal{{$conteudo->id}}">
+                    <input type="checkbox" class="custom-control-input" id="atitudinal{{$conteudo->id}}" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
                     <label class="custom-control-label" for="atitudinal{{$conteudo->id}}">{{$conteudo->descricao}}</label>
                 </div>
                 @endforeach
             </div>
         </div>
 
+        @if(in_array(2, $funcaoOperador))
+        <!--Só libera se for Cmt de Cia-->
         <div style="margin-bottom: 15px;">
             <div>
                 <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Providências
@@ -94,13 +103,14 @@
                 <textarea class="form-control" name="textAreaProvidencias" rows="3" style="display: inline;"></textarea>
             </div>
         </div>
+        @endif
 
         <div style="margin-bottom: 15px;">
             <div>
                 <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Selecionar Turma</label>
             </div>
             <div>
-                <select name="turmaID" class="custom-select">
+                <select name="turmaID" class="custom-select" {{ $readOnly }}>
                     <option value="0" disabled selected hidden>Selecione uma Turma</option>
                     @foreach ($turmas as $turma)
                     <option value={{$turma->id}}>{{ $turma->turma }}</option>
@@ -110,8 +120,11 @@
             <div id="container-turma"></div>
         </div>
 
+        <div class="alert alert-danger errors-lancamento-fo" role="alert"></div>
+        <div class="alert alert-success success-lancamento-fo" role="alert"></div>
+
         <div style="margin-top:24px;">
-            <button type="button" class="btn btn-primary" style="display: none;">Registrar Fato Observado</button>
+            <button id="btnRegistraFO" type="button" class="btn btn-primary" style="display: none;">Registrar Fato Observado</button>
         </div>
     </div>
     <script>
@@ -137,7 +150,8 @@
 
             });
 
-            $('button.btn.btn-primary').click(function() {
+            $('#btnRegistraFO.btn.btn-primary').click(function(evt) {
+                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
                 var formData = $('form#lancamentoFatoObservado').serialize();
                 var url = "ajax/lancamentos";
@@ -162,6 +176,7 @@
                         setTimeout(function() {
                             $('div.success-lancamento-fo').slideUp(200, function() {
                                 $(this).removeClass('alert-success').empty();
+                                $('div#full-modal').modal('hide');
                             });
                         }, 3000);
 
@@ -172,7 +187,8 @@
                 });
             });
 
-            $(document).on('change', 'select.custom-select[name="turmaID"]', function() {
+            $(document).on('change', 'select.custom-select[name="turmaID"]', function(evt) {
+                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
                 dataPost = '_token=' + $('input[name="_token"]').val() +
                     '&turmaID=' + $(this).children("option:selected").val() +
@@ -196,6 +212,13 @@
                     }
                 });
             });
+
+            $(document).on('change', 'input[name="ano_formacao"]', function(evt) {
+                $('form#lancamentoFatoObservado').get(0).reset();
+                $('div#container-turma').empty();
+                $('div#datepicker').datepicker('setDate', null);
+            });
+
         });
     </script>
 </form>

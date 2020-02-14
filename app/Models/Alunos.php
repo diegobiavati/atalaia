@@ -374,6 +374,7 @@ class Alunos extends Model
             'numero' => 'required|numeric',
             'nome_completo' => 'required',
             'nome_guerra' => 'required',
+            //'nome_guerra' => 'required|unique:alunos,nome_guerra,'.$this->id.',id,data_matricula,'. $this->data_matricula,
             'data_nascimento' => 'required|date',
             'data_matricula' => 'required|numeric',
             'area_id' => 'required|numeric',

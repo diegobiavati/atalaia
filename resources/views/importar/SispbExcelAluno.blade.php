@@ -1,6 +1,5 @@
 <script src="/js/jquery/jquery-3.3.1.js"></script>
 <div>
-
     <div>
         <div class="alert alert-success" role="alert" style="margin-bottom:10px;"></div>
         <div class="alert alert-danger erro-upload" role="alert" style="margin-bottom:10px;"></div>

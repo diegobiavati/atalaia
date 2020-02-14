@@ -12,7 +12,6 @@ Route::group(['prefix' => 'exportar/modo-impressao', 'as' => 'exportar-modo-impr
     Route::get('portaria/{id}', ['as' => 'portaria', 'uses' => 'Exportar\ExportarImpressaoController@ImprimirPortaria']);
 });
 
-
 Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
 
     /* ROTAS PARA SUPER ADMINISTRADORES E OPERADORES (MENU PRINCIPAL)*/

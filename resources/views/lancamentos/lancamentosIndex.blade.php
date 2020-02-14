@@ -23,6 +23,14 @@
             <span>Lançar FO</span>
         </a>
     </div>
+    <div class="box-option-menu-docs-rels">
+        <a href="javascript: void(0);" class="no-style" id="consultarFO">
+            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: #0A2A1B; margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
+                <i class="ion-search" style="font-size: 44px;"></i>
+            </div>
+            <span>Consultar FO</span>
+        </a>
+    </div>
 
 </div>
 
@@ -52,8 +60,14 @@
 
 <script>
     $(document).ready(function() {
-        $('#lancarFO').click(function() {
+        $('#lancarFO').click(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
             carregaOpcaoAjaxContent('lancamentos', 'lancarFO');
+        });
+
+        $('#consultarFO').click(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+            carregaOpcaoAjaxContent('lancamentos', 'consultarFO');
         });
     });
 

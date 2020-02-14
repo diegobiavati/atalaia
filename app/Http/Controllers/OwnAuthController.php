@@ -70,7 +70,7 @@ class OwnAuthController extends Controller
 
     public function UserRouter(){
         if(auth()->check()){
-            if($this->PermissaoCheck([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21])){
+            if($this->PermissaoCheck([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,24])){
                 return redirect()->route('operador.admin');
             } else if($this->PermissaoCheck('47un0')){
                 return redirect()->route('aluno.painel');

@@ -192,6 +192,16 @@ function onMessageArrived(message) {
                         </a>
                     </li>
                 @endif
+                @if($ownauthcontroller->PermissaoCheck(24))
+                    <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                        <a id="viewLancamentos" href="javascript: void(0);">
+                            <i class="ion-paper-airplane"></i>
+                            Lançamentos
+                            <span class="badge badge-primary badge-pill"></span>
+                        </a>
+                    </li>
+                @endif
+                @if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20) || $ownauthcontroller->PermissaoCheck(22))
                     <li class="list-group-item justify-content-between align-items-center menu-list-01">
                         <a id="relatorios" href="javascript: void(0);">                
                             <i class="ion-ios-pie"></i>
@@ -199,6 +209,8 @@ function onMessageArrived(message) {
                             <span class="badge badge-primary badge-pill"></span>
                         </a>
                     </li>
+                @endif
+                    
             @endif
 
         </ul>    
@@ -508,7 +520,6 @@ function onMessageArrived(message) {
         }
 
         /* AJAX - ADICIONAR OPERADOR */
-
         function AdicionarOperador(){
             var dataForm = $('form#adicionar_dados_operador').serialize();
             
@@ -516,7 +527,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/adicionar-operador/',
+                url: '/ajax/adicionar-operador',
                 beforeSend: function(){
                     $('div.errors-cadastro-operador ul').remove().parent().hide();
                 },
@@ -2005,7 +2016,7 @@ function onMessageArrived(message) {
              $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-adicionar-operador/',
+                url: '/ajax/dialog-adicionar-operador',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'lg');
                 },

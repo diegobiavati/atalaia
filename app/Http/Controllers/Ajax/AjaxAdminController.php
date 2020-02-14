@@ -2467,9 +2467,9 @@ class AjaxAdminController extends Controller
                                         <div class="clear"></div>
                                         </div>
                                         <script>
-                                        $(document).ready(function() {
-                                            $(\'.telefone_mask\').mask(\'(00)00000-0000\');
-                                        });
+                                            $(document).ready(function() {
+                                                $(\'.telefone_mask\').mask(\'(00)00000-0000\');
+                                            });
                                         </script>
                                     </form>';
 
@@ -2547,7 +2547,7 @@ class AjaxAdminController extends Controller
                                                 <i class="ion-ios-telephone" style="font-size: 24px; color: #696969;"></i>
                                             </div>
                                             <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" name="tel_pronto_atendimento" type="text" pattern="[0-9]{11}" value="' . $operador->tel_pronto_atendimento . '" maxlength="11" autocomplete="off" placeholder="Telefone com DDD" />
+                                                <input class="no-style telefone_mask" name="tel_pronto_atendimento" type="text" pattern="[0-9]{11}" value="' . $operador->tel_pronto_atendimento . '" maxlength="11" autocomplete="off" placeholder="Telefone com DDD" />
                                             </div>
                                             <div class="clear"></div>
                                         </div>
@@ -2577,7 +2577,12 @@ class AjaxAdminController extends Controller
                                                 </div>
                                                 <div class="clear"></div>
                                             </div>
-                                        </div>                                                                                
+                                        </div>
+                                        <script>
+                                            $(document).ready(function() {
+                                                $(\'.telefone_mask\').mask(\'(00)00000-0000\');
+                                            });
+                                        </script>                                                                                
                                     </form>';
 
         $data['footer'] = ' <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -2705,7 +2710,7 @@ class AjaxAdminController extends Controller
                                                 <i class="ion-ios-telephone" style="font-size: 24px; color: #696969;"></i>
                                             </div>
                                             <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" name="tel_pronto_atendimento" type="text" pattern="[0-9]{11}" maxlength="16" autocomplete="off" placeholder="Telefone com DDD" style="width: 100%;" />
+                                                <input class="no-style telefone_mask" name="tel_pronto_atendimento" type="text" pattern="[0-9]{11}" maxlength="16" autocomplete="off" placeholder="Telefone com DDD" style="width: 100%;" />
                                             </div>
                                             <div class="clear"></div>
                                         </div>
@@ -2730,6 +2735,11 @@ class AjaxAdminController extends Controller
                                         </div>
                                         <div class="clear"></div>
                                         </div>
+                                        <script>
+                                            $(document).ready(function() {
+                                                $(\'.telefone_mask\').mask(\'(00)00000-0000\');
+                                            });
+                                        </script>
                                     </form>';
 
         $data['footer'] = ' <button type="button" class="btn btn-secondary" data-dismiss="modal">
