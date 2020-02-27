@@ -2484,7 +2484,7 @@ class AjaxAdminController extends Controller
 
     public function DialogEditarMeuPerfil(Request $request)
     {
-        
+
         $user = User::find(auth()->id());
         $operador = Operadores::where('email', '=', $user->email)->first();
 
@@ -2596,7 +2596,7 @@ class AjaxAdminController extends Controller
 
     public function AtualizarMeuPerfil(AtualizaMeuPerfilRequest $request)
     {
-        
+
         $user = User::find(auth()->id());
         $operador = Operadores::where('email', '=', $user->email)->first();
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;
@@ -2606,7 +2606,7 @@ class AjaxAdminController extends Controller
 
         if ($request->senha == $request->confirma_senha && $request->senha != '') {
             $status = OwnValidator::ValidarPW($request->senha);
-            
+
             if ($status != 'ok') {
                 $data['status'] = 'err';
             } else {
@@ -2629,7 +2629,7 @@ class AjaxAdminController extends Controller
             }
         }
         $this->classLog->RegistrarLog('Atualizou o próprio perfil', auth()->user()->email);
-        
+
         return $data;
     }
 
@@ -3986,8 +3986,10 @@ class AjaxAdminController extends Controller
             if ($operadores->usuario->imagens_id) {
                 $id_img = $operadores->usuario->imagens_id;
                 $imagem = Imagens::find($id_img);
-                unlink($_SERVER["DOCUMENT_ROOT"] . $imagem->imagem);
-                Imagens::destroy($id_img);
+                if ($id_img <> 1) {
+                    unlink($_SERVER["DOCUMENT_ROOT"] . $imagem->imagem);
+                    Imagens::destroy($id_img);
+                }
             }
             $email = $operadores->email;
             $operadores->delete();
@@ -4072,7 +4074,7 @@ class AjaxAdminController extends Controller
 
     public function AtualizarOperador(OperadoresRequest $request)
     {
-        
+
         $operador = Operadores::find($request->id);
 
         $email = $operador->email;
@@ -5110,7 +5112,7 @@ class AjaxAdminController extends Controller
                                             ' . $pendencia_cel . '
                                             <td class="botao-action-table" style="text-align: center;">
                                                 <a href="javascript: void(0);" class="no-style" onclick="dialogInfoUser(' . $aluno->user->id . ', \'aluno\');" title="Detalhes do aluno"> <i class="ion-information-circled"></i> </a>
-                                                <a href="javascript: void(0);" class="no-style" onclick="loadAdminAjaxContent(\'admin/aluno/' . $aluno->id. '\');" title="Editar cadastro do aluno"> <i class="ion-android-create"></i> </a>
+                                                <a href="javascript: void(0);" class="no-style" onclick="loadAdminAjaxContent(\'admin/aluno/' . $aluno->id . '\');" title="Editar cadastro do aluno"> <i class="ion-android-create"></i> </a>
                                                 <!--<a href="javascript: void(0);" class="no-style" onclick="dialogEditarCadastroAluno(' . $aluno->id . ', \'byID\');" title="Editar cadastro do aluno"> <i class="ion-android-create"></i> </a>-->
                                                 ' . $alterar_situacao_diversa . '
                                                 ' . $remover_aluno . '
@@ -5318,7 +5320,7 @@ class AjaxAdminController extends Controller
                         "voluntario_aviacao" => $volunt_av
                     );*/
 
-                    foreach($aluno->getAttributes() as $key => $value){ 
+                    foreach ($aluno->getAttributes() as $key => $value) {
                         $aluno_data['cadastro'][$key] = $value;
                     }
                     $aluno_data['cadastro']['ano_formacao'] = $alunoSitDiv->ano_formacao->formacao;
@@ -5327,7 +5329,7 @@ class AjaxAdminController extends Controller
                     $aluno_data['cadastro']['area'] = $alunoSitDiv->area->area;
                     $aluno_data['cadastro']['atleta'] = $aluno->atleta_marexaer;
                     $aluno_data['cadastro']['voluntario_aviacao'] = $volunt_av;
-                    
+
                     // SELECIONANDO TODAS AS DISCIPLINAS DO ANO DE FORMAÇÃO EM QUESTÃO
 
                     $disciplinas = Disciplinas::where('ano_formacao_id', $alunoSitDiv->data_matricula)->get();

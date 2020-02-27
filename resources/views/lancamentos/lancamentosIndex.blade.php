@@ -34,6 +34,8 @@
 
 </div>
 
+<div id="lancamentoTemp" style="width: 70%; margin: 22px auto; text-align: center;"></div>
+
 <div class="modal" id="full-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="alert alert-success" role="alert" style="margin-bottom:0px;"></div>
     <div class="alert alert-danger" role="alert" style="margin-bottom:0px;"></div>
@@ -62,16 +64,17 @@
     $(document).ready(function() {
         $('#lancarFO').click(function(evt) {
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-            carregaOpcaoAjaxContent('lancamentos', 'lancarFO');
+            carregaOpcaoAjaxContent('lancamentos', 'lancarFO', 'Modal');
         });
 
         $('#consultarFO').click(function(evt) {
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-            carregaOpcaoAjaxContent('lancamentos', 'consultarFO');
+
+            carregaOpcaoAjaxContent('lancamentos', 'viewConsultarFO', 'noModal');
         });
     });
 
-    function carregaOpcaoAjaxContent(tipo, item) {
+    function carregaOpcaoAjaxContent(tipo, item, modo) {
 
         $('div.alert-success').html(null).slideUp();
         $('div.alert-danger').html(null).slideUp();
@@ -80,16 +83,25 @@
             type: 'GET',
             url: '/ajax/' + tipo + '/' + item,
             beforeSend: function() {
-                $('#full-modal').modal('show');
-                $('div#body-full-modal').empty();
-                $('div#title-full-modal').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+                $('div#lancamentoTemp').empty();
+                if (modo == 'Modal') {
+                    $('#full-modal').modal('show');
+                    $('div#body-full-modal').empty();
+                    $('div#title-full-modal').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+                }
             },
             success: function(data) {
-                $('div#temp').fadeOut(300, function() {
-                    $(this).remove();
-                    $('div#body-full-modal').empty();
-                    $('div#body-full-modal').html(data);
-                });
+
+                if (modo == 'Modal') {
+                    $('div#temp').fadeOut(300, function() {
+                        $(this).remove();
+                        $('div#body-full-modal').empty();
+                        $('div#body-full-modal').html(data);
+                    });
+                } else {
+                    $('div#lancamentoTemp').html(data);
+                }
+
             },
             error: function(jqxhr) {
                 setTimeout(function() {

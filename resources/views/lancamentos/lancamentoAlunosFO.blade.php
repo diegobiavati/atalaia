@@ -7,7 +7,7 @@
         <div>
             @foreach($alunosTurma as $aluno)
             <div class="custom-control custom-checkbox custom-control-inline" style="width: 30%;text-align:left;margin-right:0px;">
-                <input type="checkbox" class="custom-control-input" id="aluno_{{$aluno->id}}">
+                <input type="checkbox" class="custom-control-input" id="aluno_{{$aluno->id}}" name="aluno_{{$aluno->id}}">
                 <label class="custom-control-label" for="aluno_{{$aluno->id}}" style='font-weight:bold;'>{{$aluno->nome_guerra}}</label>
             </div>
             @endforeach

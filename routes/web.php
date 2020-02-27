@@ -40,6 +40,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('parametrosDeleteInfo/{id}', 'Ajax\ParametrosController@deleteInfo');
     Route::resource('lancamentos', 'Ajax\LancamentosController');
     Route::post('lancamentosTurma', 'Ajax\LancamentosController@ViewTurma');
+    Route::post('listaFatosObservados', 'Ajax\LancamentosController@ViewListaFatosObservados');
 
 
     /* ROTA PARA O CHAT COM ALUNO VIA TELEGRAM */
@@ -206,7 +207,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('relatorio-voluntarios-aviacao/{id_ano_formacao}', 'Ajax\AjaxRelatoriosController@RelatorioVoluntariosAviacao');
     Route::get('alunos-sem-cadastro-telegram/{id_ano_formacao}', 'Ajax\AjaxRelatoriosController@AlunosSemCadastroTelegram');
 
-    Route::get('dialog-configuracoes-relatorios/', 'Ajax\AjaxRelatoriosController@DialogConfiguracoesRelatorio');
+    Route::get('dialog-configuracoes-relatorios', 'Ajax\AjaxRelatoriosController@DialogConfiguracoesRelatorio');
     Route::post('configurar-relatorios/', 'Ajax\AjaxRelatoriosController@ConfigurarRelatorio');
 
     /* ASSISTENTE INSTALAÇÃO APP */

@@ -2799,7 +2799,7 @@ function onMessageArrived(message) {
             $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-configuracoes-relatorios/',
+                url: '/ajax/dialog-configuracoes-relatorios',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'sm');
                 },
@@ -2828,7 +2828,7 @@ function onMessageArrived(message) {
             $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-periodo-lancamento-taf/',
+                url: '/ajax/dialog-periodo-lancamento-taf',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'sm');
                 },

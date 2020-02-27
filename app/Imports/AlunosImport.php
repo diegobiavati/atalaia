@@ -36,10 +36,9 @@ class AlunosImport implements ToModel, WithHeadingRow, WithValidation
             $this->ufs[$uf['uf_sigla']] = $uf;
         }
 
-        foreach(TurmasPB::all() as $turma){
+        foreach (TurmasPB::all() as $turma) {
             $this->turmas[$turma['turma']] = $turma;
         }
-
     }
 
     /**
@@ -50,37 +49,41 @@ class AlunosImport implements ToModel, WithHeadingRow, WithValidation
     public function model(array $row)
     {
 
-        if (isset($row['id_situacao_atual']) && ($row['id_situacao_atual'] != 'null')) {
-           
-            $idSituacaoAtual = (int) $row['id_situacao_atual'];
-
-            if (!($idSituacaoAtual >= 100 && $idSituacaoAtual <= 103)) {
-
-                $alunosSitDiv = new AlunosSitDiv();
-                $alunosSitDiv->numero = $row['al_numero'];
-                $alunosSitDiv->nome_completo = $row['al_nomecompleto'];
-                $alunosSitDiv->nome_guerra = $row['al_nomeguerra'];
-                $alunosSitDiv->data_nascimento = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['data_nascimento']));
-                $alunosSitDiv->data_matricula = $this->anoFormacao[$row['al_anoformacao']]->id;
-                $alunosSitDiv->primeira_data_praca = ((isset($row['data_pracaanterior']) && ($row['data_pracaanterior'] != 'null')) ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['data_pracaanterior'])) : null);
-                $alunosSitDiv->turma_id = $this->turmas[ (((strlen($row['pb_turma']) == 2) ? substr_replace($row['pb_turma'], '0', 1, 0) : $row['pb_turma'])) ]->id;
-                $alunosSitDiv->omcts_id = OMCT::retornaOmctsSisPB()[$row['pb_cod_omct']]['cod_no_atalaia'];
-                $alunosSitDiv->area_id = Areas::retornaAreasSisPB()[$row['codgr_area']]['cod_no_atalaia'];
-                $alunosSitDiv->sexo = $row['sexo'];
-
-                //Verificar se o e-mail é o mesmo...
-                $alunosSitDiv->email = $row['email'];
-                $alunosSitDiv->situacoes_diversas_id = AlunosSitDiv::retornaSitDiversasPB()[$row['id_situacao_atual']]['cod_no_atalaia'];
-
-                /*Parei aqui*/
-                $alunosSitDiv->situacoes_diversas_obs = $row['situacao_atual_motivo'];
-                
-                dd($alunosSitDiv);
-            }
-        }
-
         /*$param = $row;
         if ($row['al_anoformacao'] > 2019) {
+            
+            if (isset($row['id_situacao_atual']) && ($row['id_situacao_atual'] != 'null')) {
+
+                $idSituacaoAtual = (int) $row['id_situacao_atual'];
+
+                if (!($idSituacaoAtual >= 100 && $idSituacaoAtual <= 103)) {
+
+                    $alunosSitDiv = new AlunosSitDiv();
+                    $alunosSitDiv->numero = $row['al_numero'];
+                    $alunosSitDiv->nome_completo = $row['al_nomecompleto'];
+                    $alunosSitDiv->nome_guerra = $row['al_nomeguerra'];
+                    $alunosSitDiv->data_nascimento = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['data_nascimento']));
+                    $alunosSitDiv->data_matricula = $this->anoFormacao[$row['al_anoformacao']]->id;
+                    $alunosSitDiv->primeira_data_praca = ((isset($row['data_pracaanterior']) && ($row['data_pracaanterior'] != 'null')) ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['data_pracaanterior'])) : null);
+                    $alunosSitDiv->turma_id = $this->turmas[(((strlen($row['pb_turma']) == 2) ? substr_replace($row['pb_turma'], '0', 1, 0) : $row['pb_turma']))]->id;
+                    $alunosSitDiv->omcts_id = OMCT::retornaOmctsSisPB()[$row['pb_cod_omct']]['cod_no_atalaia'];
+                    $alunosSitDiv->area_id = Areas::retornaAreasSisPB()[$row['codgr_area']]['cod_no_atalaia'];
+                    $alunosSitDiv->sexo = $row['sexo'];
+
+                    //Verificar se o e-mail é o mesmo...
+                    $alunosSitDiv->email = $row['email'];
+                    $alunosSitDiv->situacoes_diversas_id = AlunosSitDiv::retornaSitDiversasPB()[$row['id_situacao_atual']]['cod_no_atalaia'];
+
+                    //Parei aqui
+                    $alunosSitDiv->situacoes_diversas_obs = $row['situacao_atual_motivo'];
+
+                    dd($alunosSitDiv);
+                }
+            }
+        }*/
+
+        $param = $row;
+        if ($row['al_anoformacao'] > 2018) {
             $aluno = Alunos::where(['alunos.numero' => $row['al_numero']])
                 ->whereHas('ano_formacao', function ($query) use ($param) {
                     $query->where('formacao', '=', $param['al_anoformacao']);
@@ -177,7 +180,7 @@ class AlunosImport implements ToModel, WithHeadingRow, WithValidation
                     'farda_tam_calca' => ((isset($row['farda_tam_calca']) && ($row['farda_tam_calca'] != 'null')) ? $row['farda_tam_calca'] : null),
                     'farda_tam_coturno' => ((isset($row['farda_tam_coturno']) && ($row['farda_tam_coturno'] != 'null')) ? $row['farda_tam_coturno'] : null)
                 ]);
-        }*/
+        }
     }
 
     public function rules(): array

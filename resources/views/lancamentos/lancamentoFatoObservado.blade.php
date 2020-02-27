@@ -9,15 +9,6 @@
 
     {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao() !!}
 
-    <div style="width: 40%; margin: 22px auto; text-align: center; border-bottom: 2px solid #ccc;">
-        <div>
-            <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Consultar Fato Observado</label>
-        </div>
-        <div>
-
-        </div>
-    </div>
-
     <div style="width: 40%; margin: 22px auto; text-align: center; border-bottom: 0px solid #ccc;">
         <div style="margin-bottom: 15px;">
             <div>
@@ -83,8 +74,8 @@
             <div>
                 @foreach($conteudoAtitudinal as $conteudo)
                 <div class="custom-control custom-checkbox custom-control-inline" style="width: 30%;text-align:left;margin-right:0px">
-                    <input type="checkbox" class="custom-control-input" id="atitudinal{{$conteudo->id}}" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
-                    <label class="custom-control-label" for="atitudinal{{$conteudo->id}}">{{$conteudo->descricao}}</label>
+                    <input type="checkbox" name="atitudinal_{{$conteudo->id}}" class="custom-control-input" id="atitudinal_{{$conteudo->id}}" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
+                    <label class="custom-control-label" for="atitudinal_{{$conteudo->id}}">{{$conteudo->descricao}}</label>
                 </div>
                 @endforeach
             </div>
@@ -216,7 +207,12 @@
             $(document).on('change', 'input[name="ano_formacao"]', function(evt) {
                 $('form#lancamentoFatoObservado').get(0).reset();
                 $('div#container-turma').empty();
-                $('div#datepicker').datepicker('setDate', null);
+                $('div#datepicker').datepicker('clearDates');
+            });
+
+            $(document).on('change', 'select[name="omctID"]', function(){
+                $('div#container-turma').empty();
+                $('div#datepicker').datepicker('clearDates');
             });
 
         });

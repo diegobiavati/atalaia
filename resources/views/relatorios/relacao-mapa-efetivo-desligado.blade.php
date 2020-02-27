@@ -103,7 +103,7 @@
 
 @if($relacao == 'excel')
 
-{{ $fileName = bcrypt(date('Y-m-d H:i:s')) }}
+{{ $fileName = bcrypt(date('Y-m-d H:i:s')).'.ods' }}
 
 {{header("Content-Description: PHP Generated Data")}}
 {{header("Content-Type: application/x-msexcel")}}
