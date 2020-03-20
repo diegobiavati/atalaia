@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Class for interacting with an SMB server using the system command "smbclient".
  * Of course this assumes that you have the smbclient executable installed and
@@ -19,6 +20,7 @@
  * smbclient even when the exit status is 0 to see if there are codes like
  * NT_STATUS_NO_SUCH_FILE or NT_STATUS_OBJECT_NAME_NOT_FOUND
  */
+
 namespace App\Http\Controllers\Utilitarios;
 
 use Illuminate\Http\Request;
@@ -38,16 +40,19 @@ class SmbClientPhp extends Controller
     private $_service;
     private $_username;
     private $_password;
-    
+
     private $_cmd;
-    
+
     /**
      * Gets the most recently executed command string
      *
      * @return string
      */
-    public function get_last_cmd () { return $this->_cmd; }
-        
+    public function get_last_cmd()
+    {
+        return $this->_cmd;
+    }
+
     private $_last_cmd_stdout;
     /**
      * Gets stndard output from the last run command; can be useful in
@@ -56,15 +61,21 @@ class SmbClientPhp extends Controller
      *
      * @return array each line of stdout is one string in the array
      */
-    public function get_last_cmd_stdout () { return $this->_last_cmd_stdout; }
-    
+    public function get_last_cmd_stdout()
+    {
+        return $this->_last_cmd_stdout;
+    }
+
     private $_last_cmd_stderr;
     /**
      * Gets stndard error from the last run command
      *
      * @return array each line of stderr is one string in the array
      */
-    public function get_last_cmd_stderr () { return $this->_last_cmd_stderr; }
+    public function get_last_cmd_stderr()
+    {
+        return $this->_last_cmd_stderr;
+    }
 
     private $_last_cmd_exit_code;
     /**
@@ -72,7 +83,10 @@ class SmbClientPhp extends Controller
      *
      * @return int
      */
-    public function get_last_cmd_exit_code () { return $this->_last_cmd_exit_code; }
+    public function get_last_cmd_exit_code()
+    {
+        return $this->_last_cmd_exit_code;
+    }
 
     private $_safe_retry_count = 0;
     /**
@@ -81,8 +95,11 @@ class SmbClientPhp extends Controller
      *
      * @return int
      */
-    public function get_safe_retry_count () { return $this->_safe_retry_count; }
-    
+    public function get_safe_retry_count()
+    {
+        return $this->_safe_retry_count;
+    }
+
     /**
      * Creates an smbclient object
      *
@@ -90,13 +107,13 @@ class SmbClientPhp extends Controller
      * @param string $username the username to use when connecting
      * @param string $password the password to use when connecting
      */
-    public function __construct ($service, $username, $password)
+    public function __construct($service, $username, $password)
     {
         $this->_service = $service;
         $this->_username = $username;
         $this->_password = $password;
     }
-    
+
 
     /**
      * Gets a remote file
@@ -105,14 +122,14 @@ class SmbClientPhp extends Controller
      * @param string $local_filename the full path to the local filename
      * @return bool true if successful, false otherwise
      */
-    public function get ($remote_filename, $local_filename)
+    public function get($remote_filename, $local_filename)
     {
         // convert to windows-style backslashes
-        $remote_filename = str_replace (DIRECTORY_SEPARATOR, '\\', $remote_filename);
-        
+        $remote_filename = str_replace(DIRECTORY_SEPARATOR, '\\', $remote_filename);
+
         $cmd = "get \"$remote_filename\" \"$local_filename\"";
-        
-        $retval = $this->execute ($cmd);
+
+        $retval = $this->execute($cmd);
         return $retval;
     }
 
@@ -124,30 +141,24 @@ class SmbClientPhp extends Controller
      * @param bool $safe use safe_put() instead of put ()
      * @return bool true if successful, false otherwise
      */
-    public function mput ($local_files, $remote_path, $safe = false)
+    public function mput($local_files, $remote_path, $safe = false)
     {
-        foreach ($local_files as $local_file)
-        {
-            $pi = pathinfo ($local_file);
-            
+        foreach ($local_files as $local_file) {
+            $pi = pathinfo($local_file);
+
             $remote_file = $remote_path . '/' . $pi['basename'];
-            
-            if ($safe)
-            {
-                if (!$this->safe_put ($local_file, $remote_file))
-                {
+
+            if ($safe) {
+                if (!$this->safe_put($local_file, $remote_file)) {
                     return false;
                 }
-            }
-            else
-            {
-                if (!$this->put ($local_file, $remote_file))
-                {
+            } else {
+                if (!$this->put($local_file, $remote_file)) {
                     return false;
                 }
             }
         }
-        
+
         return true;
     }
 
@@ -158,14 +169,14 @@ class SmbClientPhp extends Controller
      * @param string $remote_filename (use the local system's directory separators)
      * @return bool true if successful, false otherwise
      */
-    public function put ($local_filename, $remote_filename)
+    public function put($local_filename, $remote_filename)
     {
         // convert to windows-style backslashes
-        $remote_filename = str_replace (DIRECTORY_SEPARATOR, '\\', $remote_filename);
-        
+        $remote_filename = str_replace(DIRECTORY_SEPARATOR, '\\', $remote_filename);
+
         $cmd = "put \"$local_filename\" \"$remote_filename\"";
-        
-        $retval = $this->execute ($cmd);
+
+        $retval = $this->execute($cmd);
         return $retval;
     }
 
@@ -179,7 +190,7 @@ class SmbClientPhp extends Controller
      * @param string $remote_filename (use the local system's directory separators)
      * @return bool true if successful, false otherwise
      */
-    public function safe_put ($local_filename, $remote_filename)
+    public function safe_put($local_filename, $remote_filename)
     {
         // I wanted to write to a temp file on the remote system, then rename the
         // file, but Windows won't let you do that.  So all I can do is write to
@@ -196,24 +207,20 @@ class SmbClientPhp extends Controller
         //$tmp_remote_filename = $remote_filename . '.' . uniqid () . '.tmp';
         $tmp_local_filename = tempnam(sys_get_temp_dir(), 'safe_put');
 
-        $local_crc = crc32 (file_get_contents ($local_filename));
+        $local_crc = crc32(file_get_contents($local_filename));
 
         $success = false;
         $this->_safe_retry_count = 0;
-        while (!$success)
-        {
-            self::log_msg ("retry count: " . $this->_safe_retry_count);
+        while (!$success) {
+            self::log_msg("retry count: " . $this->_safe_retry_count);
             //if ($this->put ($local_filename, $tmp_remote_filename))
-            if ($this->put ($local_filename, $remote_filename))
-            {
+            if ($this->put($local_filename, $remote_filename)) {
                 //if ($this->get ($tmp_remote_filename, $tmp_local_filename))
-                if ($this->get ($remote_filename, $tmp_local_filename))
-                {
-                    self::log_msg ("contents: '" . file_get_contents ($tmp_local_filename) . "'");
-                    if (crc32 (file_get_contents ($tmp_local_filename)) == $local_crc)
-                    {
-                        unlink ($tmp_local_filename);
-                        self::log_msg ("retrieved file matches CRC32");
+                if ($this->get($remote_filename, $tmp_local_filename)) {
+                    self::log_msg("contents: '" . file_get_contents($tmp_local_filename) . "'");
+                    if (crc32(file_get_contents($tmp_local_filename)) == $local_crc) {
+                        unlink($tmp_local_filename);
+                        self::log_msg("retrieved file matches CRC32");
                         $success = true;
                         return true;
                         /*
@@ -227,11 +234,9 @@ class SmbClientPhp extends Controller
                             array_unshift ($this->_last_cmd_stderr,  "safe_put() failed to rename file");
                         }
                         */
-                    }
-                    else
-                    {
-                        self::log_msg ("retrieved file does not match CRC32");
-                        array_unshift ($this->_last_cmd_stderr, "safe_put() failed to validate checksum of $tmp_remote_filename");
+                    } else {
+                        self::log_msg("retrieved file does not match CRC32");
+                        array_unshift($this->_last_cmd_stderr, "safe_put() failed to validate checksum of $tmp_remote_filename");
 
                         /*
                         if (!$this->del ($tmp_remote_filename))
@@ -241,25 +246,23 @@ class SmbClientPhp extends Controller
                         */
                     }
 
-                    unlink ($tmp_local_filename);
+                    unlink($tmp_local_filename);
                 }
-
             }
 
-            if ($this->_safe_retry_count > $this->_max_safe_retries)
-            {
-                self::log_msg ("out of retries");
+            if ($this->_safe_retry_count > $this->_max_safe_retries) {
+                self::log_msg("out of retries");
                 break;
             }
 
             $this->_safe_retry_count++;
-            usleep ($this->_safe_retry_interval);
+            usleep($this->_safe_retry_interval);
         }
 
-        unlink ($tmp_local_filename);
+        unlink($tmp_local_filename);
         return false;
     }
-    
+
     /**
      * Renames a remote file
      *
@@ -267,18 +270,18 @@ class SmbClientPhp extends Controller
      * @param string $dest_filename the remote destination file (use the local system's directory separators)
      * @return bool true if successful, false otherwise
      */
-    public function rename ($source_filename, $dest_filename)
+    public function rename($source_filename, $dest_filename)
     {
         // convert to windows-style backslashes
-        $source_filename = str_replace (DIRECTORY_SEPARATOR, '\\', $source_filename);
-        $dest_filename = str_replace (DIRECTORY_SEPARATOR, '\\', $dest_filename);
-        
+        $source_filename = str_replace(DIRECTORY_SEPARATOR, '\\', $source_filename);
+        $dest_filename = str_replace(DIRECTORY_SEPARATOR, '\\', $dest_filename);
+
         $cmd = "rename \"$source_filename\" \"$dest_filename\"";
-        
-        $retval = $this->execute ($cmd);
+
+        $retval = $this->execute($cmd);
         return $retval;
     }
-    
+
     /**
      * Deletes a remote file
      *
@@ -290,43 +293,40 @@ class SmbClientPhp extends Controller
      * @param string $remote_filename (use the local system's directory separators)
      * @return bool true if successful, false otherwise
      */
-    public function del ($remote_filename)
+    public function del($remote_filename)
     {
-        $pi = pathinfo ($remote_filename);
+        $pi = pathinfo($remote_filename);
         $remote_path = $pi['dirname'];
         $basename = $pi['basename'];
-        
+
         // convert to windows-style backslashes
-        if ($remote_path)
-        {
-            $remote_path = str_replace (DIRECTORY_SEPARATOR, '\\', $remote_path);
+        if ($remote_path) {
+            $remote_path = str_replace(DIRECTORY_SEPARATOR, '\\', $remote_path);
             $cmd = "cd \"$remote_path\"; del \"$basename\"";
-        }
-        else
-        {
+        } else {
             $cmd = "del \"$basename\"";
         }
-        
-        $retval = $this->execute ($cmd);
+
+        $retval = $this->execute($cmd);
         return $retval;
     }
-    
+
     /**
      * Makes a directory
      *
      * @param string $remote_path (use the local system's directory separators)
      * @return bool true if successful, false otherwise
      */
-    public function mkdir ($remote_path)
+    public function mkdir($remote_path)
     {
-        $remote_path = str_replace (DIRECTORY_SEPARATOR, '\\', $remote_path);
+        $remote_path = str_replace(DIRECTORY_SEPARATOR, '\\', $remote_path);
         $cmd = "mkdir \"$remote_path\"";
-        
-        $retval = $this->execute ($cmd);
+
+        $retval = $this->execute($cmd);
         return $retval;
     }
-    
-    
+
+
     /**
      * Lists the contents of a directory on the remote server;
      * Results are returned in an array of arrays.  Each subarray has the
@@ -343,66 +343,54 @@ class SmbClientPhp extends Controller
      * @param string $remote_path
      * @return mixed array of results if successful, false otherwise
      */
-    public function dir ($remote_path = '', $remote_filename = '')
+    public function dir($remote_path = '', $remote_filename = '')
     {
         // convert to windows-style backslashes
-        if ($remote_path)
-        {
-            $remote_path = str_replace (DIRECTORY_SEPARATOR, '\\', $remote_path);
-            if ($remote_filename)
-            {
+        if ($remote_path) {
+            $remote_path = str_replace(DIRECTORY_SEPARATOR, '\\', $remote_path);
+            if ($remote_filename) {
                 $cmd = "cd \"$remote_path\"; dir \"{$remote_filename}\"";
-            }
-            else
-            {
+            } else {
                 $cmd = "cd \"$remote_path\"; dir";
             }
-        }
-        else
-        {
-            if ($remote_filename)
-            {
+        } else {
+            if ($remote_filename) {
                 $cmd = "dir \"{$remote_filename}\"";
-            }
-            else
-            {
+            } else {
                 $cmd = "dir";
             }
         }
-        
-        $retval = $this->execute ($cmd);
-        if (!$retval)
-        {
+
+        $retval = $this->execute($cmd);
+        if (!$retval) {
             return $retval;
         }
-        
-        $xary = array ();
-        foreach ($this->_last_cmd_stdout as $line)
-        {
-            if (!preg_match ('#\s+(.+?)\s+(.....)\s+(\d+)\s+(\w+\s+\w+\s+\d+\s+\d\d:\d\d:\d\d\s\d+)$#', $line, $matches))
-            {
+
+        $xary = array();
+        foreach ($this->_last_cmd_stdout as $line) {
+            if (!preg_match('#\s+(.+?)\s+(.....)\s+(\d+)\s+(\w+\s+\w+\s+\d+\s+\d\d:\d\d:\d\d\s\d+)$#', $line, $matches)) {
                 continue;
             }
-            
-            list ($junk, $filename, $status, $size, $mtime) = $matches;
-            $filename = trim ($filename);
-            $status = trim ($status);
+
+            list($junk, $filename, $status, $size, $mtime) = $matches;
+            $filename = trim($filename);
+            $status = trim($status);
             $mtime = strtotime($mtime);
-            
-            $isdir = (stripos ($status, 'D') !== false) ? true : false;
-            
-            $xary[] = array ('filename' => $filename, 'size' => $size, 'mtime' => $mtime, 'isdir' => $isdir);
+
+            $isdir = (stripos($status, 'D') !== false) ? true : false;
+
+            $xary[] = array('filename' => $filename, 'size' => $size, 'mtime' => $mtime, 'isdir' => $isdir);
         }
-        
+
         return $xary;
     }
-    
-    private function execute ($cmd)
+
+    private function execute($cmd)
     {
         $this->build_full_cmd($cmd);
 
-        self::log_msg ($this->_cmd);
-        
+        self::log_msg($this->_cmd);
+
         $outfile = tempnam(".", "cmd");
         $errfile = tempnam(".", "cmd");
         $descriptorspec = array(
@@ -411,38 +399,36 @@ class SmbClientPhp extends Controller
             2 => array("file", $errfile, "w")
         );
         $proc = proc_open($this->_cmd, $descriptorspec, $pipes);
-       
+
         if (!is_resource($proc)) return 255;
-    
+
         fclose($pipes[0]);    //Don't really want to give any input
-    
+
         $exit = proc_close($proc);
         $this->_last_cmd_stdout = file($outfile);
         $this->_last_cmd_stderr = file($errfile);
         $this->_last_cmd_exit_code = $exit;
 
-        self::log_msg ("exit code: " . $this->_last_cmd_exit_code);
-        self::log_msg ("stdout: " . join ("\n", $this->_last_cmd_stdout));
-        self::log_msg ("stderr: " . join ("\n", $this->_last_cmd_stderr));
-    
+        self::log_msg("exit code: " . $this->_last_cmd_exit_code);
+        self::log_msg("stdout: " . join("\n", $this->_last_cmd_stdout));
+        self::log_msg("stderr: " . join("\n", $this->_last_cmd_stderr));
+
         unlink($outfile);
         unlink($errfile);
-        
-        if ($exit)
-        {
+
+        if ($exit) {
             return false;
         }
         return true;
     }
-    
-    private function build_full_cmd ($cmd = '')
+
+    private function build_full_cmd($cmd = '')
     {
         $this->_cmd = "smbclient '" . $this->_service . "'";
-        
+
         $this->_cmd .= " -U '" . $this->_username . "%" . $this->_password . "'";
-        
-        if ($cmd)
-        {
+
+        if ($cmd) {
             $this->_cmd .= " -c '$cmd'";
         }
     }
@@ -451,16 +437,14 @@ class SmbClientPhp extends Controller
      * Logs a message if debug_mode is true and if there is a global "log_msg" function.
      * @param string $msg the message to log
      */
-    private static function log_msg ($msg)
+    private static function log_msg($msg)
     {
-        if (!self::$debug_mode)
-        {
+        if (!self::$debug_mode) {
             return;
         }
 
-        if (function_exists ('log_msg'))
-        {
-            log_msg ('[' . self::$debug_label . "] $msg");
+        if (function_exists('log_msg')) {
+            log_msg('[' . self::$debug_label . "] $msg");
         }
     }
 }

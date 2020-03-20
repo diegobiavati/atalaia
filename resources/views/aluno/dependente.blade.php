@@ -13,7 +13,7 @@
     <div class="divImplantarAluno" style="margin-left:20px;width:25%;">
         <i class="ion-ios-person" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
         <label class="labelDescricao">Nome Dependente</label>
-        <input class="no-style" name="dep_nome_completo[]" type="text" value="{{$dependente->dep_nome_completo or old('dep_nome_completo')}}" maxlength="255" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
+        <input class="no-style text-uppercase" name="dep_nome_completo[]" type="text" value="{{$dependente->dep_nome_completo or old('dep_nome_completo')}}" maxlength="255" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
     </div>
     <div class="divImplantarAluno" style="margin-left:20px;width:10%;">
         <i class="ion-android-calendar" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>

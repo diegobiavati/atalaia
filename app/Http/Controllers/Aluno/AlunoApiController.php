@@ -76,6 +76,8 @@ class AlunoApiController extends Controller
         $situacaoRendas = Renda::get();
         $situacaoBancos = Banco::get();
 
+        $readOnly = (!$this->ownauthcontroller->PermissaoCheck(1)) ? 'readonly' : '';
+
         //Para Carregar o datalist 
         //$alunos['list'] = Alunos::get();
         $alunos['list'] = Alunos::carregaAlunosVsAlunosSitDiv();
@@ -98,7 +100,8 @@ class AlunoApiController extends Controller
             'situacaoParentescos',
             'situacaoRendas',
             'situacaoBancos',
-            'alunos'
+            'alunos',
+            'readOnly'
         );
     }
     /**
@@ -146,6 +149,10 @@ class AlunoApiController extends Controller
 
         $validador = Validator::make($dados, $this->aluno->regras(), [], $this->aluno->atributos());
 
+        if(!isset($dados['data_matricula'])){
+            $retorno['response'] = ['Informe o Ano de Formação.'];
+            return response()->json($retorno);
+        }
         $validaAluno = Alunos::where([['nome_guerra', '=', $dados['nome_guerra']], ['data_matricula', '=', $dados['data_matricula']]])->get();
         if (sizeof($validaAluno) > 0) {
             $retorno['response'] = ['O Nome de Guerra já está sendo utilizado.'];
@@ -153,7 +160,7 @@ class AlunoApiController extends Controller
         }
 
         if (!preg_match('|^[\pL\s]+$|u', $dados['nome_guerra'])) {
-            $retorno['response'] = ['Existem Caracteres Não Permitidos, Utilize Somente Letras.'];
+            $retorno['response'] = ['Existem Caracteres Não Permitidos Ou O Nome de Guerra Está em Branco, Utilize Somente Letras.'];
             return response()->json($retorno);
         }
 
@@ -307,7 +314,8 @@ class AlunoApiController extends Controller
         $dados['data_baixa_ultima_om'] = FuncoesController::formatDateBrtoEn($dados['data_baixa_ultima_om']);
         $dados['doc_idt_militar_dt_exp'] = FuncoesController::formatDateBrtoEn($dados['doc_idt_militar_dt_exp']);
 
-        $validador = Validator::make($dados, $aluno->regras(), [], $this->aluno->atributos());
+        
+        $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
 
         if (
             trim($dados['nome_guerra']) <> trim($aluno->nome_guerra)
@@ -323,7 +331,7 @@ class AlunoApiController extends Controller
         }
 
         if (!preg_match('|^[\pL\s]+$|u', $dados['nome_guerra'])) {
-            $retorno['response'] = ['Existem Caracteres Não Permitidos, Utilize Somente Letras.'];
+            $retorno['response'] = ['Existem Caracteres Não Permitidos Ou O Nome de Guerra Está em Branco, Utilize Somente Letras.'];
             return response()->json($retorno);
         }
 

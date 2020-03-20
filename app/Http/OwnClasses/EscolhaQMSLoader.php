@@ -169,7 +169,7 @@ class EscolhaQMSLoader
 
         //$alunos = $this->alunos->where('sexo', $segmento)->whereIn('id', $alunos_aprovados)->whereNotIn('id', $alunos_aviacao_ID)->orderBy($this->alunos->classificacao(), 'asc')->get();
 
-        $alunos = DB::select("  SELECT alunos.*, alunos_classificacao.classificacao, alunos_classificacao.classificacao_por_area, alunos_classificacao.nota_final_arredondada FROM alunos
+        $alunos = DB::select("SELECT alunos.*, alunos_classificacao.classificacao, alunos_classificacao.classificacao_por_area, alunos_classificacao.nota_final_arredondada FROM alunos
                                 INNER JOIN alunos_classificacao ON alunos.id=alunos_classificacao.aluno_id
                                 WHERE sexo='".$segmento."' 
                                 AND alunos.id IN(".implode(',', $aprovados).")
@@ -310,7 +310,7 @@ class EscolhaQMSLoader
 
         //$alunos = $this->alunos->where('sexo', $segmento)->whereIn('id', $alunos_aprovados)->whereNotIn('id', $alunos_aviacao_ID)->orderBy($this->alunos->classificacao(), 'asc')->get();
 
-        $alunos = DB::select("  SELECT alunos.*, alunos_classificacao.classificacao, alunos_classificacao.classificacao_por_area, alunos_classificacao.nota_final_arredondada FROM alunos
+        $alunos = DB::select("SELECT alunos.*, alunos_classificacao.classificacao, alunos_classificacao.classificacao_por_area, alunos_classificacao.nota_final_arredondada FROM alunos
                                 INNER JOIN alunos_classificacao ON alunos.id=alunos_classificacao.aluno_id
                                 WHERE sexo='".$segmento."'
                                 AND alunos.id IN(".implode(',', $alunos_class).")
@@ -321,7 +321,10 @@ class EscolhaQMSLoader
             $alunosIDs[] = $item->id;            
         }
 
-        $alunos_opcoes =  $this->getAlunosOpcoes($alunosIDs);
+        if(isset($alunosIDs)){
+            $alunos_opcoes =  $this->getAlunosOpcoes($alunosIDs);
+        }
+        
         // OMCTS 
 
         $omct = OMCT::get();

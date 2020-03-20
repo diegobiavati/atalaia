@@ -22,6 +22,7 @@ use App\Models\Operadores;
 
 
 use App\Http\OwnClasses\ClassLog;
+use App\Models\LancamentoFo;
 
 setlocale(LC_ALL, "pt_BR.utf8");
 //date_default_timezone_set('America/Sao_Paulo');
@@ -51,7 +52,13 @@ class AjaxOperadorController extends Controller
         $disciplinas_id = ($disciplinas_id)??array(0);
         $avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)->where('data', '>', date('Y-m-d'))->orderBy('data', 'asc')->get();
         
-        
+        $param = $ano_formacao;
+        $lancamentoFo = LancamentoFo::whereHas('aluno', function($query) use($param){
+            $query->where(['data_matricula' => $param, 'omcts_id' => session()->get('login.omctID')]);
+        })->get();
+
+        $operadores = Operadores::find(session()->get('login.operadorID'));
+        $funcaoOperador = explode(',', $operadores->id_funcao_operador);
 
         if($ownauthcontroller->PermissaoCheck(18)){
             $omct_id = session()->get('login.omctID');
@@ -60,7 +67,9 @@ class AjaxOperadorController extends Controller
                                                 ->with('disciplinas', $disciplinas)
                                                 ->with('avaliacoes', $avaliacoes)
                                                 ->with('ownauthcontroller', $ownauthcontroller)
-                                                ->with('alunos', $alunos);
+                                                ->with('alunos', $alunos)
+                                                ->with('lancamentoFo', $lancamentoFo)
+                                                ->with('funcaoOperador', $funcaoOperador);
         }
     }
 

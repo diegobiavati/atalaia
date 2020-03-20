@@ -43,7 +43,7 @@ class AjaxRelatoriosController extends Controller
                 $status_active_label = ($i==0)?'active':'';
                 $status_checked_input = ($i==0)?'checked':'';
                 $response_ano_formacao[] = '<label class="btn btn-secondary '.$status_active_label.'" style="text-align: center;" onclick="$(\'div#relatorios-content\').empty();">
-                                                <input type="radio" name="ano_formacao" value="'.$ano_formacao->id.'" '.$status_checked_input.' /> '.$ano_formacao->formacao.'
+                                                <input type="radio" name="ano_formacao" value="'.$ano_formacao->id.'" '.$status_checked_input.' /> '.$ano_formacao->ano_cfs.'
                                             </label>';
                 $i++;
             }

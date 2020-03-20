@@ -15,7 +15,6 @@ Route::group(['prefix' => 'exportar/modo-impressao', 'as' => 'exportar-modo-impr
 Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
 
     /* ROTAS PARA SUPER ADMINISTRADORES E OPERADORES (MENU PRINCIPAL)*/
-
     Route::get('gerenciar-operadores', ['as' => 'gerenciar-operadores', 'uses' => 'Ajax\AjaxAdminController@GerenciarOperadores']);
     Route::get('anos-de-formacao', ['as' => 'anos-de-formacao', 'uses' => 'Ajax\AjaxAdminController@AnosDeFormacao']);
     Route::get('gerenciar-disciplinas', ['as' => 'gerenciar-disciplinas', 'uses' => 'Ajax\AjaxAdminController@GerenciarDisciplinas']);

@@ -81,12 +81,12 @@
                     <div class="divImplantarAluno" style="margin-left:35px; width: 25%;">
                         <i class="ion-ios-person" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
                         <label class="labelDescricao">Nome de Guerra</label>
-                        <input class="no-style" style="width: 100%;margin-top:10px;" name="nome_guerra" value="{{ $aluno->nome_guerra or old('nome_guerra') }}" type="text" autocomplete="off" placeholder="" />
+                        <input class="no-style text-uppercase" style="width: 100%;margin-top:10px;" name="nome_guerra" value="{{ $aluno->nome_guerra or old('nome_guerra') }}" type="text" autocomplete="off" placeholder="" />
                     </div>
                     <div class="divImplantarAluno" style="margin-left:35px; width: 55%;">
                         <i class="ion-ios-person" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
                         <label class="labelDescricao">Nome Completo</label>
-                        <input class="no-style" style="width: 100%;margin-top:10px;" name="nome_completo" value="{{ $aluno->nome_completo or old('nome_completo') }}" type="text" autocomplete="off" placeholder="" />
+                        <input class="no-style text-uppercase" style="width: 100%;margin-top:10px;" name="nome_completo" value="{{ $aluno->nome_completo or old('nome_completo') }}" type="text" autocomplete="off" placeholder="" />
                     </div>
 
                     <div class="clear"></div>
@@ -110,7 +110,7 @@
                     <div class="divImplantarAluno" style="width: 25%;">
                         <i class="ion-location" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
                         <label class="labelDescricao">Cidade (Naturalidade)</label>
-                        <input class="no-style" name="nasc_cidade" type="text" value="{{$aluno->nasc_cidade or old('nasc_cidade') }}" maxlength="100" autocomplete="off" placeholder="" style="width: 100%;margin-top:10px;" />
+                        <input class="no-style text-uppercase" name="nasc_cidade" type="text" value="{{$aluno->nasc_cidade or old('nasc_cidade') }}" maxlength="100" autocomplete="off" placeholder="" style="width: 100%;margin-top:10px;" />
                     </div>
                     <div class="divImplantarAluno" style="margin-left:20px; border-bottom:none; width: 15%;">
                         <i class="ion-location" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
@@ -125,7 +125,7 @@
                     <div class="divImplantarAluno" style="margin-left:20px; width: 20%;">
                         <i class="ion-location" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
                         <label class="labelDescricao">País (Naturalidade)</label>
-                        <input class="no-style" name="nasc_pais" type="text" value="{{$aluno->nasc_pais or old('nasc_pais') }}" maxlength="50" autocomplete="off" placeholder="" style="width: 100%;margin-top:10px;" />
+                        <input class="no-style text-uppercase" name="nasc_pais" type="text" value="{{$aluno->nasc_pais or old('nasc_pais') }}" maxlength="50" autocomplete="off" placeholder="" style="width: 100%;margin-top:10px;" />
                     </div>
 
                     <div class="clear"></div>
@@ -152,7 +152,7 @@
                     <div class="divImplantarAluno" style="margin-left:20px;width: 40%;">
                         <i class="ion-at" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">E-mail</label>
-                        <input class="no-style" name="email" value="{{$aluno->email or old('email') }}" type="email" maxlength="60" autocomplete="off" placeholder="" style="width: 100%;margin-top:10px;" />
+                        <input class="no-style text-lowercase" name="email" value="{{$aluno->email or old('email') }}" type="email" maxlength="60" autocomplete="off" placeholder="" style="width: 100%;margin-top:10px;" />
                     </div>
 
                     <div class="clear"></div>
@@ -488,7 +488,7 @@
                     <div class="divImplantarAluno" style="width: 12%; margin-left:20px;">
                         <i class="ion-clipboard" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">Tipo Sanguíneo</label>
-                        <input class="no-style" name="tipo_sanguineo" value="{{$aluno->tipo_sanguineo or old('tipo_sanguineo') }}" type="text" maxlength="2" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
+                        <input class="no-style text-uppercase" name="tipo_sanguineo" value="{{$aluno->tipo_sanguineo or old('tipo_sanguineo') }}" type="text" maxlength="2" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
                     </div>
                     <div class="divImplantarAluno" style="width: 8%; margin-left:20px;">
                         <i class="ion-radio-waves" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
@@ -561,7 +561,7 @@
                     <div class="divImplantarAluno" style="width: 50%;">
                         <i class="ion-male" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">Nome do Pai</label>
-                        <input class="no-style" name="nome_pai" value="{{$aluno->nome_pai or old('nome_pai') }}" type="text" maxlength="255" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
+                        <input class="no-style text-uppercase" name="nome_pai" value="{{$aluno->nome_pai or old('nome_pai') }}" type="text" maxlength="255" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
                     </div>
                     <div class="divImplantarAluno" style="width: 30%; margin-left:20px; border-bottom:none;">
                         <i class="ion-settings" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
@@ -578,7 +578,7 @@
                     <div class="divImplantarAluno" style="width: 50%;">
                         <i class="ion-female" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">Nome da Mãe</label>
-                        <input class="no-style" name="nome_mae" value="{{$aluno->nome_mae or old('nome_mae') }}" type="text" maxlength="255" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
+                        <input class="no-style text-uppercase" name="nome_mae" value="{{$aluno->nome_mae or old('nome_mae') }}" type="text" maxlength="255" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
                     </div>
                     <div class="divImplantarAluno" style="width: 30%; margin-left:20px; border-bottom:none;">
                         <i class="ion-settings" style="font-size: 15px; color: #696969; margin-right:5px;"></i>

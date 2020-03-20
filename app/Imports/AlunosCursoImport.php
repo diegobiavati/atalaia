@@ -25,6 +25,7 @@ class AlunosCursoImport implements ToModel, WithHeadingRow, WithBatchInserts, Wi
 
         $aluno = Alunos::whereHas('ano_formacao', function ($query) use ($row) {
             $query->where('ano_per_basico', $row['ano']);
+            //dd($row['ano'], $row['inscricao']);
         })->where('al_inscricao', $row['inscricao'])->get()->first();
 
         if (isset($aluno)) {
@@ -32,15 +33,16 @@ class AlunosCursoImport implements ToModel, WithHeadingRow, WithBatchInserts, Wi
                 'id_aluno' => $aluno->id,
                 //'periodo_cadastro' => $row['periodo'],
                 'senha' => $row['senha'],
-                'nota_cacfs' => $row['sca_notadou']
+                'nota_cacfs' => (($row['sca_notadou'] == 'NULL') ? 0 : $row['sca_notadou'])
                 //'id_area' => Areas::retornaAreasSisPB()[$row['area']]['cod_no_atalaia'],
                 //'id_pb_omct' => OMCT::retornaOmctsSisPB()[$row['sca_omct']]['cod_no_atalaia']
             ]);
 
             if (isset($alunosCurso)) {
-                $aluno->omct_id = OMCT::retornaOmctsSisPB()[$row['sca_omct']]['cod_no_atalaia'];
+                $aluno->omcts_id = OMCT::retornaOmctsSisPB()[$row['sca_omct']]['cod_no_atalaia'];
                 $aluno->area_id = Areas::retornaAreasSisPB()[$row['area']]['cod_no_atalaia'];
-                $aluno->classif_cacfs = $row['sca_classfinal'];
+                $aluno->classif_cacfs = (($row['sca_classfinal'] == 'NULL') ? 0 : $row['sca_classfinal']);
+                $aluno->sexo = $row['sexo'];
                 $aluno->save();
             }
         }

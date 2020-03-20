@@ -2640,7 +2640,7 @@ function onMessageArrived(message) {
             $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/opcoes-listagem-selecao-alunos/?' + dataForm,
+                url: '/ajax/opcoes-listagem-selecao-alunos?' + dataForm,
                 beforeSend: function(){
                     $(dataButton).html('<img src="/images/loadings/loading_03.svg" style="margin-right: 3px; width: 32px;" />Buscando registros...').addClass('disabled');
                 },

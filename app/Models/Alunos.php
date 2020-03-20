@@ -368,8 +368,9 @@ class Alunos extends Model
         return $retorno;
     }
 
-    public function regras()
+    public function regrasEsa()
     {
+        
         return [
             'numero' => 'required|numeric',
             'nome_completo' => 'required',
@@ -379,6 +380,25 @@ class Alunos extends Model
             'data_matricula' => 'required|numeric',
             'area_id' => 'required|numeric',
             'atleta_marexaer' => 'required|string',
+            'sexo' => 'required|string',
+            'email' => 'required|unique:alunos,email,' . $this->id,
+            'al_inscricao' => 'required|numeric',
+            'nasc_cidade' => 'required',
+            'nasc_pais' => 'required'
+        ];
+    }
+
+    public function regras()
+    {
+
+        return [
+            'numero' => 'required|numeric',
+            'nome_completo' => 'required',
+            'nome_guerra' => 'required',
+            //'nome_guerra' => 'required|unique:alunos,nome_guerra,'.$this->id.',id,data_matricula,'. $this->data_matricula,
+            'data_nascimento' => 'required|date',
+            'data_matricula' => 'required|numeric',
+            'area_id' => 'required|numeric',
             'sexo' => 'required|string',
             'email' => 'required|unique:alunos,email,' . $this->id,
             'al_inscricao' => 'required|numeric',
@@ -602,7 +622,7 @@ class Alunos extends Model
     public function importaImagemAluno()
     {
         //Verifica senão existe imagem
-        if ($this->imagem_aluno->nome_arquivo == 'no-image.jpg') {
+        if ($this->imagem_aluno->nome_arquivo == 'no-image.jpg' && $this->data_matricula <= 2) {
             $extension = 'jpg';
 
             $name = uniqid($this->ano_formacao->formacao . $this->numero);

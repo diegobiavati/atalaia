@@ -11,6 +11,7 @@ use App\Models\Alunos;
 use App\Models\AlunosSitDiv;
 use App\Models\AnoFormacao;
 use App\Models\MapaOutrosDados;
+use App\Models\Parametros;
 use Khill\Lavacharts\Lavacharts;
 
 class MapaEfetivoController extends Controller
@@ -73,8 +74,10 @@ class MapaEfetivoController extends Controller
 
         $this->classLog->RegistrarLog('Visualizou Relatório Mapa Efetivo Geral', auth()->user()->email);
 
+        $parametros = Parametros::where('ano_formacao_id', '=', $anoFormacao->id)->first();
+
         // Repassando para a view
-        return view('relatorios.relacao-mapa-efetivo-geral', compact('anoFormacao', 'relacao', 'mapaEfetivo', 'alunosAdidos', 'evasaoUete'));
+        return view('relatorios.relacao-mapa-efetivo-geral', compact('anoFormacao', 'relacao', 'mapaEfetivo', 'alunosAdidos', 'evasaoUete', 'parametros'));
     }
 
     public function RelacaoMapaEfetivoDesligado(Request $request)

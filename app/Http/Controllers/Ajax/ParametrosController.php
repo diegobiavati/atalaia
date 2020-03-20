@@ -10,6 +10,7 @@ use App\Models\AnoFormacao;
 use App\Models\Areas;
 use App\Models\MapaOutrosDados;
 use App\Models\OMCT;
+use App\Models\Parametros;
 
 class ParametrosController extends Controller
 {
@@ -28,7 +29,8 @@ class ParametrosController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    { }
+    {
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -48,7 +50,29 @@ class ParametrosController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
+        if (!isset($request->textCandidatosAguardando)) {
+            $retorno['status'] = 'erro';
+            $retorno['response'] = 'Informe os Candidatos Que Estão Aguardando Aprovação.';
+        }
+
+        if (isset($retorno)) {
+            return response()->json($retorno);
+        }
+
+        if (!$parametros = Parametros::find($request->idParametro)) {
+            $parametros = new Parametros();
+        }
+
+        $parametros->ano_formacao_id = $request->anoFormacao;
+        $parametros->candidato_aguar_aprov = $request->textCandidatosAguardando;
+
+        $parametros->save();
+
+        $retorno['status'] = 'success';
+        $retorno['response'] = 'Candidatos Gravado no Sistema.';
+
+        return response()->json($retorno);
     }
 
     /**
@@ -75,7 +99,7 @@ class ParametrosController extends Controller
                                         $(document).ready(function() {
                                             
                                             $('.btn.btn-secondary').click(function() {
-                                                carregaOpcao('parametros', 'tela|'+$(this).find('input[name=\"ano_formacao\"]').val()); 
+                                                carregaOpcao('parametros', 'tela|'+$('input[name=\"ano_formacao\"]:checked').val());
                                             });
                                         });
 
@@ -96,13 +120,15 @@ class ParametrosController extends Controller
                                                     if(itemSplit[0] == 'grid'){
                                                         $('div#tableInfo').empty();
                                                         $('div#parametros-content').append(data.response);
+                                                        
                                                     }else{
                                                         $('div#temp').fadeOut(300, function() {
                                                             $(this).remove();
                                                             $('div#parametros-content').empty();
                                                             $('div#parametros-content').html(data.response);
 
-                                                            carregaOpcao('parametros', 'grid|'+itemSplit[1]);
+                                                            carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
+                                                            
                                                         });
                                                     }
                                                 },
@@ -121,7 +147,7 @@ class ParametrosController extends Controller
                                                     dataType: 'json',
                                                     url: '/ajax/parametrosDeleteInfo/' + id,
                                                     success: function(data){
-                                                        carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]').val());
+                                                        carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
                                                     }
                                                 });
                                             });
@@ -255,7 +281,7 @@ class ParametrosController extends Controller
                                                                         $('input[name=em_mtcladiamento]').val(data.qtdade_em_mtcladiamento);
                                                                         $('input[name=em_mtclordjudicial]').val(data.qtdade_em_mtclordjudicial);
 
-                                                                        carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]').val());
+                                                                        carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
 
                                                                         $('button#submit-parametros').show();
                                                                     },
@@ -297,6 +323,8 @@ class ParametrosController extends Controller
                 $anoFormacao = AnoFormacao::find($id[1]);
 
                 $mapaOutrosDados = MapaOutrosDados::with('uete')->with('area')->where('ano_formacao_id', '=', $anoFormacao->id)->get();
+
+                $parametros = Parametros::where('ano_formacao_id', '=', $anoFormacao->id)->first();
 
                 foreach ($mapaOutrosDados as $mapa) {
 
@@ -341,6 +369,8 @@ class ParametrosController extends Controller
                                                             </tbody>
                                                         </table>
                                                        </div>';
+
+                $data['response'] = $data['response'] . view('admin.parametros.candidatosAguardandoAprov', compact('parametros'));
                 break;
             default:
                 break;
@@ -395,13 +425,8 @@ class ParametrosController extends Controller
 
         $mapaOutrosDados = MapaOutrosDados::updateOrCreate(
             ['ano_formacao_id' => $request->ano_formacao, 'omct_id' => $request->uete, 'area_id' => $request->area, 'sexo' => $request->segmento],
-            ['qtdade_previstomtcl' => (isset($request->previsto) ? $request->previsto : 0)
-            , 'qtdade_designadomtcl' => (isset($request->desigMtcl) ? $request->desigMtcl : 0)
-            , 'qtdade_adiamentomtcl' => (isset($request->adiamMtcl) ? $request->adiamMtcl : 0)
-            , 'qtdade_em_1mtcl' => (isset($request->em_1mtcl) ? $request->em_1mtcl : 0)
-            , 'qtdade_em_2mtcl' => (isset($request->em_2mtcl) ? $request->em_2mtcl : 0)
-            , 'qtdade_em_mtcladiamento' => (isset($request->em_mtcladiamento) ? $request->em_mtcladiamento : 0)
-            , 'qtdade_em_mtclordjudicial' => (isset($request->em_mtclordjudicial) ? $request->em_mtclordjudicial : 0)
+            [
+                'qtdade_previstomtcl' => (isset($request->previsto) ? $request->previsto : 0), 'qtdade_designadomtcl' => (isset($request->desigMtcl) ? $request->desigMtcl : 0), 'qtdade_adiamentomtcl' => (isset($request->adiamMtcl) ? $request->adiamMtcl : 0), 'qtdade_em_1mtcl' => (isset($request->em_1mtcl) ? $request->em_1mtcl : 0), 'qtdade_em_2mtcl' => (isset($request->em_2mtcl) ? $request->em_2mtcl : 0), 'qtdade_em_mtcladiamento' => (isset($request->em_mtcladiamento) ? $request->em_mtcladiamento : 0), 'qtdade_em_mtclordjudicial' => (isset($request->em_mtclordjudicial) ? $request->em_mtclordjudicial : 0)
             ]
         );
         return response()->json($mapaOutrosDados);

@@ -7,46 +7,54 @@
     <input type="hidden" name="_token" value="{{csrf_token()}}" />
     <input type="hidden" name="rotaTurma" value="{{$rotaTurma}}" />
 
-    {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao() !!}
+    {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao((isset($ano_formacao) ? $ano_formacao : null)) !!}
 
     <div style="width: 40%; margin: 22px auto; text-align: center; border-bottom: 0px solid #ccc;">
         <div style="margin-bottom: 15px;">
             <div>
-                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Uete</label>
+                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
+                    <font style="color:rgb(255, 255, 255);">Uete</font>
+                </label>
             </div>
             <div>
                 <select name="omctID" class="custom-select required_to_show_button" {{ $readOnly }}>
                     <option value="0" disabled selected hidden>Selecione uma UETE</option>
                     @foreach ($uetes as $uete)
-                    <option value={{$uete->id}}>{{ $uete->omct }}</option>
+                    <option value={{$uete->id}} {{ (isset($lancamentoFo->aluno) && $uete->id == $lancamentoFo->aluno->omcts_id)  ? 'selected': ''}}>{{ $uete->omct }}</option>
                     @endforeach
                 </select>
             </div>
         </div>
         <div style="margin-bottom: 15px;">
-            <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Observador
-                <input class="form-control" style="display:block; text-align:center;" name="observador" value="{{ session()->get('nomeOperador') }}" autocomplete="off" readonly />
+            <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
+                <font style="color:rgb(255, 255, 255);">Observador</font>
+                <input class="form-control" style="display:block; text-align:center;" name="observador" value="{{ (isset($lancamentoFo->operador) ? $lancamentoFo->operador->posto->postograd_abrev.' '.$lancamentoFo->operador->nome_guerra : session()->get('nomeOperador'))  }}" autocomplete="off" readonly />
             </label>
         </div>
         <div style="margin-bottom: 15px;">
-            <div><label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Data da Observação <font style="color:rgb(255, 0, 0);font-size: smaller;">*Se nenhuma data for marcada, será registrada a data atual!</font></label></div>
-            <div id="datepicker" style="display: flex;justify-content: center;margin-top: 10px;"></div>
+            <div><label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
+                    <font style="color:rgb(255, 255, 255);">Data da Observação </font>
+                    <font style="color:rgb(255, 0, 0);font-size: smaller;">*Se nenhuma data for marcada, será registrada a data atual!</font>
+                </label></div>
+            <input type="hidden" name="dateObs" value="{{ (isset($lancamentoFo->data_obs) ? str_replace('/', '-', App\Http\Controllers\Utilitarios\FuncoesController::formatDateEntoBr($lancamentoFo->data_obs)) : null) }}" />
+            <div id="datepicker" style="display: flex;justify-content: center;margin-top: 10px;" data-date-end-date="{{ (isset($lancamentoFo) ? str_replace('/', '-', App\Http\Controllers\Utilitarios\FuncoesController::formatDateEntoBr($lancamentoFo->data_obs)) : null) }}" data-date-start-date="{{ (isset($lancamentoFo) ? str_replace('/', '-', App\Http\Controllers\Utilitarios\FuncoesController::formatDateEntoBr($lancamentoFo->data_obs)) : null) }}"></div>
         </div>
         <div style="margin-bottom: 15px;">
             <div>
-                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Tipo de FO
+                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
+                    <font style="color:rgb(255, 255, 255);">Tipo de FO</font>
             </div>
 
             <div class="custom-control custom-radio custom-control-inline">
-                <input type="radio" class="custom-control-input" id="radio1" name="radioTipoFO" value="0" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
+                <input type="radio" class="custom-control-input" id="radio1" {{ ((isset($lancamentoFo) && $lancamentoFo->tipo == 0) ? 'checked' : '') }} name="radioTipoFO" value="0" {{ ((isset($readOnly)) ? 'disabled="disabled"' : '' ) }}>
                 <label class="custom-control-label" for="radio1">Negativo</label>
             </div>
             <div class="custom-control custom-radio custom-control-inline">
-                <input type="radio" class="custom-control-input" id="radio2" name="radioTipoFO" value="1" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
+                <input type="radio" class="custom-control-input" id="radio2" {{ ((isset($lancamentoFo) && $lancamentoFo->tipo == 1) ? 'checked' : '') }} name="radioTipoFO" value="1" {{ ((isset($readOnly)) ? 'disabled="disabled"' : '' ) }}>
                 <label class="custom-control-label" for="radio2">Neutro</label>
             </div>
             <div class="custom-control custom-radio custom-control-inline">
-                <input type="radio" class="custom-control-input" id="radio3" name="radioTipoFO" value="2" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
+                <input type="radio" class="custom-control-input" id="radio3" {{ ((isset($lancamentoFo) && $lancamentoFo->tipo == 2) ? 'checked' : '') }} name="radioTipoFO" value="2" {{ ((isset($readOnly)) ? 'disabled="disabled"' : '' ) }}>
                 <label class="custom-control-label" for="radio3">Positivo</label>
             </div>
             </label>
@@ -54,19 +62,21 @@
 
         <div style="margin-bottom: 15px;">
             <div>
-                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Observações sobre o Fato
+                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
+                    <font style="color:rgb(255, 255, 255);">Observações sobre o Fato</font>
                     <br>
                     <font style="color:rgb(255, 0, 0);font-size: xx-small;">*O comportamento observado deve ser descrito e sua ligação com o objetivo previsto no PLADIS (quem, o que e como).</font>
                 </label>
             </div>
             <div>
-                <textarea class="form-control" name="textAreaObservacaoFO" rows="3" style="display: inline;" {{ $readOnly }}></textarea>
+                <textarea class="form-control" name="textAreaObservacaoFO" rows="3" style="display: inline;" {{ $readOnly }}>{{ ((isset($lancamentoFo)) ? $lancamentoFo->observacao : null) }}</textarea>
             </div>
         </div>
 
         <div style="margin-bottom: 15px;">
             <div>
-                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Conteúdo Atitudinal
+                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
+                    <font style="color:rgb(255, 255, 255);">Conteúdo Atitudinal</font>
                     <br>
                     <font style="color:rgb(255, 0, 0);font-size: xx-small;">*Deve ser citado o conteúdo atitudinal que está relacionado com o comportamento observado.</font>
                 </label>
@@ -74,7 +84,7 @@
             <div>
                 @foreach($conteudoAtitudinal as $conteudo)
                 <div class="custom-control custom-checkbox custom-control-inline" style="width: 30%;text-align:left;margin-right:0px">
-                    <input type="checkbox" name="atitudinal_{{$conteudo->id}}" class="custom-control-input" id="atitudinal_{{$conteudo->id}}" {{ (($readOnly == 'readonly') ? 'disabled' : '' ) }}>
+                    <input type="checkbox" name="atitudinal_{{$conteudo->id}}" {{ ((isset($lancamentoFo)) && in_array($conteudo->id, json_decode($lancamentoFo->conteudo_atitudinal)) ? 'checked': '') }} class="custom-control-input" id="atitudinal_{{$conteudo->id}}" {{ ((isset($readOnly)) ? 'disabled="disabled"' : '' ) }}>
                     <label class="custom-control-label" for="atitudinal_{{$conteudo->id}}">{{$conteudo->descricao}}</label>
                 </div>
                 @endforeach
@@ -85,30 +95,43 @@
         <!--Só libera se for Cmt de Cia-->
         <div style="margin-bottom: 15px;">
             <div>
-                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Providências
+                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
+                    <font style="color:rgb(255, 255, 255);">Providências</font>
                     <br>
                     <font style="color:rgb(255, 0, 0);font-size: xx-small;">*É descrito o tipo de orientação que o aluno recebeu em relação ao seu comportamento ("feedback").</font>
                 </label>
             </div>
             <div>
-                <textarea class="form-control" name="textAreaProvidencias" rows="3" style="display: inline;"></textarea>
+                <textarea class="form-control required_to_show_button" name="textAreaProvidencias" rows="3" style="display: inline;" {{ (isset($lancamentoFo->providencia) ? $readOnly : '') }}>{{ ((isset($lancamentoFo)) ? $lancamentoFo->providencia : null) }}</textarea>
+            </div>
+
+            <div class="btn-group-toggle" data-toggle="buttons" style="margin: 10px;">
+                <label class="btn btn-outline-danger {{ ((isset($lancamentoFo) && ($lancamentoFo->fatd == 'S')) ? 'active' : '') }}">
+                    <input type="checkbox" name="btnPunir" {{ ((isset($lancamentoFo) && ($lancamentoFo->fatd == 'S')) ? 'checked' : '') }} autocomplete="off" {{ (isset($lancamentoFo->providencia) ? 'disabled': '') }}>Punir com FATD (Enviar para Sargenteante)
+                </label>
             </div>
         </div>
         @endif
 
         <div style="margin-bottom: 15px;">
             <div>
-                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(250, 235, 215);">Selecionar Turma</label>
+                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
+                    <font style="color:rgb(255, 255, 255);">Selecionar Turma</font>
+                </label>
             </div>
             <div>
                 <select name="turmaID" class="custom-select" {{ $readOnly }}>
                     <option value="0" disabled selected hidden>Selecione uma Turma</option>
                     @foreach ($turmas as $turma)
-                    <option value={{$turma->id}}>{{ $turma->turma }}</option>
+                    <option value={{$turma->id}} {{ (isset($lancamentoFo) && ($lancamentoFo->aluno->turma->id == $turma->id) ? 'selected': '') }}>{{ $turma->turma }}</option>
                     @endforeach
                 </select>
             </div>
-            <div id="container-turma"></div>
+            <div id="container-turma">
+                @if(isset($lancamentoFo))
+                @include('lancamentos.lancamentoAlunosFO', ['alunosTurma' => [$lancamentoFo->aluno], 'edit' => true])
+                @endif
+            </div>
         </div>
 
         <div class="alert alert-danger errors-lancamento-fo" role="alert"></div>
@@ -116,6 +139,9 @@
 
         <div style="margin-top:24px;">
             <button id="btnRegistraFO" type="button" class="btn btn-primary" style="display: none;">Registrar Fato Observado</button>
+            @if(isset($lancamentoFo))
+            <button id="btnAtualizaFO" type="button" class="btn btn-success">Atualizar Fato Observado</button>
+            @endif
         </div>
     </div>
     <script>
@@ -130,15 +156,20 @@
                 language: "pt-BR"
             });
 
+            $("div#datepicker").datepicker("setDate", $("#lancamentoFatoObservado input[name=dateObs]").val());
+
             $(document).on('change', 'select.required_to_show_button', function() {
                 $('select.required_to_show_button').each(function(index, element) {
                     if ($(element).val() == 0) {
-                        $('button.btn.btn-primary').slideUp(100);
+                        $('#btnRegistraFO.btn.btn-primary').slideUp(100);
                         return false;
                     }
-                    $('button.btn.btn-primary').slideDown(100);
+                    $('#btnRegistraFO.btn.btn-primary').slideDown(100);
                 });
+            });
 
+            $(document).on('change keyup paste', 'textarea.required_to_show_button', function() {
+                $('#btnAtualizaFO.btn.btn-success').slideDown(100);
             });
 
             $('#btnRegistraFO.btn.btn-primary').click(function(evt) {
@@ -162,14 +193,55 @@
                     },
                     success: function(data) {
 
-                        $('div.success-lancamento-fo').html(data.response).slideDown();
+                        if (data.status == 'err') {
+                            $('div.errors-lancamento-fo').html(data.response).slideDown();
+                        } else {
+                            $('div.success-lancamento-fo').html(data.response).slideDown();
 
-                        setTimeout(function() {
-                            $('div.success-lancamento-fo').slideUp(200, function() {
-                                $(this).removeClass('alert-success').empty();
-                                $('div#full-modal').modal('hide');
-                            });
-                        }, 3000);
+                            setTimeout(function() {
+                                $('div.success-lancamento-fo').slideUp(200, function() {
+                                    $(this).removeClass('alert-success').empty();
+                                    $('div#full-modal').modal('hide');
+                                });
+                            }, 3000);
+                        }
+
+                    },
+                    error: function(jqxhr) {
+                        $('div.errors-lancamento-fo').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                    }
+                });
+            });
+
+            $('#btnAtualizaFO.btn.btn-success').click(function(evt) {
+                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+                var formData = $('form#lancamentoFatoObservado').serialize();
+                var url = "ajax/lancamentos/{{ (isset($lancamentoFo->id) ? $lancamentoFo->id : null) }}";
+
+                $.ajax({
+                    dataType: 'json',
+                    url: url,
+                    type: 'PUT',
+                    data: formData,
+                    beforeSend: function() {
+                        $('div.errors-lancamento-fo').empty().hide();
+                        $('div.success-lancamento-fo').empty().hide();
+                    },
+                    success: function(data) {
+
+                        if (data.status == 'err') {
+                            $('div.errors-lancamento-fo').html(data.response).slideDown();
+                        } else {
+                            $('div.success-lancamento-fo').html(data.response).slideDown();
+
+                            setTimeout(function() {
+                                $('div.success-lancamento-fo').slideUp(200, function() {
+                                    $(this).removeClass('alert-success').empty();
+                                    $('div#full-modal').modal('hide');
+                                });
+                            }, 3000);
+                        }
 
                     },
                     error: function(jqxhr) {
@@ -205,12 +277,16 @@
             });
 
             $(document).on('change', 'input[name="ano_formacao"]', function(evt) {
+                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
                 $('form#lancamentoFatoObservado').get(0).reset();
                 $('div#container-turma').empty();
                 $('div#datepicker').datepicker('clearDates');
             });
 
-            $(document).on('change', 'select[name="omctID"]', function(){
+            $(document).on('change', 'select[name="omctID"]', function(evt) {
+                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
                 $('div#container-turma').empty();
                 $('div#datepicker').datepicker('clearDates');
             });

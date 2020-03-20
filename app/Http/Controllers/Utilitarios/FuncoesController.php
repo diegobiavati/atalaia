@@ -78,15 +78,26 @@ class FuncoesController
         return null;
     }
 
-    public static function retornaBotaoAnoFormacao(){
+    public static function retornaBotaoAnoFormacao($id_ano_formacao = null)
+    {
         $anos_formacao = AnoFormacao::orderBy('formacao', 'desc')->get();
-        if(count($anos_formacao)>0){
+        if (count($anos_formacao) > 0) {
             $response_ano_formacao[] = '<div style="text-align: center; margin-top: 52px;"><div class="btn-group btn-group-toggle" data-toggle="buttons">';
-            $i=0;
-            foreach($anos_formacao as $ano_formacao){
-                $status_active_label = ($i==0)?'active':'';
-                $status_checked_input = ($i==0)?'checked':'';
-                $response_ano_formacao[] = '<label class="btn btn-secondary '.$status_active_label.'" style="text-align: center;" ><input type="radio" name="ano_formacao" value="'.$ano_formacao->id.'" '.$status_checked_input.' /> '.$ano_formacao->formacao.'</label>';
+            $i = 0;
+            foreach ($anos_formacao as $ano_formacao) {
+                if (isset($id_ano_formacao)) {
+                    if ($id_ano_formacao == $ano_formacao->id) {
+                        $status_active_label = ($id_ano_formacao == $ano_formacao->id) ? 'active' : '';
+                        $status_checked_input = ($id_ano_formacao == $ano_formacao->id) ? 'checked' : '';
+
+                        $response_ano_formacao[] = '<label class="btn btn-secondary ' . $status_active_label . ' " style="text-align: center;" ><input type="radio" name="ano_formacao" value="' . $ano_formacao->id . '" ' . $status_checked_input . ' /> ' . $ano_formacao->ano_cfs . '</label>';
+                    }
+                } else {
+                    $status_active_label = ($i == 0) ? 'active' : '';
+                    $status_checked_input = ($i == 0) ? 'checked' : '';
+                    $response_ano_formacao[] = '<label class="btn btn-secondary ' . $status_active_label . ' " style="text-align: center;" ><input type="radio" name="ano_formacao" value="' . $ano_formacao->id . '" ' . $status_checked_input . ' /> ' . $ano_formacao->ano_cfs . '</label>';
+                }
+
                 $i++;
             }
             $response_ano_formacao[] = '</div></div>';
@@ -96,7 +107,8 @@ class FuncoesController
         return implode('', $response_ano_formacao);
     }
 
-    public static function retornaIdadePelaDataNascimento($dataNascimento){//Formato Y-m-d
+    public static function retornaIdadePelaDataNascimento($dataNascimento)
+    { //Formato Y-m-d
 
         $date = new DateTime($dataNascimento);
         $interval = $date->diff(new DateTime(date('Y-m-d')));

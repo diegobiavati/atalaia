@@ -117,7 +117,11 @@
         <tbody>
             <!--<tr style="background-color: #dc3545;">-->
             <tr>
+                @if(isset($parametros))
+                <textarea class="form-control" name="textCandidatosAguardando" rows="3" style="display: inline;border: 1px solid #000;width: 99%;font-size: x-small; font-family: Arial;" readonly>{{$parametros->candidato_aguar_aprov}}</textarea>
+                @else
                 <th scope="col" style="width:10%;">Não há candidato aguardando matrícula para o ano atual.</th>
+                @endif
             </tr>
         </tbody>
     </table>

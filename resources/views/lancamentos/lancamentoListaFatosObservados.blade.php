@@ -9,7 +9,8 @@
                     <th>Tipo</th>
                     <th style="width: 30%;text-align: left;">Observação</th>
                     <th>UETE</th>
-                    <th>Opções2</th>
+                    <th>Opções</th>
+                    <th>Situação</th>
                 </tr>
             </thead>
             <tbody>
@@ -22,7 +23,18 @@
                     <td style="text-align: center;">{{ (($aluno->tipo == 0) ? 'Negativo' : (($aluno->tipo == 1) ? 'Neutro' : (($aluno->tipo == 2) ? 'Positivo' : null)) ) }}</td>
                     <td style="text-align: left;">{{$aluno->observacao}}</td>
                     <td style="text-align: left;">{{$aluno->uete}}</td>
-                    <td><a href="javascript: void(0);" class="no-style" title="Visualizar Fato Observado" onclick="abrirFichaIndividual('{{route($rota)}}', '{{$aluno}}');"><i class="ion-android-clipboard" style="font-size: 22px;"></i></a></td>
+                    <td><a href="javascript: void(0);" class="no-style" title="Visualizar Fato Observado" onclick="abrirFichaIndividual({{$aluno->id}});"><i class="ion-android-clipboard" style="font-size: 22px;"></i></a></td>
+                    <td>
+                        @if(isset($aluno->providencia))
+                            @if($aluno->fatd == 'S')
+                                <font style="color:rgb(16, 179, 16)">Resolvido com FATD</font>
+                            @else
+                                <font style="color:rgb(0,0,255)">Resolvido sem FATD</font>
+                            @endif
+                        @else
+                        <font style="color:rgb(255,0,0)">Não Resolvido</font>
+                        @endif
+                    </td>
                 </tr>
                 @endforeach
 
@@ -31,9 +43,7 @@
     </div>
 </form>
 <script>
-    function abrirFichaIndividual(rota, aluno) {
-
-        window.open(rota + '?params=' + aluno);
-
+    function abrirFichaIndividual(lancamento) {
+        carregaOpcaoAjaxContent('lancamentos', lancamento + '/edit', 'Modal');
     }
 </script>

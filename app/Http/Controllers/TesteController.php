@@ -21,7 +21,7 @@ class TesteController extends Controller
      */
     public function index()
     {
-      
+
         /*$alunos = Alunos::carregaAlunosVsAlunosSitDiv();
 
         foreach($alunos as $aluno){
@@ -57,7 +57,7 @@ class TesteController extends Controller
             $query->where('al_inscricao', $param);
         })->get();*/
 
-        
+
         //$aluno = Alunos::get();
 
         /*$param = '2019';
@@ -70,14 +70,91 @@ class TesteController extends Controller
         /*dd(count(AlunosCurso::whereHas('alunos', function ($query) use ('$param') {
             $query->where('al_inscricao', $param);
         })->get()));*/
-        
+
         //return response()->json($aluno);
 
-        $html = view('admin.aluno.alunoSitDiversas')->render();
+        /*$html = view('admin.aluno.alunoSitDiversas')->render();
 
         $list[] = $html;
         
-        return response()->json($list);
+        return response()->json($list);*/
+
+        $arquivoConcurso = file(storage_path('app/public/temp/Alunos_Concurso.CSV'), FILE_TEXT);
+        $arquivoAtalaia = file(storage_path('app/public/temp/Alunos_Atalaia.csv'), FILE_TEXT);
+
+        $contadorConcurso = count($arquivoConcurso);
+        $contadorAtalaia = count($arquivoAtalaia);
+        echo '<table border="1">
+        <tr>
+        <td>ano</td>
+        <td>inscricao</td>
+        <td>nome</td>
+        <td>data_nascimento</td>
+        <td>naturalidade_cidade</td>
+        <td>naturalidade_uf</td>
+        <td>naturalidade_pais</td>
+        <td>data_incorporacao</td>
+        <td>cod_sitanterior</td>
+        <td>cod_sit2</td>
+        <td>endereco</td>
+        <td>bairro</td>
+        <td>cidade</td>
+        <td>uf</td>
+        <td>cep</td>
+        <td>tel_residencial</td>
+        <td>tel_comercial</td>
+        <td>celular</td>
+        <td>celular2</td>
+        <td>email</td>
+        <td>sca_notadou</td>
+        <td>senha</td>
+        <td>sca_omct</td>
+        <td>area</td>
+        <td>sca_classfinal</td>
+        <td>sexo</td>
+        </tr>';
+        for ($i = 1; $i < $contadorAtalaia; $i++) {
+
+            $explode = explode(';', $arquivoAtalaia[$i]);
+
+            for ($l = 1; $l < $contadorConcurso; $l++) {
+                $explodeConcurso = explode(';', utf8_encode($arquivoConcurso[$l]));
+
+                if ($explode[0] === $explodeConcurso[1]) { //Se o número da inscricao existir no arquivo do Concurso
+                    //echo $arquivoConcurso[$l] . '<hr>';
+                    echo '<tr>
+                             <td>' . $explodeConcurso[0] . '</td>
+                             <td>' . $explodeConcurso[1] . '</td>
+                             <td>' . $explodeConcurso[7] . '</td>
+                             <td>' . date('Y-m-d', strtotime($explodeConcurso[11])) . '</td>
+                             <td>' . $explodeConcurso[17] . '</td>
+                             <td>' . $explodeConcurso[18] . '</td>
+                             <td>' . $explodeConcurso[19] . '</td>
+                             <td>' . $explodeConcurso[33] . '</td>
+                             <td>null</td>
+                             <td>null</td>
+                             <td>' . $explodeConcurso[20] . '</td>
+                             <td>' . $explodeConcurso[23] . '</td>
+                             <td>' . $explodeConcurso[24] . '</td>
+                             <td>' . $explodeConcurso[25] . '</td>
+                             <td>' . $explodeConcurso[26] . '</td>
+                             <td>' . $explodeConcurso[27] . '</td>
+                             <td>' . $explodeConcurso[28] . '</td>
+                             <td>' . $explodeConcurso[29] . '</td>
+                             <td>null</td>
+                             <td>' . $explodeConcurso[30] . '</td>
+                             <td>' . $explodeConcurso[70] . '</td>
+                             <td>' . $explodeConcurso[3] . '</td>
+                             <td>' . $explodeConcurso[72] . '</td>
+                             <td>' . $explodeConcurso[4] . '</td>
+                             <td>' . $explodeConcurso[66] . '</td>
+                             <td>' . $explodeConcurso[14] . '</td>
+                        </tr>';
+                    break;
+                }
+            }
+        }
+        echo '</table>';
     }
 
     /**

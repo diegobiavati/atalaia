@@ -69,7 +69,6 @@
 
         $('#consultarFO').click(function(evt) {
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-
             carregaOpcaoAjaxContent('lancamentos', 'viewConsultarFO', 'noModal');
         });
     });

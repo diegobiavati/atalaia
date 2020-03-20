@@ -12,9 +12,7 @@ use App\Models\LancamentoFo;
 use App\Models\OMCT;
 use App\Models\Operadores;
 use App\Models\TurmasPB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use PharIo\Manifest\Author;
 
 class LancamentosController extends Controller
 {
@@ -80,13 +78,15 @@ class LancamentosController extends Controller
             $lancamentoFo->operador_id = session()->get('login')['operadorID'];
             $lancamentoFo->tipo = $request->radioTipoFO;
             $lancamentoFo->observacao = $request->textAreaObservacaoFO;
-            $lancamentoFo->providencia = $request->textAreaProvidencias;
+            //$lancamentoFo->providencia = $request->textAreaProvidencias;
             $lancamentoFo->data_obs = $dataFO;
-
+            
             $lancamentoFo->conteudo_atitudinal = json_encode($listaAtitudinal);
 
             if (!$lancamentoFo->save()) {
                 $invalidaOperacao = true;
+            }else{
+                $this->LancarProvidencia($request, $lancamentoFo->id);
             }
         }
 
@@ -124,14 +124,20 @@ class LancamentosController extends Controller
                 case 'lancarFO':
 
                     $conteudoAtitudinal = ConteudoAtitudinal::all();
-                    $turmas = TurmasPB::all();
 
+                    if($this->_ownauthcontroller->PermissaoCheck(1)){
+                        $turmas = TurmasPB::all();
+                    }else{
+                        $turmas = Alunos::where(['omcts_id' => session()->get('login.omctID')])->with('turma')->groupBy('turma_id')->get(['turma_id']);
+                        
+                    }
+                    
                     $rotaTurma = 'ajax/lancamentosTurma';
 
                     $operadores = Operadores::find(session()->get('login')['operadorID']);
                     $funcaoOperador = explode(',', $operadores->id_funcao_operador);
 
-                    $readOnly = '';
+                    $readOnly = null;
 
                     return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'funcaoOperador', 'readOnly'))
                         ->with('ownauthcontroller', $this->_ownauthcontroller);
@@ -176,14 +182,13 @@ class LancamentosController extends Controller
         $whereNomeGuerra = (isset($request->nome_aluno) ? " AND alunos.nome_guerra = '$request->nome_aluno'" : null);
 
         $lancamentoFO = DB::select("SELECT lancamento_fo.id, lancamento_fo.data_obs, lancamento_fo.tipo, lancamento_fo.observacao, alunos.numero, alunos.nome_guerra, omcts.omct as uete
+                                        , lancamento_fo.providencia, lancamento_fo.fatd
                                         FROM lancamento_fo
                                         INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
                                         INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
                                         WHERE alunos.data_matricula = $request->ano_formacao " . $whereUete . $whereNumeroAluno . $whereNomeGuerra);
 
-        $rota = 'ajax/';
-
-        return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO', 'rota'));
+        return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'));
     }
 
     /**
@@ -194,7 +199,27 @@ class LancamentosController extends Controller
      */
     public function edit($id)
     {
-        //
+        if ($this->_ownauthcontroller->PermissaoCheck(1)) {
+            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
+        } else {
+            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
+        }
+
+        $lancamentoFo = LancamentoFo::find($id);
+        $ano_formacao = $lancamentoFo->aluno->data_matricula;
+
+        $conteudoAtitudinal = ConteudoAtitudinal::all();
+        $turmas = TurmasPB::all();
+
+        $rotaTurma = 'ajax/lancamentosTurma';
+
+        $operadores = $lancamentoFo->operador;
+        $funcaoOperador = explode(',', $operadores->id_funcao_operador);
+
+        $readOnly = 'readOnly';
+
+        return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'funcaoOperador', 'lancamentoFo', 'ano_formacao', 'readOnly'))
+            ->with('ownauthcontroller', $this->_ownauthcontroller);
     }
 
     /**
@@ -206,7 +231,22 @@ class LancamentosController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $retorno['status'] = 'err';
+        $retorno['response'] = 'Ocorreu um Erro, Relogue no Sistema';
+
+        $lancamentoFo = LancamentoFo::find($id);
+
+        if ($lancamentoFo->providencia == null) {
+            if ($this->LancarProvidencia($request, $id)) {
+                $retorno['status'] = 'success';
+                $retorno['response'] = 'Providência Lançada Com Sucesso.';
+            }
+        } else {
+            $retorno['status'] = 'err';
+            $retorno['response'] = 'Já Existe Uma Providência Lançada.';
+        }
+
+        return response()->json($retorno);
     }
 
     /**
@@ -218,5 +258,13 @@ class LancamentosController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    private function LancarProvidencia(Request $request, $id){
+
+        $providencia = $request->textAreaProvidencias;
+        $fatd = ((isset($request->btnPunir) && $request->btnPunir == 'on') ? 'S': 'N');
+
+        return (LancamentoFo::find($id)->update(['providencia' => $providencia, 'fatd' => $fatd]));
     }
 }

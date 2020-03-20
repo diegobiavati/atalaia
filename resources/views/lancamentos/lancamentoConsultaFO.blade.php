@@ -35,11 +35,18 @@
     <script>
         $(document).ready(function() {
 
+            $(document).on('change', 'input[name="ano_formacao"]', function(evt) {
+                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+                $('div#container-temp').empty();
+            });
+
             $('#btnConsultaFO.btn.btn-primary').click(function(evt) {
                 evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
                 var formData = $('form#consultaFatoObservado').serialize();
-
+                //formData = formData + '&ano_formacao=' + $('input[name="ano_formacao"]:checked').val();
+                
                 $.ajax({
                     url: $('input[name="rotaConsulta"]').val(),
                     type: 'POST',
