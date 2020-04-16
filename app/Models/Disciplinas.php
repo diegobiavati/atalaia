@@ -46,15 +46,17 @@ class Disciplinas extends Model
 
         $razao = (isset($disciplina_razao))?array_sum($disciplina_razao):1;
 
-        $notas_aluno = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesID)->where('alunos_id', $aluno_id)->get();
+        if(isset($avaliacoesID)){
+            $notas_aluno = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesID)->where('alunos_id', $aluno_id)->get();
 
-        foreach($notas_aluno as $item){
-            if($item->avaliacao->avaliacao_recuperacao==0){
-                $notas[$item->avaliacao->nome_abrev] = $item->getNota();
-            } else {
-                $nota_recuperacao = $item->getNota();
-            }
-        }
+            foreach($notas_aluno as $item){
+                if($item->avaliacao->avaliacao_recuperacao==0){
+                    $notas[$item->avaliacao->nome_abrev] = $item->getNota();
+                } else {
+                    $nota_recuperacao = $item->getNota();
+                }
+            }    
+        }    
 
         if(isset($notas)){
             $avaliacoes = $notas;
@@ -80,8 +82,6 @@ class Disciplinas extends Model
         );
 
         return $data;
-
-
     }
       
 }

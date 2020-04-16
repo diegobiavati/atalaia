@@ -8,6 +8,7 @@
         "php": ">=7.1.3",
         "barryvdh/laravel-cors": "^0.11.3",
         "barryvdh/laravel-ide-helper": "^2.6",
+        "codedge/laravel-fpdf": "^1.5",
         "fideloper/proxy": "~4.0",
         "khill/lavacharts": "3.0.*",
         "laravel/framework": "5.6.*",

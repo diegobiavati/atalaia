@@ -2065,7 +2065,7 @@ function onMessageArrived(message) {
         } 
 
         function loadRelatorioAjaxContent(routeAs){
-            var idANoFormacao = $('input[name="ano_formacao"]:checked').val();
+            var idANoFormacao = $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
             $.ajax({
                 type: 'GET',
                 url: '/ajax/' + routeAs + '/' + idANoFormacao,

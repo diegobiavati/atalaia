@@ -633,9 +633,6 @@ class Alunos extends Model
             $source = '/esanet/UploadDeArquivos/Sistemas/NetAluno/Fotos/' . $this->ano_formacao->formacao . '_' . $this->numero . '.jpg';
             $destination = storage_path('app/public/') . 'temp/' . $this->ano_formacao->formacao . '_' . $this->numero . '.jpg';
 
-            //$cmd = 'smbclient //192.168.0.3/ESANet/ -U ESA/2tenjoaovictor --pass @Joao321 -c "get '.$source.' '.$destination.'"';
-            //$cmd = 'whoami';
-
             $smbClientePhp = new SmbClientPhp('//192.168.0.3/ESANet/', 'ESA/2tenjoaovictor', '@Joao321');
             $smbClientePhp->get($source, $destination);
 

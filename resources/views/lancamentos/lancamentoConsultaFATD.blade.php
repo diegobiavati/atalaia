@@ -1,9 +1,8 @@
-<form id="consultaFatoObservado">
+<form id="consultaFATD">
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="rotaConsulta" value="{{$rotaConsulta}}" />
 
     <div style="width: 50%; margin: 22px auto; text-align: left; border-bottom: 1px solid #ccc;">
-        <h4 style="text-align: center; margin-bottom: 12px;">Consulta de Fatos Observados</h4>
+        <h4 style="text-align: center; margin-bottom: 12px;">Consulta de FATD</h4>
 
         {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao() !!}
 
@@ -29,7 +28,7 @@
     </div>
 
     <div style="margin-top:24px;">
-        <button id="btnConsultaFO" type="button" class="btn btn-primary" >Consultar Fato Observado</button>
+        <button id="btnConsultaFATD" type="button" class="btn btn-primary" >Consultar FATD</button>
     </div>
     <div id="container-temp" style="margin-top:24px;"></div>
     <script>
@@ -41,14 +40,14 @@
                 $('div#container-temp').empty();
             });
 
-            $('#btnConsultaFO.btn.btn-primary').click(function(evt) {
+            $('#btnConsultaFATD.btn.btn-primary').click(function(evt) {
                 evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
-                var formData = $('form#consultaFatoObservado').serialize();
+                var formData = $('form#consultaFATD').serialize();
                 //formData = formData + '&ano_formacao=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
                 
                 $.ajax({
-                    url: $('input[name="rotaConsulta"]').val(),
+                    url: 'ajax/listaFATD',
                     type: 'POST',
                     data: formData,
                     beforeSend: function() {
@@ -66,8 +65,6 @@
                     }
                 });
             });
-
-            
         });
     </script>
 </form>

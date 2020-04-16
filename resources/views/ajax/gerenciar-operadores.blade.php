@@ -70,7 +70,7 @@
                                         <td class="botao-action-table">
                                             <a href="javascript: void(0);" class="no-style" onclick="dialogInfoUser({{$op->usuario->id}}, 'operador');" title="Detalhes do operador"><i class="ion-information-circled"></i></a>
                                             <a href="javascript: void(0);" class="no-style" onclick="dialogEditarOperador({{$op->id}});" title="Editar configurações do operador"><i class="ion-android-create"></i></a>
-                                            <a href="javascript: void(0);" class="no-style" onclick="dialogRemoverOperador({{$op->id}}, '{{$op->nome_guerra}}');" title="Remover este Operador do Sistema"><i class="ion-android-delete" style="font-size: 22px;"></i></a>
+                                            <!--<a href="javascript: void(0);" class="no-style" onclick="dialogRemoverOperador({{$op->id}}, '{{$op->nome_guerra}}');" title="Remover este Operador do Sistema"><i class="ion-android-delete" style="font-size: 22px;"></i></a>-->
                                         </td>
                                     </tr>
                                 @endforeach

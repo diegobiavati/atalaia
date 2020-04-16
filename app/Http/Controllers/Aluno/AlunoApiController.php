@@ -31,6 +31,7 @@ use App\Models\AnoFormacao;
 use App\Models\Instrumentos;
 use App\Models\OMCT;
 use App\Models\SituacoesDiversas;
+use App\Models\Users;
 use Illuminate\Support\Facades\Validator;
 
 class AlunoApiController extends Controller
@@ -314,7 +315,6 @@ class AlunoApiController extends Controller
         $dados['data_baixa_ultima_om'] = FuncoesController::formatDateBrtoEn($dados['data_baixa_ultima_om']);
         $dados['doc_idt_militar_dt_exp'] = FuncoesController::formatDateBrtoEn($dados['doc_idt_militar_dt_exp']);
 
-        
         $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
 
         if (
@@ -337,6 +337,10 @@ class AlunoApiController extends Controller
 
         if ($validador->passes()) {
 
+            if(trim($aluno->email) <> trim($dados['email'])){
+                Users::where(['email' => $aluno->email])->update(['email' => $dados['email']]);
+            }
+            
             $update = $aluno->update($dados);
 
             if ($update) {

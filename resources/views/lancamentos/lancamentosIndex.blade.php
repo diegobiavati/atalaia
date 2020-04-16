@@ -31,6 +31,14 @@
             <span>Consultar FO</span>
         </a>
     </div>
+    <div class="box-option-menu-docs-rels">
+        <a href="javascript: void(0);" class="no-style" id="consultarFATD">
+            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: #0A2A1B; margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
+                <i class="ion-search" style="font-size: 44px;"></i>
+            </div>
+            <span>Consultar FATD</span>
+        </a>
+    </div>
 
 </div>
 
@@ -71,6 +79,11 @@
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
             carregaOpcaoAjaxContent('lancamentos', 'viewConsultarFO', 'noModal');
         });
+
+        $('#consultarFATD').click(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+            carregaOpcaoAjaxContent('lancamentos', 'viewConsultarFATD', 'noModal');
+        });
     });
 
     function carregaOpcaoAjaxContent(tipo, item, modo) {
@@ -82,7 +95,7 @@
             type: 'GET',
             url: '/ajax/' + tipo + '/' + item,
             beforeSend: function() {
-                $('div#lancamentoTemp').empty();
+                //$('div#lancamentoTemp').empty();
                 if (modo == 'Modal') {
                     $('#full-modal').modal('show');
                     $('div#body-full-modal').empty();

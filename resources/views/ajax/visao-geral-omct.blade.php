@@ -81,6 +81,28 @@
         </div>
     </div>
     @endif
+
+    @if(in_array(4, $funcaoOperador))
+    <!--Só libera se for Sargenteante da UETE-->
+    <div class="card">
+        <div style="background-color: #088A4B; border-radius: 3px 3px 0 0;">
+            <div style="text-align: center; color: #fff; padding: 10px;">
+                <i class="ion-android-warning" style="font-size: 44px;"></i><br />
+                <h5>FATD</h5>
+            </div>
+        </div>
+        <div class="card-body">
+
+            <h5 class="card-title"><b>Pendentes</b></h5>
+            <div class="card-text" style="width: 80%; margin: 40px auto;">
+                <p class="card-text" style="text-align: center; font-size: 44px; line-height: 22px;">
+                    {{ $fatd->count() }}
+                </p>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 
 <div class="card-deck" style="margin-top: 36px;">

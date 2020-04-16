@@ -102,12 +102,15 @@
                 </label>
             </div>
             <div>
-                <textarea class="form-control required_to_show_button" name="textAreaProvidencias" rows="3" style="display: inline;" {{ (isset($lancamentoFo->providencia) ? $readOnly : '') }}>{{ ((isset($lancamentoFo)) ? $lancamentoFo->providencia : null) }}</textarea>
+                <textarea class="form-control required_to_show_button" name="textAreaProvidencias" rows="3" style="display: inline;">{{ ((isset($lancamentoFo)) ? $lancamentoFo->providencia : null) }}</textarea>
             </div>
 
             <div class="btn-group-toggle" data-toggle="buttons" style="margin: 10px;">
+                <label class="btn btn-outline-warning {{ ((isset($lancamentoFo) && ($lancamentoFo->frad == 'S')) ? 'active' : '') }}">
+                    <input type="radio" name="btnPunir" value="Frad" autocomplete="off" {{ ((isset($lancamentoFo) && ($lancamentoFo->frad == 'S')) ? 'checked' : '') }}>Enviar para FRAD
+                </label>
                 <label class="btn btn-outline-danger {{ ((isset($lancamentoFo) && ($lancamentoFo->fatd == 'S')) ? 'active' : '') }}">
-                    <input type="checkbox" name="btnPunir" {{ ((isset($lancamentoFo) && ($lancamentoFo->fatd == 'S')) ? 'checked' : '') }} autocomplete="off" {{ (isset($lancamentoFo->providencia) ? 'disabled': '') }}>Punir com FATD (Enviar para Sargenteante)
+                    <input type="radio" name="btnPunir" value="Fatd" autocomplete="off" {{ ((isset($lancamentoFo) && ($lancamentoFo->fatd == 'S')) ? 'checked' : '') }}>Apurar com FATD (Enviar para Sargenteante)
                 </label>
             </div>
         </div>
@@ -121,10 +124,11 @@
             </div>
             <div>
                 <select name="turmaID" class="custom-select" {{ $readOnly }}>
+                    @if(isset($lancamentoFo))
+                    @include('lancamentos.lancamentoConsultaTurma', ['turma' => $lancamentoFo->aluno->turma])
+                    @else
                     <option value="0" disabled selected hidden>Selecione uma Turma</option>
-                    @foreach ($turmas as $turma)
-                    <option value={{$turma->id}} {{ (isset($lancamentoFo) && ($lancamentoFo->aluno->turma->id == $turma->id) ? 'selected': '') }}>{{ $turma->turma }}</option>
-                    @endforeach
+                    @endif
                 </select>
             </div>
             <div id="container-turma">
@@ -256,7 +260,7 @@
                 dataPost = '_token=' + $('input[name="_token"]').val() +
                     '&turmaID=' + $(this).children("option:selected").val() +
                     '&omctID=' + $('select.custom-select[name="omctID"]').children("option:selected").val() +
-                    '&anoFormacaoID=' + $('input[name="ano_formacao"]:checked').val();
+                    '&anoFormacaoID=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
 
                 $.ajax({
                     url: $('input[name="rotaTurma"]').val(),
@@ -282,6 +286,7 @@
                 $('form#lancamentoFatoObservado').get(0).reset();
                 $('div#container-turma').empty();
                 $('div#datepicker').datepicker('clearDates');
+                $('select.custom-select[name="turmaID"]').empty();
             });
 
             $(document).on('change', 'select[name="omctID"]', function(evt) {
@@ -289,6 +294,26 @@
 
                 $('div#container-turma').empty();
                 $('div#datepicker').datepicker('clearDates');
+
+                dataPost = '_token=' + $('input[name="_token"]').val() +
+                    '&omctID=' + $('select.custom-select[name="omctID"]').children("option:selected").val() +
+                    '&anoFormacaoID=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
+
+                //Busca as turmas da UETE seleciona
+                $.ajax({
+                    url: 'ajax/consultaTurma',
+                    type: 'POST',
+                    data: dataPost,
+                    beforeSend: function() {
+                        $('select.custom-select[name="turmaID"]').empty();
+                    },
+                    success: function(data) {
+                        $('select.custom-select[name="turmaID"]').html(data);
+                    },
+                    error: function(jqxhr) {
+                        $('div#container-turma').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                    }
+                });
             });
 
         });

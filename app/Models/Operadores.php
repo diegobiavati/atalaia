@@ -27,4 +27,8 @@ class Operadores extends Model
         return $this->belongsTo('App\User', 'email', 'email');
     }
 
+    public function operadoresTipo(){
+        return $this->belongsTo('App\Models\OperadoresTipo', 'id_funcao_operador', 'id');
+    }
+
 }

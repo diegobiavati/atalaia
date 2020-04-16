@@ -19,10 +19,10 @@ use App\Models\AvaliacoesProntoFaltas;
 use App\Models\AvaliacoesProntoFaltasStatus;
 use App\Models\Disciplinas;
 use App\Models\Operadores;
+use App\Models\LancamentoFo;
 
 
 use App\Http\OwnClasses\ClassLog;
-use App\Models\LancamentoFo;
 
 setlocale(LC_ALL, "pt_BR.utf8");
 //date_default_timezone_set('America/Sao_Paulo');
@@ -57,6 +57,12 @@ class AjaxOperadorController extends Controller
             $query->where(['data_matricula' => $param, 'omcts_id' => session()->get('login.omctID')]);
         })->get();
 
+        $fatd = LancamentoFo::whereHas('aluno', function($query) use($param){
+            $query->where(['data_matricula' => $param, 'omcts_id' => session()->get('login.omctID')]);
+        })->whereHas('fatdLancada', function($query) {
+            $query->where(['justificado' => null]);
+        })->get();
+
         $operadores = Operadores::find(session()->get('login.operadorID'));
         $funcaoOperador = explode(',', $operadores->id_funcao_operador);
 
@@ -69,6 +75,7 @@ class AjaxOperadorController extends Controller
                                                 ->with('ownauthcontroller', $ownauthcontroller)
                                                 ->with('alunos', $alunos)
                                                 ->with('lancamentoFo', $lancamentoFo)
+                                                ->with('fatd', $fatd)
                                                 ->with('funcaoOperador', $funcaoOperador);
         }
     }

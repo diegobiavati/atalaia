@@ -6,13 +6,15 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
-use App\Models\Alunos;
+use App\Models\AnoFormacao;
 use App\Models\ConteudoAtitudinal;
+use App\Models\Fatd;
 use App\Models\LancamentoFo;
 use App\Models\OMCT;
 use App\Models\Operadores;
 use App\Models\TurmasPB;
 use Illuminate\Support\Facades\DB;
+use App\Http\FPDF\PDF;
 
 class LancamentosController extends Controller
 {
@@ -80,12 +82,12 @@ class LancamentosController extends Controller
             $lancamentoFo->observacao = $request->textAreaObservacaoFO;
             //$lancamentoFo->providencia = $request->textAreaProvidencias;
             $lancamentoFo->data_obs = $dataFO;
-            
+
             $lancamentoFo->conteudo_atitudinal = json_encode($listaAtitudinal);
 
             if (!$lancamentoFo->save()) {
                 $invalidaOperacao = true;
-            }else{
+            } else {
                 $this->LancarProvidencia($request, $lancamentoFo->id);
             }
         }
@@ -125,13 +127,6 @@ class LancamentosController extends Controller
 
                     $conteudoAtitudinal = ConteudoAtitudinal::all();
 
-                    if($this->_ownauthcontroller->PermissaoCheck(1)){
-                        $turmas = TurmasPB::all();
-                    }else{
-                        $turmas = Alunos::where(['omcts_id' => session()->get('login.omctID')])->with('turma')->groupBy('turma_id')->get(['turma_id']);
-                        
-                    }
-                    
                     $rotaTurma = 'ajax/lancamentosTurma';
 
                     $operadores = Operadores::find(session()->get('login')['operadorID']);
@@ -146,8 +141,28 @@ class LancamentosController extends Controller
                     $rotaConsulta = 'ajax/listaFatosObservados';
 
                     return view('lancamentos.lancamentoConsultaFO', compact('uetes', 'rotaConsulta'))->with('ownauthcontroller', $this->_ownauthcontroller);
+                case 'viewConsultarFATD':
+
+                    return view('lancamentos.lancamentoConsultaFATD', compact('uetes'))->with('ownauthcontroller', $this->_ownauthcontroller);
             }
         }
+    }
+
+    public function ConsultaTurma(Request $request)
+    {
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+
+        //if($this->_ownauthcontroller->PermissaoCheck(1)){
+        //    $turmas = TurmasPB::all();
+        //}else{
+        $turmas = TurmasPB::whereHas('alunos', function ($query) use ($request) {
+            $query->where(['omcts_id' => $request->omctID, 'data_matricula' => $request->anoFormacaoID]);
+        })->get();
+        //}
+
+        return view('lancamentos.lancamentoConsultaTurma', compact('turmas'));
     }
 
     public function ViewTurma(Request $request)
@@ -177,9 +192,12 @@ class LancamentosController extends Controller
             return;
         }
 
+        if (!isset($request->omctID)) {
+            return '<font style="color:red;font-size:14px;">Selecione uma UETE</font>';
+        }
         $whereUete = ((isset($request->omctID) && $request->omctID <> 'todas_omct') ? " AND alunos.omcts_id = $request->omctID" : null);
         $whereNumeroAluno = (isset($request->numero_aluno) ? " AND alunos.numero = $request->numero_aluno" : null);
-        $whereNomeGuerra = (isset($request->nome_aluno) ? " AND alunos.nome_guerra = '$request->nome_aluno'" : null);
+        $whereNomeGuerra = (isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
 
         $lancamentoFO = DB::select("SELECT lancamento_fo.id, lancamento_fo.data_obs, lancamento_fo.tipo, lancamento_fo.observacao, alunos.numero, alunos.nome_guerra, omcts.omct as uete
                                         , lancamento_fo.providencia, lancamento_fo.fatd
@@ -189,6 +207,220 @@ class LancamentosController extends Controller
                                         WHERE alunos.data_matricula = $request->ano_formacao " . $whereUete . $whereNumeroAluno . $whereNomeGuerra);
 
         return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'));
+    }
+
+    public function ViewListaFATD(Request $request)
+    {
+
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+
+        if (!isset($request->omctID)) {
+            return '<font style="color:red;font-size:14px;">Selecione uma UETE</font>';
+        }
+
+        //dd(session()->get('login.perfil'));
+
+        $rota = 'ajax.ficha-fatd';
+
+        $lancamentoFATD = LancamentoFo::whereHas('aluno', function ($query) use ($request) {
+            $anoFormacao = AnoFormacao::find($request->ano_formacao);
+
+            $where = array('data_matricula' => $anoFormacao->id);
+            if(($request->omctID <> 'todas_omct')){
+                $where['omcts_id'] = $request->omctID;
+            }
+
+            $query->where($where);
+        })->whereHas('fatdLancada', function($query){
+            $query->whereNotNull('lancamento_fo_id');
+        })->get();
+        
+        return view('lancamentos.lancamentoListaFATD', compact('lancamentoFATD', 'rota'));
+    }
+
+    public function ViewTelaFATD($id)
+    {
+
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+
+        /*$lancamentoFATD = LancamentoFo::whereHas('aluno', function ($query) use ($anoFormacao) {
+            $query->where(['data_matricula' => $anoFormacao->id, 'omcts_id' => session()->get('login.omctID')]);
+        })->with('aluno')->with('fatdLancada')->get();*/
+
+        return view('lancamentos.lancamentoFATD');
+    }
+
+    public function ViewFichaFATD(Request $request)
+    {
+        setlocale(LC_TIME, 'pt_BR', 'pt_BR.utf-8', 'pt_BR.utf-8', 'portuguese');
+        date_default_timezone_set('America/Sao_Paulo');
+
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+
+        $fatd = Fatd::where(['lancamento_fo_id' => $request->fatdID])->with('lancamentoFo')->first();
+        $operadorChefe = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2']])->first();
+
+        $pdf = new PDF();
+        $pdf->SetAutoPageBreak(false);
+        $pdf->AddPage();
+
+        //Cria a Borda
+        $pdf->Rect(10, 10, 190, 278);
+
+        $pdf->SetFont('Times', 'B', 10);
+
+        $pdf->SetXY(10, 14);
+        $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
+        $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
+        $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
+        $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
+
+        $pdf->SetFont('Times', 'B', 12);
+        $pdf->ln(5);
+        $pdf->Cell(0, 4, utf8_decode('FORMULÁRIO DE APURAÇÃO DE TRANSGRESSÃO DISCIPLINAR'), 0, 1, 'C', false);
+
+        $pdf->SetFont('Times', '', 10);
+
+        $pdf->Line(10, 41, 200, 41);
+        $pdf->ln(5);
+        $pdf->WriteHTML('Processo Nr <b>'.str_pad($fatd->nr_processo, 3, 0, STR_PAD_LEFT) . '-' . $fatd->ano.'</b>');
+        
+        $pdf->SetXY(155, 44);
+        $pdf->WriteHTML('<b>Data:</b>'.strftime('%e %b %y', strtotime($fatd->lancamentoFo->data_obs)));
+        $pdf->Line(10, 51, 200, 51);
+
+        $pdf->SetFont('Times', 'B', 12);
+        $pdf->SetXY(10, 55);
+        $pdf->Cell(0, 4, utf8_decode('IDENTIFICAÇÃO DO MILITAR'), 0, 1, 'C', false);
+
+        $pdf->SetFont('Times', '', 10);
+
+        $pdf->SetXY(10, 60);
+        $pdf->Cell(0, 5, utf8_decode('Grau hierárquico: Aluno CFGS'), 0, 1, 'L', false);
+
+        $pdf->WriteHTML(utf8_decode('Nome: ' . str_replace($fatd->lancamentoFo->aluno->nome_guerra, '<b>'.$fatd->lancamentoFo->aluno->nome_guerra.'</b>', $fatd->lancamentoFo->aluno->nome_completo)));
+        $pdf->SetXY(145, 65);
+        $pdf->Cell(0, 5, 'Nr / Idt ' . $fatd->lancamentoFo->aluno->doc_idt_militar . ' ' . $fatd->lancamentoFo->aluno->doc_idt_militar_o_exp, 0, 1, 'L', false);
+        $pdf->Line(10, 75, 200, 75);
+
+        $pdf->SetFont('Times', 'B', 12);
+        $pdf->SetXY(10, 80);
+        $pdf->Cell(0, 4, utf8_decode('IDENTIFICAÇÃO DO PARTICIPANTE'), 0, 1, 'C', false);
+
+        $pdf->SetFont('Times', '', 10);
+
+        $pdf->Cell(0, 5, utf8_decode('Grau hierárquico: ' . $fatd->lancamentoFo->operador->posto->postograd_abrev), 0, 1, 'L', false);
+        $pdf->WriteHTML(utf8_decode('Nome: ' . str_replace($fatd->lancamentoFo->operador->nome_guerra, '<b>'.$fatd->lancamentoFo->operador->nome_guerra.'</b>', $fatd->lancamentoFo->operador->nome)));
+        //$pdf->Cell(145, 0, 'Nome Completo: '.utf8_decode($fatd->lancamentoFo->operador->nome), 0, 1, 'L', false);
+        $pdf->SetXY(145, 93);
+        $pdf->Cell(0, 0, 'Nr / Idt '.$fatd->lancamentoFo->operador->idt_militar. ' ' . $fatd->lancamentoFo->operador->idt_militar_o_exp, 0, 1, 'L', false);
+        $pdf->Cell(0, 8, 'Subunidade/OM: '.utf8_decode($fatd->lancamentoFo->operador->omcts->sigla_omct), 0, 1, 'L', false);
+        $pdf->Line(10, 105, 200, 105);
+
+        $pdf->SetFont('Times', 'B', 12);
+        $pdf->SetXY(10, 110);
+        $pdf->Cell(0, 4, utf8_decode('RELATO DO FATO'), 0, 1, 'C', false);
+        
+        $pdf->SetFont('Times', '', 10);
+        $pdf->WriteHTML(utf8_decode($fatd->lancamentoFo->observacao));
+
+        $pdf->SetXY(10, 200);
+        $omct = explode('-', $fatd->lancamentoFo->operador->omcts->gu);
+        $pdf->Cell(0, 4, utf8_decode($omct[0].', '.$omct[1] . strftime(',%e de %B de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
+        $pdf->Ln(3);
+        $pdf->WriteHTML(utf8_decode('<p align="center">' . trim($fatd->lancamentoFo->operador->nome) . ' - ' . $fatd->lancamentoFo->operador->posto->postograd_abrev . '</p>'));
+        $pdf->WriteHTML('<p align="center">Participante</p>');
+
+        $pdf->Line(10, 220, 200, 220);
+        $pdf->SetFont('Times', 'B', 12);
+        $pdf->SetXY(10, 225);
+        $pdf->Cell(0, 4, utf8_decode('CIENTE DO MILITAR ARROLADO'), 0, 1, 'C', false);
+
+        $pdf->SetFont('Times', '', 10);
+        $pdf->Ln(5);
+        $pdf->MultiCell(0, 5, utf8_decode('      Declaro que tenho conhecimento de que me está sendo imputada a autoria dos fatos acima e me foi concedido o prazo de três dias úteis, para apresentar, por escrito, as minhas justificativas ou razões de defesa.'));
+        $pdf->Ln(15);
+    
+        $pdf->Cell(0, 4, utf8_decode($omct[0].', '.$omct[1] . strftime(',%e de %B de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
+        $pdf->Ln(3);
+
+        $pdf->SetFont('Times', '', 12);
+        $pdf->WriteHTML(utf8_decode('<p align="center">' . trim($fatd->lancamentoFo->aluno->nome_completo)) . ' - Aluno CFGS/' . $fatd->lancamentoFo->aluno->ano_formacao->ano_cfs . '</p>');
+        $pdf->SetXY(0, 270);
+        $pdf->WriteHTML('<b><p align="center">Arrolado</p></b>');
+
+
+        //2ª Página
+        $pdf->AddPage();
+        //Cria a Borda
+        $pdf->Rect(10, 10, 190, 278);
+
+        $pdf->SetFont('Times', 'B', 12);
+        $pdf->Ln(5);
+        $pdf->Cell(0, 4, utf8_decode('JUSTIFICATIVAS / RAZÕES DE DEFESA'), 0, 1, 'C', false);
+
+        $pdf->SetXY(15, 20);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+        $pdf->Cell(180, 8, '', 'B', 2, 'C', false);
+
+        $pdf->SetFont('Times', '', 10);
+        $pdf->Ln(10);
+        $pdf->Cell(0, 4, utf8_decode($omct[0].', '.$omct[1] . strftime(', ____ de %B de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
+        $pdf->Ln(3);
+
+        $pdf->SetFont('Times', '', 12);
+        $pdf->WriteHTML(utf8_decode('<p align="center">' . trim($fatd->lancamentoFo->aluno->nome_completo)) . ' - Aluno CFGS/' . $fatd->lancamentoFo->aluno->ano_formacao->ano_cfs . '</p>');
+        $pdf->SetXY(0, 130);
+        $pdf->WriteHTML('<b><p align="center">Arrolado</p></b>');
+
+        $pdf->Line(10, 140, 200, 140);
+        $pdf->Ln(10);
+        $pdf->Cell(0, 4, utf8_decode('DECISÃO DA AUTORIDADE COMPETENTE'), 0, 1, 'C', false);
+        $pdf->Ln(10);
+        $pdf->Cell(0, 4, utf8_decode('SOU DO PARECER QUE:'), 0, 1, 'L', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+        $pdf->Cell(0, 6, '', 'B', 2, 'C', false);
+
+        $pdf->SetFont('Times', '', 10);
+        $pdf->Ln(10);
+        $pdf->Cell(0, 4, utf8_decode($omct[0].', '.$omct[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
+
+        $pdf->SetFont('Times', '', 12);
+        $pdf->Ln(10);
+        $pdf->WriteHTML(utf8_decode('<p align="center">' . $operadorChefe->nome . ' - ' . $operadorChefe->posto->postograd_abrev . '</p>'));
+
+        $pdf->SetFont('Times', '', 10);
+        $pdf->Cell(0, 6, $operadorChefe->operadoresTipo->funcao_abrev, 0, 1,'C', false);
+
+        $pdf->SetXY(20, 282);
+        $pdf->Cell(0, 5, utf8_decode('PUNIÇÃO PUBLICADA NO Adt BI Nr ______________, de ________ de _______________________ de ________'), 0, 1, 'L', false);
+
+        $pdf->Output('I', 'Ficha_FATD.pdf');
+        exit();
     }
 
     /**
@@ -234,17 +466,17 @@ class LancamentosController extends Controller
         $retorno['status'] = 'err';
         $retorno['response'] = 'Ocorreu um Erro, Relogue no Sistema';
 
-        $lancamentoFo = LancamentoFo::find($id);
+        //$lancamentoFo = LancamentoFo::find($id);
 
-        if ($lancamentoFo->providencia == null) {
-            if ($this->LancarProvidencia($request, $id)) {
-                $retorno['status'] = 'success';
-                $retorno['response'] = 'Providência Lançada Com Sucesso.';
-            }
-        } else {
-            $retorno['status'] = 'err';
-            $retorno['response'] = 'Já Existe Uma Providência Lançada.';
+        //if ($lancamentoFo->providencia == null) {
+        if ($this->LancarProvidencia($request, $id)) {
+            $retorno['status'] = 'success';
+            $retorno['response'] = 'Providência Lançada Com Sucesso.';
         }
+        //} else {
+        //    $retorno['status'] = 'err';
+        //    $retorno['response'] = 'Já Existe Uma Providência Lançada.';
+        //}
 
         return response()->json($retorno);
     }
@@ -260,11 +492,45 @@ class LancamentosController extends Controller
         //
     }
 
-    private function LancarProvidencia(Request $request, $id){
+    private function LancarProvidencia(Request $request, $id)
+    {
 
         $providencia = $request->textAreaProvidencias;
-        $fatd = ((isset($request->btnPunir) && $request->btnPunir == 'on') ? 'S': 'N');
+        $fatd = ((isset($request->btnPunir) && $request->btnPunir == 'Fatd') ? 'S' : 'N');
+        $frad = ((isset($request->btnPunir) && $request->btnPunir == 'Frad') ? 'S' : 'N');
 
-        return (LancamentoFo::find($id)->update(['providencia' => $providencia, 'fatd' => $fatd]));
+        $lancamentoFo = LancamentoFo::find($id);
+        if ($fatd == 'S') {
+            $this->LancarFatd($lancamentoFo);
+        } else {
+            $this->ExcluirFatd($lancamentoFo);
+        }
+
+        return ($lancamentoFo->update(['providencia' => $providencia, 'fatd' => $fatd, 'frad' => $frad]));
+    }
+
+    private function LancarFatd(LancamentoFo $lancamentoFo)
+    {
+        //Verificar o último processo da uete
+        $processo = DB::select("SELECT fatd.nr_processo, fatd.ano, lancamento_fo.id, lancamento_fo.fatd FROM lancamento_fo
+                            LEFT JOIN fatd ON (fatd.lancamento_fo_id = lancamento_fo.id)
+                            INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
+                            INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
+                            WHERE omcts.id = " . $lancamentoFo->aluno->omcts_id . "
+                            AND fatd.ano = " . date('Y') . "
+                            ORDER BY fatd.nr_processo DESC limit 1");
+
+        $nr_processo = (isset($processo[0]->nr_processo) ? ($processo[0]->nr_processo + 1) : 1);
+
+        $verificaFatd = Fatd::where(['lancamento_fo_id' => $lancamentoFo->id])->first();
+
+        if (!isset($verificaFatd)) {
+            $fatd = Fatd::create(['lancamento_fo_id' => $lancamentoFo->id, 'nr_processo' => $nr_processo, 'ano' => date('Y')]);
+        }
+    }
+
+    private function ExcluirFatd(LancamentoFo $lancamentoFo)
+    {
+        Fatd::where(['lancamento_fo_id' => $lancamentoFo->id])->delete();
     }
 }

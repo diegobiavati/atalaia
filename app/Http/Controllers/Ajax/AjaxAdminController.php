@@ -2438,6 +2438,26 @@ class AjaxAdminController extends Controller
 
                                         <div style="margin: 14px auto; width: 80%; max-width: 380px;">
                                             <div style="float: left;">
+                                                <i class="ion-bookmark" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style" name="idt_militar" value="' . $operador->idt_militar . '" autocomplete="off" placeholder="Identidade Militar" style="width: 100%;" />
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+
+                                        <div style="margin: 14px auto; width: 80%; max-width: 380px;">
+                                            <div style="float: left;">
+                                                <i class="ion-bookmark" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style" name="idt_militar_o_exp" value="' . $operador->idt_militar_o_exp . '" autocomplete="off" placeholder="Org Expd (Idt Mil)" style="width: 100%;" />
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+
+                                        <div style="margin: 14px auto; width: 80%; max-width: 380px;">
+                                            <div style="float: left;">
                                                 <i class="ion-ios-telephone" style="font-size: 24px; color: #696969;"></i>
                                             </div>
                                             <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
@@ -2680,10 +2700,30 @@ class AjaxAdminController extends Controller
                                                 <i class="ion-android-contact" style="font-size: 24px; color: #696969;"></i>
                                             </div>
                                             <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" name="nome_guerra" autocomplete="off" placeholder="Nome de guerra" style="width: 100%;" />
+                                                <input class="no-style" name="nome_guerra" autocomplete="off" placeholder="Nome de Guerra" style="width: 100%;" />
                                             </div>
                                             <div class="clear"></div>
-                                        </div>                                        
+                                        </div>  
+                                        
+                                        <div style="margin: 14px auto; width: 80%; max-width: 380px;">
+                                            <div style="float: left;">
+                                                <i class="ion-bookmark" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 15px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style" name="idt_militar" autocomplete="off" placeholder="Identidade Militar" style="width: 100%;" />
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div> 
+
+                                        <div style="margin: 14px auto; width: 80%; max-width: 380px;">
+                                            <div style="float: left;">
+                                                <i class="ion-bookmark" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 15px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style" name="idt_militar_o_exp" autocomplete="off" placeholder="Org Expd (Idt Mil)" style="width: 100%;" />
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div> 
 
                                         <div style="margin: 24px auto; width: 80%; max-width: 380px;">
                                             <div style="float: left; margin-top: 3px;">
@@ -4048,6 +4088,8 @@ class AjaxAdminController extends Controller
         $operador = new Operadores;
         $operador->nome = mb_strtoupper($request->nome, 'UTF-8');
         $operador->nome_guerra = mb_strtoupper($request->nome_guerra, 'UTF-8');
+        $operador->idt_militar = $request->idt_militar;
+        $operador->idt_militar_o_exp = $request->idt_militar_o_exp;
         $operador->postograd_id = $request->postograd_id;
         $operador->omcts_id = $request->omcts_id;
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;
@@ -4081,6 +4123,8 @@ class AjaxAdminController extends Controller
 
         $operador->nome = $request->nome;
         $operador->nome_guerra = $request->nome_guerra;
+        $operador->idt_militar = $request->idt_militar;
+        $operador->idt_militar_o_exp = $request->idt_militar_o_exp;
         $operador->omcts_id = $request->omcts_id;
         $operador->postograd_id = $request->postograd_id;
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;

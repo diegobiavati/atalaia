@@ -51,7 +51,7 @@
     });
 
     function carregaOpcao(tipo, item) {
-        var idANoFormacao = $('input[name="ano_formacao"]:checked').val();
+        var idANoFormacao = $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
         var dados = $('#fichaIndividualAluno').serialize();
 
         $.ajax({

@@ -29,7 +29,7 @@
                 evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
                 var formData = $('form#parametrosAtalaia').serialize();
-                formData = formData + '&anoFormacao=' + $('input[name="ano_formacao"]:checked').val();
+                formData = formData + '&anoFormacao=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
 
                 $.ajax({
                     dataType: 'json',

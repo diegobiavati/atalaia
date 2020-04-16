@@ -29,6 +29,7 @@ class OwnAuthController extends Controller
     }
     
     public function PermissaoCheck($permissao){
+        
         if(session()->has('login')){
             
             $session_data = session()->get('login');
@@ -133,6 +134,7 @@ class OwnAuthController extends Controller
     
                 $data_user_session =    array(  'userID' => auth()->id(),
                                                 'operadorID' => $operadores->id,
+                                                'perfil' => $array_funcoes,
                                                 'omctID' => $operadores->omcts_id,
                                                 'permissoes' => array_unique(explode(',', implode(',', $permissoes)))
                                             );
@@ -144,13 +146,11 @@ class OwnAuthController extends Controller
 
             } else if(isset($alunos->id)){
                 $this->classLog->RegistrarLog('Aluno realizou login com sucesso', auth()->user()->email); 
-                $data_user_session =    array(  'userID' => auth()->id(),
-                                                'omctID' => $alunos->omcts_id,
-                                                'permissoes' => array('47un0')
-                                            );
+                $data_user_session =    array('userID' => auth()->id(),
+                                              'omctID' => $alunos->omcts_id,
+                                              'permissoes' => array('47un0'));
                 
                 session()->put('login',  $data_user_session);
-
             }
 
         } else {

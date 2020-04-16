@@ -39,7 +39,11 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('parametrosDeleteInfo/{id}', 'Ajax\ParametrosController@deleteInfo');
     Route::resource('lancamentos', 'Ajax\LancamentosController');
     Route::post('lancamentosTurma', 'Ajax\LancamentosController@ViewTurma');
+    Route::post('consultaTurma', 'Ajax\LancamentosController@ConsultaTurma');
     Route::post('listaFatosObservados', 'Ajax\LancamentosController@ViewListaFatosObservados');
+    Route::post('listaFATD', 'Ajax\LancamentosController@ViewListaFATD');
+    Route::get('fatd/{id}', 'Ajax\LancamentosController@ViewTelaFATD');
+    Route::get('ficha-fatd', ['as' => 'ficha-fatd', 'uses' => 'Ajax\LancamentosController@ViewFichaFATD']);
 
 
     /* ROTA PARA O CHAT COM ALUNO VIA TELEGRAM */
@@ -295,7 +299,15 @@ Route::get('notify-offline-user/{id}', 'MQTTController@NotifyOfflineUser');
 
 //Route::get('/rotas', 'TesteController@index');
 
-//Route::resource('asdasda', 'TesteController');
+Route::resource('iso', 'TesteController');
+
+Route::get('pdfTeste', function(){
+    Fpdf::AddPage();
+    Fpdf::SetFont('Courier', 'B', 18);
+    Fpdf::Cell(50, 25, 'Hello World!');
+    Fpdf::Output();
+    exit();
+});
 
 //Importador de Arquivo Excel para integrar o banco de dados do SisPB com o Atalaia
 Route::resource('importar-excel-sispb-alunos', 'Utilitarios\ImportadorController');
