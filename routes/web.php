@@ -44,7 +44,16 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::post('listaFATD', 'Ajax\LancamentosController@ViewListaFATD');
     Route::get('fatd/{id}', 'Ajax\LancamentosController@ViewTelaFATD');
     Route::get('ficha-fatd', ['as' => 'ficha-fatd', 'uses' => 'Ajax\LancamentosController@ViewFichaFATD']);
+    Route::post('fatdSargenteante/{id}', 'Ajax\LancamentosController@LancarFatdSargenteante');
+    
+    Route::get('view-frad-aluno/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewFradAluno');
+    Route::get('consulta-frad-aluno', 'Relatorios\RelatorioAlunoController@ViewRelacaoFradAlunos');
 
+    Route::get('view-ficha-disciplinar/{id_ano_formacao}', 'Ajax\AjaxAdminController@ViewSelecaoUeteAluno');
+    Route::post('view-ficha-disciplinar/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoFDisciplinarAlunos');
+
+    Route::get('view-relacao-punidos/{id_ano_formacao}', 'Ajax\AjaxAdminController@ViewSelecaoUeteAlunoPunicao');
+    Route::post('view-relacao-punidos/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoAlunoUetePunido');
 
     /* ROTA PARA O CHAT COM ALUNO VIA TELEGRAM */
 
@@ -239,6 +248,14 @@ Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
     Route::get('relacao-mapa-efetivo-desligado', ['as' => 'relacao-mapa-efetivo-desligado', 'uses' => 'Relatorios\MapaEfetivoController@RelacaoMapaEfetivoDesligado']);
     Route::get('relacao-evasao-escolar', ['as' => 'relacao-evasao-escolar', 'uses' => 'Relatorios\MapaEfetivoController@RelacaoMapaEvasaoEscolar']);
     Route::get('relacao-ficha-individual-aluno', ['as' => 'relacao-ficha-individual-aluno', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioRelacaoAlunos']);
+    Route::get('relacao-frad-aluno', ['as' => 'relacao-frad-aluno', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFRADAlunos']);
+    Route::get('relacao-frad-geral', ['as' => 'relacao-frad-geral', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFRADAlunos']);
+
+    Route::get('ficha-disciplinar-aluno', ['as' => 'ficha-disciplinar-aluno', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFichaDisciplinarAlunos']);
+    Route::get('ficha-disciplinar-geral', ['as' => 'ficha-disciplinar-geral', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFichaDisciplinarAlunos']);
+
+    Route::get('ficha-aluno-punido', ['as' => 'ficha-aluno-punido', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFichaAlunoPunidos']);
+    Route::get('ficha-aluno-punido-geral', ['as' => 'ficha-aluno-punido-geral', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFichaAlunoPunidos']);
 
 
     Route::get('relacao-dados-estatisticos-geral', ['as' => 'relacao-dados-estatisticos-geral', 'uses' => 'Relatorios\DadosEstatisticosGeraisController@RelacaoEstatistica']);
@@ -294,10 +311,6 @@ Route::get('/sair', function () {
 Route::get('register-user-mqtt', ['as' => 'register_user_mqtt', 'uses' => 'MQTTController@RegisterUserMQTT']);
 Route::get('notify-offline-user/{id}', 'MQTTController@NotifyOfflineUser');
 
-//Auth::routes();
-//Route::get('/home', 'HomeController@index')->name('home');
-
-//Route::get('/rotas', 'TesteController@index');
 
 Route::resource('iso', 'TesteController');
 
