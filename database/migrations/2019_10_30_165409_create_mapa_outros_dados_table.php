@@ -15,7 +15,7 @@ class CreateMapaOutrosDadosTable extends Migration
     {
         Schema::create('mapa_outros_dados', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('omct_id')->comment('Código da OMCT');
+            $table->integer('omct_id')->comment('Código da UETE');
             $table->integer('area_id')->comment('Código da área');
             $table->integer('ano_formacao_id')->comment('Código Ano Formação');
             $table->enum('sexo', ['M', 'F'])->comment('Sexo');

@@ -21,7 +21,7 @@ class CreateAlunosCursoTable extends Migration
             $table->decimal('nota_cacfs', 10, 3)->comment('Nota do Aluno no Concurso de Admissão');
             //$table->integer('id_area')->comment('Código da Área');
             $table->integer('id_qmsnaipe')->default(99)->comment('Código de QMS ou Naipe (para Música)');
-            //$table->integer('id_pb_omct')->default(0)->comment('Código da OMCT no Período Básico do CFS');
+            //$table->integer('id_pb_omct')->default(0)->comment('Código da UETE no Período Básico do CFS');
 
             
             $table->decimal('pb_notafinal', 10, 3)->nullable()->comment('Nota final no Período Básico do CFS');
