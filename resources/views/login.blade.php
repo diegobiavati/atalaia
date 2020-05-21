@@ -99,7 +99,7 @@ a.no-style:hover{
 <div class="form-wrapper">
     <div id="atalia_top">
         <h4>SISTEMA ATALAIA</h4>
-        PERÍODO BÁSICO
+        1º Ano CFGS
         <img src="/images/logo_atalaia_pb.png" style="position: absolute; width: 96px; margin: 36px 0 0 -104px; z-index: 10" />
     </div>
     <div style="margin-top: 28px; padding: 12px 56px;">

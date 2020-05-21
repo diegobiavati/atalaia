@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AlunosSitDivHistorico extends Model
 {
     protected $table = 'alunos_situacoes_diversas_historico';
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function omct(){
         return $this->belongsTo('App\Models\OMCT', 'omct_id', 'id'); 

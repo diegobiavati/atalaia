@@ -84,7 +84,7 @@ class RelatoriosController extends Controller
     public function DemonstrativoNotas(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
         if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
 
-            return '<div style="text-align: center; margin-top: 44px;">NÃO AUTORIZADO!<br />NÃO É POSSÍVEL ACESSAR O DEMONSTRATIVO DE NOTAS DE ALUNOS DE OUTRAS OMCT</div>';
+            return '<div style="text-align: center; margin-top: 44px;">NÃO AUTORIZADO!<br />NÃO É POSSÍVEL ACESSAR O DEMONSTRATIVO DE NOTAS DE ALUNOS DE OUTRAS UETE</div>';
 
         } else {
 

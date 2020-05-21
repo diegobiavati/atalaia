@@ -108,23 +108,35 @@ class AlunoSitDiversasController extends Controller
 
         if ($request->alunoID > 0) {
 
-            if (($aluno = AlunosSitDiv::find($request->alunoID))) { //Se tiver AlunoSitDiv é Para Fazer Update
+            if (($alunoSitDiv = AlunosSitDiv::find($request->alunoID))) { //Se tiver AlunoSitDiv é Para Fazer Update
 
-                $aluno->situacoes_diversas_id = (isset($request->sitDivID) ? $request->sitDivID : $aluno->situacoes_diversas_id);
-                $aluno->solicitacao_situacao = (isset($request->opcao) ? $request->opcao : $aluno->solicitacao_situacao);
-                $aluno->adido = (isset($request->adido) ? $request->adido : $aluno->adido);
-                $aluno->situacoes_diversas_obs = (isset($request->observacao) ? (($request->observacao == '') ? '' : $request->observacao) : $aluno->situacoes_diversas_obs);
-                $aluno->numero_bi = (isset($request->numero_bi) ? $request->numero_bi : $aluno->numero_bi);
-                $aluno->data_bi = (isset($request->data_bi) ? $request->data_bi : $aluno->data_bi);
-                $aluno->id_motivo = (isset($request->motivo) ? $request->motivo : $aluno->id_motivo);
-                $aluno->amparo = (isset($request->amparo) ? $request->amparo : $aluno->amparo);
+                $alunoSitDiv->situacoes_diversas_id = (isset($request->sitDivID) ? $request->sitDivID : $alunoSitDiv->situacoes_diversas_id);
+                $alunoSitDiv->solicitacao_situacao = (isset($request->opcao) ? $request->opcao : $alunoSitDiv->solicitacao_situacao);
+                $alunoSitDiv->adido = (isset($request->adido) ? $request->adido : $alunoSitDiv->adido);
+                $alunoSitDiv->situacoes_diversas_obs = (isset($request->observacao) ? (($request->observacao == '') ? '' : $request->observacao) : $alunoSitDiv->situacoes_diversas_obs);
+                $alunoSitDiv->numero_bi = (isset($request->numero_bi) ? $request->numero_bi : $alunoSitDiv->numero_bi);
+                $alunoSitDiv->data_bi = (isset($request->data_bi) ? $request->data_bi : $alunoSitDiv->data_bi);
+                $alunoSitDiv->id_motivo = (isset($request->motivo) ? $request->motivo : $alunoSitDiv->id_motivo);
+                $alunoSitDiv->amparo = (isset($request->amparo) ? $request->amparo : $alunoSitDiv->amparo);
 
-                if ($aluno->save()) {
+                if ($alunoSitDiv->save()) {
+
+                    /* Corrigir Problema da Situações Diversas */
+                    \App\Models\AlunosNFEI::where('alunos_id', $alunoSitDiv->id)->update(['alunos_situacoes_diversas_id' => $alunoSitDiv->id]);
+                    \App\Models\AlunosVoluntAv::where('alunos_id', $alunoSitDiv->id)->update(['alunos_situacoes_diversas_id' => $alunoSitDiv->id]);
+                    \App\Models\AvaliacoesNotas::where('alunos_id', $alunoSitDiv->id)->update(['alunos_situacoes_diversas_id' => $alunoSitDiv->id]);
+                    \App\Models\LancamentoFo::where('aluno_id', $alunoSitDiv->id)->update(['alunos_situacoes_diversas_id' => $alunoSitDiv->id, 'aluno_id' => null]);
+
+                    if ($aluno = Alunos::find($alunoSitDiv->id)) {
+                        $aluno->delete();
+                        $this->classLog->RegistrarLog('Adicionou aluno em lista de situações diversas', auth()->user()->email);
+                    } 
+                    /*Fim Correção*/
 
                     $retorno['status'] = 'ok';
-                    array_push($retorno['response'], $aluno->nome_completo . ' foi editado em situações diversas.');
+                    array_push($retorno['response'], $alunoSitDiv->nome_completo . ' foi editado em situações diversas.');
 
-                    $this->classLog->RegistrarLog('Alterou Situação Diversas do aluno número ' . $aluno->numero, auth()->user()->email);
+                    $this->classLog->RegistrarLog('Alterou Situação Diversas do aluno número ' . $alunoSitDiv->numero, auth()->user()->email);
                 }
             } else {
                 $aluno = Alunos::find($request->alunoID);
@@ -206,6 +218,8 @@ class AlunoSitDiversasController extends Controller
                         \App\Models\AlunosNFEI::where('alunos_id', $aluno->id)->update(['alunos_situacoes_diversas_id' => $aluno->id]);
                         \App\Models\AlunosVoluntAv::where('alunos_id', $aluno->id)->update(['alunos_situacoes_diversas_id' => $aluno->id]);
                         \App\Models\AvaliacoesNotas::where('alunos_id', $aluno->id)->update(['alunos_situacoes_diversas_id' => $aluno->id]);
+                        \App\Models\LancamentoFo::where('aluno_id', $aluno->id)->update(['alunos_situacoes_diversas_id' => $aluno->id, 'aluno_id' => null]);
+
                         if ($aluno->delete()) {
                             $retorno['status'] = 'ok';
                             array_push($retorno['response'], $aluno->nome_completo . ' agora está enquadrado em situações diversas. Clique na aba correspondente para editar.');

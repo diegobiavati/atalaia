@@ -43,6 +43,9 @@
                 <a class="new-nav-item new-nav-link" data-toggle="tab" href="#nav-implantar-aluno10" role="tab" aria-controls="nav-home" aria-selected="true">
                     <font style="color: rgb(0,175,123);">Fardamento</font>
                 </a>
+                <a class="new-nav-item new-nav-link" data-toggle="tab" href="#nav-implantar-aluno11" role="tab" aria-controls="nav-home" aria-selected="true">
+                    <font style="color: rgb(0,175,123);">Observações</font>
+                </a>
             </div>
             <div class="tab-content" id="nav-tabContent">
                 <div class="tab-pane fade show active" id="nav-implantar-aluno1" role="tabpanel" aria-labelledby="nav-home-tab" style="padding: 20px;">
@@ -71,7 +74,7 @@
                     <div class="divImplantarAluno" style="margin-left:35px;">
                         <i class="ion-pricetag" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
                         <label class="labelDescricao">Número Inscrição</label>
-                        <input class="no-style" style="margin-top:10px;" id="al_inscricao" name="al_inscricao" value="{{ $aluno->al_inscricao or old('al_inscricao') }}" type="text" pattern="[0-9]+$" autocomplete="off" maxlength="8" placeholder="" />
+                        <input class="no-style" style="width: 100%;margin-top:10px;" id="al_inscricao" name="al_inscricao" value="{{ $aluno->al_inscricao or old('al_inscricao') }}" type="text" pattern="[0-9]+$" autocomplete="off" maxlength="8" placeholder="" />
                     </div>
                     <div class="divImplantarAluno" style="margin-left:35px; width: 18%;">
                         <i class="ion-pricetag" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
@@ -686,6 +689,21 @@
                         <input class="no-style" style="width: 100%;margin-top:10px;" name="farda_tam_coturno" value="{{$aluno->farda_tam_coturno or old('farda_tam_coturno') }}" pattern="[0-9]+$" type="text" maxlength="11" autocomplete="off" />
                     </div>
 
+                </div>
+
+                <div class="tab-pane fade" id="nav-implantar-aluno11" role="tabpanel" aria-labelledby="nav-home-tab" style="padding: 20px;">
+                    <div class="form-group">
+                        <label for="anulacaoCancelamento">Anulação ou Cancelamento de Puniçoes Disciplinares</label>
+                        <textarea class="form-control" id="anulacaoCancelamento" name="anulacaoCancelamento" rows="3">{{$aluno->anulacaoCancelamento or old('anulacaoCancelamento') }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="recursosDisciplinares">Recursos Disciplinares</label>
+                        <textarea class="form-control" id="recursosDisciplinares" name="recursosDisciplinares" rows="3">{{$aluno->recursosDisciplinares or old('recursosDisciplinares') }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="recompensas">Recompensas</label>
+                        <textarea class="form-control" id="recompensas" name="recompensas" rows="3">{{$aluno->recompensas or old('recompensas') }}</textarea>
+                    </div>
                 </div>
             </div>
         </form>

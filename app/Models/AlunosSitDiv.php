@@ -8,7 +8,7 @@ class AlunosSitDiv extends Model
 {
 
     protected $table = 'alunos_situacoes_diversas';
-    public $timestamps = false;
+    public $timestamps = true;
     
 
     public function turma(){

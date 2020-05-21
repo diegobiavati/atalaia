@@ -202,7 +202,7 @@ class RelatoriosController extends Controller
             "nome_disciplina_abrev" => 'TAF'
         );        
         
-        // SELECIONANDO TODAS AS OMCTS
+        // SELECIONANDO TODAS AS UETEs
 
         $omcts = OMCT::where('id', '<>', 1)->get();
 
@@ -398,7 +398,7 @@ class RelatoriosController extends Controller
 
     public function ProntoDeFaltas(Request $request) {
         
-        /* SELECIONANDO OMCTS */
+        /* SELECIONANDO UETEs */
 
         $omcts = OMCT::get();
         $status_pronto_faltas = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $request->avaliacaoID)->get(); 
@@ -445,13 +445,13 @@ class RelatoriosController extends Controller
         
         if($ownauthcontroller->PermissaoCheck(1)){
 
-            // selecioando todos os alunos do ano de formação selecionado de todas OMCTs
+            // selecioando todos os alunos do ano de formação selecionado de todas UETEs
 
             $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->orderBy('omcts_id', 'asc')->get(['id']);
             
         } else {
 
-            // selecioando todos os alunos do ano de formação selecionado DA OMCT DO OPERADOR
+            // selecioando todos os alunos do ano de formação selecionado DA UETEs DO OPERADOR
             
             $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
         }
@@ -599,7 +599,7 @@ class RelatoriosController extends Controller
 
             $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
 
-            // SELECIOANANDO TODOS OS ALUNOS DA OMCT SELECIONADA
+            // SELECIOANANDO TODOS OS ALUNOS DA UETEs SELECIONADA
             
             $alunos = Alunos::where('omcts_id', $request->omctID)->where('area_id', 1)->where('data_matricula', $request->ano_formacao_id)->orderBy('numero', 'asc')->get();
 
@@ -642,7 +642,7 @@ class RelatoriosController extends Controller
 
     public function ProntoLancamentoNotas(Request $request) {
         
-        /* SELECIONANDO OMCTS */
+        /* SELECIONANDO UETEs */
 
         $omcts = OMCT::get();
 
@@ -883,7 +883,7 @@ class RelatoriosController extends Controller
                                    
             $array_alunos_id = ($array_alunos_id)??array();
             
-            // FILTRANDO, SELECIONANDO ALUNOS SOMENTE DA OMCT SELECIONADA
+            // FILTRANDO, SELECIONANDO ALUNOS SOMENTE DA UETE SELECIONADA
             
             $alunos = Alunos::where('omcts_id', $request->omctID)->whereIn('id', $array_alunos_id)->orderBy('numero', 'asc')->get();
             

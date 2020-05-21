@@ -120,7 +120,10 @@ class Alunos extends Model
         'farda_tam_camiseta',
         'farda_tam_gandola',
         'farda_tam_calca',
-        'farda_tam_coturno'
+        'farda_tam_coturno',
+        'anulacaoCancelamento',
+        'recursosDisciplinares',
+        'recompensas'
     ];
 
     public function turma()
@@ -228,6 +231,10 @@ class Alunos extends Model
         return $this->hasOne('App\Models\ImagemAluno', 'id_aluno', 'id')->withDefault([
             'nome_arquivo' => 'no-image.jpg'
         ]);
+    }
+
+    public function lancamento_fo(){
+        return $this->hasMany('App\Models\LancamentoFo', 'aluno_id', 'id');
     }
 
     public function nascimento()

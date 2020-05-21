@@ -10,6 +10,7 @@ use App\Http\Requests\DisciplinasRequest;
 use App\Http\Requests\AvaliacoesRequest;
 use App\Http\Requests\AtualizaMeuPerfilRequest;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\OwnAuthController;
 use Illuminate\Support\Facades\DB;
 
 /* MODELS */
@@ -54,6 +55,8 @@ use App\Mail\BemVindo;
 use App\Http\OwnClasses\OwnValidator;
 use App\Http\OwnClasses\phpMQTT;
 use App\Http\OwnClasses\ClassLog;
+use App\Models\Comportamento;
+use App\Models\Enquadramentos;
 
 setlocale(LC_ALL, "pt_BR.utf8");
 //date_default_timezone_set('America/Sao_Paulo');
@@ -63,13 +66,15 @@ class AjaxAdminController extends Controller
     protected $lancarTaf;
     protected $classLog;
     public $user_info;
+    protected $ownauthcontroller;
 
-    public function __construct(Request $request, AvaliacaoTaf $avaliacaTaf, ClassLog $classLog)
+    public function __construct(Request $request, AvaliacaoTaf $avaliacaTaf, ClassLog $classLog, OwnAuthController $ownauthcontroller)
     {
         $this->lancarTaf = $avaliacaTaf;
         $this->request = $request;
         $this->classLog = $classLog;
         $classLog->ip = $_SERVER['REMOTE_ADDR'];
+        $this->ownauthcontroller = $ownauthcontroller;
     }
 
     public function GerenciarOperadores(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
@@ -335,7 +340,7 @@ class AjaxAdminController extends Controller
         );
 
         $avaliacoes_status = AvaliacoesProntoFaltasStatus::where('omcts_id', session()->get('login.omctID'))->get();
-        /* RELAÇÃO(ARRAY) DAS AVALIAÇÕES QUE JÁ FORAM DADO O PRONTO DE FALTAS RELATIVO A OMCT DO MILITAR */
+        /* RELAÇÃO(ARRAY) DAS AVALIAÇÕES QUE JÁ FORAM DADO O PRONTO DE FALTAS RELATIVO A UETE DO MILITAR */
         foreach ($avaliacoes_status as $status) {
             $avaliacoes_status_array[] = $status->avaliacao_id;
         }
@@ -1474,7 +1479,7 @@ class AjaxAdminController extends Controller
                                             </div>
                                             <div class="clear"></div>
                                         </div>
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a OMCT terá para informar o resultado obtido na avaliação">
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a UETE terá para informar o resultado obtido na avaliação">
                                             <div style="float: left;">
                                                 <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
                                             </div>
@@ -1562,7 +1567,7 @@ class AjaxAdminController extends Controller
                                             </div>
                                             <div class="clear"></div>
                                         </div>
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a OMCT terá para informar o resultado obtido na avaliação">
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a UETE terá para informar o resultado obtido na avaliação">
                                             <div style="float: left;">
                                                 <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
                                             </div>
@@ -1766,7 +1771,7 @@ class AjaxAdminController extends Controller
                                             </div>
                                             <div class="clear"></div>
                                         </div>
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a OMCT terá para informar o resultado obtido na avaliação">
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a UETE terá para informar o resultado obtido na avaliação">
                                             <div style="float: left;">
                                                 <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
                                             </div>
@@ -1853,7 +1858,7 @@ class AjaxAdminController extends Controller
                                             </div>
                                             <div class="clear"></div>
                                         </div>
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a OMCT terá para informar o resultado obtido na avaliação">
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a UETE terá para informar o resultado obtido na avaliação">
                                             <div style="float: left;">
                                                 <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
                                             </div>
@@ -2667,7 +2672,7 @@ class AjaxAdminController extends Controller
 
         /* LOOP QUE BUSCA AS OMCTS */
 
-        $options_omcts[] = '<option value="0">Informe a OMCT</option>';
+        $options_omcts[] = '<option value="0">Informe a UETE</option>';
         $omcts = OMCT::get();
         foreach ($omcts as $omct) {
             $options_omcts[] = '<option value="' . $omct->id . '">' . $omct->omct . '</option>';
@@ -4371,7 +4376,7 @@ class AjaxAdminController extends Controller
 
         /* LOOP QUE BUSCA AS OMCTS */
 
-        $options_omcts[] = '<option value="0">Informe a OMCT</option>';
+        $options_omcts[] = '<option value="0">Informe a UETE</option>';
         $omcts = OMCT::where('id', '<>', 1)->get();
         foreach ($omcts as $omct) {
             if ($ownauthcontroller->PermissaoCheck(1)) {
@@ -4665,7 +4670,7 @@ class AjaxAdminController extends Controller
 
             /* LOOP QUE BUSCA AS OMCTS */
 
-            $options_omcts[] = '<option value="0">Informe a OMCT</option>';
+            $options_omcts[] = '<option value="0">Informe a UETE</option>';
             $omcts = OMCT::where('id', '<>', 1)->get();
             foreach ($omcts as $omct) {
                 $attr_selected = ($aluno->omcts_id == $omct->id) ? 'selected' : '';
@@ -5080,7 +5085,7 @@ class AjaxAdminController extends Controller
         }
 
         if ($ownauthcontroller->PermissaoCheck(1) && !isset($request->omcts)) {
-            $error[] = 'Pelo menos uma OMCT deve ser selecionada';
+            $error[] = 'Pelo menos uma UETE deve ser selecionada';
         } else if ($ownauthcontroller->PermissaoCheck(1)) {
             $omcts = $request->omcts;
         } else {
@@ -5581,7 +5586,41 @@ class AjaxAdminController extends Controller
 
     public function ViewLancamentos(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
-
         return view('lancamentos.lancamentosIndex')->with('ownauthcontroller', $ownauthcontroller);
+    }
+
+    public function ViewSelecaoUeteAluno(Request $request)
+    {
+        if ($this->ownauthcontroller->PermissaoCheck(1)) {
+            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
+        } else {
+            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
+        }
+
+        $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
+
+        $rota = $request->path();
+
+        return view('admin.consulta.consulta-uete-aluno', compact('uetes', 'anoFormacao', 'rota'))
+            ->with('ownauthcontroller', $this->ownauthcontroller);
+    }
+
+    public function ViewSelecaoUeteAlunoPunicao(Request $request)
+    {
+        if ($this->ownauthcontroller->PermissaoCheck(1)) {
+            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
+        } else {
+            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
+        }
+
+        $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
+
+        $rota = $request->path();
+
+        $enquadramentos = Enquadramentos::all();
+        $comportamentos = Comportamento::all();
+
+        return view('admin.consulta.consulta-uete-aluno-punido', compact('uetes', 'anoFormacao', 'rota', 'enquadramentos', 'comportamentos'))
+            ->with('ownauthcontroller', $this->ownauthcontroller);
     }
 }

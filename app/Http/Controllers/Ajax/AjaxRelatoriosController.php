@@ -64,7 +64,7 @@ class AjaxRelatoriosController extends Controller
             if($rel_conf->valor==0 && !$ownauthcontroller->PermissaoCheck(1)){
                 $demonstrativos_notas = '';
             } else {
-                $demonstrativos_notas = '   <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'demonstrativo-notas\');">Demonstrativo de notas <b>(POR OMCT)</b></a></li>
+                $demonstrativos_notas = '   <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'demonstrativo-notas\');">Demonstrativo de notas <b>(POR UETE)</b></a></li>
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'demonstrativo-notas-por-aluno\');">Demonstrativo de notas <b>(POR ALUNO)</b></a></li>';                
             }
 
@@ -109,8 +109,8 @@ class AjaxRelatoriosController extends Controller
                                             '.$pronto_lancamento_notas_ar.'
                                             '.$pronto_lancamento_taf.'
                                             '.$demonstrativos_notas.'
-                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'resultado-avaliacao-por-nota\');">Resultado de avaliação por média maior ou menor que 5 <b>(POR OMCT)</b></a></li>
-                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'recibo-demonstrativo\');">Recibo de entrega do GRAU do aluno <b>(POR OMCT)</b></a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'resultado-avaliacao-por-nota\');">Resultado de avaliação por média maior ou menor que 5 <b>(POR UETE)</b></a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'recibo-demonstrativo\');">Recibo de entrega do GRAU do aluno <b>(POR UETE)</b></a></li>
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'recibo-demonstrativo-por-aluno\');">Recibo de entrega do GRAU do aluno <b>(POR ALUNO)</b></a></li>
                                             </ul>
                                             <div id="relatorios-content" style="margin-top: 24px;"></div>
@@ -143,7 +143,10 @@ class AjaxRelatoriosController extends Controller
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-em-recuperacao\');">Alunos reprovados <b>(TABELA DE CLASSIFICAÇÃO GERAL)</b></a></li>
                                             '.$alunos_aprovados_conselho.'
                                             '.$classificacao_geral.'
-                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'ficha-individual-aluno\');">Ficha Individual do Aluno</a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'ficha-individual-aluno\');">Ficha Individual do Aluno(a)s</a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'view-frad-aluno\');">Ficha Registro para Acompanhamento do Discente <b>(FRAD)</b></a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'view-ficha-disciplinar\');">Ficha Disciplinar do Aluno(a)s <b>(FATD)</b></a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'view-relacao-punidos\');">Relação de Aluno(a)s Punidos</a></li>
                                         </ul>
                                         <div id="relatorios-content" style="margin-top: 24px;"></div>
                                     </div>';
@@ -169,7 +172,7 @@ class AjaxRelatoriosController extends Controller
                                     <div style="margin: 46px auto; text-align: center; width: 780px;">
                                         <ul class="list-group list-group-flush" style="margin-top: 44px;">
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-sem-escolha-qms\');">Alunos que não fizeram suas escolhas</a></li>
-                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'comprovante-escolha-qms\');">Comprovante de preenchimento <b>(POR OMCT)</b></a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'comprovante-escolha-qms\');">Comprovante de preenchimento <b>(POR UETE)</b></a></li>
                                             '.$relatoriosdeescolha.'
                                         </ul>
                                         <div id="relatorios-content" style="margin-top: 24px;"></div>
@@ -1534,7 +1537,7 @@ class AjaxRelatoriosController extends Controller
             $omcts = OMCT::where('id', session()->get('login.omctID'))->get();            
         }        
 
-        // MONTANDO UMA ARRAY COM A LISTA DE IDS DAS OMCTS
+        // MONTANDO UMA ARRAY COM A LISTA DE IDS DAS UETEs
 
         foreach($omcts as $omct){
             $omcts_id[] = $omct->id;
@@ -1593,7 +1596,7 @@ class AjaxRelatoriosController extends Controller
             $data[] = ' </form>';                          
 
         } else {
-            $data[] = '<div style="text-align: center; margin-top: 24px;">NENHUM ALUNO REALIZOU ESTA AVALIAÇÃO NESTA OMCT</div>';            
+            $data[] = '<div style="text-align: center; margin-top: 24px;">NENHUM ALUNO REALIZOU ESTA AVALIAÇÃO NESTA UETE</div>';            
         }
 
 

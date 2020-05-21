@@ -23,7 +23,7 @@
         @else
         <div>
             <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(255, 0, 0);">
-                <font style="color:rgb(255, 255, 255);">Não Existe Alunos Para a OMCT Especificada</font>
+                <font style="color:rgb(255, 255, 255);">Não Existe Alunos Para a UETE Especificada</font>
             </label>
         </div>
         @endif

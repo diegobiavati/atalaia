@@ -183,7 +183,7 @@ class EscolhaQMSLoader
         $alunos_opcoes =  $this->getAlunosOpcoes($alunosIDs);
 
 
-        // OMCTS 
+        // UETEs 
 
         $omct = OMCT::get();
         foreach($omct as $item){
@@ -325,7 +325,7 @@ class EscolhaQMSLoader
             $alunos_opcoes =  $this->getAlunosOpcoes($alunosIDs);
         }
         
-        // OMCTS 
+        // UETEs 
 
         $omct = OMCT::get();
         foreach($omct as $item){

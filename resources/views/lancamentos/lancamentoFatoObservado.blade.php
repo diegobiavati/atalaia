@@ -91,7 +91,7 @@
             </div>
         </div>
 
-        @if(in_array(2, $funcaoOperador))
+        @if(in_array(2, session()->get('login.perfil')))
         <!--Só libera se for Cmt de Cia-->
         <div style="margin-bottom: 15px;">
             <div>

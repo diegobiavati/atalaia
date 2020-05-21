@@ -33,9 +33,9 @@
                     <td>
                         @if(isset($fatd->fatdLancada->justificado))
                         @if($fatd->fatd == 'S')
-                        <font style="color:rgb(16, 179, 16)">Justificado</font>
+                        <font style="color:rgb(17, 65, 214)">Apurado</font>
                         @else
-                        <font style="color:rgb(0,0,255)">Não Justificado</font>
+                        <font style="color:rgb(0,0,255)">Não Apurado</font>
                         @endif
                         @else
                         <font style="color:rgb(255,0,0)">Não Resolvido</font>

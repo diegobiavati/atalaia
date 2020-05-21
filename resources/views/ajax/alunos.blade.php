@@ -116,7 +116,7 @@
                                                         @if($omct_data[$omct->id]['total_cadastro_al_pendente']>0)
                                                             <div class="alert alert-danger" role="alert">
                                                                 <i class="ion-minus-circled" style="font-size: 18px; margin-right: 4px; vertical-align: -1px;"></i>
-                                                                Está OMCT possui {{$omct_data[$omct->id]['total_cadastro_al_pendente']}} pendência(s) de cadastro. Favor verificar junto ao Sgte da OMCT se os dados: <b>email, turma e área</b> estão preenchidos para todos os alunos.
+                                                                Está UETE possui {{$omct_data[$omct->id]['total_cadastro_al_pendente']}} pendência(s) de cadastro. Favor verificar junto ao Sgte da UETE se os dados: <b>email, turma e área</b> estão preenchidos para todos os alunos.
                                                             </div>
                                                         @else
                                                             <div class="alert alert-success" role="alert">
