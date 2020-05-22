@@ -567,14 +567,17 @@ class LancamentosController extends Controller
         $dados = $request->all();
         $dados['dt_bi'] = FuncoesController::formatDateBrtoEn($request->dt_bi);
 
-        $regras = [
-            'enquadramento' => 'required|string', 'bi_desc' => 'required|string', 'dt_bi' => 'required|date', 'comportamento_id' => 'required|numeric'
-        ];
+        $regras = array();
+        if ($request->justificado == 'N') {
+            $regras = [
+                'enquadramento' => 'required|string', 'bi_desc' => 'required|string', 'dt_bi' => 'required|date', 'comportamento_id' => 'required|numeric'
+            ];
 
-        if (!in_array($request->enquadramento_id, [1, 3])) {
-            $regras['nr_dias'] = 'required|numeric';
-        }else{
-            $request->nr_dias = null;
+            if (!in_array($request->enquadramento_id, [1, 3])) {
+                $regras['nr_dias'] = 'required|numeric';
+            } else {
+                $request->nr_dias = null;
+            }
         }
 
         $atributos = ['dt_bi' => 'Data BI', 'nr_dias' => 'Nº Dias', 'enquadramento' => 'Enquadramento NASE', 'bi_desc' => 'BI', 'comportamento_id' => 'Comportamento'];
