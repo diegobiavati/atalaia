@@ -506,7 +506,7 @@ function onMessageArrived(message) {
              $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-editar-meu-perfil/',
+                url: '/ajax/dialog-editar-meu-perfil',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'sm');
                 },
@@ -561,7 +561,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/adicionar-ano-formacao/',
+                url: '/ajax/adicionar-ano-formacao',
                 beforeSend: function(){
                     //$('div.errors-cadastro-operador ul').remove().parent().hide();
                 },
@@ -592,7 +592,7 @@ function onMessageArrived(message) {
              $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-adicionar-avaliacao/',
+                url: '/ajax/dialog-adicionar-avaliacao',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'lg');
                 },
@@ -617,7 +617,7 @@ function onMessageArrived(message) {
              $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-adicionar-avaliacao-recuperacao/',
+                url: '/ajax/dialog-adicionar-avaliacao-recuperacao',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'lg');
                 },
@@ -689,7 +689,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/adicionar-avaliacao/',
+                url: '/ajax/adicionar-avaliacao',
                 beforeSend: function(){
                     $('div.errors-adicionar-avaliacoes ul').remove().parent().hide();
                 },
@@ -806,7 +806,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/adicionar-avaliacao-recuperacao/',
+                url: '/ajax/adicionar-avaliacao-recuperacao',
                 beforeSend: function(){
                     $('div.errors-adicionar-avaliacoes ul').remove().parent().hide();
                 },
@@ -920,7 +920,7 @@ function onMessageArrived(message) {
              $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-importar-disciplina/',
+                url: '/ajax/dialog-importar-disciplina',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'lg');
                 },
@@ -945,7 +945,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/adicionar-disciplina/',
+                url: '/ajax/adicionar-disciplina',
                 beforeSend: function(){
                     $('div.errors-adicionar-disciplinas ul').remove().parent().hide();
                 },
@@ -982,7 +982,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/importar-disciplinas/',
+                url: '/ajax/importar-disciplinas',
                 beforeSend: function(){
                     $('div.errors-importar-disciplinas ul').remove().parent().hide();
                 },
@@ -1018,7 +1018,7 @@ function onMessageArrived(message) {
              $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-adicionar-disciplina/',
+                url: '/ajax/dialog-adicionar-disciplina',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'sm');
                 },
@@ -1123,7 +1123,7 @@ function onMessageArrived(message) {
              $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-adicionar-ano-formacao/',
+                url: '/ajax/dialog-adicionar-ano-formacao',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'sm');
                 },
@@ -1144,7 +1144,7 @@ function onMessageArrived(message) {
              $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-adicionar-portaria/',
+                url: '/ajax/dialog-adicionar-portaria',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'sm');
                 },
@@ -1165,7 +1165,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/adicionar-portaria/',
+                url: '/ajax/adicionar-portaria',
                 beforeSend: function(){
                     $('div.errors-adicionar-portaria ul').remove().parent().hide();
                 },
@@ -1205,7 +1205,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/incluir-indice-corrida/',
+                url: '/ajax/incluir-indice-corrida',
                 beforeSend: function(){
                     $('table.indices-corrida').append('<tr id="tr-temp" style="text-align: center; background-color: #81F7BE;">Aguarde...<tr>');
                 },
@@ -1273,7 +1273,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/incluir-indice-flexbra/',
+                url: '/ajax/incluir-indice-flexbra',
                 beforeSend: function(){
                     $('table.indices-flexao-braco').append('<tr id="tr-temp" style="text-align: center; background-color: #81F7BE;">Aguarde...<tr>');
                 },
@@ -1341,7 +1341,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/incluir-indice-flexbar/',
+                url: '/ajax/incluir-indice-flexbar',
                 beforeSend: function(){
                     $('table.indices-flexao-barra').append('<tr id="tr-temp" style="text-align: center; background-color: #81F7BE;">Aguarde...<tr>');
                 },
@@ -1409,7 +1409,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/incluir-indice-abdomin/',
+                url: '/ajax/incluir-indice-abdomin',
                 beforeSend: function(){
                     $('table.indices-abdominal').append('<tr id="tr-temp" style="text-align: center; background-color: #81F7BE;">Aguarde...<tr>');
                 },
@@ -1477,7 +1477,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/incluir-bonus-atletas/',
+                url: '/ajax/incluir-bonus-atletas',
                 beforeSend: function(){
                     $('table.indices-bonus-atletas').append('<tr id="tr-temp" style="text-align: center; background-color: #81F7BE;">Aguarde...<tr>');
                 },
@@ -1599,7 +1599,7 @@ function onMessageArrived(message) {
              $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-adicionar-periodo-escolha-qms/',
+                url: '/ajax/dialog-adicionar-periodo-escolha-qms',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'lg');
                 },
@@ -2715,6 +2715,36 @@ function onMessageArrived(message) {
             });            
         }        
 
+        function dialogRemoveProntoFaltas(dataButton, id, csrf_token){
+            $(document).confirmAcao('<strong>ATENÇÃO: </strong>.<p>Após remover o pronto de faltas todas as informações referente ao mesmo não será mais possível recuperá-las. Deseja continuar?</p>', function(){
+                
+                var dataButtonContent = $(dataButton).html();
+                $.ajax({
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        '_token' : csrf_token
+                    },
+                    url: '/ajax/remover-pronto-faltas/' + id,
+                    beforeSend: function(){
+                        $(dataButton).html('<img src="/images/loadings/loading_03.svg" style="margin-right: 3px; width: 32px;" />Buscando registros...').addClass('disabled');
+                        $('div#content-opcoes-avaliacaoID_' + id).empty();
+                    },
+                    success: function(data){
+                        $(dataButton).html(dataButtonContent).removeClass('disabled');
+                        /*$('span#deleta-pronto-faltasID_' + id).html(data.response);*/
+                        $('div#content-opcoes-avaliacaoID_' + id).html(data.response);
+                    },
+                    error: function(jqxhr){
+                        $(dataButton).html(dataButtonContent).removeClass('disabled');
+                        setTimeout(function(){
+                            alert('ERRO INTERNO/Violação de acesso!/CARACTERE NÃO PERMITIDO PARA ESTA OPERAÇÃO');
+                        }, 1000);
+                    }  
+                });                
+            });      
+        }
+
         function dialogProntoFaltas(id){
             $.ajax({
             	type:'GET',
@@ -2860,7 +2890,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/editar-periodo-lanca-taf/',
+                url: '/ajax/editar-periodo-lanca-taf',
                 beforeSend: function(){
                     $('div.errors-adicionar-disciplinas ul').remove().parent().hide();
                 },
@@ -2907,11 +2937,12 @@ function onMessageArrived(message) {
         function configurarRelatorios(dataButton){
             var dataForm = $('form#configuracoes_relatorios').serialize();
             var dataButtonContent = $(dataButton).html();
+            
             $.ajax({
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/configurar-relatorios/',
+                url: '/ajax/configurar-relatorios',
                 beforeSend: function(){
                     $(dataButton).html('<img src="/images/loadings/loading_03.svg" style="margin-right: 3px; width: 32px;" />Registrando...').addClass('disabled');
                 },
@@ -3243,7 +3274,7 @@ function onMessageArrived(message) {
             	type:'POST',
                 dataType: 'json',
                 data: checkboxElement,
-                url: '/ajax/carregar-mensagens/',
+                url: '/ajax/carregar-mensagens',
                 beforeSend: function(){
                     $('div.lista_destinatarios .lista').html('<div id="temp" style="text-align: center;"><img src="/images/loadings/loading_02.svg" style="width: 28px; margin-right: 8px;" /></div>');
                     $('div.box-aluno-list').css('opacity', 0.375);
@@ -3278,7 +3309,7 @@ function onMessageArrived(message) {
             	type:'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/enviar-mensagem-aluno/',
+                url: '/ajax/enviar-mensagem-aluno',
                 beforeSend: function(){
                     $(dataButton).html('<img src="/images/loadings/loading_03.svg" style="margin-right: 3px; width: 24px;" />Enviando...').prop('disabled', true);
                     $('div.box-aluno-list').css('opacity', 0.375);
@@ -3300,7 +3331,7 @@ function onMessageArrived(message) {
             $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-mensagens-especiais/',
+                url: '/ajax/dialog-mensagens-especiais',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'sm');
                 },
@@ -3351,7 +3382,7 @@ function onMessageArrived(message) {
                     dataType: 'json',
                     type:'POST',
                     data: dataForm + '&id=' + id,
-                    url: '/ajax/gravar-taf-aluno/',
+                    url: '/ajax/gravar-taf-aluno',
                     beforeSend: function(){
                         $('div#media_nota_taf_' + id).html('<img src="/images/loadings/loading_03.svg" style="margin-right: 3px; width: 24px;" />');
                     },

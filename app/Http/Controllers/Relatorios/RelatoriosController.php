@@ -40,6 +40,7 @@ use App\Http\OwnClasses\EscolhaQMSLoader;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Utilitarios\FuncoesController;
 use Illuminate\Support\Facades\DB;
 
 class RelatoriosController extends Controller
@@ -109,8 +110,13 @@ class RelatoriosController extends Controller
         
     }
 
+    
     public function AlunosEmRecPorDisciplina(OwnAuthController $ownauthcontroller, Request $request) {
 
+
+        if(FuncoesController::validaSessao()){
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+        }
 
         $disciplina = Disciplinas::find($request->disciplina_id);
 
@@ -130,38 +136,49 @@ class RelatoriosController extends Controller
         }
 
         $avaliacoesIDs = (isset($avaliacoesIDs))?array_unique($avaliacoesIDs):array(0);
-        $razao = (isset($disciplina_razao))?array_sum($disciplina_razao):1;
+
+        //$razao = (isset($disciplina_razao))?array_sum($disciplina_razao):1;
 
         // SELECIONANDO TODAS AS NOTAS (avaliacoes_notas) DE TODAS AVALIAÇÕES EM $avaliacoesIDs
 
-        $notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get();
+        /*$notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get();
         
         foreach($notas as $item){
             if(!is_null($item->alunos_id)){
-                $aluno_notas[$item->alunos_id][] = $item->getNota();
+                //$aluno_notas[$item->alunos_id][] = $item->getNota();
+                $aluno_notas[$item->alunos_id]['notas'][] = $item->getNota();
+                $aluno_notas[$item->alunos_id]['avaliacoes'][$item->avaliacao->nome_abrev.' - '.$item->avaliacao->chamada.'ª chamada'] = (object)array('indice_notas' => array_key_last($aluno_notas[$item->alunos_id]['notas']), 'nota' => $item->getNota(), 'nome_abrev' => $item->avaliacao->nome_abrev, 'peso' => $item->avaliacao->peso);
             }
-        }
-
+        }*/
+        
+        //2ºTen João Victor, Alteração no Cálculo da NOTA
+        $aluno_notas = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
+        //Fim Alteração 2ºTen João Victor
+        
         if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20)){
             $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
         } else {
             $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
         }
 
-
         foreach($alunos as $aluno){
-            if(isset($aluno_notas[$aluno->id])){
-                if((array_sum($aluno_notas[$aluno->id])/$razao)<5){
-                    $nd_aluno[$aluno->id] = number_format(array_sum($aluno_notas[$aluno->id])/$razao, 3, ',', ''); 
-                    $alunos_em_recuperacao[] = $aluno->id;
-                }
-            }    
+            foreach($aluno_notas as $alunos){
+                if(isset($alunos[$aluno->id]) && ($alunos[$aluno->id]['disciplina_razao'] > 0)){
+                    $media = (array_sum($alunos[$aluno->id]['notas'])/$alunos[$aluno->id]['disciplina_razao']);
+    
+                    if($media<5){
+                        $nd_aluno[$aluno->id] = number_format($media, 3, ',', ''); 
+                        $alunos_em_recuperacao[] = $aluno->id;
+                    }
+                }    
+            }
         }
 
         $nd_aluno = ($nd_aluno)??array(0);
         $alunos_em_recuperacao = ($alunos_em_recuperacao)??array(0);
 
-        if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20)){
+        //if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20)){
+        if($ownauthcontroller->PermissaoCheck(1)){
             $alunos = Alunos::whereIn('id', $alunos_em_recuperacao)->orderBy('omcts_id', 'asc')->get();
         } else {
             $alunos = Alunos::whereIn('id', $alunos_em_recuperacao)->where('omcts_id', session()->get('login.omctID'))->orderBy('omcts_id', 'asc')->get();
@@ -172,8 +189,6 @@ class RelatoriosController extends Controller
                                                                       ->with('nd_aluno', $nd_aluno)
                                                                       ->with('ano_selecionado', $ano_selecionado)
                                                                       ->with('disciplina', $disciplina);       
-
-        
     }
 
     public function AlunosConselhoEscolar(Request $request) {
@@ -832,7 +847,10 @@ class RelatoriosController extends Controller
                 $alunosID = Alunos::where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->get(['id']);
             }
 
-            $alunos_classif = AlunosClassificacao::orderBy('classificacao', 'asc')->get();
+            $alunos_classif = AlunosClassificacao::whereHas('aluno', function($q) use ($request) {
+                $q->where('data_matricula', '=', $request->ano_formacao_id);
+            })->orderBy('classificacao', 'asc')->get();
+            
             foreach($alunos_classif as $classificacao){
                 
                 if(isset($classificacao->aluno->sexo)){
@@ -842,11 +860,11 @@ class RelatoriosController extends Controller
                 // CLASSIFICAÇÃO GERAL                
 
                 $class_geral[] = $classificacao->aluno_id; 
-
             }
            
             $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)->get();
 
+            //dd(unserialize($alunos_classif[0]->data_demonstrativo));
             $mencoes = Mencoes::get();
             $this->classLog->RegistrarLog('Acessou demonstrativo de notas', auth()->user()->email);
             return view('relatorios.demonstrativo-notas')->with('alunos_classif', $alunos_classif)

@@ -55,8 +55,10 @@ use App\Mail\BemVindo;
 use App\Http\OwnClasses\OwnValidator;
 use App\Http\OwnClasses\phpMQTT;
 use App\Http\OwnClasses\ClassLog;
+use App\Models\AvaliacoesProntoFaltas;
 use App\Models\Comportamento;
 use App\Models\Enquadramentos;
+use Exception;
 
 setlocale(LC_ALL, "pt_BR.utf8");
 //date_default_timezone_set('America/Sao_Paulo');
@@ -5622,5 +5624,31 @@ class AjaxAdminController extends Controller
 
         return view('admin.consulta.consulta-uete-aluno-punido', compact('uetes', 'anoFormacao', 'rota', 'enquadramentos', 'comportamentos'))
             ->with('ownauthcontroller', $this->ownauthcontroller);
+    }
+
+    public function RemoverProntoFaltas(Request $request)
+    {
+
+        $avaliacao = Avaliacoes::find($request->id);
+
+        $retorno['status'] = 'success';
+        $retorno['response'] = '<li style="color:rgb(0,0,255)">Prontos e Notas Removidos.</li>';
+
+        if (AvaliacoesNotas::where('avaliacao_id', '=', $avaliacao->id)->delete() < 0) {
+            $retorno['status'] = 'err';
+            $retorno['response'][] = '<li style="color:rgb(255,0,0)">Erro ao Remover Notas de Avaliações.</li>';
+        }
+
+        if (AvaliacoesProntoFaltas::where('avaliacao_id', '=', $avaliacao->id)->delete() < 0) {
+            $retorno['status'] = 'err';
+            $retorno['response'][] = '<li style="color:rgb(255,0,0)">Erro ao Remover Prontos Faltas.</li>';
+        }
+
+        if (AvaliacoesProntoFaltasStatus::where('avaliacao_id', '=', $avaliacao->id)->delete() < 0) {
+            $retorno['status'] = 'err';
+            $retorno['response'][] = '<li style="color:rgb(255,0,0)">Erro ao Prontos Faltas Status.</li>';
+        }
+
+        return response()->json($retorno);
     }
 }

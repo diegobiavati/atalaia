@@ -26,6 +26,8 @@ use App\Http\Controllers\OwnAuthController;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Utilitarios\FuncoesController;
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 setlocale(LC_ALL, "pt_BR.utf8");
@@ -1680,18 +1682,18 @@ class AjaxRelatoriosController extends Controller
             $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
             $id_ano_corrente = ($ano_corrente->id)??0;
 
-            AlunosClassificacao::where('ano_formacao_id', $id_ano_corrente)->delete();
+            AlunosClassificacao::whereHas('aluno', function($q) use ($id_ano_corrente) {
+                $q->where('data_matricula', '=', $id_ano_corrente);
+            })->delete();
 
             // RESETANDO AUTO INCREMENT
-
-            DB::statement("SET @count = 0;");
+            /*DB::statement("SET @count = 0;");
             DB::statement("UPDATE alunos_classificacao SET alunos_classificacao.id = @count:= @count + 1;");
-            DB::statement("ALTER TABLE alunos_classificacao AUTO_INCREMENT = 1;");
-            
-
+            DB::statement("ALTER TABLE alunos_classificacao AUTO_INCREMENT = 1;");*/
+     
             /*
             
-            Aqui configuro se o demonstrativo de notas estará disponível para visualização pelas OMCTS (tabela relatorios_configuracoes)
+            Aqui configuro se o demonstrativo de notas estará disponível para visualização pelas UETEs (tabela relatorios_configuracoes)
             
             */
 
@@ -1700,7 +1702,6 @@ class AjaxRelatoriosController extends Controller
             } else {
                 RelatoriosConfiguracoes::where('id', 1)->update(['valor' => 0]);                
             }
-
 
 
             /*
@@ -1764,20 +1765,26 @@ class AjaxRelatoriosController extends Controller
             
             // SELECIONANDO AS NOTAS DOS ALUNOS NAS AVAIAÇÕES SELECIONADAS (inclusive 2ª chamada)
 
-            $alunos_notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get();
+            /*$alunos_notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get();
             
             foreach($alunos_notas as $notas){
 
                 $alunosID[] = $notas->alunos_id;
 
                 $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['notas'][] = $notas->getNota();
-                $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['avaliacoes'][$notas->avaliacao->nome_abrev.' - '.$notas->avaliacao->chamada.'ª chamada'] = $notas->getNota();
+                //$alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['avaliacoes'][$notas->avaliacao->nome_abrev.' - '.$notas->avaliacao->chamada.'ª chamada'] = $notas->getNota();
+                $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['avaliacoes'][$notas->avaliacao->nome_abrev.' - '.$notas->avaliacao->chamada.'ª chamada'] = (object)array('indice_notas' => array_key_last($alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['notas']),'nota' => $notas->getNota(), 'nome_abrev' => $notas->avaliacao->nome_abrev, 'peso' => $notas->avaliacao->peso);
                 $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['disciplina_id'] = $notas->avaliacao->disciplinas_id;
                 $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['disciplina_nome'] = $disciplina_nome[$notas->avaliacao->disciplinas_id];
                 $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['disciplina_razao'] = array_sum($razao[$notas->avaliacao->disciplinas_id]);
                 $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id][$notas->avaliacao->nome_abrev.' - '.$notas->avaliacao->chamada.'ª chamada'] = $notas->getNota();
 
-            }
+            }*/
+
+            //2ºTen João Victor, Alteração no Cálculo da NOTA
+            $alunoNota = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
+            $alunosID = $alunoNota['alunosID'];
+            //Fim Alteração 2ºTen João Victor
 
             $alunosID = array_unique($alunosID);
 
@@ -1850,10 +1857,30 @@ class AjaxRelatoriosController extends Controller
                     foreach($alunosID as $alunoID){
                         foreach($k[$alunoID] as $key => $z){
 
-                            $k[$alunoID][$key]['media'] = number_format(array_sum($z['notas'])/$k[$alunoID][$key]['disciplina_razao'], '3', '.','');
+                            /*$quantidadeAvaliacao = 0;
+                            //2ºTen João Victor, Alteração no Cálculo da NOTA
+                            foreach($z['avaliacoes'] as $aval){
+                                    $quantidadeAvaliacao += $aval->peso;
+                                    if($aval->peso > 0){
+                                        $k[$alunoID][$key]['notas'][$aval->indice_notas] = ($aval->nota * $aval->peso);
+                                        $z['notas'][$aval->indice_notas] = $k[$alunoID][$key]['notas'][$aval->indice_notas];
+                                    }
+                            }
+                            $k[$alunoID][$key]['disciplina_razao'] = $quantidadeAvaliacao;*/
+                            //Fim Alteração 2ºTen João Victor
+
+                            /*if($alunoID == 3156){//ERICK SILVA DE SOUZA
+                                dd($z, $k[$alunoID]);
+                            }*/
+                            if($k[$alunoID][$key]['disciplina_razao'] > 0){
+                                $k[$alunoID][$key]['media'] = number_format(array_sum($z['notas'])/$k[$alunoID][$key]['disciplina_razao'], '3', '.','');
+                            }else{
+                                $k[$alunoID][$key]['media'] = 0;
+                            }
+                            
 
                             // AQUI VERIFICO SE O  ALUNO OBTEVE MEDIA FINAL INFERIOR A 5 NESSA DISCIPLINA
-
+    
                             if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['disciplina_id']!=99999){
 
                                 $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $k[$alunoID][$key]['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
@@ -1901,6 +1928,7 @@ class AjaxRelatoriosController extends Controller
                                 if($k[$alunoID][$key]['disciplina_id']==99999){
                                     $mf['taf'] = number_format(array_sum($z['notas'])/$k[$alunoID][$key]['disciplina_razao'], '3', '.','');
                                 } else {
+
                                     $mf[] = number_format(array_sum($z['notas'])/$k[$alunoID][$key]['disciplina_razao'], '3', '.','');
                                 }
                                 $mf_tmp = number_format(array_sum($z['notas'])/$k[$alunoID][$key]['disciplina_razao'], '3', '.','');
@@ -1940,7 +1968,7 @@ class AjaxRelatoriosController extends Controller
                                 $reprovado[] = 0;
                                 $disciplinas_reprovado_array[] = 0;
                             }
-
+                            
                         }
 
                         if(isset($mf)){
@@ -1953,11 +1981,14 @@ class AjaxRelatoriosController extends Controller
                             }
 
                             $k[$alunoID]['media_final'] = number_format((array_sum($mf))/ (count($k[$alunoID])-1), '10', '.', '');
+        
                             unset($mf);
                             unset($reprovado); 
                             unset($disciplinas_reprovado_array);
                         }
-
+    /*if($alunoID == 3156){//ERICK SILVA DE SOUZA
+        dd($aval, $k[$alunoID]);
+    }*/
                         if(!is_null($alunoID)){
                             $class = new AlunosClassificacao;
                             $class->aluno_id = $alunoID;
@@ -2014,10 +2045,7 @@ class AjaxRelatoriosController extends Controller
                         $xzy->classificacao = $i;
                         $xzy->save();
                     }                    
-
-
                 }
-
             }
 
             //$media = array_sum($alunoNota[1][749]['notas']);

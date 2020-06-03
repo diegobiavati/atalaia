@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AlunosClassificacao extends Model
 {
     protected $table = 'alunos_classificacao';
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function aluno()
     {

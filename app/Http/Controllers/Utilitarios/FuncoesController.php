@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Utilitarios;
 
 use App\Models\AnoFormacao;
+use App\Models\AvaliacoesNotas;
 use DateTime;
-use Doctrine\DBAL\Schema\View;
-use Throwable;
+use Illuminate\Database\Eloquent\Collection;
 
 class FuncoesController
 {
@@ -73,7 +73,7 @@ class FuncoesController
     public static function validaSessao()
     {
         if (!auth()->check()) {
-            return redirect()->route('login');
+            return redirect('/');
         }
         return null;
     }
@@ -113,5 +113,51 @@ class FuncoesController
         $date = new DateTime($dataNascimento);
         $interval = $date->diff(new DateTime(date('Y-m-d')));
         return $interval->format('%Y');
+    }
+
+    public static function recalculaNotaAluno(Collection $avaliacoesNotas)
+    {
+
+        foreach ($avaliacoesNotas as $nota) {
+            if (!is_null($nota->alunos_id)) {
+
+                $alunosID[] = $nota->alunos_id;
+
+                $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['notas'][] = $nota->getNota();
+                $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['avaliacoes'][$nota->avaliacao->nome_abrev . ' - ' . $nota->avaliacao->chamada . 'ª chamada'] = (object) array('indice_notas' => array_key_last($aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['notas']), 'nota' => $nota->getNota(), 'nome_abrev' => $nota->avaliacao->nome_abrev, 'peso' => $nota->avaliacao->peso);
+                $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['disciplina_id'] = $nota->avaliacao->disciplinas_id;
+                $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['disciplina_nome'] = $nota->avaliacao->disciplinas->nome_disciplina; //$disciplina_nome[$nota->avaliacao->disciplinas_id];
+                $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id][$nota->avaliacao->nome_abrev . ' - ' . $nota->avaliacao->chamada . 'ª chamada'] = $nota->getNota();
+
+                /*if($nota->alunos_id == 3156){
+                    dd($aluno_notas[$nota->avaliacao->disciplinas_id][3156]);
+                }*/
+            }
+        }
+
+        if (isset($aluno_notas)) {
+            foreach ($aluno_notas as $disciplina_id => $disciplina) {
+                foreach ($disciplina as $aluno_id => $aluno) {
+                    $quantidadeAvaliacao = 0;
+                    foreach ($aluno['avaliacoes'] as $key => $aval) {
+                        $quantidadeAvaliacao += $aval->peso;
+                        if ($aval->peso > 0) {
+                            $aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas] = ($aval->nota * $aval->peso);
+                            $aluno['notas'][$aval->indice_notas] = $aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas];
+                        }else{
+                            unset($aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas]);
+                            $aluno_notas[$disciplina_id][$aluno_id]['avaliacoes'][$key]->indice_notas = null;
+                            $aluno['avaliacoes'][$key]->indice_notas = null;
+                        }
+                    }
+                    $aluno_notas[$disciplina_id][$aluno_id]['disciplina_razao'] = $quantidadeAvaliacao;
+                }
+            }
+            $aluno_notas['alunosID'] = $alunosID;
+        }else{
+            $aluno_notas = array();
+        }
+
+        return $aluno_notas;
     }
 }

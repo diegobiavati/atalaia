@@ -124,7 +124,6 @@ class AjaxOperadorController extends Controller
             }
             
         } else if($chamadas->chamada==0 && $chamadas->avaliacao_recuperacao==1){
-            
             // VERIFICO OS ALUNOS QUE FICARAM COM MÉDIA < 5,00 NA DISCIPLINA
             
             // ID DA DISCIPLINAS
@@ -133,7 +132,7 @@ class AjaxOperadorController extends Controller
             
             // SELECIONANDO TODAS AVALIAÇÕES DA DISCIPLINA ($disciplina_id) EXCETO A DE RECUPERAÇÃO
             
-            $avaliacoes = Avaliacoes::where('disciplinas_id', $disciplina_id)->where('avaliacao_recuperacao', '<>', 1)->get(['id', 'chamada']);
+            $avaliacoes = Avaliacoes::where('disciplinas_id', $disciplina_id)->where('avaliacao_recuperacao', '<>', 1)->get(['id', 'chamada', 'peso']);
             
             foreach($avaliacoes as $avaliacao){
                 
@@ -144,17 +143,19 @@ class AjaxOperadorController extends Controller
                 // FAZENDO UM ARRAY COM TODAS AS AVALIAÇÕES DE PRIMERA CHAMADA (O array_sum DESSA ARRAY SERÁ O TOTAL DE AVALIAÇÕES => RAZÃO DA DIVISÃO PARA CÁLCULO DA MÉDIA DA NOTA )
                 
                 $razao[] = ($avaliacao->chamada==1)?1:0;
-                
+
+
             }
             
             // TOTAL DE AVALIAÇÕES DA DISCIPLINA É O TOTAL DE AVALIAÇÕES DE PRIMEIRA CHAMADA
-            
             $razao = array_sum($razao);
             
             $avaliacoes_notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoes_array)->get();
             foreach($avaliacoes_notas as $avaliacao_nota){
                 $aluno_array[$avaliacao_nota->alunos_id][] = $avaliacao_nota->getNota();
             }
+
+            
             
             // APOS O LOOP ACIMA TENHO OS RESULTADOS:
             
@@ -170,6 +171,7 @@ class AjaxOperadorController extends Controller
             foreach($alunos as $aluno){
                 if(isset($aluno_array[$aluno->id])){
                     $media = array_sum($aluno_array[$aluno->id])/$razao;
+
                     if($media<5){
                         $alunosID_recuperacao[] = $aluno->id;
                     }

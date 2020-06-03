@@ -32,6 +32,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('relatorios', ['as' => 'relatorios', 'uses' => 'Ajax\AjaxAdminController@Relatorios']);
 
     //Atualização Ten João Victor
+    Route::post('remover-pronto-faltas/{id}', 'Ajax\AjaxAdminController@RemoverProntoFaltas');
     Route::resource('importacoes', 'Ajax\ImportacaoController');
     Route::resource('parametros', 'Ajax\ParametrosController');
     Route::post('parametrosInfo', 'Ajax\ParametrosController@loadInfo');
@@ -220,7 +221,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('alunos-sem-cadastro-telegram/{id_ano_formacao}', 'Ajax\AjaxRelatoriosController@AlunosSemCadastroTelegram');
 
     Route::get('dialog-configuracoes-relatorios', 'Ajax\AjaxRelatoriosController@DialogConfiguracoesRelatorio');
-    Route::post('configurar-relatorios/', 'Ajax\AjaxRelatoriosController@ConfigurarRelatorio');
+    Route::post('configurar-relatorios', 'Ajax\AjaxRelatoriosController@ConfigurarRelatorio');
 
     /* ASSISTENTE INSTALAÇÃO APP */
 
@@ -311,8 +312,8 @@ Route::get('/sair', function () {
 Route::get('register-user-mqtt', ['as' => 'register_user_mqtt', 'uses' => 'MQTTController@RegisterUserMQTT']);
 Route::get('notify-offline-user/{id}', 'MQTTController@NotifyOfflineUser');
 
-
-Route::resource('iso', 'TesteController');
+//Lembrar de passar os parâmetros
+//Route::get('eslog/{ano_formacao_id}/{escolhaQMS}', 'EslogController@retornaAlunos');
 
 Route::get('pdfTeste', function(){
     Fpdf::AddPage();

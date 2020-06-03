@@ -75,7 +75,9 @@
                         } else if(($ownauthcontroller->PermissaoCheck(3) && !$ownauthcontroller->PermissaoCheck(1)) && (time()>strtotime($avaliacao->data.' '.$avaliacao->hora) && time()<strtotime("+".$avaliacao->prazo_nota." days", strtotime($avaliacao->data.' '.$avaliacao->hora)))){                                                
                           $opcoes_avaliacao = ' <span id="pronto-faltasID_'.$avaliacao->id.'"><a href="javascript: void(0);" class="badge badge-primary" onclick="dialogProntoFaltas('.$avaliacao->id.');">Pronto de faltas</a></span>
                                                 <a href="javascript: void(0);" class="badge badge-primary" style="margin-left: 6px;" onclick="dialogLancarGraus('.$avaliacao->id.');">Lançar grau</a>';
-                        } else {
+                        } else if($ownauthcontroller->PermissaoCheck(1) && (time()>strtotime($avaliacao->data.' '.$avaliacao->hora) && time()<strtotime("+".$avaliacao->prazo_nota." days", strtotime($avaliacao->data.' '.$avaliacao->hora)))){ 
+                          $opcoes_avaliacao = ' <span id="deleta-pronto-faltasID_'.$avaliacao->id.'"><a href="javascript: void(0);" class="badge badge-danger" onclick="dialogRemoveProntoFaltas(this, '.$avaliacao->id.', \''.csrf_token().'\');">Remover Pronto de Faltas</a></span>';
+                        }else {
                           $opcoes_avaliacao = '';  
                         }
 
