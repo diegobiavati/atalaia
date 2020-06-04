@@ -91,7 +91,7 @@
             </div>
         </div>
 
-        @if(in_array(2, session()->get('login.perfil')))
+        @if(in_array(2, session()->get('login.perfil')) || (isset($lancamentoFo) && isset($lancamentoFo->providencia)))
         <!--Só libera se for Cmt de Cia-->
         <div style="margin-bottom: 15px;">
             <div>

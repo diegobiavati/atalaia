@@ -493,12 +493,22 @@ class LancamentosController extends Controller
         $retorno['status'] = 'err';
         $retorno['response'] = 'Ocorreu um Erro, Relogue no Sistema';
 
+
+        if($request->textAreaProvidencias == null){
+            $retorno['status'] = 'err';
+            $retorno['response'] = 'Informe a Providência.';
+
+            return response()->json($retorno);
+        }
         //$lancamentoFo = LancamentoFo::find($id);
 
         //if ($lancamentoFo->providencia == null) {
         if ($this->LancarProvidencia($request, $id)) {
             $retorno['status'] = 'success';
             $retorno['response'] = 'Providência Lançada Com Sucesso.';
+        }else{
+            $retorno['status'] = 'err';
+            $retorno['response'] = 'Usuário sem Previlégios.';
         }
         //} else {
         //    $retorno['status'] = 'err';
@@ -522,18 +532,23 @@ class LancamentosController extends Controller
     private function LancarProvidencia(Request $request, $id)
     {
 
-        $providencia = $request->textAreaProvidencias;
-        $fatd = ((isset($request->btnPunir) && $request->btnPunir == 'Fatd') ? 'S' : 'N');
-        $frad = ((isset($request->btnPunir) && $request->btnPunir == 'Frad') ? 'S' : 'N');
+        if(in_array(2, session()->get('login.perfil'))){
+            $providencia = $request->textAreaProvidencias;
+            $fatd = ((isset($request->btnPunir) && $request->btnPunir == 'Fatd') ? 'S' : 'N');
+            $frad = ((isset($request->btnPunir) && $request->btnPunir == 'Frad') ? 'S' : 'N');
 
-        $lancamentoFo = LancamentoFo::find($id);
-        if ($fatd == 'S') {
-            $this->LancarFatd($lancamentoFo);
-        } else {
-            $this->ExcluirFatd($lancamentoFo);
+            $lancamentoFo = LancamentoFo::find($id);
+            if ($fatd == 'S') {
+                $this->LancarFatd($lancamentoFo);
+            } else {
+                $this->ExcluirFatd($lancamentoFo);
+            }
+
+            return ($lancamentoFo->update(['providencia' => $providencia, 'fatd' => $fatd, 'frad' => $frad]));
+        }else{
+            return false;
         }
-
-        return ($lancamentoFo->update(['providencia' => $providencia, 'fatd' => $fatd, 'frad' => $frad]));
+        
     }
 
     private function LancarFatd(LancamentoFo $lancamentoFo)
