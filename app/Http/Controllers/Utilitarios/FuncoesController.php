@@ -151,6 +151,12 @@ class FuncoesController
                         }
                     }
                     $aluno_notas[$disciplina_id][$aluno_id]['disciplina_razao'] = $quantidadeAvaliacao;
+                    if($quantidadeAvaliacao > 0){
+                        $aluno_notas[$disciplina_id][$aluno_id]['media'] = array_sum($aluno_notas[$disciplina_id][$aluno_id]['notas']) / $quantidadeAvaliacao;
+                    }else{
+                        $aluno_notas[$disciplina_id][$aluno_id]['media'] = 0;
+                    }
+                    
                 }
             }
             $aluno_notas['alunosID'] = $alunosID;

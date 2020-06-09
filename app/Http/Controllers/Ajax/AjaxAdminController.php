@@ -332,6 +332,12 @@ class AjaxAdminController extends Controller
     public function Avaliacoes(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
 
+        if ($this->ownauthcontroller->PermissaoCheck(1)) {
+            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
+        } else {
+            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
+        }
+
         $confTaf = ConfLancaTaf::first();
 
         $confLancaTaf = array(
@@ -374,7 +380,8 @@ class AjaxAdminController extends Controller
             ->with('ownauthcontroller', $ownauthcontroller)
             ->with('avaliacoes_status_array', $avaliacoes_status_array)
             ->with('confLancaTaf', $confLancaTaf)
-            ->with('avaliacao_nome_por_indice', $avaliacao_nome_por_indice);
+            ->with('avaliacao_nome_por_indice', $avaliacao_nome_por_indice)
+            ->with('uetes', $uetes);
     }
 
     public function LancarTafAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
@@ -5631,20 +5638,34 @@ class AjaxAdminController extends Controller
 
         $avaliacao = Avaliacoes::find($request->id);
 
+        if (!isset($request->id_uete)) {
+            $retorno['status'] = 'err';
+            $retorno['response'][] = '<li style="color:rgb(255,0,0)">Selecione a UETE.</li>';
+            return response()->json($retorno);
+        }
+
         $retorno['status'] = 'success';
         $retorno['response'] = '<li style="color:rgb(0,0,255)">Prontos e Notas Removidos.</li>';
 
-        if (AvaliacoesNotas::where('avaliacao_id', '=', $avaliacao->id)->delete() < 0) {
+        $param = $request->id_uete;
+
+        if (AvaliacoesNotas::where('avaliacao_id', '=', $avaliacao->id)->whereHas('aluno', function ($q) use ($param) {
+            $q->where('omcts_id', '=', $param);
+        })->delete() < 0) {
             $retorno['status'] = 'err';
             $retorno['response'][] = '<li style="color:rgb(255,0,0)">Erro ao Remover Notas de Avaliações.</li>';
         }
 
-        if (AvaliacoesProntoFaltas::where('avaliacao_id', '=', $avaliacao->id)->delete() < 0) {
+        if (AvaliacoesProntoFaltas::where('avaliacao_id', '=', $avaliacao->id)->whereHas('aluno', function ($q) use ($param) {
+            $q->where('omcts_id', '=', $param);
+        })->delete() < 0) {
             $retorno['status'] = 'err';
             $retorno['response'][] = '<li style="color:rgb(255,0,0)">Erro ao Remover Prontos Faltas.</li>';
         }
 
-        if (AvaliacoesProntoFaltasStatus::where('avaliacao_id', '=', $avaliacao->id)->delete() < 0) {
+        if (AvaliacoesProntoFaltasStatus::where('avaliacao_id', '=', $avaliacao->id)->whereHas('uete', function ($q) use ($param) {
+            $q->where('id', '=', $param);
+        })->delete() < 0) {
             $retorno['status'] = 'err';
             $retorno['response'][] = '<li style="color:rgb(255,0,0)">Erro ao Prontos Faltas Status.</li>';
         }

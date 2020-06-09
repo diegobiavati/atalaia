@@ -23,7 +23,7 @@ body {
     margin-top: -280px;
     margin-left: -450px;
     width: 900px;
-    height: 580px;
+    height: 620px;
     background-color: rgba(0,0,0,0.825);
     border-radius: 18px;
     box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
@@ -54,7 +54,7 @@ a.no-style2:hover{
 @stop
 @section('content')
 <div class="wrapper">
-  <div class="inside-wrapper" style="padding: 18px 12px; height: 520px;">
+  <div class="inside-wrapper" style="padding: 18px 12px; height: 570px;">
     <h2 style="text-align: center; margin-top: 22px;">Olá Al {{$aluno->nome_guerra}}</h2>
     <h3 style="text-align: center; margin-top: 56px;">
       Seja 
@@ -72,7 +72,7 @@ a.no-style2:hover{
       <button type="button" class="btn btn-success" onclick="showHidePassport();">
         <span class="show-passaport">Visualizar passaporte</span>
         <span class="hide-passaport" style="display: none;">Esconder passaporte</span>
-        <span class="passaport" style="display: none;"><br />{{$aluno->passaporte->passaport}}</span>
+        <span class="passaport" style="display: none;"><br />{{(isset($aluno->passaporte) ? $aluno->passaporte->passaport : null)}}</span>
       </button>
     </div>
     <h3 style="text-align: center; margin-top: 44px;">Para fazer a escolha de QMS, clique no botão abaixo</h3>
@@ -218,7 +218,7 @@ a.no-style2:hover{
       type: 'POST',
       dataType: 'json',
       data: dataForm,
-      url: '/ajax/gravar-opcoes-aluno/',
+      url: '/ajax/gravar-opcoes-aluno',
       beforeSend: function(){
         $('div.inside-wrapper').html('<div id="temp" style="text-align: center; margin: 210px; padding: 24px;"><img src="/images/loadings/loading_02.svg" style="width: 44px; margin-right: 8px;" /><br />Por favor aguarde...</div>');
       },

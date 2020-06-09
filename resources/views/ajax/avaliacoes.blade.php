@@ -1,3 +1,9 @@
+<?php
+foreach($uetes as $uete){
+  $combo_uete[] = '<option value='.$uete->id.' '.((isset($aluno) && $uete->id == $aluno->uetes_id) ? 'selected' : '').'>'. $uete->omct .'</option>';
+}
+?>
+
 <div class="card bg-light mb-3">
     <div class="card-header">
         <i class="ion-ios-compose"></i><strong>Avaliações</strong>
@@ -76,7 +82,15 @@
                           $opcoes_avaliacao = ' <span id="pronto-faltasID_'.$avaliacao->id.'"><a href="javascript: void(0);" class="badge badge-primary" onclick="dialogProntoFaltas('.$avaliacao->id.');">Pronto de faltas</a></span>
                                                 <a href="javascript: void(0);" class="badge badge-primary" style="margin-left: 6px;" onclick="dialogLancarGraus('.$avaliacao->id.');">Lançar grau</a>';
                         } else if($ownauthcontroller->PermissaoCheck(1) && (time()>strtotime($avaliacao->data.' '.$avaliacao->hora) && time()<strtotime("+".$avaliacao->prazo_nota." days", strtotime($avaliacao->data.' '.$avaliacao->hora)))){ 
-                          $opcoes_avaliacao = ' <span id="deleta-pronto-faltasID_'.$avaliacao->id.'"><a href="javascript: void(0);" class="badge badge-danger" onclick="dialogRemoveProntoFaltas(this, '.$avaliacao->id.', \''.csrf_token().'\');">Remover Pronto de Faltas</a></span>';
+
+                          
+                          $opcoes_avaliacao = '<div id="removeProntoFaltas_'.$avaliacao->id.'">
+                                                  <select class="custom-select" name="omcts_id" style="margin-top:5px;width:75%">
+                                                    <option value="0" disabled selected hidden>UETE</option>
+                                                    '.implode('', $combo_uete).'
+                                                  </select>
+                                                  <span id="deleta-pronto-faltasID_'.$avaliacao->id.'" "><a href="javascript: void(0);" class="badge badge-danger" onclick="dialogRemoveProntoFaltas(this, '.$avaliacao->id.', \''.csrf_token().'\');">Remover Pronto de Faltas</a></span>
+                                              </div>';
                         }else {
                           $opcoes_avaliacao = '';  
                         }

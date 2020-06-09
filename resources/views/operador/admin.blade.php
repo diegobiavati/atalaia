@@ -1627,7 +1627,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/adicionar-periodo-escolha-qms/',
+                url: '/ajax/adicionar-periodo-escolha-qms',
                 beforeSend: function(){
                     $('div.errors-adicionar-escolha-qms').hide().empty();
                     $('div#modalDinamica div.modal-body').html('<div id="modal-dinamica-box-loading"><img src="/images/loadings/loading_01.svg"> Aguarde, criando registro...</div>');
@@ -2719,11 +2719,14 @@ function onMessageArrived(message) {
             $(document).confirmAcao('<strong>ATENÇÃO: </strong>.<p>Após remover o pronto de faltas todas as informações referente ao mesmo não será mais possível recuperá-las. Deseja continuar?</p>', function(){
                 
                 var dataButtonContent = $(dataButton).html();
+                var uete = $('#removeProntoFaltas_'+id+' .custom-select[name="omcts_id"]').val();
+
                 $.ajax({
                     type: 'POST',
                     dataType: 'json',
                     data: {
-                        '_token' : csrf_token
+                        '_token' : csrf_token,
+                        'id_uete': uete
                     },
                     url: '/ajax/remover-pronto-faltas/' + id,
                     beforeSend: function(){
