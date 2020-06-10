@@ -406,7 +406,7 @@
                         @foreach ($disciplinas as $disciplina)
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND<br />{{$disciplina->nome_disciplina_abrev}}</b></td>                            
                         @endforeach
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND<br />TAF</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND<br />TFM</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>MENÇÃO</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>CLASS</b></td>

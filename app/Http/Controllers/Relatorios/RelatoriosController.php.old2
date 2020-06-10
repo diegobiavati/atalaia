@@ -185,7 +185,7 @@ class RelatoriosController extends Controller
 
                         if(isset($alunos_class_comb[$avaliacao_nota->alunos_id])){
 
-                            // PEGA A NOTA DO TAF SOMENTE UMA VEZ
+                            // PEGA A NOTA DO TFM SOMENTE UMA VEZ
 
                             if(isset($aluno_nota_taf[$avaliacao_nota->alunos_id])){
                                 $add_nota_taf = $aluno_nota_taf[$avaliacao_nota->alunos_id]['media_float'];

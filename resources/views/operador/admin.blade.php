@@ -2885,7 +2885,7 @@ function onMessageArrived(message) {
             });            
         }
 
-        /* AJAX - ATUALIZAR PERIODO LANÇAMENTO TAF */
+        /* AJAX - ATUALIZAR PERIODO LANÇAMENTO TFM */
 
         function AtualizarPeriodoLancamentoTAF(){
             var dataForm = $('form#editar_periodo_lanca_taf').serialize();
@@ -2907,7 +2907,7 @@ function onMessageArrived(message) {
                         setTimeout(function(){
                                 $('button#disciplina_99999').trigger('click');
                                 $('blockquote#disciplina_99999').show();
-                                $('blockquote#disciplina_99999 footer').html('Período de lançamento do TAF atualizado agora mesmo!');
+                                $('blockquote#disciplina_99999 footer').html('Período de lançamento do TFM atualizado agora mesmo!');
                                 setTimeout(function(){
                                     $('blockquote#disciplina_99999').fadeOut();
                                     $('blockquote#disciplina_99999 footer').empty();
@@ -2915,13 +2915,13 @@ function onMessageArrived(message) {
                             }, 460);                        
                     } else {
                         $('div#modalDinamica').modal('hide');
-                        $('div.errors-adicionar-disciplinas2').html('<strong>ATENÇÃO: </strong> Houve um erro ao tentar atualizar o período de lançamento do TAF').slideDown();    
+                        $('div.errors-adicionar-disciplinas2').html('<strong>ATENÇÃO: </strong> Houve um erro ao tentar atualizar o período de lançamento do TFM').slideDown();    
                     }
                 },
                 error: function(jqxhr){
                     if(jqxhr.status==500){
                         $('div#modalDinamica').modal('hide');
-                        $('div.errors-adicionar-disciplinas2').html('<strong>ATENÇÃO: </strong> Houve um erro interno ao tentar editar o período de lançamento do TAF.').slideDown();    
+                        $('div.errors-adicionar-disciplinas2').html('<strong>ATENÇÃO: </strong> Houve um erro interno ao tentar editar o período de lançamento do TFM.').slideDown();    
                     } else if(jqxhr.status==422){
                         $('div.errors-adicionar-disciplinas').slideDown(100);
                         var errors = $.parseJSON(jqxhr.responseText);

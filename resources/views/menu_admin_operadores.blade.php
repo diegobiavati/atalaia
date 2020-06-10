@@ -36,7 +36,7 @@
 <!--li class="list-group-item justify-content-between align-items-center menu-list-01">
     <a id="indices-taf-atletas" href="javascript: void(0);">
         <i class="ion-android-walk"></i> 
-        Índices do TAF e atletas 
+        Índices do TFM e atletas 
         <span class="badge badge-primary badge-pill"></span>
     </a>
 </li-->

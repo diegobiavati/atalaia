@@ -88,13 +88,13 @@ class AjaxRelatoriosController extends Controller
             }
 
             if($ownauthcontroller->PermissaoCheck(1)){
-                $pronto_lancamento_taf = '<li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'pronto-lancamento-taf\');">Pronto do lançamento do TAF <b>(RELAÇÃO GERAL)</b></a></li>';
+                $pronto_lancamento_taf = '<li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'pronto-lancamento-taf\');">Pronto do lançamento do TFM <b>(RELAÇÃO GERAL)</b></a></li>';
             } else {
                 $pronto_lancamento_taf = '';
             }
 
             if($ownauthcontroller->PermissaoCheck(1)){
-                $pronto_lancamento_taf = '<li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'pronto-lancamento-taf\');">Pronto do lançamento do TAF <b>(RELAÇÃO GERAL)</b></a></li>';
+                $pronto_lancamento_taf = '<li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'pronto-lancamento-taf\');">Pronto do lançamento do TFM <b>(RELAÇÃO GERAL)</b></a></li>';
             } else {
                 $pronto_lancamento_taf = '';
             }
@@ -1641,7 +1641,7 @@ class AjaxRelatoriosController extends Controller
             }
             
             $status_checked = (in_array(99999, $disciplinas_marcadas))? 'checked="checked"':'';            
-            $avaliacao_array[] = '<input '.$status_checked.' type="checkbox" value="99999" id="avaliacao-99999" name="avaliacoesID[]" /> <label style="font-size: 12px;" for="avaliacao-99999">TAF</label>';
+            $avaliacao_array[] = '<input '.$status_checked.' type="checkbox" value="99999" id="avaliacao-99999" name="avaliacoesID[]" /> <label style="font-size: 12px;" for="avaliacao-99999">TFM</label>';
  
             $status_checked_input = ($rel_conf->valor==0)?'':'checked';
 

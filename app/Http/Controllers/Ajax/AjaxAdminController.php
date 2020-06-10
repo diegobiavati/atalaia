@@ -415,7 +415,7 @@ class AjaxAdminController extends Controller
         } else {
             return '<div class="box-registro-not-found">
                         <i class="ion-social-snapchat-outline" style="font-size: 32px"></i><br />
-                        <span style="color: brown">Fora do período para lançamento do TAF do aluno</span>
+                        <span style="color: brown">Fora do período para lançamento do TFM do aluno</span>
                     </div>';
         }
     }
@@ -498,7 +498,7 @@ class AjaxAdminController extends Controller
         }
 
         $data['media'] = $media_tela;
-        $this->classLog->RegistrarLog('Lançou TAF de aluno', auth()->user()->email);
+        $this->classLog->RegistrarLog('Lançou TFM de aluno', auth()->user()->email);
         return $data;
     }
 
@@ -2034,7 +2034,7 @@ class AjaxAdminController extends Controller
         $hora_fim = strftime('%H:%M', strtotime($confTaf->termino));
 
         $data['status'] = 'ok';
-        $data['header'] = '<i class="ion-android-walk" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Configurar período de lançamento do TAF';
+        $data['header'] = '<i class="ion-android-walk" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Configurar período de lançamento do TFM';
         $data['body'] = '   <div class="alert alert-danger errors-adicionar-disciplinas" role="alert"></div>
                                     <form id="editar_periodo_lanca_taf">
                                         <input type="hidden" name="_token" value="' . csrf_token() . '">
@@ -2103,7 +2103,7 @@ class AjaxAdminController extends Controller
         } else {
             $data['status'] = 'err';
         }
-        $this->classLog->RegistrarLog('Atualizou período de lançamento do TAF', auth()->user()->email);
+        $this->classLog->RegistrarLog('Atualizou período de lançamento do TFM', auth()->user()->email);
         return $data;
     }
 
@@ -4981,7 +4981,7 @@ class AjaxAdminController extends Controller
 
             $user->email = $email;
 
-            // RECALCULANDO A NOTA DO TAF CASO ESTA JA ESTJA LANÇADA
+            // RECALCULANDO A NOTA DO TFM CASO ESTA JA ESTJA LANÇADA
 
             $avaliacoaTaf_update = AvaliacaoTaf::where('aluno_id', $request->id)->first();
 

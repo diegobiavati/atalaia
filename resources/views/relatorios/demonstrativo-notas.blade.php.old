@@ -125,7 +125,7 @@
                     @endforeach
 
                     @php
-                        // INCREMENTANDO NOTA DO TAF SFC
+                        // INCREMENTANDO NOTA DO TFM SFC
                         if($show_taf==1){
                             $disciplinas_com_avaliacoes++;
                             if(isset($aluno_nota_taf[$aluno->id])){
@@ -139,7 +139,7 @@
                     @if($show_taf==1)
 
                     <div style="margin: 8px;">
-                        <b>{{$next_index}}. TAF</b>
+                        <b>{{$next_index}}. TFM</b>
                     </div>
 
                     <table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 100%;">

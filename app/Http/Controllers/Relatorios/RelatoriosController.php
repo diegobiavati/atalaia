@@ -797,7 +797,7 @@ class RelatoriosController extends Controller
         $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->whereNotIn('id', $alunosIDs)->orderBy('omcts_id', 'asc')->get();
 
         //dd($alunos);
-        $this->classLog->RegistrarLog('Acessou pronto de lançamento do TAF', auth()->user()->email);
+        $this->classLog->RegistrarLog('Acessou pronto de lançamento do TFM', auth()->user()->email);
         return view('relatorios.pronto-lancamento-taf')->with('alunos', $alunos);
                                                       
     }

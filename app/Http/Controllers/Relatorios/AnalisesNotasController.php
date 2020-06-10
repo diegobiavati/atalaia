@@ -219,7 +219,7 @@ class AnalisesNotasController extends Controller
         }
 
 
-        // SEPARANDO O RELATÓRIO CASO NÃO SEJA PARA O TAF
+        // SEPARANDO O RELATÓRIO CASO NÃO SEJA PARA O TFM
 
         if($request->disciplinaID!='taf'){
         
@@ -358,7 +358,7 @@ class AnalisesNotasController extends Controller
                                                                         ->with('disciplina_data', $disciplina_data);            
 
 
-            // ANALISE PARCIAL PARA CASO DE TAF
+            // ANALISE PARCIAL PARA CASO DE TFM
 
             }
             

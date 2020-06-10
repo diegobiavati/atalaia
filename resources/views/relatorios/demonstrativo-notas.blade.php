@@ -39,7 +39,7 @@
                             @if($key=='FLEXÃO NA BARRA' && $class->aluno->area_id==3)
                                 <td style="border: 1px solid #000; padding: 6px; text-align: center;">-</td>
                             @else
-                                <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{isset($avaliacoes->nota) ? $avaliacoes->nota : null}}</td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{isset($avaliacoes->nota) ? $avaliacoes->nota : $avaliacoes}}</td>
                             @endif
                             @endforeach
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($data['media'], '3', '.', '')}}</td>
@@ -98,5 +98,9 @@
     {{-- {{var_dump($data_array)}} --}} 
 
 @endforeach
-
+<script>
+    $(document).ready(function() {
+        $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
+    });
+</script>
 @stop

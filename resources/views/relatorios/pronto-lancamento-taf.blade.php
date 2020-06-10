@@ -1,8 +1,8 @@
 @extends('relatorios.template-relatorios')
 
-@section('title', 'Atalaia :: Relatório::Pronto do lançamento do TAF')
+@section('title', 'Atalaia :: Relatório::Pronto do lançamento do TFM')
 
-@section('titulo-relatorio', 'PRONTO DO LANÇAMENTO DE NOTAS DO TAF')
+@section('titulo-relatorio', 'PRONTO DO LANÇAMENTO DE NOTAS DO TFM')
 
 @section('content')
 
