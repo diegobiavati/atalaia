@@ -9,10 +9,11 @@
 @foreach ($alunos_classif as $class)
     @php
         $data_array = unserialize($class->data_demonstrativo);
+
     @endphp
     <div style="width: 940px; margin: 12px auto 56px auto; page-break-after: always;">
         <div style="border: 1px solid #000000; padding: 6px;">
-            <b>ALUNO(A):</b> {{$class->aluno->numero}} {{$class->aluno->nome_guerra}} ({{$class->aluno->nome_completo}})<br />
+            <b>ALUNO(A):</b> {{$class->aluno->numero}} <b>{{$class->aluno->nome_guerra}}</b> ({{$class->aluno->nome_completo}})<br />
             <b>UETE:</b> {{$class->aluno->omct->sigla_omct}}<br />
             <b>TURMA:</b> {{$class->aluno->turma->turma or 'NÃO INFORMADA'}}
             <div style="float: right; margin-top: -38px;">
@@ -59,7 +60,7 @@
         </div>
         <table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 100%;">
                 <tr>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>MENÇÃO</b></td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>CLASSIFICAÇÃO POR ÁREA E SEGMENTO</b></td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>CLASSIFICAÇÃO GERAL</b></td>

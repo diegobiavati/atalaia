@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Utilitarios;
 
+use App\Http\Controllers\OwnAuthController;
 use App\Models\AnoFormacao;
 use App\Models\AvaliacoesNotas;
+use App\Models\OMCT;
 use DateTime;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -113,6 +115,15 @@ class FuncoesController
         $date = new DateTime($dataNascimento);
         $interval = $date->diff(new DateTime(date('Y-m-d')));
         return $interval->format('%Y');
+    }
+
+    public static function retornaUetePerfil(OwnAuthController $ownAuthController){
+        if ($ownAuthController->PermissaoCheck(1)) {
+            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
+        } else {
+            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
+        }
+        return $uetes;
     }
 
     public static function recalculaNotaAluno(Collection $avaliacoesNotas)

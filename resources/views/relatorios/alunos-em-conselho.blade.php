@@ -6,7 +6,7 @@
 
 <h3 style="text-align: center; margin: -10px 0 56px 0;">
     CURSO DE FORMAÇÃO DE SARGENTOS - PERÍODO BÁSICO - FORMAÇÃO {{$ano_selecionado->formacao}}<br />
-    RELAÇÃO DE ALUNOS APROVADOS EM CONSELHO ESCOLAR
+    RELAÇÃO DE ALUNOS APROVADOS EM CONSELHO DE ENSINO
 </h3>
 
 @if(count($alunos)>0)
@@ -22,7 +22,7 @@
             @endif
         @endforeach
         @if(!isset($aluno_conselho))
-            <div style="text-align: center; color: #0B6121;">Sem alunos em conselho escolar nesta UETE</div>
+            <div style="text-align: center; color: #0B6121;">Sem alunos em conselho de ensino nesta UETE</div>
         @else
             @unset($aluno_conselho)
 
@@ -54,8 +54,13 @@
 
 @else
 
-    <div style="text-align: center;">NÃO HÁ REGISTROS DE ALUNOS APROVADOS EM CONSELHO ESCOLAR</div>
+    <div style="text-align: center;">NÃO HÁ REGISTROS DE ALUNOS APROVADOS EM CONSELHO DE ENSINO</div>
 
 @endif
 
+<script>
+    $(document).ready(function() {
+        $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
+    });
+</script>
 @stop

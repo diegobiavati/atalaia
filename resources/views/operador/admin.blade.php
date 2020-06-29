@@ -176,9 +176,11 @@ function onMessageArrived(message) {
                 @endif
                 @if($ownauthcontroller->PermissaoCheck(3)) <!-- Visão geral restrita a respectiva UETE -->
                     <li class="list-group-item justify-content-between align-items-center menu-list-01">
-                        <a id="lancar-taf-aluno" href="javascript: void(0);">
+                        <!--<a id="lancar-taf-aluno" href="javascript: void(0);">-->
+                        <a id="menu-tfm-aluno" href="javascript: void(0);">
                             <i class="ion-android-walk"></i> 
-                            Lançar TAF aluno
+                            <!--Lançar TFM aluno-->
+                            TFM do aluno
                             <span class="badge badge-primary badge-pill"></span>
                         </a>
                     </li>
@@ -2052,16 +2054,18 @@ function onMessageArrived(message) {
         /* CHAMADA AJAX */
 
         function loadAdminAjaxContent(routeAs){
-            $.ajax({
-                type: 'GET',
-                url: '/ajax/' + routeAs,
-                beforeSend: function(){
-                    $('div.inside-content').html('<div id="temp" style="text-align: center; margin-top: 120px;"><img src="/images/loadings/loading_04.svg" style="width: 28px; margin-right: 8px;" /><br />Aguarde, carregando...</div>');
-                },
-                success: function(data){
-                    $('div.inside-content').html(data);    
-                }
-            });
+            if(routeAs != undefined){
+                $.ajax({
+                    type: 'GET',
+                    url: '/ajax/' + routeAs,
+                    beforeSend: function(){
+                        $('div.inside-content').html('<div id="temp" style="text-align: center; margin-top: 120px;"><img src="/images/loadings/loading_04.svg" style="width: 28px; margin-right: 8px;" /><br />Aguarde, carregando...</div>');
+                    },
+                    success: function(data){
+                        $('div.inside-content').html(data);    
+                    }
+                });
+            }
         } 
 
         function loadRelatorioAjaxContent(routeAs){
@@ -3075,9 +3079,10 @@ function onMessageArrived(message) {
         }
 
         function carregaOpcoesRelatorio(item){
+            
             $('#full-modal').modal('show');
             $.ajax({
-            	type:'GET',
+                type:'GET',
                 dataType: 'json',
                 url: '/ajax/carrega-opcoes-relatorio/' + item,
                 beforeSend: function(){
@@ -3097,7 +3102,7 @@ function onMessageArrived(message) {
                         alert('ERRO INTERNO/Violação de acesso!/CARACTERE NÃO PERMITIDO PARA ESTA OPERAÇÃO');
                     }, 1000);
                 }                    
-            });             
+            });  
         }
 
         function selectAlunosFizeramAvaliacao(selectElement){
@@ -3149,7 +3154,7 @@ function onMessageArrived(message) {
         }
 
         $(document).ready(function(){
-
+            
             /* LARGURA AUTO DO CONTENT */
 
             var docWidth = $(document).width();
@@ -3171,7 +3176,9 @@ function onMessageArrived(message) {
             
             /* EVENTO PARA CARREGAR CONTEUDO DO MENU VIA AJAX */
 
-            $(document).on('click', 'div.box-ul-menu li', function() {
+            $(document).on('click', 'div.box-ul-menu li', function(evt) {
+                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+        
                 var id = $(this).find('a').attr('id');
                 $('div.box-ul-menu li').removeClass('menu-list-01-active');
                 $(this).addClass('menu-list-01-active');
@@ -3224,7 +3231,9 @@ function onMessageArrived(message) {
             
         // FALE COM ALUNO
 
-        $(document).on('click', 'div.box-aluno-list', function(){
+        $(document).on('click', 'div.box-aluno-list', function(evt){
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+        
             var this_element = $(this).children('div.aluno_checked');
             if(this_element.is(':visible')){
                 $(this).children('div.aluno_checked').hide();    
@@ -3400,6 +3409,31 @@ function onMessageArrived(message) {
                             
                     }
                 }); 
+        }
+
+        function lancarRecuperacaoTafAluno(id, aLinkElement){
+            
+            var dataForm = $('form#Form_lancarTaf_' + id).serialize();
+            
+            $.ajax({
+                dataType: 'json',
+                type:'POST',
+                data: dataForm + '&id=' + id,
+                url: '/ajax/gravar-taf-recuperacao-aluno',
+                beforeSend: function(){
+                    $('div#media_nota_taf_recuperacao_' + id).html('<img src="/images/loadings/loading_03.svg" style="margin-right: 3px; width: 24px;" />');
+                },
+                success: function(data){
+                    if(data.status=='ok'){
+                        $('div#media_nota_taf_recuperacao_' + id).html(data.media);
+                        //$(aLinkElement).removeClass('btn-success').addClass('btn-warning').html('Atualizar');
+                    } else {
+                        $('div#media_nota_taf_recuperacao_' + id).html('0,000');
+                    }
+
+                        
+                }
+            }); 
         }
     
 </script>

@@ -43,7 +43,7 @@
 <li class="list-group-item justify-content-between align-items-center menu-list-01">
     <a id="conselho-escolar" href="javascript: void(0);">
         <i class="ion-wand"></i> 
-        Conselho escolar
+        Conselho de Ensino
         <span class="badge badge-primary badge-pill"></span>
     </a>
 </li>

@@ -127,7 +127,7 @@ class AjaxRelatoriosController extends Controller
             } 
 
             if($ownauthcontroller->PermissaoCheck(1)){
-                $alunos_aprovados_conselho = '<li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-conselho-escolar\');">Alunos aprovados em Conselho Escolar</a></li>';
+                $alunos_aprovados_conselho = '<li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-conselho-escolar\');">Alunos aprovados em Conselho de Ensino</a></li>';
             } else {
                 $alunos_aprovados_conselho = '';
             }            
@@ -141,14 +141,15 @@ class AjaxRelatoriosController extends Controller
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-situacoes-diversas\');">Alunos em situações diversas</a></li>
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-sit-div-hist-escolar\');">Alunos em situações diversas <b>(HISTÓRICO ESCOLAR)</b></a></li>
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-sem-cadastro-telegram\');">Alunos sem registro no TELEGRAM</a></li>
-                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-em-recuperacao-por-disciplinas\');">Alunos em recuperação <b>(POR DISCIPINA)</b></a></li>
-                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-em-recuperacao\');">Alunos reprovados <b>(TABELA DE CLASSIFICAÇÃO GERAL)</b></a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-em-recuperacao-por-disciplinas\');">Alunos em Recuperação <b>(POR DISCIPINA)</b></a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'alunos-em-recuperacao\');">Alunos em Recuperação <b>(TABELA DE CLASSIFICAÇÃO GERAL)</b></a></li>
                                             '.$alunos_aprovados_conselho.'
                                             '.$classificacao_geral.'
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'ficha-individual-aluno\');">Ficha Individual do Aluno(a)s</a></li>
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'view-frad-aluno\');">Ficha Registro para Acompanhamento do Discente <b>(FRAD)</b></a></li>
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'view-ficha-disciplinar\');">Ficha Disciplinar do Aluno(a)s <b>(FATD)</b></a></li>
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'view-relacao-punidos\');">Relação de Aluno(a)s Punidos</a></li>
+                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'view-relacao-reprovados\');">Alunos Reprovados <b>(Conselho e Recuperação)</b></a></li>
                                         </ul>
                                         <div id="relatorios-content" style="margin-top: 24px;"></div>
                                     </div>';
@@ -768,7 +769,7 @@ class AjaxRelatoriosController extends Controller
         $data[] = '<div style="margin-top: 24px;">';
         $data[] = '<select name="options_class_geral" class="custom-select required_to_show_button">';
         $data[] = '     <option value="0" selected>Selecione uma das opções</option>';
-        $data[] = '     <option value="9">Classificação Geral por área com ND | NPB | Mensão | Classificação</option>';
+        $data[] = '     <option value="9">Classificação Geral por área com ND | N1 | Mensão | Classificação</option>';
         $data[] = '     <option value="1">Classificação Geral do PB (Aprovados)</option>';
         $data[] = '     <option value="2">Classificação Geral do PB (Reprovados inclusive)</option>';
         $data[] = '     <option value="5">Classificação por Area Masculino e Feminino (Aprovados)</option>';
@@ -1659,7 +1660,7 @@ class AjaxRelatoriosController extends Controller
             $data['footer'] = ' <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     Cancelar
                                 </button>
-                                <button type="button" class="btn btn-primary" onclick="configurarRelatorios(this);">
+                                <button type="button" class="btn btn-primary" onclick="this.disabled=true; configurarRelatorios(this);">
                                     Salvar
                                 </button>';
         
@@ -1765,27 +1766,10 @@ class AjaxRelatoriosController extends Controller
             
             // SELECIONANDO AS NOTAS DOS ALUNOS NAS AVAIAÇÕES SELECIONADAS (inclusive 2ª chamada)
 
-            /*$alunos_notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get();
-            
-            foreach($alunos_notas as $notas){
-
-                $alunosID[] = $notas->alunos_id;
-
-                $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['notas'][] = $notas->getNota();
-                //$alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['avaliacoes'][$notas->avaliacao->nome_abrev.' - '.$notas->avaliacao->chamada.'ª chamada'] = $notas->getNota();
-                $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['avaliacoes'][$notas->avaliacao->nome_abrev.' - '.$notas->avaliacao->chamada.'ª chamada'] = (object)array('indice_notas' => array_key_last($alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['notas']),'nota' => $notas->getNota(), 'nome_abrev' => $notas->avaliacao->nome_abrev, 'peso' => $notas->avaliacao->peso);
-                $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['disciplina_id'] = $notas->avaliacao->disciplinas_id;
-                $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['disciplina_nome'] = $disciplina_nome[$notas->avaliacao->disciplinas_id];
-                $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id]['disciplina_razao'] = array_sum($razao[$notas->avaliacao->disciplinas_id]);
-                $alunoNota[$notas->avaliacao->disciplinas_id][$notas->alunos_id][$notas->avaliacao->nome_abrev.' - '.$notas->avaliacao->chamada.'ª chamada'] = $notas->getNota();
-
-            }*/
-
             //2ºTen João Victor, Alteração no Cálculo da NOTA
             $alunoNota = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
             $alunosID = $alunoNota['alunosID'];
             //Fim Alteração 2ºTen João Victor
-
             $alunosID = array_unique($alunosID);
 
             sort($alunosID);
@@ -1798,29 +1782,42 @@ class AjaxRelatoriosController extends Controller
 
                 if($avaliacoes_taf){
                     foreach($avaliacoes_taf as $notas_taf){
-                        $taf_nota[$notas_taf->aluno_id] = array(
-                            'CORRIDA' => $notas_taf->corrida_nota,
-                            'FLEXÃO DE BRAÇO' => $notas_taf->flexao_braco_nota,
-                            'FLEXÃO NA BARRA' => $notas_taf->flexao_barra_nota,
-                            'ABDOMINAL' => $notas_taf->abdominal_suficiencia,
-                            'ATLETA' => $notas_taf->aluno->atleta_marexaer,
-                            'reprovado' => $notas_taf->reprovado,
-                            'media_taf' => $notas_taf->media
-                        );
+                        $taf_nota[$notas_taf->aluno_id] = $notas_taf;
                     }
                 }
 
                 foreach($alunosID as $aluno_id){
 
                     if(isset($taf_nota[$aluno_id])){
-                        $alunoNota[99999][$aluno_id]['notas'][] = $taf_nota[$aluno_id]['media_taf'];
+                        $alunoNota[99999][$aluno_id]['notas'][] = $taf_nota[$aluno_id]->media;
 
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['CORRIDA'] = $taf_nota[$aluno_id]['CORRIDA'];
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['FLEXÃO DE BRAÇO'] = $taf_nota[$aluno_id]['FLEXÃO DE BRAÇO'];
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['FLEXÃO NA BARRA'] = $taf_nota[$aluno_id]['FLEXÃO NA BARRA'];
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['ABDOMINAL'] = $taf_nota[$aluno_id]['ABDOMINAL'];
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['ATLETA'] = $taf_nota[$aluno_id]['ATLETA'];                        
-                        $alunoNota[99999][$aluno_id]['reprovado'] = $taf_nota[$aluno_id]['reprovado'];                        
+                        $alunoNota[99999][$aluno_id]['avaliacoes']['CORRIDA'] = $taf_nota[$aluno_id]->corrida_nota;
+                        $alunoNota[99999][$aluno_id]['avaliacoes']['FLEXÃO DE BRAÇO'] = $taf_nota[$aluno_id]->flexao_braco_nota;
+                        $alunoNota[99999][$aluno_id]['avaliacoes']['FLEXÃO NA BARRA'] = $taf_nota[$aluno_id]->flexao_barra_nota;
+                        $alunoNota[99999][$aluno_id]['avaliacoes']['ABDOMINAL'] = $taf_nota[$aluno_id]->abdominal_suficiencia;
+                        $alunoNota[99999][$aluno_id]['avaliacoes']['ATLETA'] = $taf_nota[$aluno_id]->aluno->atleta_marexaer;                        
+                        $alunoNota[99999][$aluno_id]['reprovado'] = $taf_nota[$aluno_id]->reprovado;                        
+
+                        if(isset($taf_nota[$aluno_id]->reprovado_recuperacao)){
+                            //Inclui a Disciplina de TFM Recuperacao
+                            if(!in_array(88888, $disciplinasID)){
+                                $disciplinasID = array_merge($disciplinasID, array(88888));  
+                            }
+                            
+                            $alunoNota[88888][$aluno_id]['notas'][] = $taf_nota[$aluno_id]->media_recuperacao;
+
+                            $alunoNota[88888][$aluno_id]['avaliacoes']['CORRIDA'] = $taf_nota[$aluno_id]->corrida_nota_recuperacao;
+                            $alunoNota[88888][$aluno_id]['avaliacoes']['FLEXÃO DE BRAÇO'] = $taf_nota[$aluno_id]->flexao_braco_nota_recuperacao;
+                            $alunoNota[88888][$aluno_id]['avaliacoes']['FLEXÃO NA BARRA'] = $taf_nota[$aluno_id]->flexao_barra_nota_recuperacao;
+                            $alunoNota[88888][$aluno_id]['avaliacoes']['ABDOMINAL'] = (isset($taf_nota[$aluno_id]->abdominal_suficiencia_recuperacao) ? $taf_nota[$aluno_id]->abdominal_suficiencia_recuperacao : '-');
+                            $alunoNota[88888][$aluno_id]['avaliacoes']['ATLETA'] = $taf_nota[$aluno_id]->aluno->atleta_marexaer;                        
+                            $alunoNota[88888][$aluno_id]['reprovado'] = $taf_nota[$aluno_id]->reprovado_recuperacao; 
+
+                            $alunoNota[88888][$aluno_id]['disciplina_razao'] = 0;
+                            $alunoNota[88888][$aluno_id]['disciplina_id'] = 88888;   
+                            $alunoNota[88888][$aluno_id]['disciplina_nome'] = 'TREINAMENTO FÍSICO MILITAR 1 (RECUPERAÇÃO)'; 
+                            $alunoNota[88888][$aluno_id]['media'] = (isset($taf_nota[$aluno_id]->media_recuperacao) ? $taf_nota[$aluno_id]->media_recuperacao : 0);
+                        }
 
                     } else {
                         $alunoNota[99999][$aluno_id]['notas'][] = 0;
@@ -1837,11 +1834,13 @@ class AjaxRelatoriosController extends Controller
                     
                     $alunoNota[99999][$aluno_id]['disciplina_razao'] = 1;
                     $alunoNota[99999][$aluno_id]['disciplina_id'] = 99999;
-                    $alunoNota[99999][$aluno_id]['disciplina_nome'] = 'TESTE DE APTIDÃO FÍSICA';    
+                    //$alunoNota[99999][$aluno_id]['disciplina_nome'] = 'TESTE DE APTIDÃO FÍSICA';    
+                    $alunoNota[99999][$aluno_id]['disciplina_nome'] = 'TREINAMENTO FÍSICO MILITAR 1';    
+                    $alunoNota[99999][$aluno_id]['media'] = (isset($taf_nota[$aluno_id]) ? $taf_nota[$aluno_id]->media : 0);
+                    //$alunoNota[99999][$aluno_id]['media'] = number_format(array_sum($alunoNota[99999][$aluno_id]['notas'])/$alunoNota[99999][$aluno_id]['disciplina_razao'], '3', '.','');
                 }
 
             }
-
 
             if(isset($alunosID) && isset($alunoNota)){
                 foreach($disciplinasID as $disciplinas){
@@ -1850,38 +1849,19 @@ class AjaxRelatoriosController extends Controller
                             $k[$alunoID][] = $alunoNota[$disciplinas][$alunoID];
                         }
                     }
-
                 }
-
+                
                 if(isset($k)){
                     foreach($alunosID as $alunoID){
                         foreach($k[$alunoID] as $key => $z){
 
-                            /*$quantidadeAvaliacao = 0;
-                            //2ºTen João Victor, Alteração no Cálculo da NOTA
-                            foreach($z['avaliacoes'] as $aval){
-                                    $quantidadeAvaliacao += $aval->peso;
-                                    if($aval->peso > 0){
-                                        $k[$alunoID][$key]['notas'][$aval->indice_notas] = ($aval->nota * $aval->peso);
-                                        $z['notas'][$aval->indice_notas] = $k[$alunoID][$key]['notas'][$aval->indice_notas];
-                                    }
-                            }
-                            $k[$alunoID][$key]['disciplina_razao'] = $quantidadeAvaliacao;*/
-                            //Fim Alteração 2ºTen João Victor
-
-                            /*if($alunoID == 3156){//ERICK SILVA DE SOUZA
-                                dd($z, $k[$alunoID]);
-                            }*/
-                            if($k[$alunoID][$key]['disciplina_razao'] > 0){
-                                $k[$alunoID][$key]['media'] = number_format(array_sum($z['notas'])/$k[$alunoID][$key]['disciplina_razao'], '3', '.','');
-                            }else{
-                                $k[$alunoID][$key]['media'] = 0;
-                            }
-                            
+                            $k[$alunoID][$key]['media'] = (isset($z['media'])) ? $z['media'] : 0;
 
                             // AQUI VERIFICO SE O  ALUNO OBTEVE MEDIA FINAL INFERIOR A 5 NESSA DISCIPLINA
     
-                            if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['disciplina_id']!=99999){
+                            //Original Julião
+                            //if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['disciplina_id']!=99999){
+                            if($k[$alunoID][$key]['media']<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
 
                                 $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $k[$alunoID][$key]['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
                                 
@@ -1913,51 +1893,88 @@ class AjaxRelatoriosController extends Controller
 
                                 $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', $k[$alunoID][$key]['disciplina_id'])->first();
                                 
-                                if($alunos_em_conselho){
+                                /*if($alunos_em_conselho){
                                     $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
-                                    $k[$alunoID][$key]['media'] = 5;
                                     $mf[] = number_format(5, '4', '.', '');
                                     $mf_tmp = number_format(5, '4', '.', '');
                                 } else {
                                     $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
                                     $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
-                                }
+                                }*/
 
+                                if($alunos_em_conselho){
+                                    $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
+                                } 
+
+                                $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
+                                $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
+                                
                             } else {
 
                                 if($k[$alunoID][$key]['disciplina_id']==99999){
-                                    $mf['taf'] = number_format(array_sum($z['notas'])/$k[$alunoID][$key]['disciplina_razao'], '3', '.','');
-                                } else {
+                                    $mf['taf'] = number_format($z['media'], '3', '.','');
+                                    $key99999 = $key;
+                                }else if($k[$alunoID][$key]['disciplina_id']==88888){
+                                    $mf['taf'] = number_format($z['media'], '3', '.','');
 
-                                    $mf[] = number_format(array_sum($z['notas'])/$k[$alunoID][$key]['disciplina_razao'], '3', '.','');
+                                    //ALTERA A MÉDIA DO TFM PARA PUXAR NOS RELATÓRIOS...
+                                    $k[$alunoID][$key99999]['media_anterior'] = $k[$alunoID][$key99999]['media'];
+                                    $k[$alunoID][$key99999]['media'] = $z['media'];
+                                } else {
+                                    $mf[] = number_format($z['media'], '3', '.','');
                                 }
-                                $mf_tmp = number_format(array_sum($z['notas'])/$k[$alunoID][$key]['disciplina_razao'], '3', '.','');
+                                $mf_tmp = number_format($z['media'], '3', '.','');
 
                             }
 
-                            if($mf_tmp<5 && $k[$alunoID][$key]['disciplina_id']!=99999){
+                            if($mf_tmp<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
 
                                 $reprovado[] = 1;
                                 $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
 
-                            } else if($k[$alunoID][$key]['disciplina_id']==99999) {
-
-                                if($alunoNota[99999][$alunoID]['reprovado']=='S'){
+                            } else if(in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))) {
+                                
+                                if($k[$alunoID][$key]['disciplina_id'] == 99999 && $k[$alunoID][$key]['reprovado']=='S'){
 
                                     // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO
-
                                     $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', 99999)->first();
 
                                     if($alunos_em_conselho){
                                         $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
                                         $alunoNota[99999][$alunoID]['reprovado'] = 'N';
-                                        $k[$alunoID][$key]['media'] = 5;
-                                        $mf['taf'] = number_format($k[$alunoID][$key]['media'], '3', '.','');
+                                        $k[$alunoID][$key]['reprovado']= $alunoNota[99999][$alunoID]['reprovado'];
                                         $reprovado[] = 0;
                                         $disciplinas_reprovado_array[] = 0;
                                     } else {
                                         $reprovado[] = 1;
                                         $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
+                                    }
+                                    
+                                }else if($k[$alunoID][$key]['disciplina_id'] == 88888){
+                                      
+                                    if($alunoNota[88888][$alunoID]['reprovado']=='S'){
+
+                                        // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO DE TFM ID 99999
+                                        $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', 99999)->first();
+                                        
+                                        if($alunos_em_conselho){
+                                            $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
+                                            $alunoNota[88888][$alunoID]['reprovado'] = 'N';
+                                            $k[$alunoID][$key]['reprovado']= $alunoNota[88888][$alunoID]['reprovado'];
+                                            $reprovado[] = 0;
+                                            $disciplinas_reprovado_array[] = 0;
+
+                                            $k[$alunoID][$key99999]['media'] = $k[$alunoID][$key99999]['media_anterior'];
+                                            $mf['taf'] = $k[$alunoID][$key99999]['media'];
+                                            unset($k[$alunoID][$key99999]['media_anterior']);
+                                        } else {
+                                            $reprovado[] = 1;
+                                            $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
+                                        }
+                                    }else{
+                                        //Remove o reprovado do TFM 99999
+                                        array_pop($reprovado);
+                                        array_pop($disciplinas_reprovado_array);
                                     }
 
                                 } else {
@@ -1970,7 +1987,9 @@ class AjaxRelatoriosController extends Controller
                             }
                             
                         }
-
+/*if($alunoID == 3156){//ERICK SILVA DE SOUZA
+    dd($k[$alunoID], $mf, $reprovado, $disciplinas_reprovado_array);
+}*/
                         if(isset($mf)){
                             if(array_sum($reprovado)>0){
                                 $k[$alunoID]['reprovado'] = 'S';
@@ -1980,16 +1999,18 @@ class AjaxRelatoriosController extends Controller
                                 $disciplinas_reprovado = null;
                             }
 
-                            $k[$alunoID]['media_final'] = number_format((array_sum($mf))/ (count($k[$alunoID])-1), '10', '.', '');
+                            //$k[$alunoID]['media_final'] = number_format((array_sum($mf)) / (count($k[$alunoID])-1), '10', '.', '');
+                            $k[$alunoID]['media_final'] = number_format((array_sum($mf)) / (count($mf)), '10', '.', '');
         
                             unset($mf);
                             unset($reprovado); 
                             unset($disciplinas_reprovado_array);
                         }
-    /*if($alunoID == 3156){//ERICK SILVA DE SOUZA
-        dd($aval, $k[$alunoID]);
-    }*/
+    
+                        //$k[$alunoID]['aluno'] = ;
+
                         if(!is_null($alunoID)){
+
                             $class = new AlunosClassificacao;
                             $class->aluno_id = $alunoID;
                             $class->nota_final = $k[$alunoID]['media_final'];
@@ -2047,6 +2068,9 @@ class AjaxRelatoriosController extends Controller
                     }                    
                 }
             }
+
+            
+
 
             //$media = array_sum($alunoNota[1][749]['notas']);
 

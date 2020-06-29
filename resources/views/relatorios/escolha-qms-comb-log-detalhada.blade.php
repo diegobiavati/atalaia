@@ -5,10 +5,14 @@
 @section('titulo-relatorio', 'ESCOLHA DE QMS - CFS - FORMAÇÃO '. $ano_selecionado)
 
 @section('content')
-@php
 
-@endphp
-
+@if(!key_exists('aluno', $data))
+    <div style="text-align: center; margin-top: 240px;">
+                            <h4>
+                                NÃO AUTORIZADO!<br />SEM LANÇAMENTOS
+                            </h4>
+                        </div>
+@else
 <div style="width: 100%; margin: 4px auto; page-break-after: always; text-align: center;">
 
     @if($_GET['tipo_relatorio']==13 || $_GET['tipo_relatorio']==15)
@@ -29,7 +33,7 @@
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
             @for($i=1;$i<=$total_opcoes;$i++) <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>{{$i}}ª</b></td>
                 @endfor
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Perd Bas</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />por area</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Opção atendida</b></td>
@@ -101,6 +105,9 @@
 
     @endif
 </div>
+@endif
+
+
 <script>
     $(document).ready(function() {
 

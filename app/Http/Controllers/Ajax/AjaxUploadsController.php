@@ -75,7 +75,7 @@ class AjaxUploadsController extends Controller
             $data['status'] = 'err';
             $data['error'] = implode('<br />', $error);
         }
-        $this->classLog->RegistrarLog('Acesso ao menu de conselho escolar', auth()->user()->email);
+        $this->classLog->RegistrarLog('Acesso ao menu de conselho de ensino', auth()->user()->email);
         return $data;
 
     }

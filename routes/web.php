@@ -21,7 +21,10 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('avaliacoes', ['as' => 'avaliacoes', 'uses' => 'Ajax\AjaxAdminController@Avaliacoes']);
     Route::get('conselho-escolar', ['as' => 'conselho-escolar', 'uses' => 'Ajax\AjaxAdminController@ConselhoEscolar']);
     Route::get('lancar-taf-aluno', ['as' => 'lancar-taf-aluno', 'uses' => 'Ajax\AjaxAdminController@LancarTafAluno']);
+    Route::get('lancar-taf-aluno-recuperacao', ['as' => 'lancar-taf-aluno-recuperacao', 'uses' => 'Ajax\AjaxAdminController@LancarTafAluno']);
+    Route::get('menu-tfm-aluno', ['as' => 'menu-tfm-aluno', 'uses' => 'Ajax\AjaxOperadorController@MenuTfmAluno']);
     Route::post('gravar-taf-aluno', ['as' => 'gravar-taf-aluno', 'uses' => 'Ajax\AjaxAdminController@GravarTafAluno']);
+    Route::post('gravar-taf-recuperacao-aluno', ['as' => 'gravar-taf-recuperacao-aluno', 'uses' => 'Ajax\AjaxAdminController@GravarTafRecuperacaoAluno']);
     Route::post('atualizar-taf-aluno', ['as' => 'atualizar-taf-aluno', 'uses' => 'Ajax\AjaxAdminController@AtualizarTafAluno']);
     Route::get('alunos', ['as' => 'alunos', 'uses' => 'Ajax\AjaxAdminController@GerenciarAlunos']);
     Route::get('viewLancamentos', ['as' => 'lancamentos', 'uses' => 'Ajax\AjaxAdminController@ViewLancamentos']);
@@ -55,6 +58,9 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
 
     Route::get('view-relacao-punidos/{id_ano_formacao}', 'Ajax\AjaxAdminController@ViewSelecaoUeteAlunoPunicao');
     Route::post('view-relacao-punidos/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoAlunoUetePunido');
+
+    Route::get('view-relacao-reprovados/{id_ano_formacao}', 'Ajax\AjaxAdminController@ViewAlunosReprovados');
+    Route::post('view-relacao-reprovados/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoAlunoReprovado');
 
     /* ROTA PARA O CHAT COM ALUNO VIA TELEGRAM */
 

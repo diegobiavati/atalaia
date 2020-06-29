@@ -1,6 +1,6 @@
 <div class="card bg-light mb-3">
         <div class="card-header">
-            <i class="ion-android-walk"></i><strong>Lançar TFM aluno</strong>
+            <i class="ion-android-walk"></i><strong>Lançar TFM Aluno {{ ((isset($recuperacao) && $recuperacao)  ? '(Recuperação)' : null) }}</strong>
             <div style="float: right">
                 <!--div class="box-pesquisar-in-card-title" style="display: inline-block; padding:0; height: 36px;">
                     <input class="pesquisar-in-card-title busca-operador" type="text" placeholder="Busca" />
@@ -29,12 +29,27 @@
                         <tr>
                             <td style="width: 200px;"></td>
                             <td td colspan="6">
-                                <div style="display: inline-block; width: 180px;">Corrida</div>
-                                <div style="display: inline-block; width: 180px;">Flexão braço</div>
-                                <div style="display: inline-block; width: 180px;">Flexão barra</div>
-                                <div style="display: inline-block; width: 120px;">Abdominal</div>
-                                <div style="display: inline-block; width: 100px;">Média</div>
-                                <div style="display: inline-block; width: 100px;"></div>
+                                <div class="text-center" style="display: inline-block; width: 180px;">Corrida</div>
+                                <!--@if(((isset($recuperacao) && $recuperacao)))
+                                    <div style="display: inline-block; width: 180px;"></div>
+                                @endif-->
+                                <div class="text-center" style="display: inline-block; width: 180px;">Flexão braço</div>
+                                <!--@if(((isset($recuperacao) && $recuperacao)))
+                                    <div style="display: inline-block; width: 180px;"></div>
+                                @endif-->
+                                <div class="text-center" style="display: inline-block; width: 180px;">Flexão barra</div>
+                                <!--@if(((isset($recuperacao) && $recuperacao)))
+                                    <div style="display: inline-block; width: 180px;"></div>
+                                @endif-->
+                                <div class="text-center" style="display: inline-block; width: 120px;">Abdominal</div>
+                                <!--@if(((isset($recuperacao) && $recuperacao)))
+                                    <div style="display: inline-block; width: 180px;"></div>
+                                @endif-->
+                                <div class="text-center" style="display: inline-block; width: 120px;">Média</div>
+                                <!--@if(((isset($recuperacao) && $recuperacao)))
+                                 <div style="display: inline-block; width: 180px;"></div>
+                                @endif-->
+                                <div class="text-center" style="display: inline-block; width: 100px;"></div>
 
                             </td>
                         </tr>
@@ -42,7 +57,7 @@
                     
                 @foreach ($alunos as $aluno) 
                     <tr>
-                        <td style="width: 200px;">
+                        <td style="width: 200px;" class="align-middle">
                                 {{$aluno->numero}} {{$aluno->nome_guerra}}
                                 @if($aluno->atleta_marexaer=='S')
                                 <br />
@@ -50,39 +65,82 @@
                                 @endif
                             </td>
                             @if(isset($dataAvalicaoTaf[$aluno->id]))
-                                <td colspan="6">
+                                <td colspan="6" >
                                     <form id="Form_lancarTaf_{{$aluno->id}}">
-                                    <div style="display: inline-block; width: 180px;">
+                                    <div style="display: inline-block; width: 180px;" class="align-middle text-center">
                                         <input type="hidden" name="_token" value="{{csrf_token()}}">
-                                        <input placeholder="Corrida" name="corrida_nota" type="text" style="margin-top: 8px; width: 70px;" value="{{$dataAvalicaoTaf[$aluno->id]['corrida_nota']}}" autocomplete="off">
+                                        <label style="text-align:center;">AC
+                                             <input {{ ((isset($recuperacao) && $recuperacao) ? 'readonly' : null) }} placeholder="Corrida" name="corrida_nota" type="text" style="display: block;margin-top: 8px; width: 70px;text-align:center;" value="{{$dataAvalicaoTaf[$aluno->id]['corrida_nota']}}" autocomplete="off">
+                                        </label>
+                                        @if((($recuperacao) && ($dataAvalicaoTaf[$aluno->id]['media'] < 5) ))     
+                                        <label style="text-align:center;">AR    
+                                            <input placeholder="Corrida R." name="corrida_nota_recuperacao" type="text" style="display: block;margin-top: 8px; width: 70px;text-align:center;" value="{{$dataAvalicaoTaf[$aluno->id]['corrida_nota_recuperacao']}}" autocomplete="off">
+                                        </label>
+                                        @endif
                                     </div>
                                 
-                                    <div style="display: inline-block; width: 180px;">
-                                        <input placeholder="Flex bra" name="flex_bra_nota" type="text" style="margin-top: 8px; width: 70px;" value="{{$dataAvalicaoTaf[$aluno->id]['flexao_braco_nota']}}" autocomplete="off">
-                                    </div>
-                            
-                                    <!-- SE O CAMARADA FOR DA ÁRE MÚSICA NÃO DESABILITA O CAMPO BARRA -->
-                                    <div style="display: inline-block; width: 180px;">
-                                        @if($aluno->area_id==3)
-                                            <input placeholder="Flex bar" name="flex_barr_nota" type="text" style="margin-top: 8px; width: 70px;" value="" autocomplete="off" readonly>
-                                        @else
-                                            <input placeholder="Flex bar" name="flex_barr_nota" type="text" style="margin-top: 8px; width: 70px;" value="{{$dataAvalicaoTaf[$aluno->id]['flexao_barra_nota']}}" autocomplete="off" >
+                                    <div style="display: inline-block; width: 180px;" class="align-middle text-center">
+                                        <label style="text-align:center;">AC
+                                            <input {{ ((isset($recuperacao) && $recuperacao) ? 'readonly' : null) }} placeholder="Flex bra" name="flex_bra_nota" type="text" style="display: block;margin-top: 8px; width: 70px;text-align:center;" value="{{$dataAvalicaoTaf[$aluno->id]['flexao_braco_nota']}}" autocomplete="off">
+                                        </label>    
+                                        @if((($recuperacao) && ($dataAvalicaoTaf[$aluno->id]['media'] < 5) ))                                             
+                                        <label style="text-align:center;">AR
+                                            <input placeholder="Flex bra R." name="flexao_braco_nota_recuperacao" type="text" style="display: block;margin-top: 8px; width: 70px;text-align:center;" value="{{$dataAvalicaoTaf[$aluno->id]['flexao_braco_nota_recuperacao']}}" autocomplete="off">
+                                        </label>
                                         @endif
                                     </div>
                             
-                                    <div style="display: inline-block; width: 120px;">
-                                            <select class="custom-select" name="suficiencia_abdominal">
+                                    <!-- SE O CAMARADA FOR DA ÁRE MÚSICA NÃO DESABILITA O CAMPO BARRA -->
+                                    <div style="display: inline-block; width: 180px;" class="align-middle text-center">
+                                        <label style="text-align:center;">AC
+                                        @if($aluno->area_id==3)
+                                            <input {{ ((isset($recuperacao) && $recuperacao) ? 'readonly' : null) }} placeholder="Flex bar" name="flex_barr_nota" type="text" style="display: block;margin-top: 8px; width: 70px;text-align:center;" value="" autocomplete="off" readonly>
+                                        @else
+                                            <input {{ ((isset($recuperacao) && $recuperacao) ? 'readonly' : null) }} placeholder="Flex bar" name="flex_barr_nota" type="text" style="display: block;margin-top: 8px; width: 70px;text-align:center;" value="{{$dataAvalicaoTaf[$aluno->id]['flexao_barra_nota']}}" autocomplete="off" >
+                                        @endif
+                                        </label>
+
+                                        @if((($recuperacao) && ($dataAvalicaoTaf[$aluno->id]['media'] < 5) ))     
+                                        <label style="text-align:center;">AR                                       
+                                            <input placeholder="Flex bar R." name="flexao_barra_nota_recuperacao" type="text" style="display: block;margin-top: 8px; width: 70px;text-align:center;" value="{{$dataAvalicaoTaf[$aluno->id]['flexao_barra_nota_recuperacao']}}" autocomplete="off">
+                                        </label>    
+                                        @endif
+                                    </div>
+                            
+                                    <div style="display: inline-block; width: 120px;" class="align-middle text-center">
+                                        <label style="text-align:center;">AC
+                                            <select {{ ((isset($recuperacao) && $recuperacao) ? 'readonly' : null) }} class="custom-select" name="suficiencia_abdominal">
                                                 <option value="S" @if($dataAvalicaoTaf[$aluno->id]['abdominal_suficiencia']=='S') selected @endif>Suficiente</option>
                                                 <option value="NS" @if($dataAvalicaoTaf[$aluno->id]['abdominal_suficiencia']=='NS') selected @endif> Não suficiente</option>
                                             </select>
+                                        </label>
+                                            @if((($recuperacao) && ($dataAvalicaoTaf[$aluno->id]['abdominal_suficiencia'] != 'S') )) 
+                                            <label style="text-align:center;">AR
+                                                <select class="custom-select" name="suficiencia_abdominal_recuperacao">
+                                                    <option value="S" @if($dataAvalicaoTaf[$aluno->id]['abdominal_suficiencia_recuperacao']=='S') selected @endif>Suficiente</option>
+                                                    <option value="NS" @if($dataAvalicaoTaf[$aluno->id]['abdominal_suficiencia_recuperacao']=='NS') selected @endif> Não suficiente</option>
+                                                </select>
+                                            </label>
+                                            @endif
                                     </div>   
                         
-                                    <div style="display: inline-block; width: 100px;">
-                                        <div id="media_nota_taf_{{$aluno->id}}">{{$dataAvalicaoTaf[$aluno->id]['media']}}</div>
+                                    <div style="display: inline-block; width: 120px;" class="align-middle text-center">
+                                        <label style="text-align:center;display: block;">AC
+                                            <div id="media_nota_taf_{{$aluno->id}}" style="height:33px;">{{$dataAvalicaoTaf[$aluno->id]['media']}}</div>
+                                        </label>
+                                        @if(((isset($recuperacao) && $recuperacao)))     
+                                        <label style="text-align:center;">AR
+                                            <div id="media_nota_taf_recuperacao_{{$aluno->id}}">{{$dataAvalicaoTaf[$aluno->id]['media_recuperacao']}}</div>
+                                        </label>
+                                        @endif
                                     </div>
                             
-                                    <div style="display: inline-block; width: 100x;">
-                                        <a href="javascript: void(0);" class="btn btn-warning btn-sm" role="button" onclick="lancarTafAluno({{$aluno->id}}, this);" aria-pressed="true">Atualizar</a>
+                                    <div style="display: inline-block; width: 100x;" class="align-middle text-center">
+                                        @if(((isset($recuperacao) && $recuperacao))) 
+                                            <a href="javascript: void(0);" class="btn btn-warning btn-sm" role="button" onclick="lancarRecuperacaoTafAluno({{$aluno->id}}, this);" aria-pressed="true">Atualizar(Recuperação)</a>
+                                        @else
+                                            <a href="javascript: void(0);" class="btn btn-warning btn-sm" role="button" onclick="lancarTafAluno({{$aluno->id}}, this);" aria-pressed="true">Atualizar</a>
+                                        @endif
                                     </div>
                                     </form>
                                 </td>

@@ -38,5 +38,9 @@
         </table>
     </div>  
 
-
+    <script>
+        $(document).ready(function() {
+            $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
+        });
+    </script>
 @stop

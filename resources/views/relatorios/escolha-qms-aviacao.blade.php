@@ -27,7 +27,7 @@
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Al Nr</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Perd Bas</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Por area</b></td>
         </tr>

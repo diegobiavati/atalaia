@@ -276,6 +276,7 @@ class EscolhaQMSLoader
             $qms_id_nome[$item->id] = $item->qms;
             $qms_id_nome_sigla[$item->id] = $item->qms_sigla;
         }
+        //dd($qms_id_nome);
 
         // SELECIONANDO TODOS OS ALUNOS DESIGNADOS PARA QMS AVIAÇÃO
 

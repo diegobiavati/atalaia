@@ -52,5 +52,9 @@
     <div style="text-align: center;">NÃO HÁ REGISTROS DE ALUNOS EM RECUPERAÇÃO</div>
 
 @endif
-
+<script>
+    $(document).ready(function() {
+        $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
+    });
+</script>
 @stop

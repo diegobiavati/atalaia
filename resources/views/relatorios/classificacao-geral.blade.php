@@ -2,7 +2,7 @@
 
 @section('title', 'Atalaia :: Relatório::Classificação Geral de Alunos')
 
-@section('titulo-relatorio', 'CLASSIFICAÇÃO CFS - FORMAÇÃO '. $ano_selecionado)
+@section('titulo-relatorio', 'CLASSIFICAÇÃO CFGS - FORMAÇÃO '. $ano_selecionado)
 
 @section('content')
 @php
@@ -31,7 +31,7 @@
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>OMCT</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ÁREA</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOTA FINAL</b></td>
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>CLASSIFICAÇÃO</b></td>
             </tr>
             @php
@@ -103,7 +103,7 @@
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOME COMPLETO</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>OMCT</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOTA FINAL</b></td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                         @if($area->id==3)
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Instrumento</b></td>
                         @endif                        
@@ -153,7 +153,7 @@
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOME COMPLETO</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>OMCT</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOTA FINAL</b></td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                         @if($area->id==3)
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;">Instrumento</td>
                         @endif                        
@@ -203,7 +203,7 @@
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOME COMPLETO</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>OMCT</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOTA FINAL</b></td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                         @if($area->id==3)
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Instrumento</b></td>
                         @endif                        
@@ -253,7 +253,7 @@
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOME COMPLETO</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>OMCT</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOTA FINAL</b></td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                         @if($area->id==3)
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Instrumento</b></td>
                         @endif                        
@@ -303,7 +303,7 @@
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOME COMPLETO</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>OMCT</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOTA FINAL</b></td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                         @if($area->id==3)
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Instrumento</b></td>
                         @endif
@@ -353,7 +353,7 @@
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOME COMPLETO</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>OMCT</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOTA FINAL</b></td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                         @if($area->id==3)
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Instrumento</b></td>
                         @endif
@@ -407,7 +407,7 @@
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND<br />{{$disciplina->nome_disciplina_abrev}}</b></td>                            
                         @endforeach
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND<br />TFM</b></td>
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>MENÇÃO</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>CLASS</b></td>
                     </tr>
@@ -416,9 +416,11 @@
                 @endphp
                 @foreach($alunos_classificacao as $aluno)
                     @php
+                    
                         if($aluno->aluno->area_id==$area->id){
                             $i++;
                         }
+                    
                     @endphp
                     
                     @if($aluno->aluno->area_id==$area->id)
@@ -433,17 +435,27 @@
                                         @foreach ($notas_data_array[$aluno->aluno_id]['data_demonstrativo'] as $item)
                                             @if(isset($item['disciplina_id']) && $item['disciplina_id']==$disciplina->id)                                           
                                                 {{ number_format($item['media'], '3', ',', '') }}
+
+                                                @if(isset($item['avaliacoes']['CE']) && $item['avaliacoes']['CE'] == 'APROVADO')
+                                                    {!! '<br><b>APROV CE</b></br>' !!}
+                                                @endif
                                             @endif
                                             @if(isset($item['disciplina_id']) && $item['disciplina_id']==99999)
-                                            @php
-                                                $media_tfm=number_format($item['media'], '3', ',', '');
-                                            @endphp
+                                                @php    
+                                                  $media_tfm=number_format($item['media'], '3', ',', '');
+                                                @endphp
+                                                @if(isset($item['avaliacoes']['CE']) && $item['avaliacoes']['CE'] == 'APROVADO')
+                                                    @php
+                                                        $media_tfm.='<br><b>APROV CE</b></br>';
+                                                    @endphp
+                                                @endif
+                                              
                                             @endif
                                         @endforeach
                                     @endif
                                 </td>                            
                             @endforeach
-                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$media_tfm or '--'}}</td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{!!$media_tfm or '--'!!}</td>
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ number_format($aluno->nota_final_arredondada, '3', ',', '') }}</td>
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;">
                                 @php
@@ -478,5 +490,9 @@
     <div style="text-align: center;">CLASSIFICAÇÃO INDISPONÍVEL PARA ESSE UNIVERSO</div>
 
 @endif
-
+<script>
+    $(document).ready(function() {
+        $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
+    });
+</script>
 @stop

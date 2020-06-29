@@ -11,6 +11,7 @@ use App\Http\Requests\AvaliacoesRequest;
 use App\Http\Requests\AtualizaMeuPerfilRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
+use App\Http\Controllers\Utilitarios\FuncoesController;
 use Illuminate\Support\Facades\DB;
 
 /* MODELS */
@@ -94,7 +95,7 @@ class AjaxAdminController extends Controller
 
     public function ConselhoEscolar()
     {
-        $this->classLog->RegistrarLog('Acesso ao menu de conselho escolar', auth()->user()->email);
+        $this->classLog->RegistrarLog('Acesso ao menu de conselho de ensino', auth()->user()->email);
         return view('ajax.conselho-escolar');
     }
 
@@ -148,14 +149,24 @@ class AjaxAdminController extends Controller
             $notas_array['ATLETA'] = $avaliacoes_taf->aluno->atleta_marexaer;
             $notas_array['MEDIA'] = $avaliacoes_taf->media;
             $media = number_format($avaliacoes_taf->media, '3', '.', '');
+
+            if(isset($avaliacoes_taf->reprovado_recuperacao)){
+                if($avaliacoes_taf->reprovado_recuperacao == 'N'){
+                    $media = $avaliacoes_taf->media_recuperacao;
+                }else{
+                    $notas_array_recuperacao["AR"] = $avaliacoes_taf->media_recuperacao;
+                }
+            }
         } else {
             $avaliacoes = Avaliacoes::where('disciplinas_id', $request->disciplina)->get(['id']);
 
-            $avaliacoes_notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoes)->where('alunos_id', $request->aluno)->get();
+            $avaliacoes_notas = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoes)->where('alunos_id', $request->aluno)->get());
+            //Original Julião
+            //$avaliacoes_notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoes)->where('alunos_id', $request->aluno)->get();
 
-            foreach ($avaliacoes_notas as $notas) {
+            /*foreach ($avaliacoes_notas as $notas) {
                 if ($notas->avaliacao->chamada == 1) {
-                    $razao[] = 1;
+                    $razao[] = $notas->avaliacao->peso;
                 }
 
                 if ($notas->avaliacao->avaliacao_recuperacao == 0) {
@@ -170,21 +181,52 @@ class AjaxAdminController extends Controller
                 $media = number_format(array_sum($notas_array) / array_sum($razao), '3', '.', '');
             } else {
                 $media = 0.000;
+            }*/
+            foreach ($avaliacoes_notas as $key => $info) {
+                if($key != 'alunosID'){
+                    foreach ($info as $notas) {
+                        foreach($notas['avaliacoes'] as $avaliacao){
+                        
+                            if($avaliacao->nome_abrev == 'AR'){
+                                $notas_array_recuperacao["AR"] = $avaliacao->nota;
+                            }else{    
+                                $notas_array[$avaliacao->nome_abrev] = $avaliacao->nota;
+                            }
+                        }
+
+                        $media = number_format($notas['media'], '3', '.', '');
+                    }    
+                }
+            }
+
+            if (!isset($notas_array) && !isset($razao)) {
+                $media = 0.000;
             }
         }
-
-        if ($media < 5 && isset($notas_array) || ($request->disciplina == 99999 && (isset($avaliacoes_taf) && $avaliacoes_taf->reprovado == 'S'))) {
-
+        $nd_recuperada = 0;
+//dd($notas_array, array_sum($razao), array_sum($notas_array) / array_sum($razao));
+        if (($media < 5 && isset($notas_array)) || ($request->disciplina == 99999 && (isset($avaliacoes_taf) && ($avaliacoes_taf->reprovado == 'S' && $avaliacoes_taf->reprovado_recuperacao == 'S') ))) {
+            
             if (isset($notas_array_recuperacao["AR"])) {
+                $nd_recuperada = $notas_array_recuperacao["AR"];
+                if ($nd_recuperada > 5) {
+                    $nd_recuperada = '5.000';
+                }else{
+                    $nd_recuperada = $media;
+                }
+            }
+            /*if (isset($notas_array_recuperacao["AR"])) {
                 $nd_recuperada = number_format(($media + $notas_array_recuperacao["AR"]) / 2, '3', '.', '');
                 if ($nd_recuperada < $media) {
                     $nd_recuperada = $media;
                 } else if ($nd_recuperada > 5) {
                     $nd_recuperada = '5.000';
                 }
+
+
             } else {
                 $nd_recuperada = $media;
-            }
+            }*/
 
             $data[] = '<table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 80%;">';
             $data[] = '<tr>';
@@ -201,7 +243,7 @@ class AjaxAdminController extends Controller
             }
 
             if ($alunos_em_conselho) {
-                $data[] = '<td style="border: 1px solid #000; padding: 6px; text-align: center;"><span style="color: #0B3B0B;"><b>CONSELHO ESCOLAR</b></span></td>';
+                $data[] = '<td style="border: 1px solid #000; padding: 6px; text-align: center;"><span style="color: #0B3B0B;"><b>CONSELHO DE ENSINO</b></span></td>';
                 $data[] = '<td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND FINAL</b></td>';
             }
 
@@ -231,7 +273,7 @@ class AjaxAdminController extends Controller
                 if ($request->disciplina == 99999 && (isset($avaliacoes_taf) && $avaliacoes_taf->reprovado == 'S')) {
                     if ($alunos_em_conselho) {
                         $data[] = '<div style="text-align: center; margin-top: 18px;">
-                                        Reverter a concessão de aprovação do aluno pelo conselho escolar na disciplina TAF
+                                        Reverter a concessão de aprovação do aluno pelo conselho de ensino na disciplina TFM
                                         <div style="margin-top: 22px;">
                                             <button type="button" class="btn btn-danger" onclick="removerConcessaoConselho(' . $request->aluno . ', ' . $request->disciplina . ');">
                                                 Reverter concessão
@@ -240,7 +282,7 @@ class AjaxAdminController extends Controller
                                     </div>';
                     } else {
                         $data[] = '<div style="text-align: center; margin-top: 18px;">
-                                        Conceder a aprovação desse aluno no TAF por conselho escolar
+                                        Conceder a aprovação desse aluno no TFM por conselho de ensino
                                         <div style="margin-top: 22px;">
                                             <button type="button" class="btn btn-primary" onclick="AdicionarConcessaoConselho(' . $request->aluno . ', ' . $request->disciplina . ', \'' . (5 - $nd_recuperada) . '\');">
                                                 Conceder
@@ -271,14 +313,14 @@ class AjaxAdminController extends Controller
                 }
             } else {
                 $data[] = ' <div style="text-align: center; margin-top: 18px;">
-                                Aluno não se enquadra para conselho escolar nesta disciplina<br />
+                                Aluno não se enquadra para conselho de ensino nesta disciplina<br />
                                 <span style="color: #122A0A;"><b>Média:</b> ' . $nd_recuperada . '</span>
                             </div>';
             }
         } else {
 
             $data[] = ' <div style="text-align: center;">
-                            Aluno não se enquadra para conselho escolar ou não possui notas lançadas nesta disciplina<br />
+                            Aluno não se enquadra para conselho de ensino ou não possui notas lançadas nesta disciplina<br />
                             <span style="color: #122A0A;"><b>Média:</b> ' . $media . '</span>
                         </div>';
         }
@@ -288,7 +330,7 @@ class AjaxAdminController extends Controller
 
     public function AdicionarConcessaoConselho(Request $request, \App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
-        $this->classLog->RegistrarLog('Adicionou aluno em conselho escolar', auth()->user()->email);
+        $this->classLog->RegistrarLog('Adicionou aluno em conselho de ensino', auth()->user()->email);
         if ($ownauthcontroller->PermissaoCheck(1)) {
             //{aluno}/{disciplina}/{acrescimo}
             $alunos_em_conselho = new AlunosConselhoEscolar;
@@ -307,7 +349,7 @@ class AjaxAdminController extends Controller
 
     public function RemoverConcessaoConselho(Request $request, \App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
-        $this->classLog->RegistrarLog('Removeu aluno de conselho escolar', auth()->user()->email);
+        $this->classLog->RegistrarLog('Removeu aluno de conselho de ensino', auth()->user()->email);
         if ($ownauthcontroller->PermissaoCheck(1)) {
             $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $request->aluno)->where('disciplina_id', $request->disciplina)->first();
             if ($alunos_em_conselho->delete()) {
@@ -384,7 +426,7 @@ class AjaxAdminController extends Controller
             ->with('uetes', $uetes);
     }
 
-    public function LancarTafAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
+    public function LancarTafAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request)
     {
 
         $confTaf = ConfLancaTaf::first();
@@ -393,12 +435,34 @@ class AjaxAdminController extends Controller
             $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
             $id_ano_corrente = ($ano_corrente->id) ?? 0;
 
-            $alunos = Alunos::where('data_matricula', $id_ano_corrente)->where('omcts_id', session()->get('login.omctID'))->orderBy('numero', 'asc')->get();
-            foreach ($alunos as $alunoId) {
-                $alunosID[] = $alunoId->id;
+            $recuperacao = false;
+            //Faz as modificações para lançar a recuperação
+            if (strstr($request->path(), 'lancar-taf-aluno-recuperacao')) {
+                //Deve listar somente os alunos que está com média abaixo de 5.
+
+                $recuperacao = true;
+                $param['ano_corrente'] = $ano_corrente;
+
+                $avaliacaoTafNotaAluno = AvaliacaoTaf::whereHas('aluno', function ($q) use ($param) {
+                    $q->where('data_matricula', $param['ano_corrente']->id)
+                        ->where('omcts_id', session()->get('login.omctID'))
+                        ->orderBy('numero', 'asc');
+                })->where('reprovado', '=', 'S')->get();
+
+                foreach ($avaliacaoTafNotaAluno as $avaliacao) {
+                    $alunos_array[] = $avaliacao->aluno;
+                }
+
+                $alunos = collect($alunos_array);
+            } else {
+                $alunos = Alunos::where('data_matricula', $id_ano_corrente)->where('omcts_id', session()->get('login.omctID'))->orderBy('numero', 'asc')->get();
+                foreach ($alunos as $alunoId) {
+                    $alunosID[] = $alunoId->id;
+                }
+
+                $avaliacaoTafNotaAluno = AvaliacaoTaf::whereIn('aluno_id', $alunosID)->get();
             }
 
-            $avaliacaoTafNotaAluno = AvaliacaoTaf::whereIn('aluno_id', $alunosID)->get();
             foreach ($avaliacaoTafNotaAluno as $dataAvalicao) {
 
                 $dataAvalicaoTaf[$dataAvalicao->aluno_id] = array(
@@ -406,12 +470,17 @@ class AjaxAdminController extends Controller
                     'flexao_braco_nota' => $dataAvalicao->flexao_braco_nota,
                     'flexao_barra_nota' => $dataAvalicao->flexao_barra_nota,
                     'abdominal_suficiencia' => $dataAvalicao->abdominal_suficiencia,
-                    'media' => $dataAvalicao->media
+                    'media' => number_format($dataAvalicao->media, '3', '.', ''),
+
+                    'corrida_nota_recuperacao' => $dataAvalicao->corrida_nota_recuperacao,
+                    'flexao_braco_nota_recuperacao' => $dataAvalicao->flexao_braco_nota_recuperacao,
+                    'flexao_barra_nota_recuperacao' => $dataAvalicao->flexao_barra_nota_recuperacao,
+                    'abdominal_suficiencia_recuperacao' => $dataAvalicao->abdominal_suficiencia_recuperacao,
+                    'media_recuperacao' => number_format((($dataAvalicao->media_recuperacao > 0) ? $dataAvalicao->media_recuperacao : 0), '3', '.', '')
                 );
             }
 
-            //dd($dataAvalicaoTaf);
-            return view('ajax.lancar-taf-aluno', compact('alunos', 'dataAvalicaoTaf'));
+            return view('ajax.lancar-taf-aluno', compact('alunos', 'dataAvalicaoTaf', 'recuperacao'));
         } else {
             return '<div class="box-registro-not-found">
                         <i class="ion-social-snapchat-outline" style="font-size: 32px"></i><br />
@@ -467,6 +536,7 @@ class AjaxAdminController extends Controller
             $reprovado = 'S';
         }
 
+
         $media_tela = number_format($media, '3', ',', '');
         $media_banco = number_format($media, '3', '.', '');
 
@@ -499,6 +569,99 @@ class AjaxAdminController extends Controller
 
         $data['media'] = $media_tela;
         $this->classLog->RegistrarLog('Lançou TFM de aluno', auth()->user()->email);
+        return $data;
+    }
+
+    public function GravarTafRecuperacaoAluno(Request $request)
+    {
+        //CALCULANDO A RAZÃO
+        $alunos = Alunos::find($request->id);
+
+        //SER FOR DA ÁREA (BANDA/MÚSICA)
+        if ($alunos->area_id == 3) {
+            $razao = 2;
+        } else {
+            $razao = 3;
+        }
+
+        $corrida = (is_numeric(str_replace(',', '.', $request->corrida_nota_recuperacao)) && $request->corrida_nota_recuperacao <= 10) ? str_replace(',', '.', $request->corrida_nota_recuperacao) : 0;
+        $flex_bra = (is_numeric(str_replace(',', '.', $request->flexao_braco_nota_recuperacao)) && $request->flexao_braco_nota_recuperacao <= 10) ? str_replace(',', '.', $request->flexao_braco_nota_recuperacao) : 0;
+        $flex_barr = (is_numeric(str_replace(',', '.', $request->flexao_barra_nota_recuperacao)) && $request->flexao_barra_nota_recuperacao <= 10) ? str_replace(',', '.', $request->flexao_barra_nota_recuperacao) : 0;
+
+        $abdominal = $request->suficiencia_abdominal_recuperacao;
+        //VERIFICANDO SE É ATLETA
+        //CASO SEJA ATLETA APLICA A REGRA DE ACRESCIMO DE PONTOS 
+
+        $media = (($corrida + $flex_bra + $flex_barr) / $razao);
+        
+        if ($alunos->atleta_marexaer == 'S') {
+            if ($media >= 5 && $media <= 6.999) {
+                $media = $media + 1;
+            } else if ($media > 6.999) {
+                $media = $media + 2;
+            }
+
+            $media = ($media > 10) ? 10 : $media;
+        }
+
+        if((!isset($abdominal)) && $media >= 5){
+            $reprovado = 'N';
+        }else if ($abdominal == 'NS') {
+            $reprovado = 'S';
+        } else if ($abdominal == 'S' && $media >= 5) {
+            $reprovado = 'N';
+        } else {
+            $reprovado = 'S';
+        }
+        
+        if ($media >= 5) {
+            $media = 5;
+        }else {
+            $array_notas = array($corrida, $flex_bra, $flex_barr);
+
+            for($i=count($array_notas);$i>0;$i++){
+                $media = max($array_notas);
+                if($media < 5){
+                    break;
+                }else{
+                    $key = array_search($media, $array_notas);
+                    unset($array_notas[$key]);
+                }
+            }
+        }
+        
+        $media_tela = number_format($media, '3', ',', '');
+        $media_banco = number_format($media, '3', '.', '');
+
+        $this->lancarTaf->aluno_id = $request->id;
+        $this->lancarTaf->corrida_nota_recuperacao = $corrida;
+        $this->lancarTaf->flexao_braco_nota_recuperacao = $flex_bra;
+        $this->lancarTaf->flexao_barra_nota_recuperacao = $flex_barr;
+        $this->lancarTaf->abdominal_suficiencia_recuperacao = $abdominal;
+        $this->lancarTaf->media_recuperacao = $media_banco;
+        $this->lancarTaf->reprovado = $reprovado;
+
+        if ($this->lancarTaf->where('aluno_id', $request->id)->first()) {
+            $this->lancarTaf->where('aluno_id', $request->id)->update([
+                'corrida_nota_recuperacao' => str_replace(',', '.', $corrida),
+                'flexao_braco_nota_recuperacao' => str_replace(',', '.', $flex_bra),
+                'flexao_barra_nota_recuperacao' => str_replace(',', '.', $flex_barr),
+                'abdominal_suficiencia_recuperacao' => $abdominal,
+                'media_recuperacao' => $media_banco,
+                'reprovado_recuperacao' => $reprovado
+            ]);
+
+            $data['status'] = 'ok';
+        } else {
+            if ($this->lancarTaf->save()) {
+                $data['status'] = 'ok';
+            } else {
+                $data['status'] = 'err';
+            }
+        }
+
+        $data['media'] = $media_tela;
+        $this->classLog->RegistrarLog('Lançou TFM de Recuperação de aluno ' . $request->id, auth()->user()->email);
         return $data;
     }
 
@@ -5600,11 +5763,7 @@ class AjaxAdminController extends Controller
 
     public function ViewSelecaoUeteAluno(Request $request)
     {
-        if ($this->ownauthcontroller->PermissaoCheck(1)) {
-            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
-        } else {
-            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
-        }
+        $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
 
         $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
 
@@ -5616,11 +5775,7 @@ class AjaxAdminController extends Controller
 
     public function ViewSelecaoUeteAlunoPunicao(Request $request)
     {
-        if ($this->ownauthcontroller->PermissaoCheck(1)) {
-            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
-        } else {
-            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
-        }
+        $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
 
         $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
 
@@ -5633,9 +5788,19 @@ class AjaxAdminController extends Controller
             ->with('ownauthcontroller', $this->ownauthcontroller);
     }
 
+    public function ViewAlunosReprovados(Request $request)
+    {
+        $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
+
+        $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
+
+        $rota = $request->path();
+
+        return view('admin.consulta.consulta-uete-aluno-reprovado', compact('uetes', 'anoFormacao', 'rota'));
+    }
+
     public function RemoverProntoFaltas(Request $request)
     {
-
         $avaliacao = Avaliacoes::find($request->id);
 
         if (!isset($request->id_uete)) {

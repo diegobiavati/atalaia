@@ -213,18 +213,20 @@ class RelatoriosController extends Controller
         }
 
         $disciplina[99999] = array(
-            "nome_disciplina" => 'TESTE DE APITIDÃO FÍSICA',
-            "nome_disciplina_abrev" => 'TAF'
+            //"nome_disciplina" => 'TESTE DE APITIDÃO FÍSICA',
+            //"nome_disciplina_abrev" => 'TAF'
+            "nome_disciplina" => 'TREINAMENTO FÍSICO MILITAR 1',
+            "nome_disciplina_abrev" => 'TFM1'
         );        
         
         // SELECIONANDO TODAS AS UETEs
-
         $omcts = OMCT::where('id', '<>', 1)->get();
 
         // SELECIONANDO TODOS OS ALUNOS APROVADOS EM CONSELHO
 
         $alunos_conselho = AlunosConselhoEscolar::whereIn('aluno_id', $alunosID)->get();
-        $this->classLog->RegistrarLog('Acessou lista de alunos em conselho escolar', auth()->user()->email);
+
+        $this->classLog->RegistrarLog('Acessou lista de alunos em conselho de ensino', auth()->user()->email);
         return view('relatorios.alunos-em-conselho')->with('alunos', $alunos_conselho)
                                                     ->with('ano_selecionado', $ano_selecionado)
                                                     ->with('disciplina', $disciplina)
@@ -452,7 +454,8 @@ class RelatoriosController extends Controller
             $disciplina_array[$disciplina->id] = $disciplina->nome_disciplina_abrev;
         }
 
-        $disciplina_array[99999] = 'TAF';
+        $disciplina_array[99999] = 'TFM 1';
+        $disciplina_array[88888] = 'TAF 1 RECUPERAÇÃO';
         
         // SELECIONANDO O ANO DE FORMAÇÃO DO RELATÓRIO
         
@@ -461,13 +464,11 @@ class RelatoriosController extends Controller
         if($ownauthcontroller->PermissaoCheck(1)){
 
             // selecioando todos os alunos do ano de formação selecionado de todas UETEs
-
             $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->orderBy('omcts_id', 'asc')->get(['id']);
             
         } else {
 
             // selecioando todos os alunos do ano de formação selecionado DA UETEs DO OPERADOR
-            
             $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
         }
 
@@ -517,6 +518,10 @@ class RelatoriosController extends Controller
                     "NPB" => $nota->nota_final,
                     "data_demonstrativo" => unserialize($nota->data_demonstrativo)
                 ); 
+
+                /*if($nota->aluno_id == 3207){
+                    dd(unserialize($nota->data_demonstrativo));
+                }*/
             }
 
             if(isset($notas_array)){
@@ -858,7 +863,6 @@ class RelatoriosController extends Controller
                 }
                 
                 // CLASSIFICAÇÃO GERAL                
-
                 $class_geral[] = $classificacao->aluno_id; 
             }
            
@@ -1167,10 +1171,10 @@ class RelatoriosController extends Controller
                                     TFM
                                     </td>
                                     <td style="border: 1px solid #696969; padding: 12px;">
-                                    NPB
+                                    N1
                                     </td>
                                     <td style="border: 1px solid #696969; padding: 12px;">
-                                    NPB Arred.
+                                    N1 Arred.
                                     </td>
                                     <td style="border: 1px solid #696969; padding: 12px;">
                                     MENÇÃO

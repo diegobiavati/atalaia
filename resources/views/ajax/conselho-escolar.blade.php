@@ -14,7 +14,7 @@
 </style>
 <div class="card bg-light mb-3">
         <div class="card-header">
-            <i class="ion-wand"></i><strong>Conselho escolar</strong>
+            <i class="ion-wand"></i><strong>Conselho de Ensino</strong>
             <div style="float: right">              
                 <!--a class="no-style" href="javascript: void(0);" onclick="" placement="bottom" style="margin-left: 6px;"-->
                 <!--a href="javascript: void(0);" data-toggle="popover" data-container="body" data-placement="bottom" data-html="true" style="margin-left: 12px;">

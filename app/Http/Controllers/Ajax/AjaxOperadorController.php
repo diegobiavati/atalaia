@@ -599,4 +599,9 @@ class AjaxOperadorController extends Controller
         $this->classLog->RegistrarLog('Editou grau de aluno', auth()->user()->email);
         return $data;
     }
+
+    public function MenuTfmAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
+    {
+        return view('ajax.menu-tfm-aluno')->with('ownauthcontroller', $ownauthcontroller);
+    }
 }

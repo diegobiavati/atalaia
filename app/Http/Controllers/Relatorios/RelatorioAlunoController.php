@@ -9,11 +9,14 @@ use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\FPDF\PDF;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\Alunos;
+use App\Models\AlunosClassificacao;
 use App\Models\AnoFormacao;
 use App\Models\Areas;
 use App\Models\ConteudoAtitudinal;
+use App\Models\Disciplinas;
 use App\Models\Fatd;
 use App\Models\LancamentoFo;
+use App\Models\Mencoes;
 use App\Models\OMCT;
 use App\Models\SituacaoMatricula;
 use App\Models\SituacoesDiversas;
@@ -584,6 +587,52 @@ class RelatorioAlunoController extends Controller
         return view('admin/consulta/relacao-ficha-punido', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idOmct', 'dadosRota'));
     }
 
+    public function ViewRelacaoAlunoReprovado(Request $request)
+    {
+
+        /*if ($this->ownauthcontroller->PermissaoCheck(1)) {*/
+
+            $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
+
+            $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
+
+            foreach($uetes as $uete){
+                $ueteIds[] = $uete->id;
+            }
+            // SELECIONANDO TODAS AS AREAS
+            $areas = Areas::whereNotIn('id', [4, 5])->get();
+
+            // SELECIONANDO DISCIPLINAS
+            $disciplinas = Disciplinas::where('ano_formacao_id', $anoFormacao->id)->get();
+
+            $param['anoFormacao'] = $anoFormacao;
+            $param['uetes'] = $ueteIds;
+
+            $alunosClassificacao = AlunosClassificacao::where([['reprovado', '=', 'S']])->whereHas('aluno', function ($q) use ($param) {
+                $q->where([['data_matricula', '=', $param['anoFormacao']->id]])
+                    ->whereIn('omcts_id', $param['uetes']);
+            })->orderBy('nota_final', 'desc')->get();
+
+            foreach($alunosClassificacao as $nota){
+                $notas_array[] = ''.$nota->nota_final.'';
+                $notas_data_array[$nota->aluno_id] = array(
+                    "NPB" => $nota->nota_final,
+                    "data_demonstrativo" => unserialize($nota->data_demonstrativo)
+                ); 
+            }
+
+            $mencoes = Mencoes::get();
+
+            $this->classLog->RegistrarLog('Acessou o Relatório de Alunos Reprovados.', auth()->user()->email);
+
+            return view('relatorios/relacao-aluno-reprovado', compact('anoFormacao', 'alunosClassificacao', 'areas', 'disciplinas', 'mencoes', 'notas_data_array'));
+
+        /*} else {
+            $this->classLog->RegistrarLog('Teve acesso negado ao tenter acessar o Relatório de Alunos Reprovados.', auth()->user()->email);
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+        }*/
+    }
+
     public function RelatorioFichaAlunoPunidos(Request $request)
     {
 
@@ -637,7 +686,7 @@ class RelatorioAlunoController extends Controller
 
         $pdf->SetWidths(array(14, 13, 10, 30, 110, 20, 10, 40, 10, 20));
         $pdf->SetAligns(array('C', 'C', 'C', 'C', 'L', 'C'));
-        
+
         $where = array();
 
         if (isset($request->punido)) {

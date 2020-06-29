@@ -17,6 +17,14 @@
             @endforeach
         </select>
 
+        <select name="opcaoRel" class="custom-select" style="margin-top: 32px;">
+            <option value="0" disabled selected hidden>Selecione uma Opção</option>
+            <option value="1">Listar Todos</option>
+            <option value="2">Listar Resolvidos</option>
+            <option value="3">Listar Resolvidos com FATD</option>
+            <option value="4">Listar Não Resolvidos</option>
+        </select>
+
         <div class="custom-control" style="display: inline-block; margin: 20px 10px 12px 0;">
             <label class="labelDescricao" for="numero_aluno">Número do Aluno</label>
             <input class="no-style" style="width: 30%;margin-top:10px;margin-left: 10px;border-bottom: 1px solid #ccc;" type="text" pattern="[0-9]+$" id="numero_aluno" name="numero_aluno" type="text" autocomplete="off" placeholder="" />

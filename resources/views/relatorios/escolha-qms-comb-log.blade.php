@@ -30,7 +30,7 @@
                 @for($i=1;$i<=$total_opcoes;$i++)
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>{{$i}}ª</b></td>
                 @endfor
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NPB</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Opção atendida</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>QMS<br />Designada</b></td>
             </tr>
