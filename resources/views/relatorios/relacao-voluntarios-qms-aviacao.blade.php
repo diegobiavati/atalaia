@@ -11,9 +11,9 @@
         @else
             {{$omct->omct}}
         @endif
-        <br />RELAÇÃO DE {{$filtro_voluntario}} - QMS AVIAÇÃO
+        <br /><br>RELAÇÃO DE {{$filtro_voluntario}} - QMS AVIAÇÃO
     </h3>
-    <div style="margin: 14px auto; width: 100%;">
+    <div style="margin: 14px auto; width: 60%;">
         <table style="border: 1px solid #000; border-collapse: collapse; margin: 32px auto; width: 90%;">
             <tr>
                 @if(isset($_GET['ordem']))
@@ -27,16 +27,16 @@
                 @endif
             </tr>
 
-            @forelse($alunos as $aluno)
+            @forelse($alunos_voluntarios_aviacao as $voluntario)
                 <tr>
                     @if(isset($_GET['ordem']))
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$loop->index +1}}</td>
                     @endif                    
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->numero}}</td>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->nome_completo}}</td>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->nome_guerra}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$voluntario->aluno->numero}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$voluntario->aluno->nome_completo}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$voluntario->aluno->nome_guerra}}</td>
                     @if(isset($_GET['omctID']) && $_GET['omctID']=='todas_omct')
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->omct->sigla_omct}}</td>                
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$voluntario->aluno->omct->sigla_omct}}</td>                
                     @endif                    
                 </tr>
             @empty
@@ -45,5 +45,9 @@
         </table>
     </div>  
 
-
+    <script>
+        $(document).ready(function() {
+            $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
+        });
+    </script>
 @stop

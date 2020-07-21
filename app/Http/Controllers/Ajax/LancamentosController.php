@@ -202,12 +202,29 @@ class LancamentosController extends Controller
         $whereNumeroAluno = (isset($request->numero_aluno) ? " AND alunos.numero = $request->numero_aluno" : null);
         $whereNomeGuerra = (isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
 
+        if(isset($request->opcaoRel)){
+            switch($request->opcaoRel){
+                case 1://Listar Todos
+                    $whereOpcaoRel = ' ';
+                break;
+                case 2://Listar Resolvidos
+                    $whereOpcaoRel = ' AND lancamento_fo.providencia IS NOT NULL';
+                break;
+                case 3://Listar Resolvidos Com FATD
+                    $whereOpcaoRel = " AND lancamento_fo.fatd = 'S'";
+                break;
+                case 4://Listar Não Resolvidos
+                    $whereOpcaoRel = ' AND lancamento_fo.providencia IS NULL';
+                break;
+            }
+        }
+
         $lancamentoFO = DB::select("SELECT lancamento_fo.id, lancamento_fo.data_obs, lancamento_fo.tipo, lancamento_fo.observacao, alunos.numero, alunos.nome_guerra, omcts.omct as uete
                                         , lancamento_fo.providencia, lancamento_fo.fatd
                                         FROM lancamento_fo
                                         INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
                                         INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
-                                        WHERE alunos.data_matricula = $request->ano_formacao " . $whereUete . $whereNumeroAluno . $whereNomeGuerra);
+                                        WHERE alunos.data_matricula = $request->ano_formacao " . $whereUete . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel);
 
         return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'));
     }

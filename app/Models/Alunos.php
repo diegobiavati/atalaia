@@ -161,6 +161,11 @@ class Alunos extends Model
         return $this->belongsTo('App\Models\Instrumentos', 'instrumento_id', 'id');
     }
 
+    public function aluno_voluntario_aviacao()
+    {
+        return $this->hasOne('App\Models\AlunosVoluntAv', 'alunos_id', 'id');
+    }
+
     public function uf_nascimento()
     {
         return $this->belongsTo('App\Models\Uf', 'nasc_id_uf', 'id');

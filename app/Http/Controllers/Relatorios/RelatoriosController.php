@@ -41,6 +41,7 @@ use App\Http\OwnClasses\EscolhaQMSLoader;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Utilitarios\FuncoesController;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class RelatoriosController extends Controller
@@ -236,6 +237,10 @@ class RelatoriosController extends Controller
 
     public function RelatoriosEscolhaQMS (OwnAuthController $ownauthcontroller, Request $request, EscolhaQMSLoader $escolhaQMS) {
         
+        if(FuncoesController::validaSessao() != null){
+            return FuncoesController::validaSessao();
+        }
+
         if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
             
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
@@ -364,14 +369,31 @@ class RelatoriosController extends Controller
                     $qms_id_nome[$item->id] = $item->qms_sigla;
                 }
 
-                //dd($escolhaQMS->designacaoFinalQMSDetalhada($segmento));
+                $rota = 'ajax/aplicar-escolha-qms';
+
+                /*Novo Modo*/
+                $designacao = $escolhaQMS->designacaoFinalQMSDetalhada($segmento, 'N');
+
+                if(key_exists('aluno', $designacao)){
+                    $designacao['total_opcoes'] = count($qms);
+                    $designacao['qms_id_nome'] = $qms_id_nome;
+                    $designacao['ano_selecionado'] = $ano_selecionado;
+                    $designacao['ano_formacao'] = $ano_formacao;
+                    $designacao['ownauthcontroller'] = $this->ownauthcontroller;
+                    $designacao['segmento'] = $segmento;
+
+                    $request->session()->flash('aplicar_qms', serialize($designacao));
+                    //$designacao['recuperado'] = true;
+                }
+                /*Fim novo Modo*/
 
                 $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
-                return view('relatorios.escolha-qms-comb-log-detalhada')->with('data', $escolhaQMS->designacaoFinalQMSDetalhada($segmento, 'N'))
+                return view('relatorios.escolha-qms-comb-log-detalhada')->with('data', $designacao)
                                                                         ->with('total_opcoes', count($qms))
                                                                         ->with('qms_id_nome', $qms_id_nome)
                                                                         ->with('ano_selecionado', $ano_selecionado)
-                                                                        ->with('ownauthcontroller', $this->ownauthcontroller);
+                                                                        ->with('ownauthcontroller', $this->ownauthcontroller)
+                                                                        ->with('rota', $rota);
 
 
             } else if($request->tipo_relatorio==15 || $request->tipo_relatorio==16) {
@@ -1035,60 +1057,56 @@ class RelatoriosController extends Controller
 
         } else {
 
+            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
+            $omct = (($request->omctID!='todas_omct') ? OMCT::find($request->omctID) : null);
+            
+            $param['anoCorrente'] = $ano_formacao;
+            $param['uete'] = $omct;
+
+            /* SELECIONANDO TODOS OS VOLUNTÁRIOS NA TABELA alunos_voluntarios_aviacao */
+            $alunos_voluntarios_aviacao = AlunosVoluntAv::whereHas('aluno', function ($q) use ($param) {
+                
+                if($param['uete'] != null){
+                    $where = [['data_matricula', '=', $param['anoCorrente']->id], ['omcts_id', '=', $param['uete']->id]];
+                }else{
+                    $where = [['data_matricula', '=', $param['anoCorrente']->id]];
+                }
+                $q->where($where);
+            });
+
             switch($request->filtro_voluntarios){
                 case 1:
                     $filtro_voluntario = 'VOLUNTÁRIOS';
-                    break;
+                    $alunos_voluntarios_aviacao = $alunos_voluntarios_aviacao->get();
+                break;
                 case 2:
                     $filtro_voluntario = 'SELECIONADOS PARA OS EXAMES COMPLEMENTARES';
-                    break;
+                    $alunos_voluntarios_aviacao = $alunos_voluntarios_aviacao->where('selecionado_exame', 'S')->get();
+                break;
                 case 3:
-                    $filtro_voluntario = 'APTOS';
-                    break;
+                    $filtro_voluntario = 'APROVADOS NA IS';
+                    $alunos_voluntarios_aviacao = $alunos_voluntarios_aviacao->where('apto_is', 'S')->get();
+                break;
                 case 4:
+                    $filtro_voluntario = 'APROVADOS NA AVI';
+                    $alunos_voluntarios_aviacao = $alunos_voluntarios_aviacao->where('apto_avi', 'S')->get();
+                break;
+                case 5:
+                    $filtro_voluntario = 'APTOS';
+                    $alunos_voluntarios_aviacao = $alunos_voluntarios_aviacao->where('apto', 1)->get();
+                break;
+                case 6:
                     $filtro_voluntario = 'INAPTOS';
-                    break;
-                default:
-                    $filtro_voluntario = '';
+                    $alunos_voluntarios_aviacao = $alunos_voluntarios_aviacao->where('apto', 0)->get();
+                break;
             }
-
-            $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
-
-            /* SELECIONANDO TODOS OS VOLUNTÁRIOS NA TABELA alunos_voluntarios_aviacao */
-
-            if($request->filtro_voluntarios==1){
-                $alunos_voluntarios_aviacao = AlunosVoluntAv::get();
-            } else if($request->filtro_voluntarios==2){
-                $alunos_voluntarios_aviacao = AlunosVoluntAv::get();
-            } else if($request->filtro_voluntarios==3){
-                $alunos_voluntarios_aviacao = AlunosVoluntAv::where('apto', 1)->get();
-            } else if($request->filtro_voluntarios==4){
-                $alunos_voluntarios_aviacao = AlunosVoluntAv::where('apto', 0)->get();
-            }
-
-            /* FAZENDO UMA ARRAY COM OS ids DOS ALUNOS VOLUNTARIOS DO ANO DE FORMAÇÃO SELECIONADO */
-
-            foreach($alunos_voluntarios_aviacao as $aluno_voluntario_aviacao){
-                if(isset($aluno_voluntario_aviacao->aluno->data_matricula) && $aluno_voluntario_aviacao->aluno->data_matricula==$request->ano_formacao_id){
-                    $alunos_ids[] = $aluno_voluntario_aviacao->alunos_id;
-                }
-            }
-
-            $alunos_ids = ($alunos_ids)??array();
-
-            if($request->omctID!='todas_omct'){
-                $omct = OMCT::find($request->omctID);
-                $alunos = Alunos::whereIn('id', $alunos_ids)->where('omcts_id', $request->omctID)->orderBy('omcts_id', 'asc')->orderBy('numero', 'asc')->get();
-            } else {
-                $omct = null;
-                $alunos = Alunos::whereIn('id', $alunos_ids)->orderBy('numero', 'asc')->get();
-            }
+            
             $this->classLog->RegistrarLog('Acessou lista de alunos voluntários para QMS aviação', auth()->user()->email);
             return view('relatorios.relacao-voluntarios-qms-aviacao')->with('ano_formacao', $ano_formacao)
                                                                      ->with('ownauthcontroller', $ownauthcontroller)
                                                                      ->with('omct', $omct)
                                                                      ->with('filtro_voluntario', $filtro_voluntario)
-                                                                     ->with('alunos', $alunos);
+                                                                     ->with('alunos_voluntarios_aviacao', $alunos_voluntarios_aviacao);
 
         }        
     }

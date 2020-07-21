@@ -846,9 +846,11 @@ class AjaxRelatoriosController extends Controller
         $data[] = '<select name="filtro_voluntarios" class="custom-select required_to_show_button">';
         $data[] = '     <option value="0" selected>Selecione uma das opções</option>';
         $data[] = '     <option value="1">Voluntários</option>';
-        $data[] = '     <!--option value="2">Selecionados para os exames complementares</option-->';
-        $data[] = '     <option value="3">Aptos</option>';
-        $data[] = '     <option value="4">Inaptos</option>';
+        $data[] = '     <option value="2">Selecionados para os Exames Complementares</option>';
+        $data[] = '     <option value="3">Aprovados na IS</option>';
+        $data[] = '     <option value="4">Aprovados na AVI</option>';
+        $data[] = '     <option value="5">Aptos</option>';
+        $data[] = '     <option value="6">Inaptos</option>';
         $data[] = '</select>';
         $data[] = '</div>';
 

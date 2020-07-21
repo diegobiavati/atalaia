@@ -6,12 +6,14 @@
 
 @section('content')
 
+<script src="/js/jquery/jquery.tabletojson.min.js"></script>
+
 @if(!key_exists('aluno', $data))
-    <div style="text-align: center; margin-top: 240px;">
-                            <h4>
-                                NÃO AUTORIZADO!<br />SEM LANÇAMENTOS
-                            </h4>
-                        </div>
+<div style="text-align: center; margin-top: 240px;">
+    <h4>
+        NÃO AUTORIZADO!<br />SEM LANÇAMENTOS
+    </h4>
+</div>
 @else
 <div style="width: 100%; margin: 4px auto; page-break-after: always; text-align: center;">
 
@@ -25,7 +27,7 @@
 
     @if($data['aluno'])
 
-    <table style="border: 1px solid #000; border-collapse: collapse; margin: 32px auto; width: 96%; font-size: 12px;">
+    <table id="esquolha-qms-tabela" style="border: 1px solid #000; border-collapse: collapse; margin: 32px auto; width: 96%; font-size: 12px;">
         <tr style="background-color: #E6E6E6;">
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ORDEM</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NR</b></td>
@@ -64,9 +66,11 @@
         @endforeach
     </table>
 
-    @if($ownauthcontroller->PermissaoCheck(1) && session()->get('login')['omctID'] == 1)
+
+    @if(isset($ownauthcontroller) && $ownauthcontroller->PermissaoCheck(1) && session()->get('login')['omctID'] == 1)
     <!--Precisa ter perfil super administrador e Uete ESA-->
-    <button id="aplicar_qms" type="button" class="btn btn-danger btn-lg btn-block">Aplicar QMS</button>
+    <div class="alert info-aplicar-qms" role="alert" style="margin: 32px auto; width: 96%;"></div>
+    <button id="aplicar_qms" type="button" class="btn {{ ($data['recuperado'] == true) ? 'btn-danger' : 'btn-success' }} btn-lg btn-block" style="margin: 32px auto; width: 96%;">{{ ($data['recuperado'] == true) ? 'Informações Já Registradas, Deseja Remover Para Registrar Novamente?': 'Registrar Alunos na QMS'}}</button>
     @endif
 
     <h4 style="margin-top: 52px;">QUANTITATIVO ATENDIDO POR OPÇÃO</h4>
@@ -110,10 +114,50 @@
 
 <script>
     $(document).ready(function() {
+        $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
 
-        $('#aplicar_qms').click(function() {
+        $('#aplicar_qms').click(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
             //Aplicar Qms
+            var json = {'_token' : '{{ csrf_token() }}'}
 
+            $.ajax({
+                dataType: 'json',
+                url: "{{$rota or 'rota'}}",
+                type: 'POST',
+                data: json,
+                beforeSend: function(){
+                    $('div.info-aplicar-qms').empty().hide();
+                    $('div.info-aplicar-qms').removeClass('alert-success');
+                    $('div.info-aplicar-qms').removeClass('alert-danger');
+                    $('div.info-aplicar-qms').html('<div id="temp" style="text-align: center; margin: 24px; padding: 24px;"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+                },
+                success: function(data){
+                    
+                    if(data.status=='success'){
+                        $('div.info-aplicar-qms').addClass('alert-success');
+                        $('div.info-aplicar-qms').html(data.response).slideDown();
+
+                        setTimeout(function(){
+                            $('div.info-aplicar-qms').slideUp(200, function(){
+                                $(this).removeClass('alert-success').empty();
+                            });
+                            location.reload();
+                        }, 5000);
+                    } else {
+                        $('div.info-aplicar-qms').addClass('alert-danger');
+                        $('div.info-aplicar-qms').html('<strong>ATENÇÃO:</strong><br />').slideDown();
+                        $.each(data.response, function(key, value){
+                            $('div.info-aplicar-qms').append('<li>' + value + '</li>');
+                        });
+                    }
+                },
+                error: function(jqxhr){
+                    $('div.info-aplicar-qms').addClass('alert-warning');
+                    $('div.info-aplicar-qms').html('<strong>ATENÇÃO: </strong> Por Motivos de Segurança Após Aplicar QMS dos Alunos é Necessário Recarregar a Página Para Poder Aplicar Novamente!!!').slideDown(); 
+                }         
+            });
         });
 
     });

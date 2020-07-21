@@ -185,6 +185,15 @@ function onMessageArrived(message) {
                         </a>
                     </li>
                 @endif
+                @if($ownauthcontroller->PermissaoCheck(25)) <!-- Visão geral restrita para SPPA UETE -->
+                    <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                        <a id="voluntarios-para-aviacao" href="javascript: void(0);">                
+                            <i class="ion-plane"></i>
+                            Voluntários para Aviação
+                            <span class="badge badge-primary badge-pill"></span>
+                        </a>                
+                    </li>
+                @endif
                 @if($ownauthcontroller->PermissaoCheck(21))
                     <li class="list-group-item justify-content-between align-items-center menu-list-01">
                         <a id="fale-com-aluno" href="javascript: void(0);">                
@@ -1908,7 +1917,7 @@ function onMessageArrived(message) {
             $.ajax({
                     type: 'GET',
                     dataType: 'json',
-                    url: '/ajax/marcar-voluntario-aviacao/',
+                    url: '/ajax/marcar-voluntario-aviacao',
                     beforeSend: function(){
                         aLinkElement.html('<img src="/images/loadings/loading_01.svg" style="width: 16px; margin-top: 11px;" />');
                     },
@@ -2214,7 +2223,7 @@ function onMessageArrived(message) {
             $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/dialog-implantar-aluno/',
+                url: '/ajax/dialog-implantar-aluno',
                 beforeSend: function(){
                     loadingModalDinamica('show', 'modal-lgg');
                 },
@@ -2451,7 +2460,7 @@ function onMessageArrived(message) {
             $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/load-alunos-situacoes-diversas/',
+                url: '/ajax/load-alunos-situacoes-diversas',
                 beforeSend: function(){
                     $('div#response2').html('<div id="temp" style="text-align: center;"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
                 },
@@ -2668,7 +2677,7 @@ function onMessageArrived(message) {
             $.ajax({
             	type:'GET',
                 dataType: 'json',
-                url: '/ajax/relacao-voluntarios-aviacao/',
+                url: '/ajax/relacao-voluntarios-aviacao',
                 beforeSend: function(){
                     $('div#content-voluntarios-aviacao').html('<div id="temp" style="text-align: center; margin: 24px; padding: 24px;"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
                 },
@@ -2695,7 +2704,7 @@ function onMessageArrived(message) {
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/relacao-aptos-aviacao/',
+                url: '/ajax/relacao-aptos-aviacao',
                 beforeSend: function(){
                     $(dataButton).html('<img src="/images/loadings/loading_03.svg" style="margin-right: 3px; width: 32px;" />Registrando...').addClass('disabled');
                 },

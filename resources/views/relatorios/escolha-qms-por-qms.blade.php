@@ -10,7 +10,7 @@
 @endphp
 
 <div style="width: 1600px; margin: 4px auto; page-break-after: always; text-align: center;">
-    
+
     @if($_GET['tipo_relatorio']==5 || $_GET['tipo_relatorio']==9)
         <h4 style="margin-top: -18px;">RELAÇÃO DE ALUNOS POR QMS - SEGMENTO MASCULINO</h4>
     @endif
@@ -77,5 +77,9 @@
 
     </div>
 
-
+    <script>
+        $(document).ready(function() {
+            $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
+        });
+    </script>
 @stop

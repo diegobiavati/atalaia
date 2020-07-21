@@ -48,7 +48,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::post('listaFATD', 'Ajax\LancamentosController@ViewListaFATD');
     Route::get('fatd/{id}', 'Ajax\LancamentosController@ViewTelaFATD');
     Route::get('ficha-fatd', ['as' => 'ficha-fatd', 'uses' => 'Ajax\LancamentosController@ViewFichaFATD']);
-    Route::post('fatdSargenteante/{id}', 'Ajax\LancamentosController@LancarFatdSargenteante');
+    Route::post('fatdSargenteante/{id}', 'Ajax\LancamentosController@LancarFatdSargenteante');    
     
     Route::get('view-frad-aluno/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewFradAluno');
     Route::get('consulta-frad-aluno', 'Relatorios\RelatorioAlunoController@ViewRelacaoFradAlunos');
@@ -117,6 +117,8 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('dialog-editar-cadastro-aluno-situacoes-diversas/{id}', 'Ajax\AjaxAdminController@DialogEditarCadastroAlunoSitDiv');
     Route::get('dialog-periodo-lancamento-taf/', 'Ajax\AjaxAdminController@DialogPeriodoLancamentoTAF');
     Route::get('relacao-voluntarios-aviacao', 'Ajax\AjaxAdminController@DialogRelacaoVoluntariosAviacao');
+    Route::get('relacao-alunos-aviacao', 'Ajax\AjaxOperadorController@ListagemAlunosUete')->middleware('checkauth');
+    Route::get('relacao-selecao-exame', 'Ajax\AjaxOperadorController@ListagemAlunosExames')->middleware('checkauth');
     Route::get('dialog-conselho-escolar/{aluno}', 'Ajax\AjaxAdminController@DialogConselhoEscolar');
     Route::get('carrega-nota-aluno-disciplina/{aluno}/{disciplina}', 'Ajax\AjaxAdminController@CarregaNotaAlunoDisciplina');
     Route::get('adicionar-concessao-conselho/{aluno}/{disciplina}/{acrescimo}', 'Ajax\AjaxAdminController@AdicionarConcessaoConselho');
@@ -180,6 +182,8 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::post('incluir_aluno_situacao_diversa/{id}', 'Ajax\AjaxAdminController@AdicionarAluSitDiv');
     Route::post('atualizar_aluno_situacao_diversa/{id}', 'Ajax\AjaxAdminController@AtualizarAluSitDiv');
     Route::post('relacao-aptos-aviacao/', 'Ajax\AjaxAdminController@AtualizarRelacaoAptosAviacao');
+    Route::post('selecao-voluntarios-aviacao/', 'Ajax\AjaxOperadorController@SelecaoVoluntariosAviacao')->middleware('checkauth');
+    Route::post('selecao-voluntarios-exame-aviacao/', 'Ajax\AjaxOperadorController@SelecaoVoluntariosExameAviacao')->middleware('checkauth');
 
     /* ROTAS DE AÇÕES PARA AjaxRelatoriosController */
 
@@ -264,7 +268,6 @@ Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
     Route::get('ficha-aluno-punido', ['as' => 'ficha-aluno-punido', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFichaAlunoPunidos']);
     Route::get('ficha-aluno-punido-geral', ['as' => 'ficha-aluno-punido-geral', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFichaAlunoPunidos']);
 
-
     Route::get('relacao-dados-estatisticos-geral', ['as' => 'relacao-dados-estatisticos-geral', 'uses' => 'Relatorios\DadosEstatisticosGeraisController@RelacaoEstatistica']);
 
     Route::get('relacao-alunos-situacoes-diversas', ['as' => 'relacao_alunos_situacoes_diversas', 'uses' => 'Relatorios\RelatoriosController@RelacaoAlunosSituacoesDiversas']);
@@ -288,6 +291,8 @@ Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
     Route::get('analise-parcial-npb/', ['as' => 'analise_parcial_npb', 'uses' => 'Relatorios\AnalisesNotasController@AnaliseParcialNPB']);
 
     Route::get('graficos/', ['as' => 'graficos', 'uses' => 'Relatorios\AnalisesNotasController@AnaliseDeResultados']);
+
+    Route::post('ajax/aplicar-escolha-qms', ['as' => 'aplicar-escolha-qms', 'uses' => 'Ajax\AjaxAdminController@AplicaEscolhaQms']);
 });
 
 /* AUTENTICAÇÃO ROTAS */

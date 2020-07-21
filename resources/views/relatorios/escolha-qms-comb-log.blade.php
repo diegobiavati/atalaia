@@ -35,6 +35,7 @@
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>QMS<br />Designada</b></td>
             </tr>
             @foreach ($alunos as $aluno)
+            @if(is_array($aluno))
                 <tr>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$loop->index + 1}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['numero']}}</td>
@@ -46,7 +47,8 @@
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($aluno['NPB'], 3, ',', '')}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['opcao_atendido']}}ª</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['qmsdesignda_nome']}}</td>
-                </tr>    
+                </tr>
+            @endif    
             @endforeach
         </table>
 
@@ -58,5 +60,9 @@
 
     </div>
 
-
+    <script>
+        $(document).ready(function() {
+            $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
+        });
+    </script>
 @stop

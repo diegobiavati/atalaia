@@ -177,4 +177,5 @@ class FuncoesController
 
         return $aluno_notas;
     }
+
 }

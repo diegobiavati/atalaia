@@ -24,6 +24,9 @@ use App\Models\LancamentoFo;
 
 
 use App\Http\OwnClasses\ClassLog;
+use App\Models\AlunosVoluntAv;
+use App\Models\EscolhaAviacaoStatus;
+use App\Models\OMCT;
 use Exception;
 
 setlocale(LC_ALL, "pt_BR.utf8");
@@ -603,5 +606,95 @@ class AjaxOperadorController extends Controller
     public function MenuTfmAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
         return view('ajax.menu-tfm-aluno')->with('ownauthcontroller', $ownauthcontroller);
+    }
+
+    public function ListagemAlunosUete()
+    {
+
+        $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
+        $escolha_aviacao_status = EscolhaAviacaoStatus::where('ano_formacao_id', $ano_corrente->id)->first();
+
+        if ($escolha_aviacao_status->status == 0) {
+            $alunos = null;
+        } else {
+            $omcts_ids = OMCT::where('id', session()->get('login.omctID'))->get(['id']);
+            $omcts_ids = ($omcts_ids) ?? array();
+            $alunos = Alunos::whereIn('omcts_id', $omcts_ids)->where('data_matricula', $ano_corrente->id)->orderBy('omcts_id', 'asc')->orderBy('numero', 'asc')->get();
+        }
+
+        return view('operador.aviacao.listagem-alunos', compact('alunos'));
+    }
+
+    public function ListagemAlunosExames()
+    {
+
+        $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
+        $omcts_ids = OMCT::where('id', session()->get('login.omctID'))->get(['id']);
+        $omcts_ids = ($omcts_ids) ?? array();
+
+        $alunos = Alunos::where([['data_matricula', '=', $ano_corrente->id]])
+            ->whereHas('aluno_voluntario_aviacao')->get();
+
+        $exameAviacao = true;
+            
+        return view('operador.aviacao.listagem-alunos', compact('alunos', 'exameAviacao'));
+    }
+
+    public function SelecaoVoluntariosAviacao(Request $request)
+    {
+
+        $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
+        $omcts_ids = OMCT::where('id', session()->get('login.omctID'))->get(['id']);
+
+        $data['status'] = 'err';
+        $data['response']  = 'Ocorreu um Erro';
+
+        $alunosIds = array();
+        if (isset($request->alunos_ids)) {
+            foreach ($request->alunos_ids as $id) {
+                $alunosIds[] = array('alunos_id' => $id);
+            }
+        }
+
+        $param['anoCorrente'] = $ano_corrente;
+        $param['uete'] = $omcts_ids;
+
+        //Remove os alunos que foram excluídos da seleção....
+        $alunosVoluntAv = AlunosVoluntAv::whereHas('aluno', function ($q) use ($param) {
+            $q->where([['data_matricula', '=', $param['anoCorrente']->id]])
+                ->whereIn('omcts_id', $param['uete']);
+        })->delete();
+
+        if (AlunosVoluntAv::insert($alunosIds)) {
+            $data['status'] = 'ok';
+            $data['response']  = 'Alunos Voluntários Cadastrados';
+        }
+
+        return response()->json($data);
+    }
+
+    public function SelecaoVoluntariosExameAviacao(Request $request){
+        
+        $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
+
+        $param['anoCorrente'] = $ano_corrente;
+
+        try{
+            AlunosVoluntAv::whereHas('aluno', function ($q) use ($param) {
+                $q->where([['data_matricula', '=', $param['anoCorrente']->id]]);
+            })->update(['selecionado_exame' => 'N']);
+    
+            AlunosVoluntAv::whereHas('aluno', function ($q) use ($param) {
+                $q->where([['data_matricula', '=', $param['anoCorrente']->id]]);
+            })->whereIn('alunos_id', $request->alunos_ids)->update(['selecionado_exame' => 'S']);
+
+            $data['status'] = 'ok';
+            $data['response']  = 'Alunos Voluntários Para Exame Cadastrados.';
+        }catch(Exception $ex){
+            $data['status'] = 'err';
+            $data['response']  = 'Ocorreu um Erro '.$ex;
+        }
+        
+        return response()->json($data);
     }
 }

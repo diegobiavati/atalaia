@@ -1199,13 +1199,16 @@ class AjaxAdminController extends Controller
     public function VoluntariosParaAviacao()
     {
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
-        $escolha_aviacao_status = EscolhaAviacaoStatus::find(1);
-        return view('ajax.voluntarios-para-aviacao')->with('ano_corrente', $ano_corrente)->with('escolha_aviacao_status', $escolha_aviacao_status);
+        $escolha_aviacao_status = EscolhaAviacaoStatus::where('ano_formacao_id', $ano_corrente->id)->firstOrCreate(['ano_formacao_id' => $ano_corrente->id]);
+
+        return view('ajax.voluntarios-para-aviacao')->with('ano_corrente', $ano_corrente)->with('escolha_aviacao_status', $escolha_aviacao_status)->with('ownauthcontroller', $this->ownauthcontroller);
     }
 
     public function MarcarVoluntarioAviacao()
     {
-        $escolha_aviacao_status = EscolhaAviacaoStatus::find(1);
+        $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
+        $escolha_aviacao_status = EscolhaAviacaoStatus::where('ano_formacao_id', $ano_corrente->id)->first();
+        
         if ($escolha_aviacao_status->status == 0) {
             $escolha_aviacao_status->status = 1;
         } else {
@@ -1229,7 +1232,7 @@ class AjaxAdminController extends Controller
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
 
         $alunos = Alunos::join('alunos_voluntarios_aviacao', 'alunos.id', '=', 'alunos_voluntarios_aviacao.alunos_id')
-            ->where('data_matricula', $ano_corrente->id)
+            ->where([['data_matricula', '=', $ano_corrente->id], ['selecionado_exame', '=', 'S']])
             ->orderBy('omcts_id', 'asc')
             ->orderBy('sexo', 'asc')
             ->get();
@@ -1256,32 +1259,44 @@ class AjaxAdminController extends Controller
                                 <thead>
                                     <tr>
                                         <th scope="col" style="text-align: center;">Ordem</th>
-                                        <th scope="col">SELEÇÃO</th>
+                                        <th scope="col" style="text-align: center;">IS</th>
+                                        <th scope="col" style="text-align: center;">AVI</th>
                                         <th scope="col">ALUNO(A)</th>
                                     </tr>
                                 </thead>
                                 <tbody>';
 
             $i = 1;
-            foreach ($alunos as $aluno) {
-                $status_checked_aptos = ($aluno->apto == 0) ? '' : 'checked';
-                $data[] = ' <tr onclick="if($(this).find(\'input\').is(\':checked\')) { $(this).find(\'input\').prop(\'checked\', false); } else { $(this).find(\'input\').prop(\'checked\', true); }" style="cursor: pointer;">
-                                <td style="text-align: center; vertical-align: middle;">' . $i . '</td>
-                                <td>
-                                    <div class="custom-control custom-checkbox" style="width: 36%; margin: 4px auto;">
-                                        <input type="checkbox" class="custom-control-input" id="alunoID_' . $aluno->id . '" name="alunos_aptos[]" value="' . $aluno->id . '" ' . $status_checked_aptos . ' />
-                                        <label class="custom-control-label" for="alunoID_' . $aluno->id . '"></label>
-                                    </div>
-                                </td>
-                                <td>
-                                    <b>' . $aluno->numero . ' ' . $aluno->nome_guerra . '</b><br />
-                                    <span style="color: #696969;"><i>' . $aluno->nome_completo . '</i></span><br />
-                                    ' . $aluno->omct->sigla_omct . '
-                                </td>
-                            </tr>';
-                $i++;
-            }
-
+            
+                foreach ($alunos as $aluno) {
+                    $status_checked_aptos_is = ($aluno->apto_is == 'N') ? '' : 'checked';
+                    $status_checked_aptos_avi = ($aluno->apto_avi == 'N') ? '' : 'checked';
+                         
+                    $data[] = ' <tr style="cursor: pointer;">
+                                    <td style="text-align: center; vertical-align: middle;">' . $i . '</td>
+                                    <td>
+                                        <div class="custom-control custom-checkbox" style="width: 36%; margin: 4px auto;">
+                                            <input type="checkbox" class="custom-control-input" id="alunos_id_aptos_is_' . $aluno->id . '" name="alunos_aptos_is[]" value="' . $aluno->id . '" ' . $status_checked_aptos_is . ' />
+                                            <label class="custom-control-label" for="alunos_id_aptos_is_' . $aluno->id . '"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="custom-control custom-checkbox" style="width: 36%; margin: 4px auto;">
+                                            <input type="checkbox" class="custom-control-input" id="alunos_id_aptos_avi_' . $aluno->id . '" name="alunos_aptos_avi[]" value="' . $aluno->id . '" ' . $status_checked_aptos_avi . ' />
+                                            <label class="custom-control-label" for="alunos_id_aptos_avi_' . $aluno->id . '"></label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <b>' . $aluno->numero . ' ' . $aluno->nome_guerra . '</b><br />
+                                        <span style="color: #696969;"><i>' . $aluno->nome_completo . '</i></span><br />
+                                        ' . $aluno->omct->sigla_omct . '
+                                    </td>
+                                </tr>';
+                           
+                    $i++;
+                }
+            
+            
             $data[] = '         </tbody>
                             </table>
                             </form>
@@ -1309,7 +1324,21 @@ class AjaxAdminController extends Controller
 
             $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
 
-            $alunos = Alunos::join('alunos_voluntarios_aviacao', 'alunos.id', '=', 'alunos_voluntarios_aviacao.alunos_id')
+            $param['anoCorrente'] = $ano_corrente;
+
+            /* RESETANDO TODOS DO ANO CORRENTE */
+            $alunosAviacao = AlunosVoluntAv::whereHas('aluno', function ($q) use ($param) {
+                $q->where([['data_matricula', '=', $param['anoCorrente']->id]]);
+            })->where([['selecionado_exame', '=', 'S']]);
+
+            $alunosAviacao->update(['apto_is' => 'N', 'apto_avi' => 'N']);
+
+
+            $alunosAviacao->whereIn('id', $request->alunos_aptos_is)->update(['apto_is' => 'S']);
+            $alunosAviacao->whereIn('id', $request->alunos_aptos_avi)->update(['apto_avi' => 'S']);
+
+
+            /*$alunos = Alunos::join('alunos_voluntarios_aviacao', 'alunos.id', '=', 'alunos_voluntarios_aviacao.alunos_id')
                 ->where('data_matricula', $ano_corrente->id)
                 ->get(['alunos_voluntarios_aviacao.id']);
 
@@ -1317,7 +1346,7 @@ class AjaxAdminController extends Controller
                 $alunos_ids[] = $aluno->id;
             }
 
-            /* RESETANDO TODOS DO ANO CORRENTE */
+            
 
             if (isset($alunos_ids)) {
                 $update = AlunosVoluntAv::whereIn('id', $alunos_ids)->update(['apto' => 0]);
@@ -1325,7 +1354,7 @@ class AjaxAdminController extends Controller
 
             if (isset($request->alunos_aptos)) {
                 $update = AlunosVoluntAv::whereIn('id', $request->alunos_aptos)->update(['apto' => 1]);
-            }
+            }*/
 
             $data['status'] = 'ok';
             $data['response'] = 'Relação de alunos aptos atualizada com sucesso';
@@ -5833,6 +5862,54 @@ class AjaxAdminController extends Controller
         })->delete() < 0) {
             $retorno['status'] = 'err';
             $retorno['response'][] = '<li style="color:rgb(255,0,0)">Erro ao Prontos Faltas Status.</li>';
+        }
+
+        return response()->json($retorno);
+    }
+
+    public function AplicaEscolhaQms(Request $request){
+
+        if($request->session()->has('aplicar_qms')){
+            
+            $aplicar_qms = unserialize($request->session()->get('aplicar_qms'));
+            $aplicar_qms['recuperado'] = true;
+
+            $request->session()->regenerate();
+
+            if($aplicar_qms['segmento'] == 'M'){
+
+                $select = EscolhaQMS::select('escolha_qms_masculino as escolha_qms_final')->where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])->first();
+                if($select->escolha_qms_final == null){
+                    $update = EscolhaQMS::where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])
+                    ->update(['escolha_qms_masculino' => serialize($aplicar_qms)]);
+                }else{
+                    $update = EscolhaQMS::where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])
+                    ->update(['escolha_qms_masculino' => null]);
+                }
+
+            }else{
+
+                $select = EscolhaQMS::select('escolha_qms_feminino as escolha_qms_final')->where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])->first();
+                if($select->escolha_qms_final == null){
+                    $update = EscolhaQMS::where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])
+                    ->update(['escolha_qms_feminino' => serialize($aplicar_qms)]);
+                }else{
+                    $update = EscolhaQMS::where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])
+                    ->update(['escolha_qms_feminino' => null]);
+                }
+
+            }
+
+            if($update > 0){
+                $retorno['status'] = 'success';
+                $retorno['response'][] = 'Informações Registradas Com Sucesso!!!';
+            }else{
+                $retorno['status'] = 'err';
+                $retorno['response'][] = 'Não foi possível Registrar!!!';
+            }
+        }else{
+            $retorno['status'] = 'err';
+            $retorno['response'][] = 'Recarregue Página!!!';
         }
 
         return response()->json($retorno);

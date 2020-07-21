@@ -35,15 +35,22 @@
         </div>
     
         <div class="card-body">
-            <div class="alert alert-danger errors-liberar-escolha-aviacao" role="alert">Aqui</div>
+            <div class="alert alert-danger errors-liberar-escolha-aviacao" role="alert"></div>
             <p class="card-text" style="margin-top: 32px;">
                 <nav class="nav-justified">
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                        @if($ownauthcontroller->PermissaoCheck(1))
                         <a class="nav-item nav-link active" data-toggle="tab" href="#liberar-escolha-sistema" role="tab" aria-controls="nav-home" aria-selected="true">Liberar escolha no sistema</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#relacao-selecao-exame" role="tab" aria-controls="nav-home" aria-selected="true" onclick="dialogRelacaoAlunosExame()">Seleção de Voluntários para Exame</a>
                         <a class="nav-item nav-link" data-toggle="tab" href="#relacao-voluntatios" role="tab" aria-controls="nav-home" aria-selected="true" onclick="dialogRelacaoVoluntariosAviacao();">Seleção de aptos</a>
+                        @endif
+                        @if($ownauthcontroller->PermissaoCheck(25))
+                        <a class="nav-item nav-link active" data-toggle="tab" href="#relacao-alunos" role="tab" aria-controls="nav-home" aria-selected="true" onclick="dialogRelacaoAlunos();"><b>Lançar Voluntários para Aviação</b></a>
+                        @endif
                     </div>
                 </nav>
                 <div class="tab-content" id="nav-tabContent">
+                    @if($ownauthcontroller->PermissaoCheck(1))
                     <div class="tab-pane fade show active" id="liberar-escolha-sistema" role="tabpanel" aria-labelledby="nav-home-tab" style="margin-top: 80px;">                        
                         <h5 class="card-title" style="text-align: center; margin: 18px 0 44px 0;">
                             @if($ano_corrente)
@@ -71,9 +78,18 @@
                                 </div>                
                             @endif
                     </div>
+                    <div class="tab-pane fade show active" id="relacao-selecao-exame" role="tabpanel" aria-labelledby="nav-home-tab" style="padding: 56px;">
+                        <div id="content-selecao-exame"></div>
+                    </div>
                     <div class="tab-pane fade show active" id="relacao-voluntatios" role="tabpanel" aria-labelledby="nav-home-tab" style="padding: 56px;">                        
                         <div id="content-voluntarios-aviacao"></div>   
-                    </div>                    
+                    </div> 
+                    @endif                   
+                    @if($ownauthcontroller->PermissaoCheck(25))
+                    <div class="tab-pane fade show active" id="relacao-alunos" role="tabpanel" aria-labelledby="nav-home-tab" style="padding: 16px;">                        
+                        <div id="content-alunos-aviacao"></div>   
+                    </div> 
+                    @endif
                 </div>
             </p>
     
@@ -92,4 +108,53 @@
                 }
         }); 
     
+        function dialogRelacaoAlunos(){
+            $.ajax({
+            	type:'GET',
+                url: '/ajax/relacao-alunos-aviacao',
+                beforeSend: function(){
+                    $('div.alert').html(null).hide();
+                    $('div#content-alunos-aviacao').html('<div id="temp" style="text-align: center; margin: 24px; padding: 24px;"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+                },
+                success: function(data){
+                    $('div#temp').fadeOut(300, function(){
+                        $(this).remove();
+                        $('div#content-alunos-aviacao').html(data);
+                    });
+                },
+                error: function(jqxhr){
+                    setTimeout(function(){
+                        alert('ERRO INTERNO/Violação de acesso!/CARACTERE NÃO PERMITIDO PARA ESTA OPERAÇÃO');
+                    }, 1000);
+                }                    
+            });       
+        }
+
+        function dialogRelacaoAlunosExame(){
+            $.ajax({
+            	type:'GET',
+                url: '/ajax/relacao-selecao-exame',
+                beforeSend: function(){
+                    $('div.alert').html(null).hide();
+                    $('div#content-selecao-exame').html('<div id="temp" style="text-align: center; margin: 24px; padding: 24px;"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+                },
+                success: function(data){
+                    $('div#temp').fadeOut(300, function(){
+                        $(this).remove();
+                        $('div#content-selecao-exame').html(data);
+                    });
+                },
+                error: function(jqxhr){
+                    setTimeout(function(){
+                        alert('ERRO INTERNO/Violação de acesso!/CARACTERE NÃO PERMITIDO PARA ESTA OPERAÇÃO');
+                    }, 1000);
+                }                    
+            });       
+        }
+
+        //Valida se existe o elemento
+        if ($("a[href='#relacao-alunos']").length) { 
+            dialogRelacaoAlunos(); 
+        }
+        
     </script>
