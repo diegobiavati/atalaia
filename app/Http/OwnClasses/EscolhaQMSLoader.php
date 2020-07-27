@@ -103,20 +103,33 @@ class EscolhaQMSLoader
     public function getAlunosAviacao($segmento, $reprovado = 'N')
     {
 
-        // SELECIONANDO TODOS OS VOLUNTARIOS APTOS PARA AVIAÇÃO
-
-        $volunt_avIDs = $this->voluntarios_aviacao->where('apto', 1)->whereNotNull('alunos_id')->get(['alunos_id']);
-
-        //  SELECIONANDO TODOS OS ALUNOS $volunt_avIDs DO ANO DE FORMAÇÃO SELECIONADO DO SEGMENTO SELECIONADO
-
-        $alunosIDs = $this->alunos->where('data_matricula', $this->ano_formacao)->where('sexo', $segmento)->whereIn('id', $volunt_avIDs)->get(['id']);
-
-        // SELECIONANDO TODAS AS NOTAS FINAIS DOS ALUNOS $alunosIDs
-
-        if ($reprovado == 'N') {
-            $data = $this->classificacao->whereIn('aluno_id', $alunosIDs)->where('reprovado', 'N')->orderBy('nota_final', 'desc')->skip(0)->take($this->getVagasQMSAviacao($segmento))->get();
+        if ($segmento == 'M') {
+            $escolhaQmsDesignado = EscolhaQMS::select('escolha_qms_masculino as escolha_qms_final')->where([['id', '=', $this->escolha_qms_id], ['ano_formacao_id', '=', $this->ano_formacao]])->first();
         } else {
-            $data = $this->classificacao->whereIn('aluno_id', $alunosIDs)->orderBy('nota_final', 'desc')->skip(0)->take($this->getVagasQMSAviacao($segmento))->get();
+            $escolhaQmsDesignado = EscolhaQMS::select('escolha_qms_feminino as escolha_qms_final')->where([['id', '=', $this->escolha_qms_id], ['ano_formacao_id', '=', $this->ano_formacao]])->first();
+        }
+       
+        if($reprovado == 'N' && $escolhaQmsDesignado->escolha_qms_final != null){
+            $escolha_result = unserialize($escolhaQmsDesignado->escolha_qms_final);
+
+            $data = collect();
+            foreach($escolha_result['alunos_aviacao'] as $alunos){
+                $data->push($alunos->classificacao);
+            }
+        }else{
+
+            // SELECIONANDO TODOS OS VOLUNTARIOS APTOS PARA AVIAÇÃO
+            $volunt_avIDs = $this->voluntarios_aviacao->where('apto', 1)->whereNotNull('alunos_id')->get(['alunos_id']);
+
+            //  SELECIONANDO TODOS OS ALUNOS $volunt_avIDs DO ANO DE FORMAÇÃO SELECIONADO DO SEGMENTO SELECIONADO
+            $alunosIDs = $this->alunos->where('data_matricula', $this->ano_formacao)->where('sexo', $segmento)->whereIn('id', $volunt_avIDs)->get(['id']);
+
+            // SELECIONANDO TODAS AS NOTAS FINAIS DOS ALUNOS $alunosIDs
+            if ($reprovado == 'N') {
+                $data = $this->classificacao->whereIn('aluno_id', $alunosIDs)->where('reprovado', 'N')->orderBy('nota_final', 'desc')->skip(0)->take($this->getVagasQMSAviacao($segmento))->get();
+            } else {
+                $data = $this->classificacao->whereIn('aluno_id', $alunosIDs)->orderBy('nota_final', 'desc')->skip(0)->take($this->getVagasQMSAviacao($segmento))->get();
+            }
         }
 
         return (isset($data)) ? $data : false;
@@ -317,10 +330,16 @@ class EscolhaQMSLoader
     
             // SELECIONANDO TODOS OS ALUNOS DESIGNADOS PARA QMS AVIAÇÃO
             $alunos_aviacao = $this->getAlunosAviacao($segmento, $reprovado);
-    
+
+            $alunos_temp = array();
             foreach ($alunos_aviacao as $item) {
                 $alunos_aviacao_ID[] = $item->aluno_id;
+
+                $alunos_temp[$item->aluno->id] = $item->aluno;
             }
+
+            //Guarda os alunos da aviação
+            $escolha_result['alunos_aviacao'] = $alunos_temp;
     
             $alunos_aviacao_ID = ($alunos_aviacao_ID) ?? array(0);
     
@@ -420,7 +439,7 @@ class EscolhaQMSLoader
             $escolha_result['qms_vagas_fixas'] = $qms_id_vagas_fixa;
             $escolha_result['recuperado'] = false;
         }
-        
+
         return (isset($escolha_result)) ? $escolha_result : false;
     }
 

@@ -1260,7 +1260,7 @@ class AjaxAdminController extends Controller
                                     <tr>
                                         <th scope="col" style="text-align: center;">Ordem</th>
                                         <th scope="col" style="text-align: center;">IS</th>
-                                        <th scope="col" style="text-align: center;">AVI</th>
+                                        <th scope="col" style="text-align: center;">Avl Psc</th>
                                         <th scope="col">ALUNO(A)</th>
                                     </tr>
                                 </thead>

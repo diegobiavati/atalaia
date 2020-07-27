@@ -17,21 +17,60 @@
 @else
 <div style="width: 100%; margin: 4px auto; page-break-after: always; text-align: center;">
 
+    <!-- Alunos da Aviação -->
+    @if($_GET['tipo_relatorio']==13)
+        <h4 style="margin-top: -18px;">AVIAÇÃO - Segmento Masculino</h4>
+    @endif
+
+    @if($_GET['tipo_relatorio']==14)
+        <h4 style="margin-top: -18px;">AVIAÇÃO - Segmento Feminino</h4>
+    @endif
+
+    @if(key_exists('alunos_aviacao', $data) && $data['alunos_aviacao'])
+        <table style="border: 1px solid #000; border-collapse: collapse; margin: 32px auto; width: 80%;">
+            <tr style="background-color: #E6E6E6;">
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Ordem</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Al Nr</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Perd Bas</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Por area</b></td>
+            </tr>
+            @foreach ($data['alunos_aviacao'] as $aluno)
+                <tr>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$loop->index + 1}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->numero}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->nome_guerra}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->omct->sigla_omct}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->nota_final_arredondada}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->classificacao}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->classificacao_por_area}}</td>
+                </tr>    
+            @endforeach
+        </table>
+    @else
+        <div style="text-align: center;border: 1px solid #000; border-collapse: collapse; margin: 32px auto; width: 80%;">DISTRIBUIÇÃO PARA QMS AVIAÇÃO INDISPONÍVEL</div>
+    @endif
+    
+    <div style="margin-bottom: 40px;"></div>
+    <!-- Fim Alunos da Aviação -->
+
     @if($_GET['tipo_relatorio']==13 || $_GET['tipo_relatorio']==15)
-    <h4 style="margin-top: -18px;">COMBATENTE/LOGISTICA-TÉCNICA - SEGMENTO MASCULINO</h4>
+    <h4>COMBATENTE/LOGISTICA-TÉCNICA - SEGMENTO MASCULINO</h4>
     @endif
 
     @if($_GET['tipo_relatorio']==14 || $_GET['tipo_relatorio']==16)
-    <h4 style="margin-top: -18px;">COMBATENTE/LOGISTICA-TÉCNICA - SEGMENTO FEMININO</h4>
+    <h4>COMBATENTE/LOGISTICA-TÉCNICA - SEGMENTO FEMININO</h4>
     @endif
 
     @if($data['aluno'])
 
     <table id="esquolha-qms-tabela" style="border: 1px solid #000; border-collapse: collapse; margin: 32px auto; width: 96%; font-size: 12px;">
         <tr style="background-color: #E6E6E6;">
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ORDEM</b></td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NR</b></td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>NOME</b></td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Ordem</b></td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Al Nr</b></td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
             @for($i=1;$i<=$total_opcoes;$i++) <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>{{$i}}ª</b></td>
                 @endfor
@@ -110,7 +149,6 @@
     @endif
 </div>
 @endif
-
 
 <script>
     $(document).ready(function() {

@@ -848,7 +848,7 @@ class AjaxRelatoriosController extends Controller
         $data[] = '     <option value="1">Voluntários</option>';
         $data[] = '     <option value="2">Selecionados para os Exames Complementares</option>';
         $data[] = '     <option value="3">Aprovados na IS</option>';
-        $data[] = '     <option value="4">Aprovados na AVI</option>';
+        $data[] = '     <option value="4">Aprovados na AVL PSC</option>';
         $data[] = '     <option value="5">Aptos</option>';
         $data[] = '     <option value="6">Inaptos</option>';
         $data[] = '</select>';

@@ -202,10 +202,11 @@ class LancamentosController extends Controller
         $whereNumeroAluno = (isset($request->numero_aluno) ? " AND alunos.numero = $request->numero_aluno" : null);
         $whereNomeGuerra = (isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
 
+        $whereOpcaoRel = ' ';
         if(isset($request->opcaoRel)){
             switch($request->opcaoRel){
                 case 1://Listar Todos
-                    $whereOpcaoRel = ' ';
+                    $whereOpcaoRel = $whereOpcaoRel;
                 break;
                 case 2://Listar Resolvidos
                     $whereOpcaoRel = ' AND lancamento_fo.providencia IS NOT NULL';

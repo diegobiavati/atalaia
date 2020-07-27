@@ -257,7 +257,7 @@ class RelatoriosController extends Controller
 
             if($request->tipo_relatorio==3 || $request->tipo_relatorio==4){
 
-                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS', auth()->user()->email);
+                $this->classLog->RegistrarLog('Acessou relatório de escolha de QMS AVIAÇÃO', auth()->user()->email);
                 $segmento = ($request->tipo_relatorio==3)?'M':'F';
                 return view('relatorios.escolha-qms-aviacao')->with('alunos', $escolhaQMS->getAlunosAviacao($segmento))
                                                              ->with('ano_selecionado', $ano_selecionado);
@@ -361,8 +361,10 @@ class RelatoriosController extends Controller
                 
                 if($segmento=='M'){
                     $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao')->get();
+                    //$qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->get();
                 } else {
                     $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao_feminino')->get();
+                    //$qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->get();
                 }
 
                 foreach($qms as $item){
@@ -383,7 +385,6 @@ class RelatoriosController extends Controller
                     $designacao['segmento'] = $segmento;
 
                     $request->session()->flash('aplicar_qms', serialize($designacao));
-                    //$designacao['recuperado'] = true;
                 }
                 /*Fim novo Modo*/
 
@@ -1088,7 +1089,7 @@ class RelatoriosController extends Controller
                     $alunos_voluntarios_aviacao = $alunos_voluntarios_aviacao->where('apto_is', 'S')->get();
                 break;
                 case 4:
-                    $filtro_voluntario = 'APROVADOS NA AVI';
+                    $filtro_voluntario = 'APROVADOS NA AVL PSC';
                     $alunos_voluntarios_aviacao = $alunos_voluntarios_aviacao->where('apto_avi', 'S')->get();
                 break;
                 case 5:
