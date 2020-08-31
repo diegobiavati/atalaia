@@ -25,6 +25,7 @@
                 @if(isset($_GET['omctID']) && $_GET['omctID']=='todas_omct')
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>                
                 @endif
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Segmento</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Dt Nascimento</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Idt Militar</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>CPF</b></td>
@@ -41,6 +42,7 @@
                     @if(isset($_GET['omctID']) && $_GET['omctID']=='todas_omct')
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$voluntario->aluno->omct->sigla_omct}}</td>                
                     @endif                    
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$voluntario->aluno->sexo}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ App\Http\Controllers\Utilitarios\FuncoesController::formatDateEntoBr($voluntario->aluno->data_nascimento) }}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$voluntario->aluno->doc_idt_militar}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$voluntario->aluno->doc_cpf}}</td>

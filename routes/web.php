@@ -293,6 +293,7 @@ Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
     Route::get('graficos/', ['as' => 'graficos', 'uses' => 'Relatorios\AnalisesNotasController@AnaliseDeResultados']);
 
     Route::post('ajax/aplicar-escolha-qms', ['as' => 'aplicar-escolha-qms', 'uses' => 'Ajax\AjaxAdminController@AplicaEscolhaQms']);
+    Route::post('ajax/aplicar-escolha-qms-bi', ['as' => 'aplicar-escolha-qms-bi', 'uses' => 'Ajax\AjaxAdminController@AplicaEscolhaQmsBI']);
 });
 
 /* AUTENTICAÇÃO ROTAS */

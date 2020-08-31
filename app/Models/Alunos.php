@@ -16,6 +16,8 @@ class Alunos extends Model
 
     protected $fillable = [
         'id',
+        'periodo_cfs',
+        'qms_id',
         'numero',
         'nome_completo',
         'nome_guerra',

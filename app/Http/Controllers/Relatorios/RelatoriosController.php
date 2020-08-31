@@ -41,6 +41,7 @@ use App\Http\OwnClasses\EscolhaQMSLoader;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Utilitarios\FuncoesController;
+use App\Models\EscolhaQMS;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -359,19 +360,23 @@ class RelatoriosController extends Controller
                 
                 $segmento = ($request->tipo_relatorio==13)?'M':'F';
                 
+                $bi_bloqueio = null;
                 if($segmento=='M'){
                     $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao')->get();
+                    $bi_bloqueio = EscolhaQMS::select('bi_qms_masculino')->where([['id', '=', $request->escolhaQMS]])->first()->bi_qms_masculino;
                     //$qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->get();
                 } else {
                     $qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao_feminino')->get();
+                    $bi_bloqueio = EscolhaQMS::select('bi_qms_feminino')->where([['id', '=', $request->escolhaQMS]])->first()->bi_qms_feminino;
                     //$qms = QMS::where('escolha_qms_id', $request->escolhaQMS)->where('segmento', $segmento)->get();
                 }
-
+                
                 foreach($qms as $item){
                     $qms_id_nome[$item->id] = $item->qms_sigla;
                 }
 
                 $rota = 'ajax/aplicar-escolha-qms';
+                $rota_bi = 'ajax/aplicar-escolha-qms-bi';
 
                 /*Novo Modo*/
                 $designacao = $escolhaQMS->designacaoFinalQMSDetalhada($segmento, 'N');
@@ -383,6 +388,7 @@ class RelatoriosController extends Controller
                     $designacao['ano_formacao'] = $ano_formacao;
                     $designacao['ownauthcontroller'] = $this->ownauthcontroller;
                     $designacao['segmento'] = $segmento;
+                    $designacao['bi_bloqueio'] = $bi_bloqueio;
 
                     $request->session()->flash('aplicar_qms', serialize($designacao));
                 }
@@ -394,6 +400,7 @@ class RelatoriosController extends Controller
                                                                         ->with('qms_id_nome', $qms_id_nome)
                                                                         ->with('ano_selecionado', $ano_selecionado)
                                                                         ->with('ownauthcontroller', $this->ownauthcontroller)
+                                                                        ->with('rota_bi', $rota_bi)
                                                                         ->with('rota', $rota);
 
 

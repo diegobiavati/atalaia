@@ -106,10 +106,22 @@
     </table>
 
 
-    @if(isset($ownauthcontroller) && $ownauthcontroller->PermissaoCheck(1) && session()->get('login')['omctID'] == 1)
-    <!--Precisa ter perfil super administrador e Uete ESA-->
-    <div class="alert info-aplicar-qms" role="alert" style="margin: 32px auto; width: 96%;"></div>
-    <button id="aplicar_qms" type="button" class="btn {{ ($data['recuperado'] == true) ? 'btn-danger' : 'btn-success' }} btn-lg btn-block" style="margin: 32px auto; width: 96%;">{{ ($data['recuperado'] == true) ? 'Informações Já Registradas, Deseja Remover Para Registrar Novamente?': 'Registrar Alunos na QMS'}}</button>
+    @if(is_null($data['bi_bloqueio']))
+        @if(isset($ownauthcontroller) && $ownauthcontroller->PermissaoCheck(1) && session()->get('login')['omctID'] == 1)
+        <!--Precisa ter perfil super administrador e Uete ESA-->
+        
+        <div class="alert info-aplicar-qms" role="alert" style="margin: 32px auto; width: 96%;"></div>
+        <button id="aplicar_qms" type="button" class="btn {{ ($data['recuperado'] == true) ? 'btn-danger' : 'btn-success' }} btn-lg btn-block" style="margin: 32px auto; width: 96%;">{{ ($data['recuperado'] == true) ? 'Informações Já Registradas, Deseja Remover Para Registrar Novamente?': 'Registrar Alunos na QMS'}}</button>
+
+            @if($data['recuperado'] == true)
+                <div class="form-group" style="margin: 32px auto; width: 96%;">
+                    <input type="text" name="nrbi" class="form-control" id="NrBICmd" placeholder="Número do BI Assinado Pelo CMT da ESA"/>
+                    <small class="form-text text-muted">Após Informar o Número do BI Assinado Pelo CMT da ESA Não Será Possível Alterar As Informações.</small>
+
+                    <button type="button" id="aplicar_bi" class="btn btn-warning btn-lg btn-block" style="margin-top: 10px;">Informar BI Assinado Pelo CMT da ESA</button>
+                </div>
+            @endif
+        @endif
     @endif
 
     <h4 style="margin-top: 52px;">QUANTITATIVO ATENDIDO POR OPÇÃO</h4>
@@ -154,50 +166,61 @@
     $(document).ready(function() {
         $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
 
+        var json = {'_token' : '{{ csrf_token() }}'}
+
         $('#aplicar_qms').click(function(evt) {
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
-            //Aplicar Qms
-            var json = {'_token' : '{{ csrf_token() }}'}
-
-            $.ajax({
-                dataType: 'json',
-                url: "{{$rota or 'rota'}}",
-                type: 'POST',
-                data: json,
-                beforeSend: function(){
-                    $('div.info-aplicar-qms').empty().hide();
-                    $('div.info-aplicar-qms').removeClass('alert-success');
-                    $('div.info-aplicar-qms').removeClass('alert-danger');
-                    $('div.info-aplicar-qms').html('<div id="temp" style="text-align: center; margin: 24px; padding: 24px;"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
-                },
-                success: function(data){
-                    
-                    if(data.status=='success'){
-                        $('div.info-aplicar-qms').addClass('alert-success');
-                        $('div.info-aplicar-qms').html(data.response).slideDown();
-
-                        setTimeout(function(){
-                            $('div.info-aplicar-qms').slideUp(200, function(){
-                                $(this).removeClass('alert-success').empty();
-                            });
-                            location.reload();
-                        }, 5000);
-                    } else {
-                        $('div.info-aplicar-qms').addClass('alert-danger');
-                        $('div.info-aplicar-qms').html('<strong>ATENÇÃO:</strong><br />').slideDown();
-                        $.each(data.response, function(key, value){
-                            $('div.info-aplicar-qms').append('<li>' + value + '</li>');
-                        });
-                    }
-                },
-                error: function(jqxhr){
-                    $('div.info-aplicar-qms').addClass('alert-warning');
-                    $('div.info-aplicar-qms').html('<strong>ATENÇÃO: </strong> Por Motivos de Segurança Após Aplicar QMS dos Alunos é Necessário Recarregar a Página Para Poder Aplicar Novamente!!!').slideDown(); 
-                }         
-            });
+            Aplica('{{$rota}}', json);
         });
 
+        $('#aplicar_bi').click(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+            
+            json.ano_formacao = "{{$data['ano_formacao']->id}}";
+            json.segmento = "{{$data['segmento']}}";
+            json.nota_bi = $('.form-group input[name="nrbi"]').val();
+            Aplica('{{$rota_bi}}', json);
+        });
     });
+
+    function Aplica(rota, json){
+        $.ajax({
+            dataType: 'json',
+            url: rota,
+            type: 'POST',
+            data: json,
+            beforeSend: function(){
+                $('div.info-aplicar-qms').empty().hide();
+                $('div.info-aplicar-qms').removeClass('alert-success');
+                $('div.info-aplicar-qms').removeClass('alert-danger');
+                $('div.info-aplicar-qms').html('<div id="temp" style="text-align: center; margin: 24px; padding: 24px;"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+            },
+            success: function(data){
+
+                if(data.status=='success'){
+                    $('div.info-aplicar-qms').addClass('alert-success');
+                    $('div.info-aplicar-qms').html(data.response).slideDown();
+
+                    setTimeout(function(){
+                        $('div.info-aplicar-qms').slideUp(200, function(){
+                            $(this).removeClass('alert-success').empty();
+                        });
+                        location.reload();
+                    }, 5000);
+                } else {
+                    $('div.info-aplicar-qms').addClass('alert-danger');
+                    $('div.info-aplicar-qms').html('<strong>ATENÇÃO:</strong><br />').slideDown();
+                    $.each(data.response, function(key, value){
+                        $('div.info-aplicar-qms').append('<li>' + value + '</li>');
+                    });
+                }
+            },
+            error: function(jqxhr){
+                $('div.info-aplicar-qms').addClass('alert-warning');
+                $('div.info-aplicar-qms').html('<strong>ATENÇÃO: </strong> Ocorreu um Erro!!!').slideDown(); 
+            }
+        });
+    }
 </script>
 @stop

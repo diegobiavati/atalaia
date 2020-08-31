@@ -5914,4 +5914,48 @@ class AjaxAdminController extends Controller
 
         return response()->json($retorno);
     }
+
+    public function AplicaEscolhaQmsBI(Request $request){
+
+        $retorno['status'] = 'err';
+
+        $parametro[($request->segmento == 'M' ? 'bi_qms_masculino': 'bi_qms_feminino')] = $request->nota_bi;
+        $select = EscolhaQMS::where([['ano_formacao_id', '=', $request->ano_formacao]]);
+
+        $update = $select->update($parametro);
+
+        if($update > 0){
+
+            $info = unserialize( (($request->segmento == 'M' ? $select->first()->escolha_qms_masculino : $select->first()->escolha_qms_feminino)) );
+            
+            Alunos::where([['data_matricula', '=', $request->ano_formacao]
+            , ['sexo', '=', ($request->segmento == 'M' ? 'M': 'F')]])->update(['periodo_cfs' => 'PB', 'qms_id' => null]);
+
+            $qms_aviacao = QMS::where([['segmento', '=', ($request->segmento == 'M' ? 'M': 'F')]
+            , ['qms_alias', '=', 'aviacao']
+            , ['escolha_qms_id', '=', $select->first()->id]])->first();
+
+            //Transfere o Aluno para o 2º Ano de Aviação
+            if(!is_null($info['alunos_aviacao'])){
+                foreach($info['alunos_aviacao'] as $aluno){
+                    Alunos::where([['id', '=', $aluno->id]])->update(['periodo_cfs' => 'AV', 'qms_id' => $qms_aviacao->id]);
+                }
+            }
+            
+            //Transfere o Aluno para o 2º Ano Qualificação
+            if(!is_null($info['aluno'])){
+                foreach($info['aluno'] as $key => $aluno){
+                    Alunos::where([['id', '=', $key]])->update(['periodo_cfs' => 'PQ', 'qms_id' => $aluno['qmsdesignda']]);
+                }
+            }
+            
+            $retorno['status'] = 'success';
+            $retorno['response'][] = 'Informações Registradas Com Sucesso!!!';
+        }else{
+            $retorno['status'] = 'err';
+            $retorno['response'][] = 'Não foi possível Registrar!!!';
+        }
+
+        return response()->json($retorno);
+    }
 }
