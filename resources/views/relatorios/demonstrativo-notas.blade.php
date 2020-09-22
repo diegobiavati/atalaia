@@ -81,16 +81,10 @@
                         {{$mencao_aluno or 'Não calculada'}}
                     </td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">
-                        @php
-                            $key = array_search($class->aluno_id, $class_por_area_seg[$class->aluno->sexo][$class->aluno->area_id]);
-                        @endphp
-                        {{$key + 1}}
+                        {{ $class->classificacao_por_area }}
                     </td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">
-                        @php
-                            $key = array_search($class->aluno_id, $class_geral);
-                        @endphp
-                        {{$key + 1}}
+                        {{ $class->classificacao }}
                     </td>
                 </tr>
         </table> 

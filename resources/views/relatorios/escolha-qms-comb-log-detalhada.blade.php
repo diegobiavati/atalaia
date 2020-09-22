@@ -34,8 +34,8 @@
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Perd Bas</b></td>
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Por area</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br/>Geral</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Por area e Segmento</b></td>
             </tr>
             @foreach ($data['alunos_aviacao'] as $aluno)
                 <tr>
@@ -75,10 +75,11 @@
             @for($i=1;$i<=$total_opcoes;$i++) <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>{{$i}}ª</b></td>
                 @endfor
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Perd Bas</b></td>
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />por area</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Geral</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Por area e Segmento</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Opção atendida</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>QMS<br />Designada</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Por QMS Designada</b></td>
         </tr>
         @foreach ($data['aluno'] as $aluno)
         <tr>
@@ -101,6 +102,7 @@
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['classificacao_por_area']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['opcao_atendido']}}ª</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['qmsdesignda_nome']}}</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['classificacao_qmsdesignda']}}</td>
         </tr>
         @endforeach
     </table>

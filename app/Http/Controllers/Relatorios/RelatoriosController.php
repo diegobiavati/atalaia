@@ -112,86 +112,6 @@ class RelatoriosController extends Controller
         
     }
 
-    
-    public function AlunosEmRecPorDisciplina(OwnAuthController $ownauthcontroller, Request $request) {
-
-
-        if(FuncoesController::validaSessao()){
-            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
-        }
-
-        $disciplina = Disciplinas::find($request->disciplina_id);
-
-        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id);
-
-        // SELECIONANDO TODAS AS AVALIAÇÕES DA DISCIPLINA ACIMA SELECIONADA (inclusive 2 chamadas)
-
-        $avaliacoes = Avaliacoes::where('disciplinas_id', $request->disciplina_id)->where('avaliacao_recuperacao', 0)->get();
-
-        foreach($avaliacoes as $avaliacao){
-            if($avaliacao->chamada==1){
-                $disciplina_razao[] = 1; 
-            }
-
-            $avaliacoesIDs[] = $avaliacao->id;
-
-        }
-
-        $avaliacoesIDs = (isset($avaliacoesIDs))?array_unique($avaliacoesIDs):array(0);
-
-        //$razao = (isset($disciplina_razao))?array_sum($disciplina_razao):1;
-
-        // SELECIONANDO TODAS AS NOTAS (avaliacoes_notas) DE TODAS AVALIAÇÕES EM $avaliacoesIDs
-
-        /*$notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get();
-        
-        foreach($notas as $item){
-            if(!is_null($item->alunos_id)){
-                //$aluno_notas[$item->alunos_id][] = $item->getNota();
-                $aluno_notas[$item->alunos_id]['notas'][] = $item->getNota();
-                $aluno_notas[$item->alunos_id]['avaliacoes'][$item->avaliacao->nome_abrev.' - '.$item->avaliacao->chamada.'ª chamada'] = (object)array('indice_notas' => array_key_last($aluno_notas[$item->alunos_id]['notas']), 'nota' => $item->getNota(), 'nome_abrev' => $item->avaliacao->nome_abrev, 'peso' => $item->avaliacao->peso);
-            }
-        }*/
-        
-        //2ºTen João Victor, Alteração no Cálculo da NOTA
-        $aluno_notas = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
-        //Fim Alteração 2ºTen João Victor
-        
-        if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20)){
-            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
-        } else {
-            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
-        }
-
-        foreach($alunos as $aluno){
-            foreach($aluno_notas as $alunos){
-                if(isset($alunos[$aluno->id]) && ($alunos[$aluno->id]['disciplina_razao'] > 0)){
-                    $media = (array_sum($alunos[$aluno->id]['notas'])/$alunos[$aluno->id]['disciplina_razao']);
-    
-                    if($media<5){
-                        $nd_aluno[$aluno->id] = number_format($media, 3, ',', ''); 
-                        $alunos_em_recuperacao[] = $aluno->id;
-                    }
-                }    
-            }
-        }
-
-        $nd_aluno = ($nd_aluno)??array(0);
-        $alunos_em_recuperacao = ($alunos_em_recuperacao)??array(0);
-
-        //if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20)){
-        if($ownauthcontroller->PermissaoCheck(1)){
-            $alunos = Alunos::whereIn('id', $alunos_em_recuperacao)->orderBy('omcts_id', 'asc')->get();
-        } else {
-            $alunos = Alunos::whereIn('id', $alunos_em_recuperacao)->where('omcts_id', session()->get('login.omctID'))->orderBy('omcts_id', 'asc')->get();
-        }
-        $this->classLog->RegistrarLog('Acessou lista de alunos em recuperação', auth()->user()->email);
-        return view('relatorios.alunos-em-recuperacao-por-disciplina')->with('alunos', $alunos)
-                                                                      ->with('ownauthcontroller', $ownauthcontroller)
-                                                                      ->with('nd_aluno', $nd_aluno)
-                                                                      ->with('ano_selecionado', $ano_selecionado)
-                                                                      ->with('disciplina', $disciplina);       
-    }
 
     public function AlunosConselhoEscolar(Request $request) {
 
@@ -460,7 +380,6 @@ class RelatoriosController extends Controller
 
         if($avaliacao->chamada==2){
             // AVALIAÇAO DE REFERENCIA
-            //$avaliacao->chamada_refer_id
             $ava_ref = Avaliacoes::find($avaliacao->chamada_refer_id);
             $status_pronto_faltas_av_ref = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $ava_ref->id)->get();
         }
@@ -477,50 +396,152 @@ class RelatoriosController extends Controller
 
     public function AlunosRecuperacao(OwnAuthController $ownauthcontroller, Request $request) {
         
+        if(FuncoesController::validaSessao()){
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+        }
+
+        // SELECIONANDO O ANO DE FORMAÇÃO DO RELATÓRIO
+        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id); 
+
         $omcts = OMCT::get();
-        $disciplinas = Disciplinas::get();
+        $disciplinas = Disciplinas::where([['ano_formacao_id', '=', $ano_selecionado->id]])->get();
 
         foreach($disciplinas as $disciplina){
             $disciplina_array[$disciplina->id] = $disciplina->nome_disciplina_abrev;
         }
 
         $disciplina_array[99999] = 'TFM 1';
-        $disciplina_array[88888] = 'TAF 1 RECUPERAÇÃO';
-        
-        // SELECIONANDO O ANO DE FORMAÇÃO DO RELATÓRIO
-        
-        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id);        
+        $disciplina_array[88888] = 'TAF 1 RECUPERAÇÃO';       
         
         if($ownauthcontroller->PermissaoCheck(1)){
-
             // selecioando todos os alunos do ano de formação selecionado de todas UETEs
-            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->orderBy('omcts_id', 'asc')->get(['id']);
-            
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->orderBy('omcts_id', 'asc')->get(['id', 'numero', 'nome_guerra', 'omcts_id', 'turma_id']);
         } else {
-
             // selecioando todos os alunos do ano de formação selecionado DA UETEs DO OPERADOR
-            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id', 'numero', 'nome_guerra', 'omcts_id', 'turma_id']);
         }
 
-        if($alunos){
+        /*if($alunos){
             foreach($alunos as $aluno){
                 $alunosIDs[] = $aluno->id;
             }
         }
 
-        if(isset($alunosIDs)){
+        if(isset($alunosIDs)){*/
+        if(count($alunos) > 0){
 
-            $alunos_classificacao = AlunosClassificacao::whereIn('aluno_id', $alunosIDs)->where('reprovado', 'S')->get();
+            //$alunos_classificacao = AlunosClassificacao::whereIn('aluno_id', $alunosIDs)->where('reprovado', 'S')->get();
 
+            $param['anoFormacao'] = $ano_selecionado;
+            $avaliacoes = Avaliacoes::whereHas('disciplinas', function($q) use ($param){
+                $q->where([['ano_formacao_id', '=', $param['anoFormacao']->id]]);
+            })->get();
+
+            foreach($avaliacoes as $avaliacao){
+                $avaliacoesIDs[] = $avaliacao->id;
+            }
+    
+            $avaliacoesIDs = (isset($avaliacoesIDs))?array_unique($avaliacoesIDs):array(0);
+
+            //2ºTen João Victor, Alteração no Cálculo da NOTA
+            $aluno_notas = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
+            //Fim Alteração 2ºTen João Victor
+
+            $alunos_recuperacao = array();
+
+            
+            foreach($aluno_notas as $key_dsp => $disciplina){
+                foreach($disciplina as $key => $aluno){
+                    if(($aluno['disciplina_razao'] > 0) && ($aluno['media'] < 5)){
+                        
+                        $alunos_recuperacao[$key][$key_dsp] = $aluno;
+                        $alunos_recuperacao[$key]['aluno'] = $alunos->find($key);
+                    }
+                }
+            }
+            
         } else {
             return '<div style="text-align: center;">SEM ALUNOS NO UNIVERSO PARA EXIBIÇÃO</div>';
         }
-        $this->classLog->RegistrarLog('Acessou relatório de alunos em recuperação', auth()->user()->email);
-        return view('relatorios.alunos-em-recuperacao')->with('alunos_classificacao', $alunos_classificacao)
-                                                       ->with('omcts', $omcts)
-                                                       ->with('ano_selecionado', $ano_selecionado)
-                                                       ->with('disciplinas', $disciplina_array);
 
+        $this->classLog->RegistrarLog('Acessou relatório de alunos em recuperação', auth()->user()->email);
+        return view('relatorios.alunos-em-recuperacao')//->with('alunos_classificacao', $alunos_classificacao)
+                                                       ->with('alunos_recuperacao', $alunos_recuperacao)
+                                                       //->with('omcts', $omcts)
+                                                       ->with('ano_selecionado', $ano_selecionado);
+                                                       //->with('disciplinas', $disciplina_array);
+
+    }
+
+    public function AlunosEmRecPorDisciplina(OwnAuthController $ownauthcontroller, Request $request) {
+
+
+        if(FuncoesController::validaSessao()){
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+        }
+
+        $disciplina = Disciplinas::find($request->disciplina_id);
+
+        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id);
+
+        // SELECIONANDO TODAS AS AVALIAÇÕES DA DISCIPLINA ACIMA SELECIONADA (inclusive 2 chamadas)
+
+        $avaliacoes = Avaliacoes::where('disciplinas_id', $request->disciplina_id)->where('avaliacao_recuperacao', 0)->get();
+
+        foreach($avaliacoes as $avaliacao){
+            /*if($avaliacao->chamada==1){
+                $disciplina_razao[] = 1; 
+            }*/
+
+            $avaliacoesIDs[] = $avaliacao->id;
+
+        }
+
+        $avaliacoesIDs = (isset($avaliacoesIDs))?array_unique($avaliacoesIDs):array(0);
+
+        //2ºTen João Victor, Alteração no Cálculo da NOTA
+        $aluno_notas = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
+        //Fim Alteração 2ºTen João Victor
+        
+        if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20)){
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
+        } else {
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
+        }
+
+        foreach($alunos as $aluno){
+            foreach($aluno_notas as $notas){
+                if(isset($notas[$aluno->id]) && ($notas[$aluno->id]['disciplina_razao'] > 0)){
+                    /*$media = (array_sum($alunos[$aluno->id]['notas'])/$alunos[$aluno->id]['disciplina_razao']);
+    
+                    if($media<5){
+                        $nd_aluno[$aluno->id] = number_format($media, 3, ',', ''); 
+                        $alunos_em_recuperacao[] = $aluno->id;
+                    }*/
+                    $media = $notas[$aluno->id]['media'];
+                    if($media<5){
+                        $nd_aluno[$aluno->id] = number_format($media, 3, ',', ''); 
+                        $alunos_em_recuperacao[] = $aluno->id;
+                    }
+                }    
+            }
+        }
+
+        $nd_aluno = ($nd_aluno)??array(0);
+        $alunos_em_recuperacao = ($alunos_em_recuperacao)??array(0);
+
+        //if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(20)){
+        if($ownauthcontroller->PermissaoCheck(1)){
+            $alunos = Alunos::whereIn('id', $alunos_em_recuperacao)->orderBy('omcts_id', 'asc')->get();
+        } else {
+            $alunos = Alunos::whereIn('id', $alunos_em_recuperacao)->where('omcts_id', session()->get('login.omctID'))->orderBy('omcts_id', 'asc')->get();
+        }
+        $this->classLog->RegistrarLog('Acessou lista de alunos em recuperação', auth()->user()->email);
+        return view('relatorios.alunos-em-recuperacao-por-disciplina')->with('alunos', $alunos)
+                                                                      ->with('ownauthcontroller', $ownauthcontroller)
+                                                                      ->with('nd_aluno', $nd_aluno)
+                                                                      ->with('ano_selecionado', $ano_selecionado)
+                                                                      ->with('disciplina', $disciplina);       
     }
 
     public function ClassificacaoGeral(OwnAuthController $ownauthcontroller, Request $request){
@@ -886,7 +907,7 @@ class RelatoriosController extends Controller
                 $q->where('data_matricula', '=', $request->ano_formacao_id);
             })->orderBy('classificacao', 'asc')->get();
             
-            foreach($alunos_classif as $classificacao){
+            /*foreach($alunos_classif as $classificacao){
                 
                 if(isset($classificacao->aluno->sexo)){
                     $class_por_area_seg[$classificacao->aluno->sexo][$classificacao->aluno->area_id][] = $classificacao->aluno_id;
@@ -894,7 +915,7 @@ class RelatoriosController extends Controller
                 
                 // CLASSIFICAÇÃO GERAL                
                 $class_geral[] = $classificacao->aluno_id; 
-            }
+            }*/
            
             $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)->get();
 
@@ -902,9 +923,9 @@ class RelatoriosController extends Controller
             $mencoes = Mencoes::get();
             $this->classLog->RegistrarLog('Acessou demonstrativo de notas', auth()->user()->email);
             return view('relatorios.demonstrativo-notas')->with('alunos_classif', $alunos_classif)
-                                                         ->with('mencoes', $mencoes)        
-                                                         ->with('class_por_area_seg', $class_por_area_seg)      
-                                                         ->with('class_geral', $class_geral);        
+                                                         ->with('mencoes', $mencoes);        
+                                                         //->with('class_por_area_seg', $class_por_area_seg)      
+                                                         //->with('class_geral', $class_geral);        
         
         }
 
@@ -1211,6 +1232,7 @@ class RelatoriosController extends Controller
                                 </tr>';
                 foreach($rfpb as $item){
                     $data_demonstrativo = unserialize($item->data_demonstrativo);
+                    
                     $data[] = '<tr style="border: 1px solid #696969; padding: 12px;">
                                 <td>
                                     '.$item->numero.'
@@ -1219,28 +1241,28 @@ class RelatoriosController extends Controller
                                     '.$data_demonstrativo[0]['media'].'
                                 </td>
                                 <td style="border: 1px solid #696969; padding: 12px;">
-                                    '.$data_demonstrativo[1]['media'].'
+                                    '. ((key_exists(1, $data_demonstrativo)) ? $data_demonstrativo[1]['media'] : '') .'
                                 </td>
                                 <td style="border: 1px solid #696969; padding: 12px;">
-                                    '.$data_demonstrativo[2]['media'].'
+                                    '. ((key_exists(2, $data_demonstrativo)) ? $data_demonstrativo[2]['media'] : '') .'
                                 </td>
                                 <td style="border: 1px solid #696969; padding: 12px;">
-                                    '.$data_demonstrativo[3]['media'].'
+                                    '. ((key_exists(3, $data_demonstrativo)) ? $data_demonstrativo[3]['media'] : '') .'
                                 </td>
                                 <td style="border: 1px solid #696969; padding: 12px;">
-                                    '.$data_demonstrativo[4]['media'].'
+                                    '. ((key_exists(4, $data_demonstrativo)) ? $data_demonstrativo[4]['media'] : '') .'
                                 </td>
                                 <td style="border: 1px solid #696969; padding: 12px;">
-                                    '.$data_demonstrativo[5]['media'].'
+                                    '. ((key_exists(5, $data_demonstrativo)) ? $data_demonstrativo[5]['media'] : '') .'
                                 </td>
                                 <td style="border: 1px solid #696969; padding: 12px;">
-                                    '.$data_demonstrativo[6]['media'].'
+                                    '. ((key_exists(6, $data_demonstrativo)) ? $data_demonstrativo[6]['media'] : '') .'
                                 </td>
                                 <td style="border: 1px solid #696969; padding: 12px;">
-                                    '.$data_demonstrativo[7]['media'].'
+                                    '. ((key_exists(7, $data_demonstrativo)) ? $data_demonstrativo[7]['media'] : '') .'
                                 </td>
                                 <td style="border: 1px solid #696969; padding: 12px;">
-                                    '.$data_demonstrativo[8]['media'].'
+                                    '. ((key_exists(8, $data_demonstrativo)) ? $data_demonstrativo[8]['media'] : '') .'
                                 </td>
                                 <td style="border: 1px solid #696969; padding: 12px;">
                                     '.$item->nota_final.'

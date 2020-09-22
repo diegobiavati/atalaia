@@ -39,8 +39,8 @@ class AjaxUploadsController extends Controller
             $error[] = 'Por favor, utilize imagens com extensão jpeg ou png';
         }
 
-        if(($request->imagem->getClientSize()/1024)>500){
-            $error[] = 'Por favor, utilize imagens de no máximo 500Kb';    
+        if(($request->imagem->getClientSize()/1024)>1024){
+            $error[] = 'Por favor, utilize imagens de no máximo 1024Kb';    
         }
 
         if(!isset($error)){
@@ -99,8 +99,8 @@ class AjaxUploadsController extends Controller
             $error[] = 'Por favor, utilize imagens com extensão jpeg ou png';
         }
 
-        if(($request->aluno_imagem->getClientSize()/1024)>500){
-            $error[] = 'Por favor, utilize imagens de no máximo 500Kb';    
+        if(($request->aluno_imagem->getClientSize()/1024)>1024){
+            $error[] = 'Por favor, utilize imagens de no máximo 1024Kb';    
         }
 
         if(!isset($error)){

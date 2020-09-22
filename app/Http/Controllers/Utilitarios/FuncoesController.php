@@ -148,9 +148,16 @@ class FuncoesController
 
         if (isset($aluno_notas)) {
             foreach ($aluno_notas as $disciplina_id => $disciplina) {
+                
+                $aluno_notas[$disciplina_id]['media_disciplina'] = 0.0;
+                $aluno_notas[$disciplina_id]['max_disciplina'] = 0.0;
+                $aluno_notas[$disciplina_id]['min_disciplina'] = 0.0;
+                $contador_media = 0;
+
                 foreach ($disciplina as $aluno_id => $aluno) {
                     $quantidadeAvaliacao = 0;
                     foreach ($aluno['avaliacoes'] as $key => $aval) {
+                        
                         $quantidadeAvaliacao += $aval->peso;
                         if ($aval->peso > 0) {
                             $aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas] = ($aval->nota * $aval->peso);
@@ -168,7 +175,19 @@ class FuncoesController
                         $aluno_notas[$disciplina_id][$aluno_id]['media'] = 0;
                     }
                     
+                    $aluno_notas[$disciplina_id]['media_disciplina'] += $aluno_notas[$disciplina_id][$aluno_id]['media'];
+                    $aluno_notas[$disciplina_id]['max_disciplina'] = ($aluno_notas[$disciplina_id][$aluno_id]['media'] > $aluno_notas[$disciplina_id]['max_disciplina'] 
+                                                                                    ? $aluno_notas[$disciplina_id][$aluno_id]['media'] 
+                                                                                    : $aluno_notas[$disciplina_id]['max_disciplina']);
+                    $aluno_notas[$disciplina_id]['min_disciplina'] = ((($aluno_notas[$disciplina_id][$aluno_id]['media'] < $aluno_notas[$disciplina_id]['min_disciplina']) 
+                                                                                    || ($aluno_notas[$disciplina_id]['min_disciplina'] == 0)) 
+                                                                                    ? $aluno_notas[$disciplina_id][$aluno_id]['media'] 
+                                                                                    : $aluno_notas[$disciplina_id]['min_disciplina']);
+
+                    $contador_media++;
                 }
+
+                $aluno_notas[$disciplina_id]['media_disciplina'] = $aluno_notas[$disciplina_id]['media_disciplina'] / $contador_media;
             }
             $aluno_notas['alunosID'] = $alunosID;
         }else{

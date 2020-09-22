@@ -2001,7 +2001,6 @@ class AjaxRelatoriosController extends Controller
                                 $disciplinas_reprovado = null;
                             }
 
-                            //$k[$alunoID]['media_final'] = number_format((array_sum($mf)) / (count($k[$alunoID])-1), '10', '.', '');
                             $k[$alunoID]['media_final'] = number_format((array_sum($mf)) / (count($mf)), '10', '.', '');
         
                             unset($mf);
@@ -2009,8 +2008,6 @@ class AjaxRelatoriosController extends Controller
                             unset($disciplinas_reprovado_array);
                         }
     
-                        //$k[$alunoID]['aluno'] = ;
-
                         if(!is_null($alunoID)){
 
                             $class = new AlunosClassificacao;
@@ -2026,28 +2023,23 @@ class AjaxRelatoriosController extends Controller
                     
                         unset($k[$alunoID]);                    
                     }
-                    
-                    // SETANDO A CLASSIFICAÇÃO DE CADA ALUNO 
-
-                    //$set_classif = AlunosClassificacao::where('ano_formacao_id', $id_ano_corrente)->orderBy('nota_final', 'desc')->get(['id']);
-/*                     $set_classif = DB::select("SELECT alunos_classificacao.id FROM alunos_classificacao INNER JOIN alunos ON alunos_classificacao.aluno_id=alunos.id ORDER BY nota_final DESC, precedencia DESC");
-                    $i=0;
-                    foreach($set_classif as $id_tb){
-                    $i++;
-                        $xzy = AlunosClassificacao::find($id_tb->id);
-                        $xzy->classificacao = $i;
-                        $xzy->save();
-                    }
-                    
-                    // SETANADO A CLASSIFICAÇÃO GERAL E POR ÁREAS
-                    */
-
+                   
                     $areas = Areas::get();
                     foreach($areas as $item){
-                        $area[$item->id]=0;
+                        $area['M'][$item->id]=0;
+                        $area['F'][$item->id]=0;
+                        $area['GAAE'][$item->id]=0;
                     } 
 
-                    $set_classif = DB::select("SELECT alunos_classificacao.id, alunos_classificacao.reprovado, alunos.area_id FROM alunos_classificacao INNER JOIN alunos ON alunos_classificacao.aluno_id=alunos.id ORDER BY nota_final DESC, precedencia DESC");
+                    /*
+                    * Faz o Select removendo o 1º GAAE (Saúde e Música)
+                    */
+                    $set_classif = DB::select("SELECT alunos_classificacao.id, alunos.sexo, alunos_classificacao.reprovado, alunos.area_id
+                                    FROM alunos_classificacao
+                                    INNER JOIN alunos ON alunos_classificacao.aluno_id=alunos.id 
+                                    WHERE alunos.data_matricula = $id_ano_corrente
+                                    AND alunos.omcts_id <> 2
+                                    ORDER BY nota_final DESC, precedencia DESC");
                     
                     $i=0;
                     
@@ -2057,8 +2049,8 @@ class AjaxRelatoriosController extends Controller
                             if($id_tb->reprovado=='S'){
                                 $classif = 0;
                             } else {
-                                $area[$id_tb->area_id]++;
-                                $classif = $area[$id_tb->area_id];
+                                $area[$id_tb->sexo][$id_tb->area_id]++;
+                                $classif = $area[$id_tb->sexo][$id_tb->area_id];
                             }
                         } else {
                             $classif=0;
@@ -2067,18 +2059,46 @@ class AjaxRelatoriosController extends Controller
                         $xzy->classificacao_por_area = $classif;
                         $xzy->classificacao = $i;
                         $xzy->save();
-                    }                    
+                    }
+                    /*
+                    * Fim sem 1º GAAE
+                    */
+
+                    /*
+                    * Faz o Select somente com o 1º GAAE (Saúde e Música)
+                    */
+                    $set_class_gaae = DB::select("SELECT alunos_classificacao.id, alunos.sexo, alunos_classificacao.reprovado, alunos.area_id
+                                    FROM alunos_classificacao
+                                    INNER JOIN alunos ON alunos_classificacao.aluno_id=alunos.id 
+                                    WHERE alunos.data_matricula = $id_ano_corrente
+                                    AND alunos.omcts_id = 2
+                                    ORDER BY nota_final DESC, precedencia DESC");
+                    
+                    $i=0;
+                    
+                    foreach($set_class_gaae as $id_tb){
+                        $i++;
+                        if(is_numeric($id_tb->area_id)){
+                            if($id_tb->reprovado=='S'){
+                                $classif = 0;
+                            } else {
+                                $area['GAAE'][$id_tb->area_id]++;
+                                $classif = $area['GAAE'][$id_tb->area_id];
+                            }
+                        } else {
+                            $classif=0;
+                        }
+                        $xzy = AlunosClassificacao::find($id_tb->id);
+                        $xzy->classificacao_por_area = $classif;
+                        $xzy->classificacao = $i;
+                        $xzy->save();
+                    }
+                    /*
+                    * Fim 1º GAAE
+                    */
+                    
                 }
             }
-
-            
-
-
-            //$media = array_sum($alunoNota[1][749]['notas']);
-
-            //var_dump($k);
-
-            // $disciplinasID = array_unique($disciplinasID);
 
             $data['status'] = 'ok';    
             $data['response'] = 'Configurações do relatório foram atualizadas com sucesso!';

@@ -762,8 +762,8 @@
             const file = $(this)[0].files[0];
 
             var fileSize = (file.size / 1000);
-            if (fileSize > 500) {
-                $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 500Kb').slideDown();
+            if (fileSize > 1024) {
+                $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 1024Kb').slideDown();
             } else {
                 const fileReader = new FileReader();
                 fileReader.onloadend = function() {

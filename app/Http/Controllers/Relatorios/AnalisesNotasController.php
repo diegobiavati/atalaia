@@ -32,6 +32,7 @@ use App\Http\Controllers\OwnAuthController;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Utilitarios\FuncoesController;
 use Illuminate\Support\Facades\DB;
 use Khill\Lavacharts\Lavacharts;
 
@@ -82,32 +83,40 @@ class AnalisesNotasController extends Controller
 
             $mencoes = Mencoes::get();
             $avaiacoes_notas = AvaliacoesNotas::whereIn('alunos_id', $alunosIDs)->where('avaliacao_id', $request->avaliacaoID)->get();
-            $avaliacao_data['efetivo'] = AvaliacoesNotas::whereIn('alunos_id', $alunosIDs)->where('avaliacao_id', $request->avaliacaoID)->count();
-            $max = AvaliacoesNotas::whereIn('alunos_id', $alunosIDs)->where('avaliacao_id', $request->avaliacaoID)->max('gbo');
-            $min = AvaliacoesNotas::whereIn('alunos_id', $alunosIDs)->where('avaliacao_id', $request->avaliacaoID)->min('gbo');
-            $media_aritmetica = AvaliacoesNotas::whereIn('alunos_id', $alunosIDs)->where('avaliacao_id', $request->avaliacaoID)->avg('gbo');
 
-            $avaliacao_data['amplitude'] = number_format((($max*10)/$avaliacao->gbm)-(($min*10)/$avaliacao->gbm), 3, ',', '');
-            
-            $max = number_format(($max*10)/$avaliacao->gbm, 3, ',', '');
-            $min = number_format(($min*10)/$avaliacao->gbm, 3, ',', '');
-            $avaliacao_data['media_aritmetica'] = number_format(($media_aritmetica*10)/$avaliacao->gbm, 3, ',', '');
+            $avaliacoes_notas_novo = FuncoesController::recalculaNotaAluno( $avaiacoes_notas );
 
-            $avaliacao_data['maior'] = $max;
-            $avaliacao_data['menor'] = $min;
+            foreach($avaliacoes_notas_novo as $key => $aval_nota){
+                if($key != 'alunosID'){
+                    $avaliacao_data['media_aritmetica'] = number_format($aval_nota['media_disciplina'], 3, ',', '');
+                    $avaliacao_data['maior'] = $aval_nota['max_disciplina'];
+                    $avaliacao_data['menor'] = $aval_nota['min_disciplina'];
 
-            foreach($avaiacoes_notas as $item){
-                if($item->getNota()>=5){
-                    $com_media[] = 1;
-                } else {
-                    $sem_media[] = 1;
-                }
-                foreach($mencoes as $menc){
-                    if($item->getNota()>=$menc->inicio && $item->getNota()<=$menc->fim) {
-                        $mencao[$menc->mencao][] = 1;
+                    foreach($aval_nota as $keyInfo => $info){
+
+                        if(is_numeric($keyInfo)){
+                            if($info['media']>=5){
+                                $com_media[] = 1;
+                            } else {
+                                $sem_media[] = 1;
+                            }
+                            foreach($mencoes as $menc){
+                                if($info['media']>=$menc->inicio && $info['media']<=$menc->fim) {
+                                    $mencao[$menc->mencao][] = 1;
+                                }
+                            }    
+
+                        }
                     }
                 }
             }
+
+            $avaliacao_data['efetivo'] = $avaiacoes_notas->count();
+            
+            $avaliacao_data['amplitude'] = number_format(($avaliacao_data['maior'] - $avaliacao_data['menor']), 3, ',', '');
+            
+            $avaliacao_data['maior'] =  number_format($avaliacao_data['maior'], 3, ',', '');
+            $avaliacao_data['menor'] =  number_format($avaliacao_data['menor'], 3, ',', '');
 
             foreach($mencoes as $menc){
                 if(isset($mencao[$menc->mencao])){
@@ -131,28 +140,38 @@ class AnalisesNotasController extends Controller
 
             for($i=0;$i<=8;$i++){
                 $intervalo[$i] = number_format($i, 1, ',', '').' à '.number_format(($i+0.9), 1, ',', '');
-                foreach($avaiacoes_notas as $item){
-                    if($item->getNota()>=$i && $item->getNota()<=($i+0.999)){
-                        $notas_obtidas[$i][] = 1;    
+                
+                foreach($avaliacoes_notas_novo as $key => $aval_nota){
+                    if($key != 'alunosID'){
+                        foreach($aval_nota as $keyInfo => $info){
+                            if(is_numeric($keyInfo)){
+                                if($info['media']>=$i && $info['media']<=($i+0.999)){
+                                    $notas_obtidas[$i][] = 1;    
+                                }
+                            }
+                        }
                     }
-                }   
+                }
             }
 
             $intervalo[9] = "9,0 à 9,499";
             $intervalo[10] = "9,5 à 10";
 
-            foreach($avaiacoes_notas as $item){
-                if($item->getNota()>=9 && $item->getNota()<=9.499){
-                    $notas_obtidas[9][] = 1;    
-                } else if($item->getNota()>=9.5 && $item->getNota()<=10){
-                    $notas_obtidas[10][] = 1;
+            foreach($avaliacoes_notas_novo as $key => $aval_nota){
+                if($key != 'alunosID'){
+                    foreach($aval_nota as $keyInfo => $info){
+                        if(is_numeric($keyInfo)){
+                            if($info['media']>=9 && $info['media']<=9.499){
+                                $notas_obtidas[9][] = 1;    
+                            } else if($info['media']>=9.5 && $info['media']<=10){
+                                $notas_obtidas[10][] = 1;
+                            }
+                        }
+                    }
                 }
             }
 
         }
-
-        //dd($avaliacao_data);
-        //dd($notas_obtidas);
 
         // INSTANCIANO OS GRÁFICOS DO RELATÓIO
 
@@ -217,7 +236,6 @@ class AnalisesNotasController extends Controller
             $omct = OMCT::find($request->omctID);
             $omct = $omct->sigla_omct;
         }
-
 
         // SEPARANDO O RELATÓRIO CASO NÃO SEJA PARA O TFM
 

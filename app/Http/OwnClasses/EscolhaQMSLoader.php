@@ -371,7 +371,7 @@ class EscolhaQMSLoader
                                     AND alunos.id IN(" . implode(',', $alunos_class) . ")
                                     AND alunos.id NOT IN(" . implode(',', $alunos_aviacao_ID) . ")
                                     ORDER BY classificacao ASC");
-    
+  
             foreach ($alunos as $item) {
                 $alunosIDs[] = $item->id;
             }
@@ -391,9 +391,11 @@ class EscolhaQMSLoader
                 $opcao_atendido[$i] = 1;
                 foreach ($qms_data as $item) {
                     $opcao[$i][$item->id] = 1;
+
+                    $opcao_qms[$item->id] = 1;
                 }
             }
-    
+
             foreach ($alunos as $item) {
                 if (isset($alunos_opcoes[$item->id])) {
                     $o = 0;
@@ -416,11 +418,13 @@ class EscolhaQMSLoader
                                 "qmsdesignda" => $prioridade,
                                 "qmsdesignda_nome" => $qms_id_nome[$prioridade],
                                 "qmsdesignda_nome_sigla" => $qms_id_nome_sigla[$prioridade],
+                                "classificacao_qmsdesignda" => $opcao_qms[$prioridade],
                                 "opcoes" => $alunos_opcoes[$item->id],
                                 "qms_vagas_restantes" => $qms_id_vagas,
                                 "opcao_atendido" => $o
                             );
                             $opcao_atendido[$o]++;
+                            $opcao_qms[$prioridade]++;
                             break;
                         }
                     }

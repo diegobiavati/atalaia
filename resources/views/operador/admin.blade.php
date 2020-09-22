@@ -2136,8 +2136,8 @@ function onMessageArrived(message) {
         function submitForm(formID, action) {
             var input = $('form#' + formID + ' input[type="file"]')[0];
             var fileSize = (input.files[0].size/1000);
-            if(fileSize>500){
-                $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 500Kb').slideDown();
+            if(fileSize>1024){
+                $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 1024Kb').slideDown();
             } else {
                 var fd = new FormData(document.getElementById(formID));
                 $.ajax({

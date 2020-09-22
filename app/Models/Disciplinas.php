@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Controllers\Utilitarios\FuncoesController;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\AvaliacoesNotas;
 
@@ -47,6 +48,7 @@ class Disciplinas extends Model
         $razao = (isset($disciplina_razao))?array_sum($disciplina_razao):1;
 
         if(isset($avaliacoesID)){
+
             $notas_aluno = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesID)->where('alunos_id', $aluno_id)->get();
 
             foreach($notas_aluno as $item){
