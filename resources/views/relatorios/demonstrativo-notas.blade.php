@@ -87,7 +87,70 @@
                         {{ $class->classificacao }}
                     </td>
                 </tr>
-        </table> 
+        </table>
+
+        <div style="margin-top: 10px;">
+            <b><u>Observações :</u></b>
+            <div class="clean"></div>
+                - Classificação por Área e Segmento: classificação válida para o Processo de Escolha de QMS dentro de cada segmento (Masc e Fem) na Área Cmb/Log-Tec/Aviação.
+            <div class="clean" style="margin-top: 10px;"></div>
+                - Classificação Geral: Classificação na Área contendo os segmentos masculino e feminino.
+            <div class="clean" style="margin-top: 10px;"></div>
+                - De acordo com os Art 59 e 67 das NIAA, o grau dos alunos aprovados por decisão do Diretor de Ensino, após o julgamento do Conselho de Ensino, 
+                não será computado para o cálculo da Nota do 1º Ano (N1) e da Nota Final de Curso (NFC), sendo utilizados os graus obtidos na disciplina antes da recuperação.
+            <div class="clean" style="margin-top: 10px;"></div>
+                <b><u>Cálculo Notas :</u></b>
+            <div class="clean"></div>    
+                Avaliação de Acompanhamento (AA): peso 1
+            <div class="clean"></div>    
+                Avaliação de Controle (AC): peso 2
+            <div class="clean" style="margin-top: 10px;"></div>
+                <table>
+                    <tr>
+                        <td style="padding-right: 6px;">Nota da Disciplina (ND) :</td>
+                        <td style="border: 1px solid #000; padding-right: 6px;" rowspan="1"> ND = <u>AA + (2 x AC)</u> <br><center style="padding-left: 30px;">3</center></td>
+                        <td style="padding-right: 6px;"></td>
+                        <td style="border: 1px solid #000; padding-right: 6px;" rowspan="1"> ND = <u>AA1 + AA2 + (2 x AC)</u> <br><center style="padding-left: 30px;">4</center></td>
+                    </tr>
+                </table>
+            <div class="clean" style="margin-top: 10px;"></div>
+                <table>
+                    <tr>
+                        <td style="padding-right: 6px;">Nota do 1º ano CFGS (N1) :</td>
+                        <td style="border: 1px solid #000; padding-right: 6px;" rowspan="1"> N1 = <u>ND1 + ND2 + ... + NDm</u>, onde m é a quantidade de disciplinas <br><center style="padding-right: 230px;">m</center></td>
+                    </tr>
+                </table>
+            <div class="clean" style="margin-top: 10px;"></div>
+                <b><u>Menções :</u></b>   
+            <div class="clean" style="margin-top: 10px;"></div>
+                <table>
+                    <tr>
+                        <td style="border: 1px solid #000; text-align:center; width:80px;">Menção</td>
+                        <td style="border: 1px solid #000; text-align:center; width:120px;">Faixa de Notas</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; text-align:center;">I</td>
+                        <td style="border: 1px solid #000; text-align:center;">0,000 - 4,999</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; text-align:center;">R</td>
+                        <td style="border: 1px solid #000; text-align:center;">5,000 - 6,999</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; text-align:center;">B</td>
+                        <td style="border: 1px solid #000; text-align:center;">7,000 - 7,9999</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; text-align:center;">MB</td>
+                        <td style="border: 1px solid #000; text-align:center;">8,000 - 9,499</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid #000; text-align:center;">E</td>
+                        <td style="border: 1px solid #000; text-align:center;">9,500 - 10,0000</td>
+                    </tr>
+                </table>
+        </div>
+         
     </div>   
     
     {{-- {{var_dump($data_array)}} --}} 

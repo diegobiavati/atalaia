@@ -335,5 +335,8 @@ Route::get('pdfTeste', function(){
     exit();
 });
 
+//Reintegrar Aluno Situacao Diversas
+Route::get('reintegrar/{requisicao}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
+
 //Importador de Arquivo Excel para integrar o banco de dados do SisPB com o Atalaia
 Route::resource('importar-excel-sispb-alunos', 'Utilitarios\ImportadorController');

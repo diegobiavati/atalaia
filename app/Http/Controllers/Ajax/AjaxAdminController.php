@@ -5448,6 +5448,7 @@ class AjaxAdminController extends Controller
                 $table[] = '<td style="text-align: center;">' . $aluno->ano_formacao->formacao . '</td>';
                 $table[] = '<td id="situacao_alunoID_' . $aluno->id . '"><span style="color: #B40404;"><b>' . $aluno->situacao->situacao . '</b></span>' . $observacao . '</td>';
                 $table[] = ($ownauthcontroller->PermissaoCheck(11)) ? '<td style="text-align: center; font-size: 18px;"><a href="javascript: void(0);" class="no-style" onclick="dialogEditarCadastroAlunoSitDivNovo(' . $aluno->id . ');" title="Alterar situação do aluno"> <i class="ion-android-create"></i> </a></td>' : '';
+                //$table[] = ($ownauthcontroller->PermissaoCheck(11)) ? '<td style="text-align: center; font-size: 18px;"><a href="javascript: void(0);" class="no-style" onclick="reintegrarAlunoSituDiversas(' . $aluno->id . ');" title="Reintegrar Aluno no Ano Letivo"> <i class="ion-android-create"></i> </a></td>' : '';
                 $table[] = '</tr>';
             }
 

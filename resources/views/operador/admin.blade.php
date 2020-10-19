@@ -2587,6 +2587,34 @@ function onMessageArrived(message) {
             });             
         }
 
+        /*function reintegrarAlunoSituDiversas(id){
+
+            $.ajax({
+            	type:'PUT',
+                dataType: 'json',
+                data: {
+                        '_token' : '{{ csrf_token() }}',
+                        'requisicao' : 'reintegrar'
+                },
+                url: '/ajax/admin/alunoSitDiversas/' + id,
+                beforeSend: function(){
+                },
+                success: function(data){
+                    $('#modalDinamica div.modal-content').empty();
+
+                    $(data).each(function(key,value){
+                        alert(value);
+                    });
+                },
+                error: function(jqxhr){
+                    setTimeout(function(){
+                        $('div#modalDinamica').modal('hide');
+                        alert('ERRO INTERNO/Violação de acesso!/CARACTERE NÃO PERMITIDO PARA ESTA OPERAÇÃO');
+                    }, 1000);
+                }                    
+            });             
+        }*/
+
         function AdicionarAluSitDiv(dataButton, id){
             var dataButtonContent = $(dataButton).html();
             var dataForm = $('form#incluir_aluno_situacao_diversa').serialize();
