@@ -13,6 +13,14 @@ class Avaliacoes extends Model
         return $this->belongsTo('App\Models\Disciplinas');
     }
 
+    public function avaliacoesMostra(){
+        return $this->hasMany('App\Models\AvaliacoesMostra');
+    }
+
+    public function avaliacoesMostrasRespostas(){
+        return $this->hasMany('App\Models\AvaliacoesMostrasRespostas');
+    }
+
     public function getNota($gbo, $type='') {
         
         /*

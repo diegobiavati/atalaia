@@ -33,6 +33,13 @@
         <span class="badge badge-primary badge-pill"></span>
     </a>
 </li>
+<li class="list-group-item justify-content-between align-items-center menu-list-01">
+    <a id="view-revisao-prova" href="javascript: void(0);">
+        <i class="ion-ios-compose"></i> 
+        Revisão de Prova
+        <span class="badge badge-primary badge-pill"></span>
+    </a>
+</li>
 <!--li class="list-group-item justify-content-between align-items-center menu-list-01">
     <a id="indices-taf-atletas" href="javascript: void(0);">
         <i class="ion-android-walk"></i> 

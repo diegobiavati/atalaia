@@ -56,6 +56,7 @@ use App\Mail\BemVindo;
 use App\Http\OwnClasses\OwnValidator;
 use App\Http\OwnClasses\phpMQTT;
 use App\Http\OwnClasses\ClassLog;
+use App\Models\AvaliacoesMostra;
 use App\Models\AvaliacoesProntoFaltas;
 use App\Models\Comportamento;
 use App\Models\Enquadramentos;
@@ -1366,7 +1367,7 @@ class AjaxAdminController extends Controller
         return $data;
     }
 
-    public function VisaoGeral()
+    public function VisaoGeral(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
         $ano_formacao = ($ano_corrente->id) ?? 0;
@@ -1383,10 +1384,12 @@ class AjaxAdminController extends Controller
         $disciplinas_id = ($disciplinas_id) ?? array(0);
         $avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)->where('data', '>', date('Y-m-d'))->orderBy('data', 'asc')->get();
         return  view('ajax.visao-geral')->with('total_operadores', Operadores::count())
+            ->with('total_mostras', AvaliacoesMostra::whereIn('status', array('P', 'A'))->count())
             ->with('ano_corrente', $ano_corrente)
             ->with('disciplinas', $disciplinas)
             ->with('avaliacoes', $avaliacoes)
-            ->with('alunos', $alunos);
+            ->with('alunos', $alunos)
+            ->with('ownauthcontroller', $ownauthcontroller);
     }
 
     public function Relatorios(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
@@ -1688,7 +1691,26 @@ class AjaxAdminController extends Controller
                                                 <input class="no-style" style="width: 100%;" name="prazo_nota" type="text" value="" maxlength="5" autocomplete="off" placeholder="Prazo para envio de resultado (Nº dias)" />
                                             </div>
                                             <div class="clear"></div>
-                                        </div>                                        
+                                        </div>       
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Data da Mostra">
+                                            <div style="float: left;">
+                                                <i class="ion-ios-calendar" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style data_mask" style="width: 100%;" name="data_mostra" type="text" value="" maxlength="10" autocomplete="off" placeholder="Data da Mostra"/>
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Limite de Dias do Pedido de Mostra">
+                                            <div style="float: left;">
+                                                <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style" style="width: 100%;" name="limite_dias_pedido" type="text" value="" maxlength="5" autocomplete="off" placeholder="Limite de Dias do Pedido de Mostra"/>
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+
                                         <div class="box-dialog-chamadas"></div>
 
                                         <div style="margin: 14px auto; width: 70%; max-width: 380px;">
@@ -1820,6 +1842,9 @@ class AjaxAdminController extends Controller
         $avaliacao->chamada_refer_id = $request->chamada_refer_id ?? 0;
         $avaliacao->avaliacao_recuperacao = 0;
 
+        $avaliacao->data_mostra = FuncoesController::formatDateBrtoEn($request->data_mostra);
+        $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
+
         if (is_array(@explode('/', $request->data_prova)) && strtotime($request->hora_prova)) {
             $data_prova = explode('/', $request->data_prova);
             $data_hora_prova = $data_prova[2] . '-' . $data_prova[1] . '-' . $data_prova[0] . ' ' . $request->hora_prova . ':00';
@@ -1913,6 +1938,7 @@ class AjaxAdminController extends Controller
         $avaliacao = Avaliacoes::find($request->id);
         list($ano, $mes, $dia) = explode('-', $avaliacao->data);
         $data_prova = $dia . '/' . $mes . '/' . $ano;
+        
         /* aqui existem 2 situações: ou é avaliações convencionais ou avaliação de recuperação */
 
         /*
@@ -1990,6 +2016,25 @@ class AjaxAdminController extends Controller
                                             </div>
                                             <div class="clear"></div>
                                         </div>
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Data da Mostra">
+                                            <div style="float: left;">
+                                                <i class="ion-ios-calendar" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style data_mask" style="width: 100%;" name="data_mostra" type="text" value="' . FuncoesController::formatDateEntoBr($avaliacao->data_mostra)  .'" maxlength="10" autocomplete="off" />
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Limite de Dias do Pedido de Mostra">
+                                            <div style="float: left;">
+                                                <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style" style="width: 100%;" name="limite_dias_pedido" type="text" value="' . $avaliacao->limite_dias_pedido . '" maxlength="5" autocomplete="off" />
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+
                                         
                                         <div class="box-dialog-chamadas"></div>
 
@@ -2067,7 +2112,25 @@ class AjaxAdminController extends Controller
                                                 <input class="no-style" style="width: 100%;" name="prazo_nota" type="text" value="' . $avaliacao->prazo_nota . '" maxlength="5" autocomplete="off" placeholder="Prazo para envio de resultado (Nº dias)" />
                                             </div>
                                             <div class="clear"></div>
-                                        </div>                                        
+                                        </div>                       
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Data da Mostra">
+                                            <div style="float: left;">
+                                                <i class="ion-ios-calendar" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style data_mask" style="width: 100%;" name="data_mostra" type="text" value="' . $avaliacao->data_mostra  .'" maxlength="10" autocomplete="off" placeholder="Data da Mostra"/>
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Limite de Dias do Pedido de Mostra">
+                                            <div style="float: left;">
+                                                <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style" style="width: 100%;" name="limite_dias_pedido" type="text" value="' . $avaliacao->limite_dias_pedido . '" maxlength="5" autocomplete="off" placeholder="Limite de Dias do Pedido de Mostra"/>
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>                 
                                         <div style="margin: 14px auto; width: 70%; max-width: 380px;">
                                             <div style="float: left; margin-top: 6px;">
                                                 <i class="ion-chatbubble-working" style="font-size: 24px; color: #696969;"></i>
@@ -2102,19 +2165,18 @@ class AjaxAdminController extends Controller
         $id = $request->id;
         $avaliacao = Avaliacoes::find($id);
         $peso = ($request->peso == '') ? 1 : $request->peso;
+
+        $avaliacao->nome_completo = $request->nome_completo;
+        $avaliacao->nome_abrev = $request->nome_abrev;
+        $avaliacao->gbm = $request->gbm;
+        $avaliacao->prazo_nota = $request->prazo_nota;
+        $avaliacao->observacao = (empty($request->observacao)) ? '' : $request->observacao;
+
+        $avaliacao->data_mostra = FuncoesController::formatDateBrtoEn($request->data_mostra);
+        $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
+        
         if ($avaliacao->avaliacao_recuperacao == 0) {
-            $avaliacao->nome_completo = $request->nome_completo;
-            $avaliacao->nome_abrev = $request->nome_abrev;
-            $avaliacao->gbm = $request->gbm;
             $avaliacao->peso = $peso;
-            $avaliacao->prazo_nota = $request->prazo_nota;
-            $avaliacao->observacao = (empty($request->observacao)) ? '' : $request->observacao;
-        } else {
-            $avaliacao->nome_completo = $request->nome_completo;
-            $avaliacao->nome_abrev = $request->nome_abrev;
-            $avaliacao->gbm = $request->gbm;
-            $avaliacao->prazo_nota = $request->prazo_nota;
-            $avaliacao->observacao = (empty($request->observacao)) ? '' : $request->observacao;
         }
 
         if (is_array(@explode('/', $request->data_prova)) && strtotime($request->hora_prova)) {
@@ -5448,7 +5510,6 @@ class AjaxAdminController extends Controller
                 $table[] = '<td style="text-align: center;">' . $aluno->ano_formacao->formacao . '</td>';
                 $table[] = '<td id="situacao_alunoID_' . $aluno->id . '"><span style="color: #B40404;"><b>' . $aluno->situacao->situacao . '</b></span>' . $observacao . '</td>';
                 $table[] = ($ownauthcontroller->PermissaoCheck(11)) ? '<td style="text-align: center; font-size: 18px;"><a href="javascript: void(0);" class="no-style" onclick="dialogEditarCadastroAlunoSitDivNovo(' . $aluno->id . ');" title="Alterar situação do aluno"> <i class="ion-android-create"></i> </a></td>' : '';
-                //$table[] = ($ownauthcontroller->PermissaoCheck(11)) ? '<td style="text-align: center; font-size: 18px;"><a href="javascript: void(0);" class="no-style" onclick="reintegrarAlunoSituDiversas(' . $aluno->id . ');" title="Reintegrar Aluno no Ano Letivo"> <i class="ion-android-create"></i> </a></td>' : '';
                 $table[] = '</tr>';
             }
 
@@ -5933,7 +5994,7 @@ class AjaxAdminController extends Controller
             , ['sexo', '=', ($request->segmento == 'M' ? 'M': 'F')]])->update(['periodo_cfs' => 'PB', 'qms_id' => null]);
 
             $qms_aviacao = QMS::where([['segmento', '=', ($request->segmento == 'M' ? 'M': 'F')]
-            , ['qms_alias', '=', 'aviacao']
+            , ['qms_alias', '=', ($request->segmento == 'M' ? 'aviacao': 'aviacao_feminino')]
             , ['escolha_qms_id', '=', $select->first()->id]])->first();
 
             //Transfere o Aluno para o 2º Ano de Aviação

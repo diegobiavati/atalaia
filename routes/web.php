@@ -12,6 +12,11 @@ Route::group(['prefix' => 'exportar/modo-impressao', 'as' => 'exportar-modo-impr
     Route::get('portaria/{id}', ['as' => 'portaria', 'uses' => 'Exportar\ExportarImpressaoController@ImprimirPortaria']);
 });
 
+Route::group(['prefix' => 'download', 'as' => 'download.'], function () {
+    Route::get('mostra/{id}/{hash}', ['as' => 'mostra', 'uses' => 'Ajax\AjaxAvaliacoesController@downloadArquivoMostra']);
+    Route::get('reposta-mostra/{id}/{hash}', ['as' => 'reposta-mostra', 'uses' => 'Ajax\AjaxAvaliacoesController@downloadArquivoRespostaMostra']);
+});
+
 Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
 
     /* ROTAS PARA SUPER ADMINISTRADORES E OPERADORES (MENU PRINCIPAL)*/
@@ -49,9 +54,14 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('fatd/{id}', 'Ajax\LancamentosController@ViewTelaFATD');
     Route::get('ficha-fatd', ['as' => 'ficha-fatd', 'uses' => 'Ajax\LancamentosController@ViewFichaFATD']);
     Route::post('fatdSargenteante/{id}', 'Ajax\LancamentosController@LancarFatdSargenteante');    
-    
+    Route::get('view-revisao-prova', 'Ajax\AjaxAvaliacoesController@ViewRevisaoProva');
+    Route::post('aprova-revisao-prova-uete/{id}', 'Ajax\AjaxAvaliacoesController@AprovaRevisaoUete');
+
     Route::get('view-frad-aluno/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewFradAluno');
     Route::get('consulta-frad-aluno', 'Relatorios\RelatorioAlunoController@ViewRelacaoFradAlunos');
+
+    Route::get('view-rod-aluno/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRodAluno');
+    Route::get('consulta-rod-aluno', 'Relatorios\RelatorioAlunoController@ViewRelacaoRodAlunos');
 
     Route::get('view-ficha-disciplinar/{id_ano_formacao}', 'Ajax\AjaxAdminController@ViewSelecaoUeteAluno');
     Route::post('view-ficha-disciplinar/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoFDisciplinarAlunos');
@@ -61,6 +71,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
 
     Route::get('view-relacao-reprovados/{id_ano_formacao}', 'Ajax\AjaxAdminController@ViewAlunosReprovados');
     Route::post('view-relacao-reprovados/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoAlunoReprovado');
+    
 
     /* ROTA PARA O CHAT COM ALUNO VIA TELEGRAM */
 
@@ -151,6 +162,8 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
 
     //Atualização João
     Route::post('upload/img-aluno/{tipo}/{id}', 'Ajax\AjaxUploadsController@UploadImgAluno');
+    Route::post('upload/arquivo-mostra/{arquivo}', 'Ajax\AjaxAvaliacoesController@uploadArquivoMostra');
+    Route::post('upload/resposta-arquivo-mostra/{arquivo}', 'Ajax\AjaxAvaliacoesController@uploadRepostaArquivoMostra');
 
     Route::post('upload/importCSV', 'Ajax\AjaxUploadsController@ImportCSV');
     Route::post('atualizar-operador/{id}', 'Ajax\AjaxAdminController@AtualizarOperador');

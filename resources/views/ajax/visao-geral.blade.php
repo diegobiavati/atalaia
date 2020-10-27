@@ -39,6 +39,21 @@
         <div style="background-color: #088A4B; border-radius: 3px 3px 0 0;">
             <div style="text-align: center; color: #fff; padding: 10px;">
               <i class="ion-ios-people" style="font-size: 44px;"></i><br />
+              <h5>PEDIDOS DE REVISÃO</h5>
+            </div>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title"><b>Total Pendentes</b></h5>
+          <p class="card-text" style="text-align: center; font-size: 44px;">
+              {{$total_mostras}}
+          </p>
+        </div>
+    </div>
+    @if($ownauthcontroller->PermissaoCheck(1))
+    <div class="card">
+        <div style="background-color: #088A4B; border-radius: 3px 3px 0 0;">
+            <div style="text-align: center; color: #fff; padding: 10px;">
+              <i class="ion-ios-people" style="font-size: 44px;"></i><br />
               <h5>OPERADORES</h5>
             </div>
         </div>
@@ -52,6 +67,7 @@
           </p>
         </div>
     </div>
+    @endif
     <div class="card">
         <div style="background-color: #088A4B; border-radius: 3px 3px 0 0;">
           <div style="text-align: center; color: #fff; padding: 10px;">
@@ -78,7 +94,8 @@
     </div>        
   </div>
 
-  <div class="card-deck" style="margin-top: 36px;">
+    @if($ownauthcontroller->PermissaoCheck(1))
+    <div class="card-deck" style="margin-top: 36px;">
         <div class="card">
                 <div style="background: #088A4B; border-radius: 3px 3px 0 0;">
                   <div style="text-align: center; color: #fff; padding: 10px;">
@@ -124,6 +141,7 @@
           </div>
         </div>
     </div>
+    @endif
 
     <script>
 

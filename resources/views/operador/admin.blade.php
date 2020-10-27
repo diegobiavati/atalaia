@@ -147,6 +147,15 @@ function onMessageArrived(message) {
                 @include('menu_admin_operadores')            
             @else
             
+                @if($ownauthcontroller->PermissaoCheck(26))
+                    <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                        <a id="visao-geral" href="javascript: void(0);">                
+                            <i class="ion-ios-eye"></i>
+                            Visão geral
+                            <span class="badge badge-primary badge-pill"></span>
+                        </a>
+                    </li>
+                @endif
                 @if($ownauthcontroller->PermissaoCheck(18)) <!-- Visão geral restrita a respectiva UETE -->
                     <li class="list-group-item justify-content-between align-items-center menu-list-01">
                         <a id="visao-geral-omct" href="javascript: void(0);">                
@@ -170,6 +179,15 @@ function onMessageArrived(message) {
                         <a id="avaliacoes" href="javascript: void(0);">
                             <i class="ion-ios-compose"></i> 
                             Avaliações
+                            <span class="badge badge-primary badge-pill"></span>
+                        </a>
+                    </li>
+                @endif
+                @if($ownauthcontroller->PermissaoCheck(26))
+                    <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                        <a id="view-revisao-prova" href="javascript: void(0);">
+                            <i class="ion-ios-compose"></i> 
+                            Revisão de Prova
                             <span class="badge badge-primary badge-pill"></span>
                         </a>
                     </li>

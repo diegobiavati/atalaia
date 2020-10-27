@@ -1,4 +1,7 @@
 <?php
+
+use App\Http\Controllers\Ajax\AjaxAvaliacoesController;
+
 foreach($uetes as $uete){
   $combo_uete[] = '<option value='.$uete->id.' '.((isset($aluno) && $uete->id == $aluno->uetes_id) ? 'selected' : '').'>'. $uete->omct .'</option>';
 }
@@ -95,6 +98,58 @@ foreach($uetes as $uete){
                           $opcoes_avaliacao = '';  
                         }
 
+                        $opcoes_mostra = null;
+                        $opcoes_resposta_mostra = null;
+
+                        $liberacao_mostra = false;
+
+                        //Se for perfil ESA
+                        if((isset($avaliacao->data_mostra)) && in_array(1, session()->get('login')['perfil']) || in_array(8, session()->get('login')['perfil'])){
+                            $liberacao_mostra = true;
+                        }else if((isset($avaliacao->data_mostra)) && in_array(3, session()->get('login')['perfil'])){//Se for Perfil Sgt SPPA
+                            $liberacao_mostra = true;
+                        }
+
+                        if($liberacao_mostra){
+
+                            $opcoes_mostra = '<div id="div_mostra_'.$avaliacao->id.'" class="card text-white bg-info" style="margin: 10px;">
+                                                <div class="card-header">
+                                                  Pedido de Revisão de Prova
+                                                </div>';
+
+                            //Se for perfil Sgt SPPA e estiver dentro do prazo deixa fazer o upload de arquivo...
+                            if(in_array(3, session()->get('login')['perfil']) && strtotime(date('Y-m-d')) >= strtotime($avaliacao->data_mostra)
+                              && strtotime(date('Y-m-d')) <= strtotime($avaliacao->data_mostra.'+ '.$avaliacao->limite_dias_pedido.' days')){
+
+                                $opcoes_mostra .= '<div class="card-body">
+                                                      <form id="form_mostra_'. $avaliacao->id .'">
+                                                        <input type="hidden" name="_token" value="'.csrf_token().'">
+
+                                                      <div class="alert alert-danger erro-upload" role="alert" style="display: none;"></div>
+                                                      <div class="progress" style="margin-top: 36px; display: none;">
+                                                         <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                                                      </div>
+                                                      <div class="custom-file" style="float:right;">
+                                                         <input type="file" class="custom-file-input" name="arquivo_mostra_'.$avaliacao->id.'" id="arquivo_mostra_'.$avaliacao->id.'" onchange="enviarArquivo(\'form_mostra_'. $avaliacao->id .'\', \'ajax/upload/arquivo-mostra/arquivo_mostra_'.$avaliacao->id.'\');" accept=".pdf">
+                                                         <label class="custom-file-label" style="border-color: #007bff;" for="arquivo_mostra">Escolha o arquivo</label>
+                                                      </div>
+                                                     </form>
+                                                   </div>';
+                            }
+                            
+                            $avaliacaoController = new AjaxAvaliacoesController();
+
+                            $opcoes_mostra .= $avaliacaoController->ViewListaArquivoMostra($avaliacao->avaliacoesMostra).'</div>';
+
+                            $opcoes_resposta_mostra = '<div id="div_resposta_mostra_'.$avaliacao->id.'" class="card text-white bg-danger" style="margin: 10px;">
+                                                <div class="card-header">
+                                                  Solução de Pedido de Revisão de Prova
+                                                </div>';
+
+                            $opcoes_resposta_mostra .= $avaliacaoController->ViewListaArquivoRepostaMostra($avaliacao->avaliacoesMostrasRespostas).'</div>';
+                                                
+                        }
+                        
                         $data_avaliacao[] = ' <div class="card text-white '.$style_color_chamada.' mb-3">
                                                 <div class="card-header">
                                                   <div style="float: left; margin-top: 4px;">
@@ -123,7 +178,15 @@ foreach($uetes as $uete){
                                                     <div style="float: right;">
                                                       '.$opcoes_avaliacao.'
                                                     </div>
+
                                                     <div class="clear"></div>
+                                                    '.$opcoes_mostra.'
+                                                    <div class="clear"></div>
+
+                                                    <div class="clear"></div>
+                                                    '.$opcoes_resposta_mostra.'
+                                                    <div class="clear"></div>
+
                                                     <div id="content-opcoes-avaliacaoID_'.$avaliacao->id.'"></div>
                                                   </div>
                                               </div>';
@@ -213,4 +276,56 @@ foreach($uetes as $uete){
             }
     }); 
 
+    function enviarArquivo(formID, action) {
+        var input = $('form#' + formID + ' input[type="file"]')[0];
+        var fileSize = (input.files[0].size/1000);
+        if(fileSize>1024){
+            $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 1024Kb').slideDown();
+        } else {
+            var fd = new FormData(document.getElementById(formID));
+            $.ajax({
+                cache: false,
+                dataType: 'json',
+                url: action,
+                type: "POST",
+                data: fd,
+                enctype: 'multipart/form-data',
+                xhr: function() {
+                    var xhr = $.ajaxSettings.xhr();
+                    xhr.upload.onprogress = function(e) {
+                        $('div.progress div').css('width', (Math.floor(e.loaded / e.total *100))-(1) + '%');
+                    };
+                    return xhr;
+                },            
+                beforeSend: function() {
+                    $('div.erro-upload').slideUp(100);                            
+                    $('div.progress').slideDown(100);                            
+                },
+                success: function(data) {
+                    if(data.success=='ok'){
+                        $('div.progress div').css('width', '100%');
+                        setTimeout(function(){
+                            $('div.progress').slideUp(100, function(){
+                                $('div.progress div').css('width', '0%');
+                            });    
+                        }, 400);
+
+                        $('div#div_mostra_' + data.id+' .card-footer').empty();
+                        $('div#div_mostra_' + data.id+' .card-footer').html(data.html);
+                        
+                    }else{
+                        $('div.erro-upload').html(data.error).slideDown();    
+                    }
+                },
+                error: function(jqxhr){
+                    $('div.erro-upload').html('Houve um erro ao tentar enviar o arquivo').slideDown();
+                    $('div.progress').slideUp(100, function(){
+                        $('div.progress div').css('width', '0%');
+                    });    
+                },                                                             
+                processData: false,  // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
+            });
+        }
+    }
 </script>

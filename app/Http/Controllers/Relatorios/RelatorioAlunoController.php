@@ -85,6 +85,17 @@ class RelatorioAlunoController extends Controller
             ->with('ownauthcontroller', $this->ownauthcontroller);
     }
 
+    public function ViewRodAluno(Request $request)
+    {
+        $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
+
+        $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
+
+        //Repassando para a view
+        return view('relatorios.relacao-rod-aluno', compact('uetes', 'anoFormacao'))
+            ->with('ownauthcontroller', $this->ownauthcontroller);
+    }
+
     function RelacaoAlunosProntos(Request $request)
     {
 
@@ -221,6 +232,44 @@ class RelatorioAlunoController extends Controller
     }
 
     private function selectAlunosFrad($idAnoFormacao, $where)
+    {
+        return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
+                                    FROM alunos
+                                    INNER JOIN lancamento_fo ON (lancamento_fo.aluno_id = alunos.id)
+                                        WHERE alunos.data_matricula = $idAnoFormacao
+                                        $where
+                                        AND ( lancamento_fo.fatd = 'S' OR lancamento_fo.frad = 'S')
+                                    GROUP BY alunos.id");
+    }
+
+    public function ViewRelacaoRodAlunos(Request $request){
+        $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
+
+        $rota = 'relatorios.relacao-rod-aluno';
+
+        $rotaGeral = 'relatorios.relacao-rod-geral';
+        $idOmct = $request->omctID;
+
+        $where = '';
+        if ($request->omctID != 'todas_omct') {
+            $where .= ' AND alunos.omcts_id = ' . $request->omctID;
+        }
+
+        if (isset($request->numero_aluno)) {
+            $where .= ' AND alunos.numero = ' . $request->numero_aluno;
+        }
+
+        if (isset($request->nome_aluno)) {
+            $where .= " AND alunos.nome_completo LIKE '%$request->nome_aluno%'";
+        }
+
+        dd('Veio');
+        $alunos = $this->selectAlunosFrad($anoFormacao->id, $where);
+
+        return view('relatorios/ficha-rod-do-aluno', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idOmct'));
+    }
+
+    private function selectAlunosRod($idAnoFormacao, $where)
     {
         return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
                                     FROM alunos

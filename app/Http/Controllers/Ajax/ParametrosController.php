@@ -99,7 +99,9 @@ class ParametrosController extends Controller
                                         $(document).ready(function() {
                                             
                                             $('.btn.btn-secondary').click(function() {
+                                                
                                                 carregaOpcao('parametros', 'tela|'+$('input[name=\"ano_formacao\"]:checked').val());
+                                                
                                             });
                                         });
 
@@ -110,8 +112,8 @@ class ParametrosController extends Controller
                                                 type: 'GET',
                                                 dataType: 'json',
                                                 url: '/ajax/' + tipo + '/' + item,
-                                                beforeSend: function() {
-                                                    if(itemSplit[0] != 'grid'){
+                                                beforeSend: function() {    
+                                                    if(itemSplit[0] != 'grid' && itemSplit[0] != 'rod'){
                                                         $('div#parametros-content').empty();
                                                         $('div#parametros-content').html('<div id=\"temp\"><img src=\"/images/loadings/loading_01.svg\" style=\"width: 24px; margin-right: 8px;\" /> Aguarde, carregando...</div>');
                                                     }
@@ -121,14 +123,17 @@ class ParametrosController extends Controller
                                                         $('div#tableInfo').empty();
                                                         $('div#parametros-content').append(data.response);
                                                         
+                                                    }else if(itemSplit[0] == 'rod'){
+                                                        $('div#temp').fadeOut(300, function() {
+                                                            $('div#parametros-content').html(data.response);
+                                                        });
                                                     }else{
                                                         $('div#temp').fadeOut(300, function() {
                                                             $(this).remove();
                                                             $('div#parametros-content').empty();
                                                             $('div#parametros-content').html(data.response);
 
-                                                            carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
-                                                            
+                                                            //carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
                                                         });
                                                     }
                                                 },
@@ -148,6 +153,7 @@ class ParametrosController extends Controller
                                                     url: '/ajax/parametrosDeleteInfo/' + id,
                                                     success: function(data){
                                                         carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
+                                                        
                                                     }
                                                 });
                                             });
@@ -258,6 +264,8 @@ class ParametrosController extends Controller
                                                                 $('button#submit-parametros').click(function(){
                                                                     updateInfo();
                                                                 });
+
+                                                                carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
                                                             });
 
 
@@ -372,6 +380,12 @@ class ParametrosController extends Controller
 
                 $data['response'] = $data['response'] . view('admin.parametros.candidatosAguardandoAprov', compact('parametros'));
                 break;
+            case 'rod':
+                $anoFormacao = AnoFormacao::find($id[1]);
+                $parametros = Parametros::where('ano_formacao_id', '=', $anoFormacao->id)->first();
+
+                $data['response'] = 'Veio';//view('admin.parametros.parametroROD', compact('parametros'));
+                break; 
             default:
                 break;
         }

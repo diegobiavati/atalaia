@@ -22,7 +22,7 @@ class AdminOpController extends Controller
             $data[$funcao->id] = $funcao->funcao_abrev;
         }
         
-        if($ownauthcontroller->PermissaoCheck([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,24])){
+        if($ownauthcontroller->PermissaoCheck([1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,24,26])){
         
             return view('operador.admin')->with('img_perfil', ($img->imagem)??'')
                                         ->with('operador', $operador)
