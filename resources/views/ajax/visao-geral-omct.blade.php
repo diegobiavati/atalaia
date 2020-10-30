@@ -68,10 +68,22 @@
             </div>
         </div>
         <div class="card-body">
-          <h5 class="card-title"><b>Total Pendentes</b></h5>
-          <p class="card-text" style="text-align: center; font-size: 44px;">
-              {{$total_mostras}}
-          </p>
+            <h5 class="card-title"><b>Pendentes</b></h5>
+            <p class="card-text" style="text-align: center; font-size: 1.725rem;">
+                @foreach($mostras_pendentes as $mostras)
+                <ul style="margin-bottom: 0rem;">
+                    <font style="color: #FF4000;"><b>{{$mostras->avaliacoes->nome_abrev}} </b> <span style="color: #696969;"><i>{{ $mostras->avaliacoes->disciplinas->nome_disciplina_abrev }}</i></span> - {{ $mostras->omct->sigla_omct }}</font>
+                </ul>    
+                @endforeach
+            </p>
+            <h5 class="card-title"><b>Recebidos</b></h5>
+            <p class="card-text" style="text-align: center; font-size: 1.725rem;">
+                @foreach($mostras_resolvidas as $mostras)
+                <ul style="margin-bottom: 0rem;">
+                    <font style="color: #FF4000;"><b>{{$mostras->avaliacoes->nome_abrev}} </b> <span style="color: #696969;"><i>{{ $mostras->avaliacoes->disciplinas->nome_disciplina_abrev }}</i></span> - {{ $mostras->omct->sigla_omct }}</font>
+                </ul>    
+                @endforeach
+            </p>
         </div>
     </div>
 
@@ -143,7 +155,7 @@
         <div style="background-color: #088A4B; border-radius: 3px 3px 0 0;">
             <div style="text-align: center; color: #fff; padding: 10px;">
                 <i class="ion-ios-compose" style="font-size: 44px;"></i><br />
-                <h5>AVALIAÇÕES</h5>
+                <h5>AVALIAÇÕES/PEDIDOS DE REVISÃO</h5>
             </div>
         </div>
         <div class="card-body">
@@ -157,6 +169,9 @@
                 @if(count($avaliacoes)>0)
                 @foreach($avaliacoes as $avaliacao)
                 <li style="color: #FF4000;"><b>{{$avaliacao->nome_completo}} </b> de <span style="color: #696969;"><i>{{$avaliacao->disciplinas->nome_disciplina_abrev}}</i></span> ({{strftime('%A, %d de %B de %Y às %H:%M', strtotime($avaliacao->data.' '.$avaliacao->hora))}})</li>
+                        <ul>
+                            <li style="color: #2C00FF;">Prazo Para o Pedido de Revisão ({{(isset($avaliacao->limite_dias_pedido) ? strftime('%A, %d de %B de %Y às 23:59', strtotime($avaliacao->data_mostra.' + '.$avaliacao->limite_dias_pedido.' days')) : 'Não Cadastrado')}})</li>
+                        </ul>
                 @endforeach
                 @else
                 Sem avaliações nos próximos dias

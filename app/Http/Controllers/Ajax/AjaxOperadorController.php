@@ -26,6 +26,7 @@ use App\Models\LancamentoFo;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\AlunosVoluntAv;
 use App\Models\AvaliacoesMostra;
+use App\Models\AvaliacoesMostrasRespostas;
 use App\Models\EscolhaAviacaoStatus;
 use App\Models\OMCT;
 use Exception;
@@ -58,7 +59,10 @@ class AjaxOperadorController extends Controller
             $disciplinas_id[] = $disciplina->id;
         }
         $disciplinas_id = ($disciplinas_id) ?? array(0);
-        $avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)->where('data', '>', date('Y-m-d'))->orderBy('data', 'asc')->get();
+        //$avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)->where('data', '>', date('Y-m-d'))->orderBy('data', 'asc')->get();
+        $avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)
+        ->whereRaw('DATE_ADD(avaliacoes.data_mostra, INTERVAL avaliacoes.limite_dias_pedido DAY) >= CURRENT_DATE')
+        ->orderBy('data', 'asc')->get();
 
         $param = $ano_formacao;
         $lancamentoFo = LancamentoFo::whereHas('aluno', function ($query) use ($param) {
@@ -77,7 +81,9 @@ class AjaxOperadorController extends Controller
         if ($ownauthcontroller->PermissaoCheck(18)) {
             $omct_id = session()->get('login.omctID');
             return view('ajax.visao-geral-omct')->with('total_operadores', Operadores::count())
-                ->with('total_mostras', AvaliacoesMostra::where('omct_id', $omct_id)->whereIn('status', array('P', 'A'))->count())
+                ->with('mostras_pendentes', AvaliacoesMostra::where('omct_id', $omct_id)->whereIn('status', array('P', 'A'))->get())
+                ->with('mostras_resolvidas', AvaliacoesMostrasRespostas::where([['omct_id', '=', $omct_id], ['visualizado', '=', 'N']])->get())
+                //->with('total_mostras', AvaliacoesMostra::where('omct_id', $omct_id)->whereIn('status', array('P', 'A'))->count())
                 ->with('ano_corrente', $ano_corrente)
                 ->with('disciplinas', $disciplinas)
                 ->with('avaliacoes', $avaliacoes)

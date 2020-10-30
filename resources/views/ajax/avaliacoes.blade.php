@@ -142,14 +142,16 @@ foreach($uetes as $uete){
                             $opcoes_mostra .= $avaliacaoController->ViewListaArquivoMostra($avaliacao->avaliacoesMostra).'</div>';
 
                             $opcoes_resposta_mostra = '<div id="div_resposta_mostra_'.$avaliacao->id.'" class="card text-white bg-danger" style="margin: 10px;">
-                                                <div class="card-header">
-                                                  Solução de Pedido de Revisão de Prova
-                                                </div>';
+                                                          <div class="card-header">
+                                                              Solução de Pedido de Revisão de Prova
+                                                          </div>';
 
-                            $opcoes_resposta_mostra .= $avaliacaoController->ViewListaArquivoRepostaMostra($avaliacao->avaliacoesMostrasRespostas).'</div>';
-                                                
+                            $opcoes_resposta_mostra .= $avaliacaoController->ViewListaArquivoRepostaMostra($avaliacao).'</div>';
                         }
                         
+                        $dataMostra = (isset($avaliacao->data_mostra) ? strftime('%A, %d de %B de %Y às %H:%M', strtotime($avaliacao->data_mostra)) : null);
+                        $dataLimiteMostra = (isset($avaliacao->limite_dias_pedido) ? strftime('%A, %d de %B de %Y às 23:59', strtotime($avaliacao->data_mostra.' + '.$avaliacao->limite_dias_pedido.' days')) : null);
+
                         $data_avaliacao[] = ' <div class="card text-white '.$style_color_chamada.' mb-3">
                                                 <div class="card-header">
                                                   <div style="float: left; margin-top: 4px;">
@@ -169,7 +171,9 @@ foreach($uetes as $uete){
                                                   <p style="margin-top: -10px;"></p>
                                                     <b>GBM:</b> '.$avaliacao->gbm.' <br />
                                                     <b>Peso:</b> '.$avaliacao->peso.'<br />
-                                                    <b>Limite para laçamento de grau:</b> <cite title="Source Title">'.strftime('%A, %d de %B de %Y às %H:%M', strtotime("+".$avaliacao->prazo_nota." days", strtotime($avaliacao->data.' '.$avaliacao->hora))).'</cite> 
+                                                    <b>Limite para laçamento de grau:</b> <cite title="Source Title">'.strftime('%A, %d de %B de %Y às %H:%M', strtotime("+".$avaliacao->prazo_nota." days", strtotime($avaliacao->data.' '.$avaliacao->hora))).'</cite><br /> 
+                                                    <b>Data da Mostra:</b> <cite title="Source Title">'.$dataMostra.'</cite><br /> 
+                                                    <b>Limite do Pedido de Revisão da Prova:</b> <cite title="Source Title">'.$dataLimiteMostra.'</cite> 
                                                   </p>
                                                   <p class="card-text">'.$avaliacao->observacao.'</p>
                                                   </div>

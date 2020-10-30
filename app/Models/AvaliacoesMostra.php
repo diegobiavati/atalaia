@@ -15,4 +15,8 @@ class AvaliacoesMostra extends Model
     public function omct(){
         return ($this->belongsTo('App\Models\OMCT', 'omct_id', 'id')) ?? 'Não informada';
     }
+
+    public function avaliacoes(){
+        return ($this->belongsTo('App\Models\Avaliacoes', 'avaliacoes_id', 'id')) ?? 'Não informada';
+    }
 }

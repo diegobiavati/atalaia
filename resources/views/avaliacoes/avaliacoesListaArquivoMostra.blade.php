@@ -47,7 +47,7 @@
                         @if($permitido)
                             <tr>
                                 <td style="text-align: center;">{{ $mostra->id }}</td>
-                                <td><a href="download/mostra/{{ $mostra->id }}/{{ $nome_arquivo }}" target="_blank">{{ $nome_arquivo }}</a></td>
+                                <td><a href="download/mostra/{{ $mostra->id }}/{{ $nome_arquivo }}" target="_blank">Pedido de Revisão de Prova {{ $mostra->id }}</a></td>
                                 <td>{{ $mostra->omct->sigla_omct }}</td>
                                 <td style="text-align: left;">{{ date('d/m/Y H:i:s', strtotime($mostra->created_at)) }}</td>
                                 <td style="text-align: center;"><i class="{{ $iconClass }}" style="font-size:25px;{{ $iconColor }}" onclick={{ $onclick }} ></i></td>

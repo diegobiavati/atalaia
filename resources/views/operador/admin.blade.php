@@ -146,7 +146,6 @@ function onMessageArrived(message) {
             @if($ownauthcontroller->PermissaoCheck(1))
                 @include('menu_admin_operadores')            
             @else
-            
                 @if($ownauthcontroller->PermissaoCheck(26))
                     <li class="list-group-item justify-content-between align-items-center menu-list-01">
                         <a id="visao-geral" href="javascript: void(0);">                
@@ -174,7 +173,7 @@ function onMessageArrived(message) {
                             </a>                
                     </li>
                 @endif
-                @if($ownauthcontroller->PermissaoCheck(3)) <!-- Visão geral restrita a respectiva UETE -->
+                @if($ownauthcontroller->PermissaoCheck(3) || $ownauthcontroller->PermissaoCheck(27)) <!-- Visão geral restrita a respectiva UETE -->
                     <li class="list-group-item justify-content-between align-items-center menu-list-01">
                         <a id="avaliacoes" href="javascript: void(0);">
                             <i class="ion-ios-compose"></i> 

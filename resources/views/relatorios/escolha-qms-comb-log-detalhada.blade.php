@@ -32,6 +32,7 @@
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Ordem</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Al Nr</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome Completo</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br/>Geral</b></td>
@@ -42,8 +43,9 @@
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$loop->index + 1}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->numero}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->nome_guerra}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->nome_completo}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->omct->sigla_omct}}</td>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->nota_final_arredondada}}</td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($aluno->classificacao->nota_final_arredondada, 3, ',', '.')}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->classificacao}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->classificacao_por_area}}</td>
                 </tr>    
@@ -71,6 +73,7 @@
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Ordem</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Al Nr</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome</b></td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome Completo</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
             @for($i=1;$i<=$total_opcoes;$i++) <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>{{$i}}ª</b></td>
                 @endfor
@@ -86,6 +89,7 @@
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$loop->index + 1}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['numero']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['nome_guerra']}}</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['nome']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['omct']}}</td>
             @foreach($aluno['opcoes'] as $opcao)
             @if($aluno['qmsdesignda']==$opcao)

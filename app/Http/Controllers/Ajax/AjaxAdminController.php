@@ -57,6 +57,7 @@ use App\Http\OwnClasses\OwnValidator;
 use App\Http\OwnClasses\phpMQTT;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\AvaliacoesMostra;
+use App\Models\AvaliacoesMostrasRespostas;
 use App\Models\AvaliacoesProntoFaltas;
 use App\Models\Comportamento;
 use App\Models\Enquadramentos;
@@ -1382,9 +1383,16 @@ class AjaxAdminController extends Controller
             $disciplinas_id[] = $disciplina->id;
         }
         $disciplinas_id = ($disciplinas_id) ?? array(0);
-        $avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)->where('data', '>', date('Y-m-d'))->orderBy('data', 'asc')->get();
+        //$avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)->where('data', '>', date('Y-m-d'))->orderBy('data', 'asc')->get();
+
+        $avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)
+        ->whereRaw('DATE_ADD(avaliacoes.data_mostra, INTERVAL avaliacoes.limite_dias_pedido DAY) >= CURRENT_DATE')
+        ->orderBy('data', 'asc')->get();
+
         return  view('ajax.visao-geral')->with('total_operadores', Operadores::count())
-            ->with('total_mostras', AvaliacoesMostra::whereIn('status', array('P', 'A'))->count())
+            ->with('mostras_pendentes', AvaliacoesMostra::whereIn('status', array('P', 'A'))->get())
+            ->with('mostras_resolvidas', AvaliacoesMostrasRespostas::where([['visualizado', '=', 'N']])->get())
+            //->with('total_resolvidos', AvaliacoesMostrasRespostas::whereIn('status', array('P', 'A'))->count())
             ->with('ano_corrente', $ano_corrente)
             ->with('disciplinas', $disciplinas)
             ->with('avaliacoes', $avaliacoes)

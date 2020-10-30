@@ -26,14 +26,14 @@ class AjaxAvaliacoesController extends Controller
         return view('avaliacoes.avaliacoesListaArquivoMostra', compact('avaliacoesMostra'));
     }
 
-    public function ViewListaArquivoRepostaMostra(Collection $avaliacoesMostra)
+    public function ViewListaArquivoRepostaMostra(Avaliacoes $avaliacao)
     {
 
         if (!is_null(FuncoesController::validaSessao())) {
             return;
         }
         
-        return view('avaliacoes.avaliacoesListaArquivoRespostaMostra', compact('avaliacoesMostra'));
+        return view('avaliacoes.avaliacoesListaArquivoRespostaMostra', compact('avaliacao'));
     }
 
     public function uploadArquivoMostra(Request $request)
@@ -101,7 +101,7 @@ class AjaxAvaliacoesController extends Controller
         
         $avaliacoes = Avaliacoes::find($explode[2]);
 
-        $retorno['html'] = $this->ViewListaArquivoRepostaMostra($avaliacoes->avaliacoesMostrasRespostas)->render();
+        $retorno['html'] = $this->ViewListaArquivoRepostaMostra($avaliacoes)->render();
         $retorno['id'] = $explode[2];
         
         return $retorno;
@@ -143,14 +143,14 @@ class AjaxAvaliacoesController extends Controller
             return;
         }
 
-        $avaliacoesMostra = AvaliacoesMostrasRespostas::where([['id', '=', $request->id], ['nome_arquivo', 'like', '%'.$request->hash.'%']])->first();
+        $avaliacoesMostraRespostas = AvaliacoesMostrasRespostas::where([['id', '=', $request->id], ['nome_arquivo', 'like', '%'.$request->hash.'%']])->first();
 
-        if(in_array(8, session()->get('login')['perfil'])){
-            $avaliacoesMostra->update(['status' => 'A']);//Atualiza para Status em Análise caso seja alguém com perfil de SSAA
+        if(!isset($avaliacoesMostraRespostas->operador_visu_id) && (session()->get('login')['omctID'] <> 1)){
+            $avaliacoesMostraRespostas->update(['visualizado' => 'S', 'operador_visu_id' => session()->get('login')['operadorID']]);//Atualiza para Status em Análise caso seja alguém com perfil de SSAA
         }
         
-        $args = array('download_path'   =>	pathinfo($avaliacoesMostra->nome_arquivo, PATHINFO_DIRNAME).'/',
-                      'file'			=>	pathinfo($avaliacoesMostra->nome_arquivo, PATHINFO_BASENAME),		
+        $args = array('download_path'   =>	pathinfo($avaliacoesMostraRespostas->nome_arquivo, PATHINFO_DIRNAME).'/',
+                      'file'			=>	pathinfo($avaliacoesMostraRespostas->nome_arquivo, PATHINFO_BASENAME),		
                       'extension_check'	=>	TRUE,
                       'referrer_check'	=>	FALSE,
                       'referrer'		=>	NULL

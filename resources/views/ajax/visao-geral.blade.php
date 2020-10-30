@@ -43,10 +43,22 @@
             </div>
         </div>
         <div class="card-body">
-          <h5 class="card-title"><b>Total Pendentes</b></h5>
-          <p class="card-text" style="text-align: center; font-size: 44px;">
-              {{$total_mostras}}
-          </p>
+            <h5 class="card-title"><b>Pendentes</b></h5>
+            <p class="card-text" style="text-align: center; font-size: 1.725rem;">
+                @foreach($mostras_pendentes as $mostras)
+                <ul style="margin-bottom: 0rem;">
+                    <font style="color: #FF4000;"><b>{{$mostras->avaliacoes->nome_abrev}} </b> <span style="color: #696969;"><i>{{ $mostras->avaliacoes->disciplinas->nome_disciplina_abrev }}</i></span> - {{ $mostras->omct->sigla_omct }}</font>
+                </ul>    
+                @endforeach
+            </p>
+            <h5 class="card-title"><b>Recebidos</b></h5>
+            <p class="card-text" style="text-align: center; font-size: 1.725rem;">
+                @foreach($mostras_resolvidas as $mostras)
+                <ul style="margin-bottom: 0rem;">
+                    <font style="color: #FF4000;"><b>{{$mostras->avaliacoes->nome_abrev}} </b> <span style="color: #696969;"><i>{{ $mostras->avaliacoes->disciplinas->nome_disciplina_abrev }}</i></span> - {{ $mostras->omct->sigla_omct }}</font>
+                </ul>    
+                @endforeach
+            </p>
         </div>
     </div>
     @if($ownauthcontroller->PermissaoCheck(1))
@@ -93,8 +105,7 @@
         </div>
     </div>        
   </div>
-
-    @if($ownauthcontroller->PermissaoCheck(1))
+    @if($ownauthcontroller->PermissaoCheck(1) || $ownauthcontroller->PermissaoCheck(27))
     <div class="card-deck" style="margin-top: 36px;">
         <div class="card">
                 <div style="background: #088A4B; border-radius: 3px 3px 0 0;">
@@ -104,15 +115,17 @@
                     </div>          
                 </div>
                 <div class="card-body">
+                      @if($ownauthcontroller->PermissaoCheck(1))
                       <div class="link_rapido_menu" style="position: absolute; width: 56px; height: 56px; right: 5%; margin-top: -48px; border-radius: 50%; background-color: #fff; box-shadow: 1px 1px 8px #696969; text-align: center; padding-top: 10px;">
                           <a href="javascript: void:(0);" class="no-style" style="font-size: 24px;" onclick="$('a#gerenciar-disciplinas').click();"><i class="ion-edit"></i></a>
                       </div> 
+                      @endif
                   <h5 class="card-title"><b>Cadastradas</b></h5>
                   <p class="card-text">
                       @forelse($disciplinas as $disciplina)
                           <li style="color: #FF4000;">{{$disciplina->nome_disciplina_abrev}}</li>
                       @empty
-                          Não á disciplinas cadastradas
+                          Não há disciplinas cadastradas
                       @endforelse
                   </p>
                 </div>
@@ -121,7 +134,7 @@
           <div style="background-color: #088A4B; border-radius: 3px 3px 0 0;">
               <div style="text-align: center; color: #fff; padding: 10px;">
                 <i class="ion-ios-compose" style="font-size: 44px;"></i><br />
-                <h5>AVALIAÇÕES</h5>
+                <h5>AVALIAÇÕES/PEDIDOS DE REVISÃO</h5>
               </div>
           </div>
           <div class="card-body">
@@ -133,6 +146,9 @@
                 @if(count($avaliacoes)>0)
                     @foreach($avaliacoes as $avaliacao)
                     <li style="color: #FF4000;"><b>{{$avaliacao->nome_completo}} </b> de <span style="color: #696969;"><i>{{$avaliacao->disciplinas->nome_disciplina_abrev}}</i></span> ({{strftime('%A, %d de %B de %Y às %H:%M', strtotime($avaliacao->data.' '.$avaliacao->hora))}})</li>
+                        <ul>
+                            <li style="color: #2C00FF;">Prazo Para o Pedido de Revisão ({{(isset($avaliacao->limite_dias_pedido) ? strftime('%A, %d de %B de %Y às 23:59', strtotime($avaliacao->data_mostra.' + '.$avaliacao->limite_dias_pedido.' days')) : 'Não Cadastrado')}})</li>
+                        </ul>
                     @endforeach
                 @else
                     Sem avaliações nos próximos dias

@@ -9,6 +9,8 @@
         </h4>
 
         <p class="card-text">
+        @if(sizeOf($avaliacoesMostra) > 0)
+        
             @foreach($avaliacoesMostra as $avaliacoes)
             <?
                 $disciplina = $avaliacoes->disciplinas;
@@ -39,12 +41,12 @@
 
                 $opcoes_mostra .= $avaliacaoController->ViewListaArquivoMostra($avaliacoes->avaliacoesMostra).'</div>';
 
-                $opcoes_resposta_mostra = '<div id="div_resposta_mostra_'.$avaliacoes->id.'" class="card text-white bg-danger" style="margin: 10px;">
+                /*$opcoes_resposta_mostra = '<div id="div_resposta_mostra_'.$avaliacoes->id.'" class="card text-white bg-danger" style="margin: 10px;">
                                                 <div class="card-header">
                                                   Solução de Pedido de Revisão de Prova
-                                                </div>';
+                                                </div>';*/
 
-                if(in_array(8, session()->get('login')['perfil'])){
+                /*if(in_array(8, session()->get('login')['perfil'])){
                     
                     foreach($avaliacoes->avaliacoesMostra as $avaliacoesMostra){
                       $omctsId[] = $avaliacoesMostra->omct_id;
@@ -84,11 +86,20 @@
                                                       </div>
                                                     </form>
                                                 </div>';
-                }
+                }*/
                 
-                $opcoes_resposta_mostra .= $avaliacaoController->ViewListaArquivoRepostaMostra($avaliacoes->avaliacoesMostrasRespostas).'</div>';
+                $opcoes_resposta_mostra = '<div id="div_resposta_mostra_'.$avaliacoes->id.'" class="card text-white bg-danger" style="margin: 10px;">
+                                                          <div class="card-header">
+                                                              Solução de Pedido de Revisão de Prova
+                                                          </div>';
+
+                $opcoes_resposta_mostra .= $avaliacaoController->ViewListaArquivoRepostaMostra($avaliacoes).'</div>';
 
                 $data_avaliacao = null;
+
+                $dataMostra = (isset($avaliacoes->data_mostra) ? strftime('%A, %d de %B de %Y às %H:%M', strtotime($avaliacoes->data_mostra)) : null);
+                $dataLimiteMostra = (isset($avaliacoes->limite_dias_pedido) ? strftime('%A, %d de %B de %Y às 23:59', strtotime($avaliacoes->data_mostra.' + '.$avaliacoes->limite_dias_pedido.' days')) : null);
+
                 $data_avaliacao[] = ' <div class="card text-white '.$style_color_chamada.' mb-3">
                                                 <div class="card-header">
                                                   <div style="float: left; margin-top: 4px;">
@@ -106,6 +117,8 @@
                                                     <b>GBM:</b> '.$avaliacoes->gbm.' <br />
                                                     <b>Peso:</b> '.$avaliacoes->peso.'<br />
                                                     <b>Limite para laçamento de grau:</b> <cite title="Source Title">'.strftime('%A, %d de %B de %Y às %H:%M', strtotime("+".$avaliacoes->prazo_nota." days", strtotime($avaliacoes->data.' '.$avaliacoes->hora))).'</cite> 
+                                                    <b>Data da Mostra:</b> <cite title="Source Title">'.$dataMostra.'</cite><br /> 
+                                                    <b>Limite do Pedido de Revisão da Prova:</b> <cite title="Source Title">'.$dataLimiteMostra.'</cite> 
                                                   </p>
                                                   <p class="card-text">'.$avaliacoes->observacao.'</p>
                                                   </div>
@@ -150,66 +163,14 @@
                 </div>
 
             @endforeach
+            
+        @else
+          <div style="text-align: center;">
+              <label class="custom-control-label">
+                  <font style="font-size: 1.05rem;">Não Existem Solicitações de Revisão de Provas Pendentes.</font>
+              </label>
+          </div>
+        @endif
         </p>
     </div>
 </div>
-<script>
-  /*Para Mostrar o Arquivo na Caixa de Seleção*/
-  $('.custom-file-input').on('change',function(){
-    var fileName = $(this).val();
-    $(this).next('.custom-file-label').addClass("selected").html(fileName);
-  });
-
-  function enviarArquivo(formID, action) {
-        var input = $('form#' + formID + ' input[type="file"]')[0];
-        var fileSize = (input.files[0].size/1000);
-        if(fileSize>1024){
-            $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 1024Kb').slideDown();
-        } else {
-            var fd = new FormData(document.getElementById(formID));
-            $.ajax({
-                cache: false,
-                dataType: 'json',
-                url: action,
-                type: "POST",
-                data: fd,
-                enctype: 'multipart/form-data',
-                xhr: function() {
-                    var xhr = $.ajaxSettings.xhr();
-                    xhr.upload.onprogress = function(e) {
-                        $('div.progress div').css('width', (Math.floor(e.loaded / e.total *100))-(1) + '%');
-                    };
-                    return xhr;
-                },            
-                beforeSend: function() {
-                    $('div.erro-upload').slideUp(100);                            
-                    $('div.progress').slideDown(100);                            
-                },
-                success: function(data) {
-                    if(data.success=='ok'){
-                        $('div.progress div').css('width', '100%');
-                        setTimeout(function(){
-                            $('div.progress').slideUp(100, function(){
-                                $('div.progress div').css('width', '0%');
-                            });    
-                        }, 400);
-
-                        $('div#div_resposta_mostra_' + data.id+' .card-footer').empty();
-                        $('div#div_resposta_mostra_' + data.id+' .card-footer').html(data.html);
-                        
-                    }else{
-                        $('div.erro-upload').html(data.error).slideDown();    
-                    }
-                },
-                error: function(jqxhr){
-                    $('div.erro-upload').html('Houve um erro ao tentar enviar o arquivo').slideDown();
-                    $('div.progress').slideUp(100, function(){
-                        $('div.progress div').css('width', '0%');
-                    });    
-                },                                                             
-                processData: false,  // tell jQuery not to process the data
-                contentType: false   // tell jQuery not to set contentType
-            });
-        }
-    }
-</script>
