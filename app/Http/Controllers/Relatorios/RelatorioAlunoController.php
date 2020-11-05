@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\FPDF\PDF;
+use App\Http\FPDF\ROD_PDF;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\Alunos;
 use App\Models\AlunosClassificacao;
@@ -18,6 +19,7 @@ use App\Models\Fatd;
 use App\Models\LancamentoFo;
 use App\Models\Mencoes;
 use App\Models\OMCT;
+use App\Models\Parametros;
 use App\Models\SituacaoMatricula;
 use App\Models\SituacoesDiversas;
 use Illuminate\Support\Facades\DB;
@@ -262,22 +264,49 @@ class RelatorioAlunoController extends Controller
         if (isset($request->nome_aluno)) {
             $where .= " AND alunos.nome_completo LIKE '%$request->nome_aluno%'";
         }
-
-        dd('Veio');
-        $alunos = $this->selectAlunosFrad($anoFormacao->id, $where);
+       
+        $alunos = $this->selectAlunosRod($anoFormacao->id, $where);
 
         return view('relatorios/ficha-rod-do-aluno', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idOmct'));
     }
 
     private function selectAlunosRod($idAnoFormacao, $where)
     {
+        
+        
         return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
                                     FROM alunos
                                     INNER JOIN lancamento_fo ON (lancamento_fo.aluno_id = alunos.id)
                                         WHERE alunos.data_matricula = $idAnoFormacao
                                         $where
-                                        AND ( lancamento_fo.fatd = 'S' OR lancamento_fo.frad = 'S')
+                                        ".$this->whereConteudoRod($idAnoFormacao)."
                                     GROUP BY alunos.id");
+    }
+
+    private function whereConteudoRod($idAnoFormacao){
+        $parametros = Parametros::where('ano_formacao_id', $idAnoFormacao)->first();
+
+        
+        $conteudoAtitudinal = json_decode($parametros->conteudo_atitudinal_rod);
+        
+        if(is_null($conteudoAtitudinal)){
+            $conteudoAtitudinal = [0];
+        }
+
+        $whereRod = ' AND ( ';    
+        
+        $i = 0;
+        foreach($conteudoAtitudinal as $key => $item){
+            if($i > 0){
+                $whereRod .= ' OR ';
+            }
+            $whereRod .= 'JSON_CONTAINS(lancamento_fo.conteudo_atitudinal, \''.$item.'\', \'$\')';
+            $i++;
+        }
+       
+        $whereRod .= ' ) ';
+        
+        return $whereRod;
     }
 
     public function RelatorioRelacaoAlunos(Request $request)
@@ -413,6 +442,161 @@ class RelatorioAlunoController extends Controller
         exit();
     }
 
+    public function RelatorioRODAlunos(Request $request)
+    {
+
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+
+        $alunos = array();
+        if (isset($request->omct)) {
+            $where = '';
+            if ($request->omct != 'todas_omct') {
+                $where .= ' AND alunos.omcts_id = ' . $request->omct;
+            }
+
+            $alunos = $this->selectAlunosRod($request->idAnoFormacao, $where);
+        } else {
+            array_push($alunos, (object) array('id' => $request->aluno));
+        }
+        
+        $parametros = Parametros::where('ano_formacao_id', $request->idAnoFormacao)->first();
+
+        $conteudoAtitudinal = json_decode($parametros->conteudo_atitudinal_rod);
+        $conteudoAtitudinal = ConteudoAtitudinal::whereIn('id', $conteudoAtitudinal)->get();
+
+        $pdf = new ROD_PDF('L');
+        $pdf->SetAutoPageBreak(true);
+        $pdf->AliasNbPages();
+
+        $pdf->setTitle(utf8_decode('Relatório de Observação do Discente'));
+
+        $limiteQuebra = 160;
+        
+        foreach ($alunos as $key) {
+
+            $aluno = Alunos::find($key->id);
+
+            $pdf->setAluno($aluno);
+            
+            $aluno->load(['lancamento_fo' => function ($relation) use ($conteudoAtitudinal){
+                $i = 0;
+                foreach ($conteudoAtitudinal as $conteudo) {
+                    if($i > 0){
+                        $relation->orWhereJsonContains('conteudo_atitudinal', $conteudo->id);
+                    }else{
+                        $relation->WhereJsonContains('conteudo_atitudinal', $conteudo->id);
+                    }
+                    $i++;
+                }
+            }]);
+
+            
+            $pdf->AddPage();
+
+            $pdf->SetFont('Times', 'B', 10);
+
+            $pdf->SetXY(10, 11);
+            $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C');
+            $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C');
+            $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C');
+            $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C');
+            $pdf->SetFont('Times', 'B', 8);
+
+            $pdf->Rect(250, 5, 25.2, 30.2);
+
+            $pdf->Cell(0, 4, utf8_decode($aluno->omct->omct), 0, 1, 'C');
+            $pdf->SetFont('Times', 'B', 12);
+            $pdf->ln(5);
+            $pdf->Cell(0, 4, utf8_decode('RELATÓRIO DE OBSERVAÇÃO DO DISCENTE'), 0, 1, 'C');
+
+            $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 250, 5, 25, 30);
+
+            $pdf->SetXY(200, $pdf->getHorizontal());
+
+            foreach ($conteudoAtitudinal as $conteudo) {
+                
+                if($pdf->getY() > 160){
+                    $pdf->AddPage();
+                }
+
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->ln(5);
+
+                $pdf->SetFillColor(211,211,211);
+                $pdf->Cell(278, 7, utf8_decode($conteudo->descricao), 1, 1, 'C', true);
+
+                $pdf->SetFont('Times', 'B', 8);
+                
+                $pdf->Cell(23, 7, 'Data', 1, 0, 'C');
+                $pdf->Cell(210, 7, utf8_decode('Situação a Ser Relatada/Observação Relevante'), 1, 0, 'C');
+                $pdf->Cell(45, 7, utf8_decode('Visto do Discente'), 1, 1, 'C');
+
+                $pdf->SetFont('Times', '', 8);
+
+                $pdf->SetWidths(array(23, 210, 45));
+                $pdf->SetAligns(array('C', 'C', 'C'));
+
+                foreach ($aluno->lancamento_fo as $lancamento) {
+                    if(in_array($conteudo->id, json_decode($lancamento->conteudo_atitudinal))){
+                        if($pdf->getY() > 180){
+                            $pdf->AddPage();
+                        }
+                        $pdf->Row(array(FuncoesController::formatDateEntoBr($lancamento->data_obs), utf8_decode($lancamento->observacao), null), 8);
+                    }
+                }
+            }
+
+            if((190 - $pdf->getY()) < 88){// se o final da folha menos a posição atual vertical seja menor que 88 adiciona página...
+                $pdf->AddPage();
+            }
+
+            $pdf->ln(5);
+
+            $pdf->SetFont('Times', 'B', 10);
+            $pdf->Cell(245, 8, 'Local', 1, 0, 'C', true);
+            $pdf->Cell(33, 8, 'Data', 1, 1, 'C', true);
+
+            $pdf->SetFont('Times', 'U', 10);
+
+            $pdf->Cell(245, 20, str_pad('', 150, ' '), 'L', 0, 'C');
+            
+            $pdf->SetFont('Times', '', 10);
+
+            $pdf->Cell(33, 10, '', 'L,R', 1, 'C');
+            $pdf->Cell(245, 10, '(Cidade-UF)', 'L,B,R', 0, 'C');
+            $pdf->Cell(33, 10, '_____/_____/_____', 'B,R', 1, 'C');
+
+            $pdf->ln(5);
+
+            $pdf->SetFont('Times', 'B', 10);
+            $pdf->Cell(92.66, 8, utf8_decode('Nome e Assinatura do Adjunto de Pelotão'), 1, 0, 'C', true);
+            $pdf->Cell(92.66, 8, utf8_decode('Nome e Assinatura do Comandante de Pelotão'), 1, 0, 'C', true);
+            $pdf->Cell(92.66, 8, 'Nome e Assinatura do Instrutor Chefe do Curso/Companhia', 1, 1, 'C', true);
+            
+            
+            $pdf->SetFont('Times', 'U', 10);
+
+            $pdf->Cell(92.66, 20, str_pad('', 80, ' '), 'L,R', 0, 'C');
+            $pdf->Cell(92.66, 20, str_pad('', 80, ' '), 'R', 0, 'C');
+            $pdf->Cell(92.66, 20, str_pad('', 80, ' '), 'R', 0, 'C');
+            $pdf->Cell(92.66, 10, '', 0, 1, 'C');
+
+            $pdf->SetFont('Times', '', 10);
+
+            $pdf->Cell(92.66, 8, str_pad('', 80, ' '), 0, 0, 'C');
+            $pdf->Cell(92.66, 8, str_pad('', 80, ' '), 0, 0, 'C');
+            $pdf->Cell(92.66, 8, str_pad('', 80, ' '), 0, 1, 'C');
+
+            $pdf->Cell(92.66, 10, '(Nome - P/GRAD)', 'L,R,B', 0, 'C');
+            $pdf->Cell(92.66, 10, '(Nome - P/GRAD)', 'R,B', 0, 'C');
+            $pdf->Cell(92.66, 10, '(Nome - P/GRAD)', 'R,B', 1, 'C');
+        }
+
+        $pdf->Output('I', 'Ficha_ROD.pdf');
+        exit();
+    }
 
     public function ViewRelacaoFDisciplinarAlunos(Request $request)
     {

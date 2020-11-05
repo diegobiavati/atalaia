@@ -121,13 +121,13 @@ class PDF extends FPDF
         $this->aligns = $a;
     }
 
-    function Row($data)
+    function Row($data, $height=5)
     {
         //Calculate the height of the row
         $nb = 0;
         for ($i = 0; $i < count($data); $i++)
             $nb = max($nb, $this->NbLines($this->widths[$i], $data[$i]));
-        $h = 5 * $nb;
+        $h = $height * $nb;
         //Issue a page break first if needed
         $this->CheckPageBreak($h);
         //Draw the cells of the row
@@ -140,7 +140,7 @@ class PDF extends FPDF
             //Draw the border
             $this->Rect($x, $y, $w, $h);
             //Print the text
-            $this->MultiCell($w, 5, $data[$i], 0, $a);
+            $this->MultiCell($w, $height, $data[$i], 0, $a);
             //Put the position to the right of the cell
             $this->SetXY($x + $w, $y);
         }

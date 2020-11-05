@@ -62,6 +62,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
 
     Route::get('view-rod-aluno/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRodAluno');
     Route::get('consulta-rod-aluno', 'Relatorios\RelatorioAlunoController@ViewRelacaoRodAlunos');
+    Route::post('rod-conteudo-atitudinal', 'Ajax\ParametrosController@store');
 
     Route::get('view-ficha-disciplinar/{id_ano_formacao}', 'Ajax\AjaxAdminController@ViewSelecaoUeteAluno');
     Route::post('view-ficha-disciplinar/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoFDisciplinarAlunos');
@@ -274,6 +275,9 @@ Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
     Route::get('relacao-ficha-individual-aluno', ['as' => 'relacao-ficha-individual-aluno', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioRelacaoAlunos']);
     Route::get('relacao-frad-aluno', ['as' => 'relacao-frad-aluno', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFRADAlunos']);
     Route::get('relacao-frad-geral', ['as' => 'relacao-frad-geral', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFRADAlunos']);
+
+    Route::get('relacao-rod-aluno', ['as' => 'relacao-rod-aluno', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioRODAlunos']);
+    Route::get('relacao-rod-geral', ['as' => 'relacao-rod-geral', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioRODAlunos']);
 
     Route::get('ficha-disciplinar-aluno', ['as' => 'ficha-disciplinar-aluno', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFichaDisciplinarAlunos']);
     Route::get('ficha-disciplinar-geral', ['as' => 'ficha-disciplinar-geral', 'uses' => 'Relatorios\RelatorioAlunoController@RelatorioFichaDisciplinarAlunos']);

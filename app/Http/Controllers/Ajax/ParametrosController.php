@@ -8,6 +8,7 @@ use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\AnoFormacao;
 use App\Models\Areas;
+use App\Models\ConteudoAtitudinal;
 use App\Models\MapaOutrosDados;
 use App\Models\OMCT;
 use App\Models\Parametros;
@@ -50,27 +51,46 @@ class ParametrosController extends Controller
      */
     public function store(Request $request)
     {
-
-        if (!isset($request->textCandidatosAguardando)) {
-            $retorno['status'] = 'erro';
-            $retorno['response'] = 'Informe os Candidatos Que Estão Aguardando Aprovação.';
-        }
-
-        if (isset($retorno)) {
-            return response()->json($retorno);
-        }
-
         if (!$parametros = Parametros::find($request->idParametro)) {
             $parametros = new Parametros();
         }
 
-        $parametros->ano_formacao_id = $request->anoFormacao;
-        $parametros->candidato_aguar_aprov = $request->textCandidatosAguardando;
+        switch($request->path()){
+            case 'ajax/rod-conteudo-atitudinal':
+                if(isset($request->conteudo)){//Caso conteúdo atitudinal
 
-        $parametros->save();
+                    foreach($request->conteudo as $conteudo){
+                        $conteudoAtitudinal[] = (int)$conteudo;
+                    }
 
-        $retorno['status'] = 'success';
-        $retorno['response'] = 'Candidatos Gravado no Sistema.';
+                    $parametros->ano_formacao_id = $request->anoFormacao;
+                    $parametros->conteudo_atitudinal_rod = json_encode($conteudoAtitudinal);
+            
+                    $parametros->save();
+
+                    $retorno['status'] = 'success';
+                    $retorno['response'] = 'Conteúdos Atitudinais Gravados no Sistema.';
+                }else{
+                    $retorno['status'] = 'erro';
+                    $retorno['response'] = 'Informe os Conteúdos Atitudinais.';
+                }
+            break;
+            default:
+                if(isset($request->textCandidatosAguardando)){//Caso Seja somente os candidatos aguardando aprovação    
+
+                    $parametros->ano_formacao_id = $request->anoFormacao;
+                    $parametros->candidato_aguar_aprov = $request->textCandidatosAguardando;
+            
+                    $parametros->save();
+            
+                    $retorno['status'] = 'success';
+                    $retorno['response'] = 'Candidatos Gravado no Sistema.';
+                }else{
+                    $retorno['status'] = 'erro';
+                    $retorno['response'] = 'Informe os Candidatos Que Estão Aguardando Aprovação.';
+                }
+            break;
+        }
 
         return response()->json($retorno);
     }
@@ -100,12 +120,12 @@ class ParametrosController extends Controller
                                             
                                             $('.btn.btn-secondary').click(function() {
                                                 
-                                                carregaOpcao('parametros', 'tela|'+$('input[name=\"ano_formacao\"]:checked').val());
+                                                carregaOpcaoParametros('parametros', 'tela|'+$('input[name=\"ano_formacao\"]:checked').val());
                                                 
                                             });
                                         });
 
-                                        function carregaOpcao(tipo, item) {
+                                        function carregaOpcaoParametros(tipo, item) {
                                             itemSplit = item.split('|');
 
                                             $.ajax({
@@ -124,16 +144,14 @@ class ParametrosController extends Controller
                                                         $('div#parametros-content').append(data.response);
                                                         
                                                     }else if(itemSplit[0] == 'rod'){
-                                                        $('div#temp').fadeOut(300, function() {
-                                                            $('div#parametros-content').html(data.response);
-                                                        });
+                                                        $('div#parametros-content').append(data.response);
                                                     }else{
                                                         $('div#temp').fadeOut(300, function() {
                                                             $(this).remove();
                                                             $('div#parametros-content').empty();
                                                             $('div#parametros-content').html(data.response);
 
-                                                            //carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
+                                                            //carregaOpcaoParametros('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
                                                         });
                                                     }
                                                 },
@@ -152,7 +170,7 @@ class ParametrosController extends Controller
                                                     dataType: 'json',
                                                     url: '/ajax/parametrosDeleteInfo/' + id,
                                                     success: function(data){
-                                                        carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
+                                                        carregaOpcaoParametros('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
                                                         
                                                     }
                                                 });
@@ -265,7 +283,7 @@ class ParametrosController extends Controller
                                                                     updateInfo();
                                                                 });
 
-                                                                carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
+                                                                carregaOpcaoParametros('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
                                                             });
 
 
@@ -289,7 +307,7 @@ class ParametrosController extends Controller
                                                                         $('input[name=em_mtcladiamento]').val(data.qtdade_em_mtcladiamento);
                                                                         $('input[name=em_mtclordjudicial]').val(data.qtdade_em_mtclordjudicial);
 
-                                                                        carregaOpcao('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
+                                                                        carregaOpcaoParametros('parametros', 'grid|'+$('input[name=\"ano_formacao\"]:checked').val());
 
                                                                         $('button#submit-parametros').show();
                                                                     },
@@ -384,12 +402,13 @@ class ParametrosController extends Controller
                 $anoFormacao = AnoFormacao::find($id[1]);
                 $parametros = Parametros::where('ano_formacao_id', '=', $anoFormacao->id)->first();
 
-                $data['response'] = 'Veio';//view('admin.parametros.parametroROD', compact('parametros'));
+                $conteudoAtitudinal = ConteudoAtitudinal::all();
+
+                $data['response'] = '' . view('admin.parametros.parametroROD', compact('parametros', 'conteudoAtitudinal'));
                 break; 
             default:
                 break;
         }
-
         return response()->json($data);
     }
 

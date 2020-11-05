@@ -63,7 +63,7 @@
                 });
             });
 
-            carregaOpcao('parametros', 'rod|'+$('input[name=\"ano_formacao\"]:checked').val());
+            carregaOpcaoParametros('parametros', 'rod|'+$('input[name=\"ano_formacao\"]:checked').val());
         });
     </script>
 </form>
