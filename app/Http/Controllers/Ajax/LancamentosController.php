@@ -209,19 +209,22 @@ class LancamentosController extends Controller
                     $whereOpcaoRel = $whereOpcaoRel;
                 break;
                 case 2://Listar Resolvidos
-                    $whereOpcaoRel = ' AND lancamento_fo.providencia IS NOT NULL';
+                    $whereOpcaoRel = ' AND lancamento_fo.providencia IS NOT NULL AND lancamento_fo.cancelado = \'N\'';
                 break;
                 case 3://Listar Resolvidos Com FATD
-                    $whereOpcaoRel = " AND lancamento_fo.fatd = 'S'";
+                    $whereOpcaoRel = " AND lancamento_fo.fatd = 'S' AND lancamento_fo.cancelado = 'N'";
                 break;
                 case 4://Listar Não Resolvidos
-                    $whereOpcaoRel = ' AND lancamento_fo.providencia IS NULL';
+                    $whereOpcaoRel = ' AND lancamento_fo.providencia IS NULL AND lancamento_fo.cancelado = \'N\'';
+                break;
+                case 5://Listar Canceladas
+                    $whereOpcaoRel = ' AND lancamento_fo.cancelado = \'S\'';
                 break;
             }
         }
 
         $lancamentoFO = DB::select("SELECT lancamento_fo.id, lancamento_fo.data_obs, lancamento_fo.tipo, lancamento_fo.observacao, alunos.numero, alunos.nome_guerra, omcts.omct as uete
-                                        , lancamento_fo.providencia, lancamento_fo.fatd
+                                        , lancamento_fo.providencia, lancamento_fo.fatd, lancamento_fo.cancelado
                                         FROM lancamento_fo
                                         INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
                                         INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
@@ -520,19 +523,26 @@ class LancamentosController extends Controller
         }
         //$lancamentoFo = LancamentoFo::find($id);
 
-        //if ($lancamentoFo->providencia == null) {
-        if ($this->LancarProvidencia($request, $id)) {
-            $retorno['status'] = 'success';
-            $retorno['response'] = 'Providência Lançada Com Sucesso.';
+        //Se for cancelamento de FO
+        if(isset($request->textAreaCancelamento)){
+            if ($this->CancelarFO($request, $id)) {
+                $retorno['status'] = 'success';
+                $retorno['response'] = 'Cancelamento de FO Efetuado Com Sucesso.';
+            }else{
+                $retorno['status'] = 'err';
+                $retorno['response'] = 'Erro ao Tentar Cancelar FO.';
+            }
         }else{
-            $retorno['status'] = 'err';
-            $retorno['response'] = 'Usuário sem Previlégios.';
+            
+            if ($this->LancarProvidencia($request, $id)) {
+                $retorno['status'] = 'success';
+                $retorno['response'] = 'Providência Lançada Com Sucesso.';
+            }else{
+                $retorno['status'] = 'err';
+                $retorno['response'] = 'Usuário sem Previlégios.';
+            }
         }
-        //} else {
-        //    $retorno['status'] = 'err';
-        //    $retorno['response'] = 'Já Existe Uma Providência Lançada.';
-        //}
-
+    
         return response()->json($retorno);
     }
 
@@ -591,7 +601,11 @@ class LancamentosController extends Controller
 
     private function ExcluirFatd(LancamentoFo $lancamentoFo)
     {
-        Fatd::where(['lancamento_fo_id' => $lancamentoFo->id])->delete();
+        if(isset($lancamentoFo->fatdLancada)){
+            return $lancamentoFo->fatdLancada->delete();
+        }else{
+            return true;
+        }
     }
 
     public function LancarFatdSargenteante(Request $request, $id)
@@ -645,5 +659,26 @@ class LancamentosController extends Controller
         }
 
         return response()->json($retorno);
+    }
+
+    function CancelarFO(Request $request, $id)
+    {
+        //Se perfil sargenteante deixa cancelar...
+        if(in_array(4, session()->get('login.perfil'))){
+
+            $lancamentoFO = LancamentoFo::find($id);
+
+            if($lancamentoFO->cancelado == 'N' && !isset($lancamentoFO->cancelado_operador_id)){
+                if($this->ExcluirFatd($lancamentoFO)){
+                    return ($lancamentoFO->update(['cancelado_motivo' => $request->textAreaCancelamento, 'cancelado' => 'S', 'cancelado_operador_id' => session()->get('login.operadorID')]));
+                }else{
+                    false;
+                }
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
     }
 }

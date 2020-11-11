@@ -8,7 +8,7 @@ class LancamentoFo extends Model
 {
     protected $table = 'lancamento_fo';
 
-    protected $fillable = ['providencia', 'fatd', 'frad'];
+    protected $fillable = ['providencia', 'fatd', 'frad', 'cancelado', 'cancelado_motivo', 'cancelado_operador_id'];
 
     public function aluno()
     {
@@ -18,6 +18,10 @@ class LancamentoFo extends Model
     public function operador()
     {
         return $this->belongsTo('App\Models\Operadores', 'operador_id', 'id');
+    }
+
+    public function operadorCancelado(){
+        return $this->belongsTo('App\Models\Operadores', 'cancelado_operador_id', 'id');
     }
 
     public function fatdLancada()

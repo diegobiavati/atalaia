@@ -430,10 +430,18 @@ class RelatorioAlunoController extends Controller
                 }
 
                 $conteudo_atitudinal = substr($conteudo_atitudinal, 0, (strlen($conteudo_atitudinal) - 2));
-                if (isset($frad->fatdLancada)) {
+                if($frad->cancelado == 'S'){
+                    $pdf->SetTextColor(255, 165, 0);
+                }elseif (isset($frad->fatdLancada)) {
                     $pdf->SetTextColor(255, 0, 0);
                 }
-                $pdf->Row(array(FuncoesController::formatDateEntoBr($frad->data_obs), utf8_decode($frad->observacao), utf8_decode($conteudo_atitudinal), utf8_decode($frad->providencia), $fo, utf8_decode($frad->operador->postograd->postograd_abrev . ' ' . $frad->operador->nome_guerra)));
+
+                if($frad->cancelado == 'S'){
+                    $pdf->Row(array(FuncoesController::formatDateEntoBr($frad->data_obs), utf8_decode($frad->cancelado_motivo), 'Cancelado', 'Cancelado', 'Cancelado', utf8_decode($frad->operadorCancelado->postograd->postograd_abrev . ' ' . $frad->operadorCancelado->nome_guerra)));
+                }else{
+                    $pdf->Row(array(FuncoesController::formatDateEntoBr($frad->data_obs), utf8_decode($frad->observacao), utf8_decode($conteudo_atitudinal), utf8_decode($frad->providencia), $fo, utf8_decode($frad->operador->postograd->postograd_abrev . ' ' . $frad->operador->nome_guerra)));
+                }
+                
                 $pdf->SetTextColor(0, 0, 0);
             }
         }
@@ -481,12 +489,13 @@ class RelatorioAlunoController extends Controller
             $pdf->setAluno($aluno);
             
             $aluno->load(['lancamento_fo' => function ($relation) use ($conteudoAtitudinal){
+
                 $i = 0;
                 foreach ($conteudoAtitudinal as $conteudo) {
                     if($i > 0){
-                        $relation->orWhereJsonContains('conteudo_atitudinal', $conteudo->id);
+                        $relation->orWhereJsonContains('conteudo_atitudinal', $conteudo->id)->where([['cancelado', '=', 'N']]);
                     }else{
-                        $relation->WhereJsonContains('conteudo_atitudinal', $conteudo->id);
+                        $relation->WhereJsonContains('conteudo_atitudinal', $conteudo->id)->where([['cancelado', '=', 'N']]);
                     }
                     $i++;
                 }

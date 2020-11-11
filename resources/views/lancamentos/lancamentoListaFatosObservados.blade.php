@@ -25,14 +25,16 @@
                     <td style="text-align: left;">{{$aluno->uete}}</td>
                     <td><a href="javascript: void(0);" class="no-style" title="Visualizar Fato Observado" onclick="abrirFichaIndividual({{$aluno->id}});"><i class="ion-android-clipboard" style="font-size: 22px;"></i></a></td>
                     <td>
-                        @if(isset($aluno->providencia))
+                        @if($aluno->cancelado == 'S')
+                            <font style="color:rgb(255,165,0)">Cancelado</font>
+                        @elseif(isset($aluno->providencia))
                             @if($aluno->fatd == 'S')
                                 <font style="color:rgb(16, 179, 16)">Resolvido com FATD</font>
                             @else
                                 <font style="color:rgb(0,0,255)">Resolvido sem FATD</font>
                             @endif
                         @else
-                        <font style="color:rgb(255,0,0)">Não Resolvido</font>
+                            <font style="color:rgb(255,0,0)">Não Resolvido</font>
                         @endif
                     </td>
                 </tr>

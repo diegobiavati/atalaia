@@ -91,9 +91,8 @@
             </div>
         </div>
 
-        @if(in_array(2, session()->get('login.perfil')) || (isset($lancamentoFo) && isset($lancamentoFo->providencia)))
         <!--Só libera se for Cmt de Cia-->
-        <div style="margin-bottom: 15px;">
+        <div id="divProvidencia" style="margin-bottom: 15px; display: {{ (in_array(2, session()->get('login.perfil')) || (isset($lancamentoFo) && isset($lancamentoFo->providencia))) ? 'block': 'none'}} ;">
             <div>
                 <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
                     <font style="color:rgb(255, 255, 255);">Providências</font>
@@ -114,7 +113,6 @@
                 </label>
             </div>
         </div>
-        @endif
 
         <div style="margin-bottom: 15px;">
             <div>
@@ -134,6 +132,11 @@
             <div id="container-turma">
                 @if(isset($lancamentoFo))
                 @include('lancamentos.lancamentoAlunosFO', ['alunosTurma' => [$lancamentoFo->aluno], 'edit' => true])
+                @endif
+            </div>
+            <div id="container-cancelamento">
+                @if((isset($lancamentoFo) && in_array(4, session()->get('login.perfil'))) || (isset($lancamentoFo) && $lancamentoFo->cancelado == 'S'))
+                @include('lancamentos.lancamentoCancelamentoFO', $lancamentoFo)
                 @endif
             </div>
         </div>
@@ -314,6 +317,20 @@
                         $('div#container-turma').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
                     }
                 });
+            });
+
+            $('.custom-control.custom-radio input[type="radio"]').click(function(){
+                var radioValue = $('.custom-control.custom-radio input[type="radio"]:checked').val();
+                    if(radioValue > 0){
+                        $('#divProvidencia').css('display', 'block');
+                        $('.btn.btn-outline-danger').css('display', 'none');
+                        $('.btn.btn-outline-warning').addClass('active');
+                        $('.btn.btn-outline-warning input[type="radio"]').prop("checked", true);
+                    }else{
+                        $('#divProvidencia').css('display', 'none');
+                        $('.btn.btn-outline-warning').removeClass('active');
+                        $('.btn.btn-outline-warning input[type="radio"]').prop("checked", false);
+                    }
             });
 
         });

@@ -23,6 +23,7 @@
             <option value="2">Listar Resolvidos</option>
             <option value="3">Listar Resolvidos com FATD</option>
             <option value="4">Listar Não Resolvidos</option>
+            <option value="5">Listar Cancelados</option>
         </select>
 
         <div class="custom-control" style="display: inline-block; margin: 20px 10px 12px 0;">
