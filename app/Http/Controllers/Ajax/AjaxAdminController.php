@@ -85,7 +85,13 @@ class AjaxAdminController extends Controller
     public function GerenciarOperadores(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
 
-        $operadores = Operadores::orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
+        if ($this->ownauthcontroller->PermissaoCheck(1)) {
+            $operadores = Operadores::whereNotNull('omcts_id')->where([['ativo', '=', 'S']])->orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
+        } else {
+            $operadores = Operadores::where([['omcts_id', '=', session()->get('login.omctID')], ['ativo', '=', 'S']])->orderBy('postograd_id', 'asc')->get();
+        }
+
+        //$operadores = Operadores::orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
         $funcoesOperadores = OperadoresTipo::get();
         foreach ($funcoesOperadores as $funcao) {
             $data[$funcao->id] = $funcao->funcao_abrev;
@@ -2612,7 +2618,16 @@ class AjaxAdminController extends Controller
             $funcao_operador[] = $funcao;
         }
 
-        $operadores_tipo = OperadoresTipo::get();
+        if(session()->get('login.omctID') > 1){
+            $omcts = OMCT::where([['id', '=', session()->get('login.omctID')]])->get();
+
+            $whereInOperadores = [2, 3, 4, 6];//Comandante de CIA, SPPA, Sargenteante e Instrutor.
+            $operadores_tipo = OperadoresTipo::whereIn('id', $whereInOperadores)->get();
+        }else{
+            $omcts = OMCT::get();
+            $operadores_tipo = OperadoresTipo::get();
+        }
+        
         foreach ($operadores_tipo as $tipo) {
             $attr_checked = (in_array($tipo->id, $funcao_operador)) ? 'checked' : '';
             $tipos[] = '<div class="custom-control custom-checkbox">
@@ -2621,7 +2636,6 @@ class AjaxAdminController extends Controller
                         </div>';
         }
 
-        $omcts = OMCT::get();
         foreach ($omcts as $omct) {
             $attr_selected = ($operador->omcts_id == $omct->id) ? 'selected' : '';
             $options_omcts[] = '<option value="' . $omct->id . '" ' . $attr_selected . '>' . $omct->omct . '</option>';
@@ -2932,8 +2946,16 @@ class AjaxAdminController extends Controller
     public function DialogAdicionarOperador(Request $request)
     {
 
+        if(session()->get('login.omctID') > 1){
+            $omcts = OMCT::where([['id', '=', session()->get('login.omctID')]])->get();
 
-        $operadores_tipo = OperadoresTipo::get();
+            $whereInOperadores = [2, 3, 4, 6];//Comandante de CIA, SPPA, Sargenteante e Instrutor.
+            $operadores_tipo = OperadoresTipo::whereIn('id', $whereInOperadores)->get();
+        }else{
+            $omcts = OMCT::get();
+            $operadores_tipo = OperadoresTipo::get();
+        }
+
         foreach ($operadores_tipo as $tipo) {
             $tipos[] = '<div class="custom-control custom-checkbox">
                             <input type="checkbox" value="' . $tipo->id . '" name="tipo_operador_check[]" class="custom-control-input" id="tipo_operador_check_' . $tipo->id . '" />
@@ -2944,7 +2966,7 @@ class AjaxAdminController extends Controller
         /* LOOP QUE BUSCA AS OMCTS */
 
         $options_omcts[] = '<option value="0">Informe a UETE</option>';
-        $omcts = OMCT::get();
+        
         foreach ($omcts as $omct) {
             $options_omcts[] = '<option value="' . $omct->id . '">' . $omct->omct . '</option>';
         }
@@ -4405,6 +4427,21 @@ class AjaxAdminController extends Controller
         $operador->postograd_id = $request->postograd_id;
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;
         $operador->email = $request->email;
+
+        if (!in_array(1, session()->get('login.perfil'))) {//Valida se não é perfil ESA...
+
+            if(in_array(4, explode(',', $operador->id_funcao_operador))){//Verifica se o Operador é Sargenteante...
+
+                if(!isset($request->tipo_operador_check) || !in_array(4, $request->tipo_operador_check)){//Verifica se não existe o Sargenteante na requisição...
+                    //Seleciona todos os operadores que tem perfil sargenteante ativo na UETE...
+                    if(Operadores::where([['omcts_id', '=', session()->get('login.omctID')], ['ativo', '=', 'S'],['id_funcao_operador', 'LIKE', '%4%']])->count() <= 1){
+                        $data['errors'] = (object)['erro' => array('Operação Cancelada, Deve Existir Pelo Menos Um Sargenteante Cadastrado na UETE!!!')];
+                        return response()->json($data, 422);
+                    }
+                }
+            }
+        }
+        
         if ($request->tipo_operador_check) {
             $operador->id_funcao_operador = implode(',', $request->tipo_operador_check);
         } else {
@@ -4445,6 +4482,7 @@ class AjaxAdminController extends Controller
         $data['typeUser'] = ($request->id == auth()->id()) ? 1 : 0;
 
         $this->classLog->RegistrarLog('Atualizou operador', auth()->user()->email);
+       
         return $data;
     }
 

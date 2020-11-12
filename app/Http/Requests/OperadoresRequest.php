@@ -29,11 +29,14 @@ class OperadoresRequest extends FormRequest
             'nome' => 'required|max:100|min:6',
             'nome_guerra' => 'required|max:30|min:2',
             'tel_pronto_atendimento' => 'celular_com_ddd',
-            'postograd_id'=>'numeric|min:1|max:25',
+            'postograd_id'=>'required|numeric|min:1|max:25',
             'omcts_id'=>'numeric|min:1|max:20',
             'email'=>'required|email',
+            'idt_militar' => 'required',
+            'idt_militar_o_exp' => 'required'
         ];
     }
+    
     public function messages()
     {
         return [

@@ -95,7 +95,7 @@ class OwnAuthController extends Controller
 
             // CRIANDO A SEÇÃO DO USUÁRIO COM AS RESPECTIVAS PERMISSOES
 
-            $operadores = Operadores::where('email', '=', $request->login)->first();
+            $operadores = Operadores::where([['email', '=', $request->login], ['ativo', '=', 'S']])->first();
             $alunos = Alunos::where('email', '=', $request->login)->first();
             
             if(isset($operadores->id)){
@@ -150,6 +150,11 @@ class OwnAuthController extends Controller
                                               'permissoes' => array('47un0'));
                 
                 session()->put('login',  $data_user_session);
+            }else{
+                $this->classLog->RegistrarLog('Usuário Não Localizado ou Inativo: '. $request->login);
+                $data['status'] = 'err';
+                $data['msgErr'] = 'USUÁRIO NÃO LOCALIZADO OU INATIVO';
+                $data['statusErr'] = 0;
             }
 
         } else {

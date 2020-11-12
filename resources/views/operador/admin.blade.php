@@ -164,6 +164,15 @@ function onMessageArrived(message) {
                         </a>
                     </li>
                 @endif
+                @if($ownauthcontroller->PermissaoCheck(13) || $ownauthcontroller->PermissaoCheck(14))
+                    <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                        <a id="gerenciar-operadores" href="javascript: void(0);">
+                            <i class="ion-ios-people"></i> 
+                            Gerenciar Operadores
+                            <span class="badge badge-primary badge-pill"></span>
+                        </a>
+                    </li>
+                @endif
                 @if($ownauthcontroller->PermissaoCheck(10)) <!-- Visão geral restrita a respectiva UETE -->
                     <li class="list-group-item justify-content-between align-items-center menu-list-01">
                             <a id="alunos" href="javascript: void(0);">
