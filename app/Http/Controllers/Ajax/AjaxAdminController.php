@@ -193,16 +193,18 @@ class AjaxAdminController extends Controller
             foreach ($avaliacoes_notas as $key => $info) {
                 if($key != 'alunosID'){
                     foreach ($info as $notas) {
-                        foreach($notas['avaliacoes'] as $avaliacao){
-                        
-                            if($avaliacao->nome_abrev == 'AR'){
-                                $notas_array_recuperacao["AR"] = $avaliacao->nota;
-                            }else{    
-                                $notas_array[$avaliacao->nome_abrev] = $avaliacao->nota;
-                            }
-                        }
+                        if(is_array($notas)){
 
-                        $media = number_format($notas['media'], '3', '.', '');
+                                foreach($notas['avaliacoes'] as $avaliacao){
+                                    if($avaliacao->nome_abrev == 'AR'){
+                                        $notas_array_recuperacao["AR"] = $avaliacao->nota;
+                                    }else{    
+                                        $notas_array[$avaliacao->nome_abrev] = $avaliacao->nota;
+                                    }
+                                }
+    
+                            $media = number_format($notas['media'], '3', '.', '');
+                        }
                     }    
                 }
             }
@@ -345,7 +347,9 @@ class AjaxAdminController extends Controller
             $alunos_em_conselho->aluno_id = $request->aluno;
             $alunos_em_conselho->disciplina_id = $request->disciplina;
             $alunos_em_conselho->acrescimo = str_replace(',', '.', $request->acrescimo);
+
             if ($alunos_em_conselho->save()) {
+                AlunosClassificacao::where([['aluno_id', '=', $request->aluno]])->update(['reprovado' => 'N']);
                 $data = 'ok';
             } else {
                 $data = 'err';
@@ -361,6 +365,7 @@ class AjaxAdminController extends Controller
         if ($ownauthcontroller->PermissaoCheck(1)) {
             $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $request->aluno)->where('disciplina_id', $request->disciplina)->first();
             if ($alunos_em_conselho->delete()) {
+                AlunosClassificacao::where([['aluno_id', '=', $request->aluno]])->update(['reprovado' => 'S']);
                 $data = 'ok';
             } else {
                 $data = 'err';
@@ -611,20 +616,23 @@ class AjaxAdminController extends Controller
 
             $media = ($media > 10) ? 10 : $media;
         }
-
+        
         if((!isset($abdominal)) && $media >= 5){
             $reprovado = 'N';
         }else if ($abdominal == 'NS') {
             $reprovado = 'S';
         } else if ($abdominal == 'S' && $media >= 5) {
             $reprovado = 'N';
+        } else if ($abdominal == 'S' && $media == 0) {
+            $reprovado = 'N';
+            $media = 5;
         } else {
             $reprovado = 'S';
         }
         
         if ($media >= 5) {
             $media = 5;
-        }else {
+        } else {
             $array_notas = array($corrida, $flex_bra, $flex_barr);
 
             for($i=count($array_notas);$i>0;$i++){
@@ -647,7 +655,7 @@ class AjaxAdminController extends Controller
         $this->lancarTaf->flexao_barra_nota_recuperacao = $flex_barr;
         $this->lancarTaf->abdominal_suficiencia_recuperacao = $abdominal;
         $this->lancarTaf->media_recuperacao = $media_banco;
-        $this->lancarTaf->reprovado = $reprovado;
+        $this->lancarTaf->reprovado_recuperacao = $reprovado;
 
         if ($this->lancarTaf->where('aluno_id', $request->id)->first()) {
             $this->lancarTaf->where('aluno_id', $request->id)->update([
@@ -1175,6 +1183,7 @@ class AjaxAdminController extends Controller
 
                 foreach ($qms_matriz as $qms) {
                     $qms_instance = new QMS;
+                    $qms_instance->qms_matriz_id = $qms->id;
                     $qms_instance->qms = $qms->qms;
                     $qms_instance->qms_sigla = $qms->qms_sigla;
                     $qms_instance->segmento = $qms->segmento;
@@ -2708,6 +2717,20 @@ class AjaxAdminController extends Controller
                                             </div>
                                             <div style="float:right; width: 93%;">
                                                 <select class="custom-select" name="omcts_id">' . implode('', $options_omcts) . '</select>
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+
+                                        <div style="margin: 14px auto; width: 80%; max-width: 380px;">
+                                            <div style="float: left;">
+                                                <i class="ion-power" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <div class="custom-control custom-checkbox">
+                                                    <input type="checkbox" name="ativo" class="custom-control-input" id="ativoCheck" '.(($operador->ativo == 'S') ? 'checked': '').'>
+                                                    <label class="custom-control-label" for="ativoCheck">Ativo</label><br />
+                                                    <span style="font-size: 12px; color: #FE2E2E;">Desmarcando essa opção o operador não será mais listado</span>
+                                                </div>
                                             </div>
                                             <div class="clear"></div>
                                         </div>
@@ -4419,6 +4442,7 @@ class AjaxAdminController extends Controller
 
         $email = $operador->email;
 
+        $operador->ativo = (($request->ativo == 'on') ? 'S':'N');
         $operador->nome = $request->nome;
         $operador->nome_guerra = $request->nome_guerra;
         $operador->idt_militar = $request->idt_militar;

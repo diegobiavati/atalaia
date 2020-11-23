@@ -2,6 +2,7 @@
 
 Route::group(['middleware' => 'auth', 'prefix' => 'operador', 'as' => 'operador.'], function () {
     Route::get('/', ['as' => 'admin', 'uses' => 'Operador\AdminOpController@ShowHome']);
+    
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'aluno', 'as' => 'aluno.'], function () {
@@ -331,6 +332,7 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('submi
 
 Route::get('/sair', function () {
     auth()->logout();
+    session()->flush();
     return redirect()->route('login');
 })->name('atalaia.logout');
 
@@ -357,3 +359,26 @@ Route::get('reintegrar/{requisicao}/{idaluno}', 'Aluno\AlunoSitDiversasControlle
 
 //Importador de Arquivo Excel para integrar o banco de dados do SisPB com o Atalaia
 Route::resource('importar-excel-sispb-alunos', 'Utilitarios\ImportadorController');
+
+
+/************************************************************************************************************
+*                              INICIO DE ROTAS REFERENTE AO SISTEMA GAVIÃO
+*
+*
+*
+**************************************************************************************************************/
+
+/* AUTENTICAÇÃO ROTAS GAVIÃO */
+Route::get('/gaviao', ['as' => 'gaviao', 'uses' => 'OwnAuthController@UserLogin']);
+Route::get('/gaviaoRouter', ['as' => 'gaviaoRouter', 'uses' => 'OwnAuthController@UserRouter']);
+
+Route::get('gaviao/dashboard', ['as' => 'gaviao.dashboard', 'uses' => 'Operador\AdminOpController@DashboardGaviao'])->middleware('auth');
+
+Route::post('auth_gaviao', ['as' => 'auth_gaviao', 'uses' => 'OwnAuthController@AuthGaviaoUser']);
+
+Route::get('/gaviao/sair', function () {
+    auth()->logout();
+    session()->flush();
+    return redirect()->route('gaviao');
+})->name('gaviao.logout');
+/* FIM AUTENTICAÇÃO DE ROTAS GAVIÃO */

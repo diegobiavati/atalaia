@@ -1,4 +1,4 @@
-@extends('relatorios.template-relatorios')
+@extends('relatorios.template-relatorios-sem-brasao')
 
 @section('title', 'Atalaia :: Relatório::Demonstrativo de notas')
 
@@ -43,7 +43,7 @@
                                 <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{isset($avaliacoes->nota) ? $avaliacoes->nota : $avaliacoes}}</td>
                             @endif
                             @endforeach
-                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($data['media'], '3', '.', '')}}</td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{(isset($data['media_anterior']) ? number_format($data['media_anterior'], '3', '.', ''): number_format($data['media'], '3', '.', '')) }}</td>
                         </tr>  
                     @else
                         <tr>

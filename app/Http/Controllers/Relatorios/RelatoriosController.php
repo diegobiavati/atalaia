@@ -551,15 +551,73 @@ class RelatoriosController extends Controller
             $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
             $ano_selecionado = (isset($ano_formacao->formacao))? $ano_formacao->formacao:'---';
 
+            if($request->options_class_geral == 10){//Classificação Geral por QMS
+                $escolhaQMS = EscolhaQMS::where([['ano_formacao_id', '=', $ano_formacao->id]])->first();
+
+                if(isset($escolhaQMS->bi_qms_masculino) && isset($escolhaQMS->bi_qms_feminino)){
+
+                    //Junta os alunos da escolha de QMS...
+                    $listaAlunos = FuncoesController::ArrayMergeKeepKeys(unserialize($escolhaQMS->escolha_qms_masculino)['aluno'], unserialize($escolhaQMS->escolha_qms_feminino)['aluno']);
+                    $idsAlunos = array_keys($listaAlunos); 
+
+                    //Junta os alunos da Escolha de QMS Aviação...
+                    $listaAlunosAviacao = FuncoesController::ArrayMergeKeepKeys(unserialize($escolhaQMS->escolha_qms_masculino)['alunos_aviacao'], unserialize($escolhaQMS->escolha_qms_feminino)['alunos_aviacao']);
+                    $idsAlunosAviacao = array_keys($listaAlunosAviacao); 
+                    //Fim Junta...
+
+                    $listaAlunos = FuncoesController::ArrayMergeKeepKeys($listaAlunos, $listaAlunosAviacao);
+                    $idsAlunos = array_merge($idsAlunos, $idsAlunosAviacao);
+
+                    $alunos = Alunos::where('data_matricula', $ano_formacao->id)
+                                    ->whereIn('id', $idsAlunos)
+                                    ->with('classificacao')
+                                    ->get()
+                                    ->sortBy('classificacao.classificacao');
+
+                    $mencoes = Mencoes::get();
+
+                    foreach($alunos as $aluno){
+                        if(!isset($listaAlunos[$aluno->id]['qmsdesignda_nome_sigla'])){
+                            $listaAlunos[$aluno->id]['qmsdesignda_nome_sigla'] = 'Avi';
+                        }
+
+                        $aluno->data_demonstrativo = unserialize($aluno->classificacao->data_demonstrativo);
+
+                        $aluno->mencao = 'Não calculada';
+                        foreach($mencoes as $mencao){
+                            if($aluno->classificacao->nota_final_arredondada>=$mencao->inicio && $aluno->classificacao->nota_final_arredondada<=$mencao->fim){
+                                $aluno->mencao = $mencao;
+                                break;
+                            }
+                        }
+
+                        $qmsNomeSigla[] = $listaAlunos[$aluno->id]['qmsdesignda_nome_sigla'];
+                        $listaAlunoQms[$listaAlunos[$aluno->id]['qmsdesignda_nome_sigla']][] = $aluno;
+                    }                
+                   
+                    $qmsNomeSigla = array_unique($qmsNomeSigla);
+                    
+                    $qmss = QMS::whereHas('escolhaQms', function($q) use ($ano_formacao){
+                        $q->where('ano_formacao_id', $ano_formacao->id);
+                    })->whereIn('qms_sigla', $qmsNomeSigla)->select('qms', 'qms_sigla')->distinct()->get();
+                    
+                    $this->classLog->RegistrarLog('Acessou lista de classificação geral por QMS de alunos', auth()->user()->email);
+                    return view('relatorios.classificacao-geral-qms', compact('listaAlunoQms', 'qmss', 'ano_selecionado'))
+                                    ->with('disciplinas', Disciplinas::where('ano_formacao_id', $ano_formacao->id)->get());
+                }else{
+                    return '<div style="text-align: center;">ESCOLHA DE QMS NÃO FINALIZADA COM BI DO CMT da ESA</div>';
+                }
+            }
+
             // SELECIONANDO DISCIPLINAS
 
-            $disciplinas = Disciplinas::where('ano_formacao_id', $request->ano_formacao_id)->get();
+            $disciplinas = Disciplinas::where('ano_formacao_id', $ano_formacao->id)->get();
 
             // SELECIONANDO TODAS AS AREAS
 
             $areas = Areas::whereNotIn('id', [4,5])->get();
 
-            $alunos_classificacao = AlunosClassificacao::where('ano_formacao_id', $request->ano_formacao_id)->orderBy('nota_final', 'desc')->get();
+            $alunos_classificacao = AlunosClassificacao::where('ano_formacao_id', $ano_formacao->id)->orderBy('nota_final', 'desc')->get();
 
             // VERIFICANDO SE HÁ NOTAS REPETIDAS
 

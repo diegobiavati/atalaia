@@ -498,7 +498,7 @@ class AjaxRelatoriosController extends Controller
         $data[] = '<option value="0" selected>Selecione uma opção</option>';        
         $data[] = '<option value="13">Tabela Geral Combatente/Logistica - Segmento Masculino - (Detalhada)</option>';        
         $data[] = '<option value="14">Tabela Geral Combatente/Logistica - Segmento Feminino - (Detalhada)</option>';        
-        $data[] = '<option value="15">Tabela Geral Combatente/Logistica - Segmento Masculino - (Detalhada com reprovados)</option>';        
+        /*$data[] = '<option value="15">Tabela Geral Combatente/Logistica - Segmento Masculino - (Detalhada com reprovados)</option>';        
         $data[] = '<option value="16">Tabela Geral Combatente/Logistica - Segmento Feminino - (Detalhada com reprovados)</option>';        
         $data[] = '<option value="1">Tabela Geral Combatente/Logistica - Segmento Masculino</option>';        
         $data[] = '<option value="2">Tabela Geral Combatente/Logistica - Segmento Feminino</option>';        
@@ -511,7 +511,7 @@ class AjaxRelatoriosController extends Controller
         $data[] = '<option value="3">Aviação - Segmento Masculino</option>';        
         $data[] = '<option value="4">Aviação - Segmento Feminino</option>';        
         $data[] = '<option value="11">Aviação - Segmento Masculino (Prévia com reprovados)</option>';        
-        $data[] = '<option value="12">Aviação - Segmento Feminino (Prévia com reprovadas)</option>';        
+        $data[] = '<option value="12">Aviação - Segmento Feminino (Prévia com reprovadas)</option>';*/       
         $data[] = '</select>';
         $data[] = '</div>';
 
@@ -771,14 +771,15 @@ class AjaxRelatoriosController extends Controller
         $data[] = '<select name="options_class_geral" class="custom-select required_to_show_button">';
         $data[] = '     <option value="0" selected>Selecione uma das opções</option>';
         $data[] = '     <option value="9">Classificação Geral por área com ND | N1 | Mensão | Classificação</option>';
-        $data[] = '     <option value="1">Classificação Geral do PB (Aprovados)</option>';
-        $data[] = '     <option value="2">Classificação Geral do PB (Reprovados inclusive)</option>';
-        $data[] = '     <option value="5">Classificação por Area Masculino e Feminino (Aprovados)</option>';
-        $data[] = '     <option value="8">Classificação por Area Masculino e Feminino (Reprovados inclusive)</option>';
-        $data[] = '     <option value="3">Classificação Segmento Masculino por áera (Aprovados)</option>';
-        $data[] = '     <option value="6">Classificação Segmento Masculino por áera (Reprovados inclusive)</option>';
-        $data[] = '     <option value="4">Classificação Segmento Feminino por áera (Aprovadas)</option>';
-        $data[] = '     <option value="7">Classificação Segmento Feminino por áera (Reprovadas inclusive)</option>';
+        $data[] = '     <option value="10">Classificação Geral QMS</option>';
+        //$data[] = '     <option value="1">Classificação Geral do PB (Aprovados)</option>';
+        //$data[] = '     <option value="2">Classificação Geral do PB (Reprovados inclusive)</option>';
+        //$data[] = '     <option value="5">Classificação por Area Masculino e Feminino (Aprovados)</option>';
+        //$data[] = '     <option value="8">Classificação por Area Masculino e Feminino (Reprovados inclusive)</option>';
+        //$data[] = '     <option value="3">Classificação Segmento Masculino por áera (Aprovados)</option>';
+        //$data[] = '     <option value="6">Classificação Segmento Masculino por áera (Reprovados inclusive)</option>';
+        //$data[] = '     <option value="4">Classificação Segmento Feminino por áera (Aprovadas)</option>';
+        //$data[] = '     <option value="7">Classificação Segmento Feminino por áera (Reprovadas inclusive)</option>';
         $data[] = '</select>';
         $data[] = '</div>';
         $data[] = ' <div style="margin-top: 24px;">
@@ -1800,18 +1801,25 @@ class AjaxRelatoriosController extends Controller
                         $alunoNota[99999][$aluno_id]['avaliacoes']['ABDOMINAL'] = $taf_nota[$aluno_id]->abdominal_suficiencia;
                         $alunoNota[99999][$aluno_id]['avaliacoes']['ATLETA'] = $taf_nota[$aluno_id]->aluno->atleta_marexaer;                        
                         $alunoNota[99999][$aluno_id]['reprovado'] = $taf_nota[$aluno_id]->reprovado;                        
-
+                        
                         if(isset($taf_nota[$aluno_id]->reprovado_recuperacao)){
                             //Inclui a Disciplina de TFM Recuperacao
                             if(!in_array(88888, $disciplinasID)){
                                 $disciplinasID = array_merge($disciplinasID, array(88888));  
                             }
                             
+                            /*if($aluno_id == 2385){
+                                dd($taf_nota[$aluno_id]);
+                            }*/
+
                             $alunoNota[88888][$aluno_id]['notas'][] = $taf_nota[$aluno_id]->media_recuperacao;
 
-                            $alunoNota[88888][$aluno_id]['avaliacoes']['CORRIDA'] = $taf_nota[$aluno_id]->corrida_nota_recuperacao;
-                            $alunoNota[88888][$aluno_id]['avaliacoes']['FLEXÃO DE BRAÇO'] = $taf_nota[$aluno_id]->flexao_braco_nota_recuperacao;
-                            $alunoNota[88888][$aluno_id]['avaliacoes']['FLEXÃO NA BARRA'] = $taf_nota[$aluno_id]->flexao_barra_nota_recuperacao;
+
+                            $valNotaRecuperacao = (($taf_nota[$aluno_id]->media >= 5) ? true : false);
+
+                            $alunoNota[88888][$aluno_id]['avaliacoes']['CORRIDA'] = (($valNotaRecuperacao) ? '-' : $taf_nota[$aluno_id]->corrida_nota_recuperacao);
+                            $alunoNota[88888][$aluno_id]['avaliacoes']['FLEXÃO DE BRAÇO'] = (($valNotaRecuperacao) ? '-' : $taf_nota[$aluno_id]->flexao_braco_nota_recuperacao);
+                            $alunoNota[88888][$aluno_id]['avaliacoes']['FLEXÃO NA BARRA'] = (($valNotaRecuperacao) ? '-' : $taf_nota[$aluno_id]->flexao_barra_nota_recuperacao);
                             $alunoNota[88888][$aluno_id]['avaliacoes']['ABDOMINAL'] = (isset($taf_nota[$aluno_id]->abdominal_suficiencia_recuperacao) ? $taf_nota[$aluno_id]->abdominal_suficiencia_recuperacao : '-');
                             $alunoNota[88888][$aluno_id]['avaliacoes']['ATLETA'] = $taf_nota[$aluno_id]->aluno->atleta_marexaer;                        
                             $alunoNota[88888][$aluno_id]['reprovado'] = $taf_nota[$aluno_id]->reprovado_recuperacao; 

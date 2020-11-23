@@ -197,4 +197,14 @@ class FuncoesController
         return $aluno_notas;
     }
 
+    public static function  ArrayMergeKeepKeys() {
+            $arg_list = func_get_args();
+            foreach((array)$arg_list as $arg){
+                foreach((array)$arg as $K => $V){
+                    $Zoo[$K]=$V;
+                }
+            }
+        return $Zoo;
+    }
+
 }

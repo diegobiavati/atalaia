@@ -132,7 +132,7 @@ class ParametrosController extends Controller
                                                 type: 'GET',
                                                 dataType: 'json',
                                                 url: '/ajax/' + tipo + '/' + item,
-                                                beforeSend: function() {    
+                                                beforeSend: function() {   
                                                     if(itemSplit[0] != 'grid' && itemSplit[0] != 'rod'){
                                                         $('div#parametros-content').empty();
                                                         $('div#parametros-content').html('<div id=\"temp\"><img src=\"/images/loadings/loading_01.svg\" style=\"width: 24px; margin-right: 8px;\" /> Aguarde, carregando...</div>');
@@ -140,9 +140,10 @@ class ParametrosController extends Controller
                                                 },
                                                 success: function(data) {
                                                     if(itemSplit[0] == 'grid'){
-                                                        $('div#tableInfo').empty();
+                                                        $('div#tableInfo').remove();
+                                                        $('div#divParametro').remove();
+                                                        $('div#divROD').remove();
                                                         $('div#parametros-content').append(data.response);
-                                                        
                                                     }else if(itemSplit[0] == 'rod'){
                                                         $('div#parametros-content').append(data.response);
                                                     }else{

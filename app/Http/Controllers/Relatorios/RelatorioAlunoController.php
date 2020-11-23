@@ -856,6 +856,7 @@ class RelatorioAlunoController extends Controller
             })->orderBy('nota_final', 'desc')->get();
 
             foreach($alunosClassificacao as $nota){
+
                 $notas_array[] = ''.$nota->nota_final.'';
                 $notas_data_array[$nota->aluno_id] = array(
                     "NPB" => $nota->nota_final,
