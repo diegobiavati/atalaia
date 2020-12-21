@@ -24,7 +24,7 @@ class AjaxEscolhaDeQMSAlunoController extends Controller
         $this->escolha_qms_opcoes = $escolha_qms_opcoes;
         $this->OwnAuth = $ownauth;
         $this->classLog = $classLog;
-        $classLog->ip=$_SERVER['REMOTE_ADDR'];         
+        $classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null); 
     }
 
     public function DialogEscolhadeQMSAluno(Request $request){

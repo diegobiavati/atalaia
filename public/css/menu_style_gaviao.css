@@ -16,7 +16,6 @@
 }
 
 #lateral-top {
-    border-bottom: 2px solid #03080c;
     height: 68px;
     width: 100%;
     background-color: #E6E6E6;
@@ -64,7 +63,8 @@ img.logo_organizacao {
 
 div.lateral-profile-top-content {
     padding: 4px;
-    margin-bottom: 24px;
+    /*margin-bottom: 24px;*/
+    margin-bottom: 40px;
 }
 
 div.lateral-profile-top-content h4 {
@@ -80,7 +80,8 @@ li.menu-list-01 {
     cursor: pointer;
     background: none;
     font-size: 14px;
-    padding-left: 22px
+    padding-left: 22px;
+    
 }
 
 li.menu-list-01 i {

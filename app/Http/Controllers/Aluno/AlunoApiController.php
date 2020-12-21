@@ -44,7 +44,7 @@ class AlunoApiController extends Controller
         $this->aluno = $aluno;
         $this->request = $request;
         $this->classLog = $classLog;
-        $this->classLog->ip = $_SERVER['REMOTE_ADDR'];
+        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
 
         $this->ownauthcontroller = $ownauthcontroller;
     }
@@ -53,7 +53,7 @@ class AlunoApiController extends Controller
     {
         $omcts = OMCT::where('id', '<>', 1)->get();
         foreach ($omcts as $omct) {
-            if ($this->ownauthcontroller->PermissaoCheck(1)) {
+            if ($this->ownauthcontroller->PermissaoCheck(1) || session()->has('login.qmsID')) {
                 $options_omcts[] = $omct;
             } else if (session()->get('login.omctID') == $omct->id) {
                 $options_omcts[] = $omct;
@@ -80,8 +80,11 @@ class AlunoApiController extends Controller
         $readOnly = (!$this->ownauthcontroller->PermissaoCheck(1)) ? 'readonly' : '';
 
         //Para Carregar o datalist 
-        //$alunos['list'] = Alunos::get();
-        $alunos['list'] = Alunos::carregaAlunosVsAlunosSitDiv();
+        if(request()->is('gaviao/*')){
+            $alunos['list'] = Alunos::retornaAlunosComQmsESA();
+        }else{
+            $alunos['list'] = Alunos::carregaAlunosVsAlunosSitDiv();
+        }
 
         return compact(
             'options_omcts',

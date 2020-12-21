@@ -25,7 +25,7 @@ class OwnAuthController extends Controller
 
     public function __construct(ClassLog $classLog){
         $this->classLog = $classLog;
-        $classLog->ip=$_SERVER['REMOTE_ADDR'];    
+        $classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);    
         
     }
     
@@ -59,7 +59,6 @@ class OwnAuthController extends Controller
         } else {
             return false;
         }
-        
     }
     
     public function UserLogin(Request $request){
@@ -82,14 +81,12 @@ class OwnAuthController extends Controller
 
     public function UserRouter(Request $request){
 
-        
         if($request->is('gaviaoRouter')){
             if(auth()->check()){
-                if($this->PermissaoCheck([1])){
+                if($this->PermissaoCheck([1,29])){
                     return redirect()->route('gaviao.dashboard');
                 } else {
-                    auth()->logout();
-                    return redirect()->route('loginGaviao');                
+                    return redirect()->route('gaviao.logout');
                 }
             } else {
                 return redirect()->route('loginGaviao');

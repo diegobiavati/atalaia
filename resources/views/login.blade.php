@@ -125,6 +125,7 @@ a.no-style:hover{
                     </div>
                     <div style="text-align: center; margin-top: 28px">
                         <a class="no-style" href="#carouselDialogLogin" role="button" data-slide="next">Primeiro acesso | Esqueci a senha</a>
+                        
                     </div>
                   </div>
                 </form>
@@ -170,6 +171,8 @@ a.no-style:hover{
         </form>        
       @endif
     </div>
+    
+    <div style="text-align: right; margin-right:10px; font-size:small;">{{ date('d/m/Y H:i') }}</div>
 </div>
 <script>
 

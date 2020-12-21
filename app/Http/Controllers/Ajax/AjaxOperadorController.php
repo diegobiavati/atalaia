@@ -41,7 +41,7 @@ class AjaxOperadorController extends Controller
     public function __construct(ClassLog $classLog)
     {
         $this->classLog = $classLog;
-        $classLog->ip = $_SERVER['REMOTE_ADDR'];
+        $classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);    
     }
 
     public function VisaoGeralOMCT(\App\Http\Controllers\OwnAuthController $ownauthcontroller)

@@ -9,7 +9,7 @@
 
 body {
 
-  background: #f5f5f5 url('/images/bg_tela_login_gaviao.jpg') no-repeat;
+  background: #f5f5f5 url('/images/bg_tela_login_gaviao.jpeg') no-repeat;
   background-size: cover;
 
 }
@@ -27,7 +27,7 @@ body {
 
 #atalaia_middle{
   /*background: linear-gradient(#0094D3, #EC2125);*/
-  padding: 50px 56px;
+  padding: 28px 56px;
 }
 
 .form-wrapper {
@@ -177,6 +177,7 @@ a.no-style:hover{
         </form>        
       @endif
     </div>
+    <div style="text-align: center; margin-right:10px; font-size:small;">{{ date('d/m/Y H:i') }}</div>
 </div>
 <script>
 

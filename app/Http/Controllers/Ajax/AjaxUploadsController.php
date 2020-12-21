@@ -17,7 +17,7 @@ class AjaxUploadsController extends Controller
 
     public function __construct(\App\Http\OwnClasses\ClassLog $classLog){
         $this->classLog = $classLog;
-        $classLog->ip=$_SERVER['REMOTE_ADDR'];      
+        $classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
     }
 
     public function UploadImgPerfil(Request $request){

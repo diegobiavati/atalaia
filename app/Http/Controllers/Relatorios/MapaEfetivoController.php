@@ -23,7 +23,7 @@ class MapaEfetivoController extends Controller
     {
         $this->ownauthcontroller = $ownauthcontroller;
         $this->classLog = $classLog;
-        $this->classLog->ip = $_SERVER['REMOTE_ADDR'];
+        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
     }
 
     public function ViewMapaEfetivoGeral(Request $request)

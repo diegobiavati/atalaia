@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Utilitarios;
 
 use App\Http\Controllers\OwnAuthController;
+use App\Models\Alunos;
 use App\Models\AnoFormacao;
 use App\Models\AvaliacoesNotas;
 use App\Models\OMCT;
@@ -164,6 +165,10 @@ class FuncoesController
                             $aluno['notas'][$aval->indice_notas] = $aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas];
                         }else{
                             unset($aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas]);
+
+                            //Para puxar fazer a média do demonstrativo...
+                            $aluno_notas[$disciplina_id][$aluno_id]['notas_sem_peso'][] = $aval->nota;
+
                             $aluno_notas[$disciplina_id][$aluno_id]['avaliacoes'][$key]->indice_notas = null;
                             $aluno['avaliacoes'][$key]->indice_notas = null;
                         }
@@ -173,6 +178,7 @@ class FuncoesController
                         $aluno_notas[$disciplina_id][$aluno_id]['media'] = array_sum($aluno_notas[$disciplina_id][$aluno_id]['notas']) / $quantidadeAvaliacao;
                     }else{
                         $aluno_notas[$disciplina_id][$aluno_id]['media'] = 0;
+                        $aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso'] = array_sum($aluno_notas[$disciplina_id][$aluno_id]['notas_sem_peso']) / count($aluno_notas[$disciplina_id][$aluno_id]['notas_sem_peso']);
                     }
                     
                     $aluno_notas[$disciplina_id]['media_disciplina'] += $aluno_notas[$disciplina_id][$aluno_id]['media'];
@@ -184,16 +190,24 @@ class FuncoesController
                                                                                     ? $aluno_notas[$disciplina_id][$aluno_id]['media'] 
                                                                                     : $aluno_notas[$disciplina_id]['min_disciplina']);
 
-                    $contador_media++;
+                    //Caso seja sem peso a avaliação e só existir uma nota lançada...
+                    if($aluno_notas[$disciplina_id][$aluno_id]['media'] == 0 && $quantidadeAvaliacao == 0){
+                        $aluno_notas[$disciplina_id][$aluno_id]['media'] = '-';
+                    }else{
+                        $contador_media++;
+                    }
                 }
 
-                $aluno_notas[$disciplina_id]['media_disciplina'] = $aluno_notas[$disciplina_id]['media_disciplina'] / $contador_media;
+                if($contador_media > 0){
+                    $aluno_notas[$disciplina_id]['media_disciplina'] = $aluno_notas[$disciplina_id]['media_disciplina'] / $contador_media;
+                }
             }
             $aluno_notas['alunosID'] = $alunosID;
         }else{
             $aluno_notas = array();
         }
-
+        
+        //dd($aluno_notas[24][2188]);
         return $aluno_notas;
     }
 
@@ -207,4 +221,9 @@ class FuncoesController
         return $Zoo;
     }
 
+    
+
+    public static function retornaAnoFormacaoAtivoQualificacao(){
+        return AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
+    }
 }

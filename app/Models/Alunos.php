@@ -291,6 +291,11 @@ class Alunos extends Model
         return $this->hasOne(AlunosCurso::class, 'id_aluno', 'id');
     }
 
+    public function qms()
+    {
+        return $this->belongsTo('App\Models\QMS', 'qms_id', 'id');
+    }
+
     /* public function AvaliacaoTaf(){
         return $this->belongsTo(AvaliacaoTaf::class);
     } */
@@ -324,6 +329,55 @@ class Alunos extends Model
             }
         }
         return $alunos;
+    }
+
+    private static function retornaAlunosComQms($anoFormacaoID=0){
+
+        $aluno = Alunos::whereNotNull('qms_id');
+
+        /*if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
+
+            $aluno->whereHas('qms', function($q){
+                $q->where('qms_matriz_id', '=', session()->get('qms_selecionada'));
+            });
+            
+        }else if(!in_array('9999', session()->get('login.perfil'))){
+            $aluno->where('qms_id', session()->get('login.qmsID.0.id') );
+        }*/
+        
+        if($anoFormacaoID > 0){
+            return $aluno->where([['data_matricula', '=', $anoFormacaoID]]);
+        }
+
+        return $aluno->with('qms');
+    }
+
+    public static function retornaAlunosComQmsESA($anoFormacaoID=0){
+
+        $aluno = Alunos::retornaAlunosComQmsESAGeral($anoFormacaoID);
+        
+        if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
+
+            $aluno->whereHas('qms', function($q){
+                $q->where('qms_matriz_id', '=', session()->get('qms_selecionada'));
+            });
+            
+        }else if(!in_array('9999', session()->get('login.perfil'))){
+            $aluno->where('qms_id', session()->get('login.qmsID.0.id') );
+        }                
+
+        return $aluno->get();
+    }
+
+    public static function retornaAlunosComQmsESAGeral($anoFormacaoID=0){
+        $qms_alias_esa = ['infantaria', 'cavalaria', 'artilharia', 'engenharia', 'comunicacoes'];
+
+        $aluno = Alunos::retornaAlunosComQms($anoFormacaoID)
+                ->whereHas('qms', function($query) use($qms_alias_esa) {
+                    $query->whereIn('qms_alias', $qms_alias_esa);
+                });
+
+        return $aluno;
     }
 
     public static function filtraAlunosOmctAreaSeg($alunos, $omct_id, $area_id, $segmento)

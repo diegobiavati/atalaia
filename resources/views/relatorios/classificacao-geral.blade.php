@@ -432,9 +432,16 @@
                             @foreach ($disciplinas as $disciplina)
                                 <td style="border: 1px solid #000; padding: 6px; text-align: center;">
                                     @if(isset($notas_data_array[$aluno->aluno_id]['data_demonstrativo']))
+                                    
                                         @foreach ($notas_data_array[$aluno->aluno_id]['data_demonstrativo'] as $item)
-                                            @if(isset($item['disciplina_id']) && $item['disciplina_id']==$disciplina->id)                                           
-                                                {{ number_format($item['media'], '3', ',', '') }}
+                                            @if(isset($item['disciplina_id']) && $item['disciplina_id']==$disciplina->id)
+                                                
+                                                @if(isset($item['media_sem_peso']))
+                                                    {{ number_format($item['media_sem_peso'], 3, ',', '') }}
+                                                @else
+                                                    {{ (is_numeric($item['media']) ? number_format($item['media'], '3', ',', '') : $item['media']) }}
+                                                @endif
+                                                
 
                                                 @if(isset($item['avaliacoes']['CE']) && $item['avaliacoes']['CE'] == 'APROVADO')
                                                     {!! '<br><b>APROV CE</b></br>' !!}

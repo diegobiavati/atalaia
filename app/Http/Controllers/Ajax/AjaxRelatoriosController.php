@@ -1692,6 +1692,8 @@ class AjaxRelatoriosController extends Controller
             })->delete();
 
             // RESETANDO AUTO INCREMENT
+            $max = DB::table('alunos_classificacao')->max('id') + 1;
+            DB::statement("ALTER TABLE alunos_classificacao AUTO_INCREMENT=$max;");
             /*DB::statement("SET @count = 0;");
             DB::statement("UPDATE alunos_classificacao SET alunos_classificacao.id = @count:= @count + 1;");
             DB::statement("ALTER TABLE alunos_classificacao AUTO_INCREMENT = 1;");*/
@@ -1772,6 +1774,7 @@ class AjaxRelatoriosController extends Controller
 
             //2ºTen João Victor, Alteração no Cálculo da NOTA
             $alunoNota = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
+            //dd($alunoNota[24][2188]);
             $alunosID = $alunoNota['alunosID'];
             //Fim Alteração 2ºTen João Victor
             $alunosID = array_unique($alunosID);
@@ -1793,6 +1796,7 @@ class AjaxRelatoriosController extends Controller
                 foreach($alunosID as $aluno_id){
 
                     if(isset($taf_nota[$aluno_id])){
+
                         $alunoNota[99999][$aluno_id]['notas'][] = $taf_nota[$aluno_id]->media;
 
                         $alunoNota[99999][$aluno_id]['avaliacoes']['CORRIDA'] = $taf_nota[$aluno_id]->corrida_nota;
@@ -1862,8 +1866,10 @@ class AjaxRelatoriosController extends Controller
                     }
                 }
                 
+                //dd($k[2188]);
                 if(isset($k)){
                     foreach($alunosID as $alunoID){
+                        $discAprovConselhoEnsino = array();
                         foreach($k[$alunoID] as $key => $z){
 
                             $k[$alunoID][$key]['media'] = (isset($z['media'])) ? $z['media'] : 0;
@@ -1874,32 +1880,32 @@ class AjaxRelatoriosController extends Controller
                             //if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['disciplina_id']!=99999){
                             if($k[$alunoID][$key]['media']<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
 
+                                $avaliacao_rec_nota = null;
                                 $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $k[$alunoID][$key]['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
                                 
                                 if($avaliacao_rec_id){
                                     $avaliacao_rec_nota = AvaliacoesNotas::where('alunos_id', $alunoID)->where('avaliacao_id', $avaliacao_rec_id->id)->first();
-                                }
 
-                                if(isset($avaliacao_rec_nota)){
-                                    $k[$alunoID][$key]['AR'] = $avaliacao_rec_nota->getNota();
-                                    $k[$alunoID][$key]['avaliacoes']['ACR'] = $avaliacao_rec_nota->getNota();
-
-                                    //if((($k[$alunoID][$key]['AR'] + $k[$alunoID][$key]['media'])/2) >=5){
-                                    //    $k[$alunoID][$key]['media'] = 5;    
-                                    //}
-
-                                    /*
-                                    
-                                        Caso o discente obtenha nota igual ou superior a 5,000, receberá a nota 5,000 como nota final da disciplina respectiva
-                                        Caso o discente obtenha nota inferior a 5,000, permanecerá com ND obtida antes da ACR como nota final da disciplina respectiva
-
-                                    */
-
-                                    if(($k[$alunoID][$key]['AR']) >=5){
-                                        $k[$alunoID][$key]['media'] = 5;    
+                                    if(isset($avaliacao_rec_nota)){
+                                        $k[$alunoID][$key]['AR'] = $avaliacao_rec_nota->getNota();
+                                        $k[$alunoID][$key]['avaliacoes']['ACR'] = $avaliacao_rec_nota->getNota();
+    
+                                        //if((($k[$alunoID][$key]['AR'] + $k[$alunoID][$key]['media'])/2) >=5){
+                                        //    $k[$alunoID][$key]['media'] = 5;    
+                                        //}
+    
+                                        /*
+                                        
+                                            Caso o discente obtenha nota igual ou superior a 5,000, receberá a nota 5,000 como nota final da disciplina respectiva
+                                            Caso o discente obtenha nota inferior a 5,000, permanecerá com ND obtida antes da ACR como nota final da disciplina respectiva
+    
+                                        */
+    
+                                        if(($k[$alunoID][$key]['AR']) >=5){
+                                            $k[$alunoID][$key]['media'] = 5;    
+                                        }
                                     }
                                 }
-                                
                                 // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO
 
                                 $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', $k[$alunoID][$key]['disciplina_id'])->first();
@@ -1915,10 +1921,13 @@ class AjaxRelatoriosController extends Controller
 
                                 if($alunos_em_conselho){
                                     $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
+                                    $discAprovConselhoEnsino[] = $k[$alunoID][$key]['disciplina_id'];
                                 } 
 
-                                $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
-                                $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
+                                if(is_numeric($k[$alunoID][$key]['media'])){
+                                    $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
+                                    $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
+                                }
                                 
                             } else {
 
@@ -1956,6 +1965,8 @@ class AjaxRelatoriosController extends Controller
                                         $k[$alunoID][$key]['reprovado']= $alunoNota[99999][$alunoID]['reprovado'];
                                         $reprovado[] = 0;
                                         $disciplinas_reprovado_array[] = 0;
+
+                                        $discAprovConselhoEnsino[] = 99999;
                                     } else {
                                         $reprovado[] = 1;
                                         $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
@@ -1978,6 +1989,8 @@ class AjaxRelatoriosController extends Controller
                                             $k[$alunoID][$key99999]['media'] = $k[$alunoID][$key99999]['media_anterior'];
                                             $mf['taf'] = $k[$alunoID][$key99999]['media'];
                                             unset($k[$alunoID][$key99999]['media_anterior']);
+
+                                            $discAprovConselhoEnsino[] = 99999;
                                         } else {
                                             $reprovado[] = 1;
                                             $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
@@ -1998,13 +2011,26 @@ class AjaxRelatoriosController extends Controller
                             }
                             
                         }
-/*if($alunoID == 3156){//ERICK SILVA DE SOUZA
+/*if($alunoID == 2188){//ERICK SILVA DE SOUZA
     dd($k[$alunoID], $mf, $reprovado, $disciplinas_reprovado_array);
 }*/
                         if(isset($mf)){
                             if(array_sum($reprovado)>0){
-                                $k[$alunoID]['reprovado'] = 'S';
-                                $disciplinas_reprovado = implode(',', array_unique($disciplinas_reprovado_array));    
+                                $val = false;
+                                foreach(array_unique($disciplinas_reprovado_array) as $disciplina){
+                                    if($disciplina > 0 && !in_array($disciplina, $discAprovConselhoEnsino)){
+                                        $val = true;
+                                    }
+                                }
+                                
+                                if($val){
+                                    $k[$alunoID]['reprovado'] = 'S';
+                                    $disciplinas_reprovado = implode(',', array_unique($disciplinas_reprovado_array));    
+                                }else{
+                                    $k[$alunoID]['reprovado'] = 'N';
+                                    $disciplinas_reprovado = null;    
+                                }
+                                
                             } else {
                                 $k[$alunoID]['reprovado'] = 'N';
                                 $disciplinas_reprovado = null;

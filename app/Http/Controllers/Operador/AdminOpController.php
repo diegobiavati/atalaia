@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Imagens;
 use App\Models\Operadores;
 use App\Models\OperadoresTipo;
+use App\Models\QMSMatriz;
 use App\User;
 
 class AdminOpController extends Controller
@@ -46,35 +47,79 @@ class AdminOpController extends Controller
         foreach($funcoesOperadores as $funcao){
             $data[$funcao->id] = $funcao->funcao_abrev;
         }
+
+        $qmsMatriz = array(1,2,3,4,5,9999);
+        $cursos = QMSMatriz::whereIn('id', $qmsMatriz)->get();
         
-        if($ownauthcontroller->PermissaoCheck([1])){
+        if(session()->has('login.qmsID')){
 
             switch(session()->get('login.qmsID')[0]['qms_matriz_id']){
                 case 1://Infantaria
                     $backgroundColor = 'rgb(0,168,89);';
+                    $backgroundVisaoGeral = $backgroundColor;
+                    $backgroundMenuLateral = 'linear-gradient(135deg, rgb(0, 168, 89), rgb(45, 72, 59));';
                 break;
                 case 2://Cavalaria
                     $backgroundColor = 'rgb(237,50,55);';
+                    $backgroundVisaoGeral = $backgroundColor;
+                    $backgroundMenuLateral = 'linear-gradient(135deg, rgb(237, 50, 55), rgb(98, 25, 27));';
                 break;
                 case 3://Artilharia
                     $backgroundColor = 'rgb(0,100,166);';
+                    $backgroundVisaoGeral = $backgroundColor;
+                    $backgroundMenuLateral = 'linear-gradient(135deg, rgb(0, 100, 166), rgb(0, 47, 79));';
                 break;
                 case 4://Engenharia
                     $backgroundColor = 'rgb(145,216,247);';
+                    $backgroundVisaoGeral = $backgroundColor;
+                    $backgroundMenuLateral = 'linear-gradient(135deg, rgb(145, 216, 247), rgb(48, 68, 77))';
                 break;
                 case 5://Comunicações
                     $backgroundColor = 'rgb(0,152,218);';
+                    $backgroundVisaoGeral = $backgroundColor;
+                    $backgroundMenuLateral = 'linear-gradient(135deg, rgb(0, 152, 218), rgb(0, 41, 60))';
                 break;
                 case 9999://ESA
                     $backgroundColor = 'linear-gradient(#EC2125 47%, #E0B22E 50%,#0094D3 53%);';
+                    $backgroundVisaoGeral = '#0094D3;';
+                    $backgroundMenuLateral = 'linear-gradient(135deg, rgb(40, 139, 179), rgb(19, 92, 115));';
                 break;
             }
+            
+            if(session()->has('qms_selecionada')){
+                switch(session()->get('qms_selecionada')){
+                    case 1:
+                        $backgroundVisaoGeral = 'rgb(0,168,89);';
+                        $backgroundMenuLateral = 'linear-gradient(135deg, rgb(0, 168, 89), rgb(45, 72, 59));';
+                    break;
+                    case 2:
+                        $backgroundVisaoGeral = 'rgb(237,50,55);';
+                        $backgroundMenuLateral = 'linear-gradient(135deg, rgb(237, 50, 55), rgb(98, 25, 27));';
+                    break;
+                    case 3:
+                        $backgroundVisaoGeral = 'rgb(0,100,166);';
+                        $backgroundMenuLateral = 'linear-gradient(135deg, rgb(0, 100, 166), rgb(0, 47, 79));';
+                    break;
+                    case 4:
+                        $backgroundVisaoGeral = 'rgb(145,216,247);';
+                        $backgroundMenuLateral = 'linear-gradient(135deg, rgb(145, 216, 247), rgb(48, 68, 77))';
+                    break;
+                    case 5:
+                        $backgroundVisaoGeral = 'rgb(0,152,218);';
+                        $backgroundMenuLateral = 'linear-gradient(135deg, rgb(0, 152, 218), rgb(0, 41, 60))';
+                    break;
+                }
+            }
+
+            session()->put('backgroundColor', $backgroundColor);
+            session()->put('backgroundVisaoGeral', $backgroundVisaoGeral);
+            session()->put('backgroundMenuLateral', $backgroundMenuLateral);            
             
             return view('operador.adminGaviao')->with('img_perfil', ($img->imagem)??'')
                                         ->with('operador', $operador)
                                         ->with('ownauthcontroller', $ownauthcontroller)
                                         ->with('data', $data)
-                                        ->with('backgroundColor', $backgroundColor);
+                                        ->with('cursos', $cursos);
 
         } else {
             return 'Usuário Logado!<br/><a href="'.route('gaviao.logout').'">Clique aqui para sair</a>';

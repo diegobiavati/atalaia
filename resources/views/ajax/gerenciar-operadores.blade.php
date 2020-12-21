@@ -3,6 +3,10 @@
             background: #F2F2F2;
         }    
     </style>
+    <?php
+        $url_editar = ( (session()->get('login.omctID')) ? '/ajax/dialog-editar-operador/' : '/gaviao/ajax/dialog-editar-operador-gaviao/');
+        $url_adicionar = ( (session()->get('login.omctID')) ? '/ajax/dialog-adicionar-operador/' : '/gaviao/ajax/dialog-adicionar-operador-gaviao/');
+    ?>
     <div class="card bg-light mb-3">
             <div class="card-header">
                 <i class="ion-ios-people"></i><strong>Gerenciar Operadores</strong>
@@ -39,19 +43,18 @@
                                         <!--th scope="col">POSTO/GRAD</th-->
                                         <th scope="col">MILITAR</th>
                                         <th scope="col">FUNÇÃO</th>
-                                        <th scope="col">UETE</th>
+                                        <th scope="col">{{ (session()->get('login.qmsID') ? 'CURSO' : 'UETE') }}</th>
                                         <th scope="col">CONTATOS</th>
                                         <th scope="col" style="width: 140px;">AÇÃO</th>
                                     </tr>
                                 </thead>
-                                <tbody>                    
+                                <tbody>            
                                 @foreach($operadores as $op)
                                 <tr id="operador_{{$op->id}}">
                                         <!--td>{{$op->postograd->postograd_abrev}}</td-->
                                         <td class="operador-nome">
                                             <b>{{$op->postograd->postograd_abrev}} {{$op->nome_guerra}}</b><br />
                                             <span style="font-size: 11px;"><i>{{$op->nome}}</i></span>
-
                                         </td>
                                         <td>
                                         <?php
@@ -64,8 +67,8 @@
                                             echo implode(', ', $funcao_extenso);
                                             unset($funcao_extenso);
                                         ?>
-                                        </td>
-                                        <td>{{$op->omcts->sigla_omct}}</td>   
+                                        </td>      
+                                        <td>{{ (session()->get('login.qmsID') ? $op->qms->qms : $op->omcts->sigla_omct) }}</td>   
                                     <td>{{$op->tel_pronto_atendimento}}<br />{{$op->email}}</td>
                                         <td class="botao-action-table">
                                             <a href="javascript: void(0);" class="no-style" onclick="dialogInfoUser({{$op->usuario->id}}, 'operador');" title="Detalhes do operador"><i class="ion-information-circled"></i></a>
@@ -90,7 +93,7 @@
             </div>
             
         </div>
-        
+     
     <script>
     
         $("[data-toggle=popover]").popover({
@@ -102,6 +105,58 @@
                 }
         }); 
     
+        
+
+        // MOSTRA DIALOGO EDITAR OPERADORES 
+        function dialogEditarOperador(id){
+
+             $.ajax({
+            	type:'GET',
+                url: '{{ $url_editar }}' + id,
+                beforeSend: function(){
+                    loadingModalDinamica('show', 'lg');
+                    $('div#modalDinamica div.modal-body').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+                },
+                success: function(data){
+                    if(data.body){
+                        $('div#modalDinamica div.modal-header h5').html(data.header);
+                        $('div#modalDinamica div.modal-body').html(data.body);
+                        $('div#modalDinamica div.modal-footer').html(data.footer);
+                    }else{
+                        $('div#modalDinamica div.modal-content').html(data);
+                    }
+                    loadingModalDinamica('hide', 'lg');
+                },
+                error: function(jqxhr) {
+                    $('div#modalDinamica div.modal-body').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                }
+            });
+        }
+
+        // MOSTRA DIALOGO ADICIONAR OPERADORES /          
+        function dialogAdicionarOperador(){
+             $.ajax({
+            	type:'GET',
+                url: '{{ $url_adicionar }}',
+                beforeSend: function(){
+                    loadingModalDinamica('show', 'lg');
+                },
+                success: function(data){
+                    if(data.body){
+                        $('div#modalDinamica div.modal-header h5').html(data.header);
+                        $('div#modalDinamica div.modal-body').html(data.body);
+                        $('div#modalDinamica div.modal-footer').html(data.footer);
+                    }else{
+                        $('div#modalDinamica div.modal-content').html(data);
+                    }
+                    loadingModalDinamica('hide', 'lg');
+                },
+                error: function(jqxhr) {
+                    $('div#modalDinamica div.modal-body').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                }
+            });
+        }
+
     </script>
     
     

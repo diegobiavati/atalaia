@@ -27,7 +27,7 @@ class AlunoSitDiversasController extends Controller
         $this->request = $request;
         $this->ownauthcontroller = $ownauthcontroller;
         $this->classLog = $classLog;
-        $this->classLog->ip = $_SERVER['REMOTE_ADDR'];
+        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
     }
     /**
      * Display a listing of the resource.

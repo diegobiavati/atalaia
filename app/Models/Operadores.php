@@ -31,4 +31,8 @@ class Operadores extends Model
         return $this->belongsTo('App\Models\OperadoresTipo', 'id_funcao_operador', 'id');
     }
 
+    public function qms(){
+        return $this->belongsTo('App\Models\QMSMatriz', 'qms_matriz_id', 'id');
+    }
+
 }

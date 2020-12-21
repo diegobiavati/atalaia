@@ -78,7 +78,7 @@ class AjaxAdminController extends Controller
         $this->lancarTaf = $avaliacaTaf;
         $this->request = $request;
         $this->classLog = $classLog;
-        $classLog->ip = $_SERVER['REMOTE_ADDR'];
+        $classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);    
         $this->ownauthcontroller = $ownauthcontroller;
     }
 
@@ -89,6 +89,24 @@ class AjaxAdminController extends Controller
             $operadores = Operadores::whereNotNull('omcts_id')->where([['ativo', '=', 'S']])->orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
         } else {
             $operadores = Operadores::where([['omcts_id', '=', session()->get('login.omctID')], ['ativo', '=', 'S']])->orderBy('postograd_id', 'asc')->get();
+        }
+
+        //$operadores = Operadores::orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
+        $funcoesOperadores = OperadoresTipo::get();
+        foreach ($funcoesOperadores as $funcao) {
+            $data[$funcao->id] = $funcao->funcao_abrev;
+        }
+
+        $this->classLog->RegistrarLog('Acesso ao menu para gerenciamento de operadores', auth()->user()->email);
+        return view('ajax.gerenciar-operadores')->with('operadores', $operadores)->with('data', $data)->with('ownauthcontroller', $ownauthcontroller);
+    }
+
+    public function GerenciarOperadoresGaviao(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
+    {
+        if ($this->ownauthcontroller->PermissaoCheck(1)) {
+            $operadores = Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])->orderBy('qms_matriz_id', 'asc')->orderBy('postograd_id', 'asc')->get();
+        } else {
+            $operadores = Operadores::where([['qms_matriz_id', '=',session()->get('login.qmsID.0.qms_matriz_id')], ['ativo', '=', 'S']])->orderBy('postograd_id', 'asc')->get();
         }
 
         //$operadores = Operadores::orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
@@ -349,7 +367,7 @@ class AjaxAdminController extends Controller
             $alunos_em_conselho->acrescimo = str_replace(',', '.', $request->acrescimo);
 
             if ($alunos_em_conselho->save()) {
-                AlunosClassificacao::where([['aluno_id', '=', $request->aluno]])->update(['reprovado' => 'N']);
+                //AlunosClassificacao::where([['aluno_id', '=', $request->aluno]])->update(['reprovado' => 'N']);
                 $data = 'ok';
             } else {
                 $data = 'err';
@@ -466,7 +484,7 @@ class AjaxAdminController extends Controller
                     $alunos_array[] = $avaliacao->aluno;
                 }
 
-                $alunos = collect($alunos_array);
+                $alunos = ((isset($alunos_array)) ? collect($alunos_array) : []);
             } else {
                 $alunos = Alunos::where('data_matricula', $id_ano_corrente)->where('omcts_id', session()->get('login.omctID'))->orderBy('numero', 'asc')->get();
                 foreach ($alunos as $alunoId) {
@@ -562,14 +580,23 @@ class AjaxAdminController extends Controller
         $this->lancarTaf->reprovado = $reprovado;
 
         if ($this->lancarTaf->where('aluno_id', $request->id)->first()) {
-            $this->lancarTaf->where('aluno_id', $request->id)->update([
-                'corrida_nota' => str_replace(',', '.', $corrida),
-                'flexao_braco_nota' => str_replace(',', '.', $flex_bra),
-                'flexao_barra_nota' => str_replace(',', '.', $flex_barr),
-                'abdominal_suficiencia' => $request->suficiencia_abdominal,
-                'media' => $media_banco,
-                'reprovado' => $reprovado
-            ]);
+            $update['corrida_nota'] = str_replace(',', '.', $corrida) ;
+            $update['flexao_braco_nota'] = str_replace(',', '.', $flex_bra);
+            $update['flexao_barra_nota'] = str_replace(',', '.', $flex_barr);
+            $update['abdominal_suficiencia'] = $request->suficiencia_abdominal;
+            $update['media'] = $media_banco;
+            $update['reprovado'] = $reprovado;
+
+            if($reprovado == 'N'){
+                $update['corrida_nota_recuperacao'] = null;
+                $update['flexao_braco_nota_recuperacao'] = null;
+                $update['flexao_barra_nota_recuperacao'] = null;
+                $update['abdominal_suficiencia_recuperacao'] = null;
+                $update['media_recuperacao'] = null;
+                $update['reprovado_recuperacao'] = null;
+            }
+
+            $this->lancarTaf->where('aluno_id', $request->id)->update($update);
 
             $data['status'] = 'ok';
         } else {
@@ -1415,15 +1442,17 @@ class AjaxAdminController extends Controller
             ->with('ownauthcontroller', $ownauthcontroller);
     }
 
+    
+
     public function Relatorios(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
         return view('ajax.relatorios')->with('ownauthcontroller', $ownauthcontroller);
     }
 
-    public function AnosDeFormacao(Request $request)
+    public function AnosDeFormacao(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request)
     {
         $anos_formacao = AnoFormacao::orderBy('formacao', 'desc')->get();
-        return view('ajax.anos-de-formacao')->with('anos_formacao', $anos_formacao);
+        return view('ajax.anos-de-formacao')->with('anos_formacao', $anos_formacao)->with('ownauthcontroller', $ownauthcontroller);
     }
 
     public function PrecedenciaDesempate(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request)
@@ -1584,8 +1613,21 @@ class AjaxAdminController extends Controller
         $mes = ($mes) ?? 0;
         $ano = ($ano) ?? 0;
 
+        $per_ativo_qualificacao = $request->has('per_ativo_qualificacao');
+
+        if($per_ativo_qualificacao){
+            if(AnoFormacao::where([['id', '<>', $request->id], ['per_ativo_qualificacao', '=', 'S']])->count() > 0){
+                $data['status'] = 'err';
+                $data['content'] = 'Já Existe Um Período Ativo Para a Qualificação.';
+                return $data;
+            }
+        }
+
+        $ano_formacao->per_ativo_qualificacao = (($per_ativo_qualificacao) ? 'S': 'N');
+
         if (!checkdate($mes, $dia, $ano)) {
             $data['status'] = 'err';
+            $data['content'] = 'Data Inválida';
         } else {
             $ano_formacao->data_matricula = $ano . '-' . $mes . '-' . $dia;
             if ($ano_formacao->save()) {
@@ -1593,15 +1635,19 @@ class AjaxAdminController extends Controller
                 $data['content'] = '(Data matrícula: ' . $dia . '/' . $mes . '/' . $ano . ')';
             } else {
                 $data['status'] = 'err';
+                $data['content'] = 'Ocorreu Um Erro ao Salvar.';
             }
         }
         $this->classLog->RegistrarLog('Atualizou ano de formação', auth()->user()->email);
         return $data;
     }
 
-    public function DialogEditarAnoFromacao(Request $request)
+    public function DialogEditarAnoFormacao(Request $request)
     {
         $ano_formacao = AnoFormacao::find($request->id);
+        
+        $checked = ($ano_formacao->per_ativo_qualificacao == 'S') ? 'checked' : '';
+
         $data['header'] = '<i class="ion-ios-calendar-outline" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar ano de formação';
         $data['body'] = '   <form id="atualizar_ano_formacao">
                                         <input type="hidden" name="_token" value="' . csrf_token() . '">                                     
@@ -1612,6 +1658,13 @@ class AjaxAdminController extends Controller
                                             </div>
                                             <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
                                                 <input class="no-style" style="width: 100%;" name="data_matricula" type="text" value="' . strftime('%d/%m/%Y', strtotime($ano_formacao->data_matricula)) . '" maxlength="10" autocomplete="off" placeholder="Data de matrúcla (DD/MM/AAAA)." />
+                                            </div>
+                                            <div class="clear"></div>
+                                            <div style="margin: 14px auto; width: 80%; max-width: 380px;">
+                                                <div class="custom-control custom-checkbox" style="margin-top: 20px;">
+                                                    <input id="customCheck1" name="per_ativo_qualificacao" type="checkbox" value="0" class="custom-control-input" '.$checked.' />
+                                                    <label class="custom-control-label" for="customCheck1">Período Ativo (Qualificação)</label>
+                                                </div>
                                             </div>
                                             <div class="clear"></div>                                            
                                         </div>                                        
@@ -2634,7 +2687,7 @@ class AjaxAdminController extends Controller
             $operadores_tipo = OperadoresTipo::whereIn('id', $whereInOperadores)->get();
         }else{
             $omcts = OMCT::get();
-            $operadores_tipo = OperadoresTipo::get();
+            $operadores_tipo = OperadoresTipo::where([['id', '<', 9000]])->get();
         }
         
         foreach ($operadores_tipo as $tipo) {
@@ -3111,6 +3164,8 @@ class AjaxAdminController extends Controller
                             </button>';
         return $data;
     }
+
+    
 
     public function DialogAdicionarPortaria()
     {
@@ -4404,7 +4459,6 @@ class AjaxAdminController extends Controller
         $user = new User;
         $user->email = $request->email;
         $user->password = bcrypt(uniqid());
-        //$user->password = bcrypt($request->email);
 
         $operador = new Operadores;
         $operador->nome = mb_strtoupper($request->nome, 'UTF-8');
@@ -4412,7 +4466,13 @@ class AjaxAdminController extends Controller
         $operador->idt_militar = $request->idt_militar;
         $operador->idt_militar_o_exp = $request->idt_militar_o_exp;
         $operador->postograd_id = $request->postograd_id;
-        $operador->omcts_id = $request->omcts_id;
+
+        if(isset($request->qms_id)){
+            $operador->qms_matriz_id = $request->qms_id;
+        }else{
+            $operador->omcts_id = $request->omcts_id;
+        }
+        
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;
         $operador->email = $request->email;
         if ($request->tipo_operador_check) {
@@ -4429,7 +4489,7 @@ class AjaxAdminController extends Controller
             }
             $this->classLog->RegistrarLog('Adicionou um operador', auth()->user()->email);
         } catch (Exception $e) {
-            $this->classLog->RegistrarLog('TESTE', 'teste');
+            $this->classLog->RegistrarLog('Ocorreu um Erro ao Tentar Salvar um Novo Operador', auth()->user()->email);
         }
 
         return $data;
@@ -4447,11 +4507,17 @@ class AjaxAdminController extends Controller
         $operador->nome_guerra = $request->nome_guerra;
         $operador->idt_militar = $request->idt_militar;
         $operador->idt_militar_o_exp = $request->idt_militar_o_exp;
-        $operador->omcts_id = $request->omcts_id;
+
+        if(isset($request->qms_id)){
+            $operador->qms_matriz_id = $request->qms_id;
+        }else{
+            $operador->omcts_id = $request->omcts_id;
+        }
+        
         $operador->postograd_id = $request->postograd_id;
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;
         $operador->email = $request->email;
-
+        
         if (!in_array(1, session()->get('login.perfil'))) {//Valida se não é perfil ESA...
 
             if(in_array(4, explode(',', $operador->id_funcao_operador))){//Verifica se o Operador é Sargenteante...
@@ -4498,7 +4564,7 @@ class AjaxAdminController extends Controller
         // $data['content_tr_eq0'] = $operador->postograd->postograd_abrev;
         $data['content_tr_eq0'] = '<b>' . $operador->postograd->postograd_abrev . ' ' . $operador->nome_guerra . '</b><br /><span style="font-size: 11px;"><i>' . $operador->nome . '</i></span>';
         $data['content_tr_eq1'] = implode(', ', $funcao_extenso);
-        $data['content_tr_eq2'] = $operador->omcts->sigla_omct;
+        $data['content_tr_eq2'] = (isset($request->qms_id) ? $operador->qms->qms : $operador->omcts->sigla_omct);
         $data['content_tr_eq3'] = $operador->tel_pronto_atendimento;
         $data['content_tr_eq4'] = $operador->email;
         $data['nomeGuerra'] = $operador->nome_guerra;
@@ -4569,7 +4635,7 @@ class AjaxAdminController extends Controller
                                         <div style="margin-top: 18px;">
                                             <h5>' . $operador->nome . '</h5>
                                             <h5>' . $operador->postograd->postograd . ' ' . $operador->nome_guerra . '</h5>
-                                            <h5>' . $operador->omcts->omct . '</h5>
+                                            <h5>' . (session()->get('login.qmsID') ? $operador->qms->qms : $operador->omcts->omct)  . '</h5>
                                         </div>
                                         <div class="clear"></div>
                                     </div>
@@ -4626,6 +4692,8 @@ class AjaxAdminController extends Controller
                                             <h5>AL ' . $aluno->numero . ' ' . $aluno->nome_guerra . '</h5>
                                             <h6>' . $aluno->nome_completo . '</h6>
                                             <h6>' . $aluno->omct->omct . '</h6>
+                                            '.(((isset($aluno->qms_id)) ? '<h6>' . strtoupper($aluno->qms->qms) . '</h6>' : '')).'
+                                            
                                         </div>
                                         <div class="clear"></div>
                                     </div>

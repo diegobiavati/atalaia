@@ -34,7 +34,7 @@ class RelatorioAlunoController extends Controller
     {
         $this->ownauthcontroller = $ownauthcontroller;
         $this->classLog = $classLog;
-        $this->classLog->ip = $_SERVER['REMOTE_ADDR'];
+        $this->classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);    
     }
 
     public function ViewRelatorioGeral(Request $request)
@@ -654,7 +654,7 @@ class RelatorioAlunoController extends Controller
         }
 
         $pdf = new PDF('L');
-        $pdf->SetAutoPageBreak(false);
+        $pdf->SetAutoPageBreak(true);
 
         foreach ($alunos as $key) {
 
@@ -679,7 +679,12 @@ class RelatorioAlunoController extends Controller
 
             $pdf->Rect(229.6, 56.9, 36.0, 40.5);
 
-            $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 230, 57, 35, 40);
+            if(is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))){
+                $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 230, 57, 35, 40);    
+            }else{
+                $pdf->Image(public_path() . '/storage/imagens_aluno/no-image.jpg', 230, 57, 35, 40);
+            }
+            
 
             $pdf->Cell(0, 4, utf8_decode($aluno->omct->omct), 0, 1, 'C', false);
 

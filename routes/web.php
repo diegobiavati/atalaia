@@ -1,8 +1,10 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+
 Route::group(['middleware' => 'auth', 'prefix' => 'operador', 'as' => 'operador.'], function () {
     Route::get('/', ['as' => 'admin', 'uses' => 'Operador\AdminOpController@ShowHome']);
-    
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'aluno', 'as' => 'aluno.'], function () {
@@ -22,6 +24,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
 
     /* ROTAS PARA SUPER ADMINISTRADORES E OPERADORES (MENU PRINCIPAL)*/
     Route::get('gerenciar-operadores', ['as' => 'gerenciar-operadores', 'uses' => 'Ajax\AjaxAdminController@GerenciarOperadores']);
+    
     Route::get('anos-de-formacao', ['as' => 'anos-de-formacao', 'uses' => 'Ajax\AjaxAdminController@AnosDeFormacao']);
     Route::get('gerenciar-disciplinas', ['as' => 'gerenciar-disciplinas', 'uses' => 'Ajax\AjaxAdminController@GerenciarDisciplinas']);
     Route::get('avaliacoes', ['as' => 'avaliacoes', 'uses' => 'Ajax\AjaxAdminController@Avaliacoes']);
@@ -38,6 +41,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('escolha-de-qms', ['as' => 'escolha-de-qms', 'uses' => 'Ajax\AjaxAdminController@EscolhaDeQms']);
     Route::get('precedencia-desempate', ['as' => 'precedencia-desempate', 'uses' => 'Ajax\AjaxAdminController@PrecedenciaDesempate']);
     Route::get('visao-geral', ['as' => 'visao-geral', 'uses' => 'Ajax\AjaxAdminController@VisaoGeral']);
+    
     Route::get('relatorios', ['as' => 'relatorios', 'uses' => 'Ajax\AjaxAdminController@Relatorios']);
 
     //Atualização Ten João Victor
@@ -96,10 +100,12 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     /* ROTAS DE AÇÕES PARA AjaxAdminController */
 
     Route::get('dialog-editar-operador/{id}', 'Ajax\AjaxAdminController@DialogEditarOperador');
+    
     Route::get('dialog-editar-disciplina/{id}', 'Ajax\AjaxAdminController@DialogEditarDisciplina');
     Route::get('dialog-editar-avaliacao/{id}', 'Ajax\AjaxAdminController@DialogEditarAvaliacao');
-    Route::get('dialog-editar-ano-formacao/{id}', 'Ajax\AjaxAdminController@DialogEditarAnoFromacao');
+    Route::get('dialog-editar-ano-formacao/{id}', 'Ajax\AjaxAdminController@DialogEditarAnoFormacao');
     Route::get('dialog-adicionar-operador/', 'Ajax\AjaxAdminController@DialogAdicionarOperador');
+    
     Route::get('dialog-adicionar-ano-formacao/', 'Ajax\AjaxAdminController@DialogAdicionarAnoFormacao');
     Route::get('dialog-adicionar-disciplina/', 'Ajax\AjaxAdminController@DialogAdicionarDisciplina');
     Route::get('dialog-adicionar-portaria/', 'Ajax\AjaxAdminController@DialogAdicionarPortaria');
@@ -372,7 +378,7 @@ Route::resource('importar-excel-sispb-alunos', 'Utilitarios\ImportadorController
 Route::get('/gaviao', ['as' => 'gaviao', 'uses' => 'OwnAuthController@UserLogin']);
 Route::get('/gaviaoRouter', ['as' => 'gaviaoRouter', 'uses' => 'OwnAuthController@UserRouter']);
 
-Route::get('gaviao/dashboard', ['as' => 'gaviao.dashboard', 'uses' => 'Operador\AdminOpController@DashboardGaviao'])->middleware('auth');
+Route::get('gaviao/dashboard', ['as' => 'gaviao.dashboard', 'uses' => 'Operador\AdminOpController@DashboardGaviao'])->middleware('checkauth');
 
 Route::post('auth_gaviao', ['as' => 'auth_gaviao', 'uses' => 'OwnAuthController@AuthGaviaoUser']);
 
@@ -382,3 +388,19 @@ Route::get('/gaviao/sair', function () {
     return redirect()->route('gaviao');
 })->name('gaviao.logout');
 /* FIM AUTENTICAÇÃO DE ROTAS GAVIÃO */
+
+Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
+
+    Route::get('anos-de-formacao', ['as' => 'anos-de-formacao', 'uses' => 'Ajax\AjaxAdminController@AnosDeFormacao']);
+    Route::get('visao-geral-gaviao', ['as' => 'visao-geral-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@VisaoGeralGaviao']);
+    Route::get('gerenciar-operadores-gaviao', ['as' => 'gerenciar-operadores-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@GerenciarOperadoresGaviao'])->middleware('checkauth');
+    Route::get('dialog-editar-operador-gaviao/{id}', 'Ajax\AjaxAdminGaviaoController@DialogEditarOperadorGaviao');
+    Route::get('dialog-adicionar-operador-gaviao/', 'Ajax\AjaxAdminGaviaoController@DialogAdicionarOperadorGaviao');
+    Route::get('alunos-gaviao', ['as' => 'alunos-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@GerenciarAlunosGaviao'])->middleware('checkauth');
+
+    Route::get('seletorQms/{qms_id}', ['as' => 'seletorQms', 'uses' => 'Ajax\AjaxAdminGaviaoController@SelecionaQMS'])->middleware('checkauth');
+
+    Route::resource('admin/aluno', 'Aluno\AlunoApiController')->middleware('checkauth');
+
+    Route::get('listagem-selecao-alunos-gaviao', 'Ajax\AjaxAdminGaviaoController@ListagemSelecaoAlunosGaviao');
+});

@@ -9,7 +9,6 @@
 @foreach ($alunos_classif as $class)
     @php
         $data_array = unserialize($class->data_demonstrativo);
-
     @endphp
     <div style="width: 940px; margin: 12px auto 56px auto; page-break-after: always;">
         <div style="border: 1px solid #000000; padding: 6px;">
@@ -40,10 +39,17 @@
                             @if($key=='FLEXÃO NA BARRA' && $class->aluno->area_id==3)
                                 <td style="border: 1px solid #000; padding: 6px; text-align: center;">-</td>
                             @else
-                                <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{isset($avaliacoes->nota) ? $avaliacoes->nota : $avaliacoes}}</td>
+                                <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{isset($avaliacoes->nota) ? number_format($avaliacoes->nota, '3', ',', '') : $avaliacoes}}</td>
                             @endif
                             @endforeach
-                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{(isset($data['media_anterior']) ? number_format($data['media_anterior'], '3', '.', ''): number_format($data['media'], '3', '.', '')) }}</td>
+                            
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                            @if(isset($data['media_sem_peso']))
+                                {{ number_format($data['media_sem_peso'], '3', ',', '') }}
+                            @else
+                                {{(isset($data['media_anterior']) ? number_format($data['media_anterior'], '3', ',', '') : (is_numeric($data['media']) ? number_format($data['media'], '3', ',', '') : $data['media']) ) }}
+                            @endif
+                            </td>
                         </tr>  
                     @else
                         <tr>

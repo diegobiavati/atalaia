@@ -13,7 +13,7 @@
         @if($_GET['options_class_geral']==10)
 
             @foreach($qmss as $qms)
-                <h4 style="text-align: center; margin-top: 18px;">CLASSIFICAÇÃO POR ÁREA</h4>
+                <h4 style="text-align: center; margin-top: 18px;">CLASSIFICAÇÃO POR QMS</h4>
                     <h4 style="text-align: center;">{{$qms->qms}}</h4>
                     <table style="border: 1px solid #000; border-collapse: collapse; margin: 32px auto; width: 90%; text-align: center;">
                         <tr style="background-color: #E6E6E6;">
@@ -35,6 +35,7 @@
                             $i=1;
                         ?>
                         @foreach($listaAlunoQms[$qms->qms_sigla] as $aluno)
+                                @unset($media_tfm)
                                 <tr> 
                                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ $aluno->numero }}</td>
                                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ $aluno->nome_completo }}</td>
@@ -42,12 +43,20 @@
                                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ $aluno->omct->sigla_omct }}</td>
 
                                     @foreach ($disciplinas as $disciplina)
-                                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">                                
                                         @foreach($aluno->data_demonstrativo as $key => $data_demonstrativo)
                                             @if(is_array($data_demonstrativo)) 
                                                 @if($disciplina->id == $data_demonstrativo['disciplina_id'])
-                                                    {{ number_format($data_demonstrativo['media'], '3', ',', '') }}
-                                                    @break
+
+                                                    @if(isset($data_demonstrativo['media_sem_peso']))
+                                                        {{ number_format($data_demonstrativo['media_sem_peso'], 3, ',', '') }}
+                                                    @else
+                                                        {{ (is_numeric($data_demonstrativo['media']) ? number_format($data_demonstrativo['media'], '3', ',', '') : $data_demonstrativo['media']) }}
+                                                    @endif
+                                                    
+                                                    @if(isset($media_tfm))
+                                                        @break
+                                                    @endif
                                                 @endif
 
                                                 @if($data_demonstrativo['disciplina_id'] == 99999)
@@ -61,7 +70,7 @@
                                     @endforeach
                                     
                                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ $media_tfm or '--'}}</td>
-                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ $aluno->classificacao->nota_final_arredondada }}</td>
+                                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ number_format($aluno->classificacao->nota_final_arredondada, '3', ',', '') }}</td>
 
                                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ $aluno->mencao->mencao }}</td>
                                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ $i }}</td>

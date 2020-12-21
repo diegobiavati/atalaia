@@ -6,11 +6,13 @@
 <link href="/css/ionicons.css" rel="stylesheet" type="text/css" />
 <link href="/css/menu_style_gaviao.css" rel="stylesheet" type="text/css" />
 <link href="/css/style.css" rel="stylesheet" type="text/css" />
+<?php
+    $backgroundColor = session()->get('backgroundColor');
+    $backgroundVisaoGeral = session()->get('backgroundVisaoGeral');
+    $backgroundMenuLateral = session()->get('backgroundMenuLateral');
+?>
 
-<!-- Seta qual vai ser a cor predominante na aplicaçãoa através da QMS -->
-@if($ownauthcontroller->PermissaoCheck(1))
-<style type="text/css"> 
-
+<style type="text/css">
     #top{
         background: {{ $backgroundColor }}
     }
@@ -20,8 +22,34 @@
     }
 
     div#back_to_top{
-        background: {{ $backgroundColor }}   
+        background: {{ $backgroundColor }}
     }
+
+    #menu-lateral {
+        background-image: {{$backgroundMenuLateral}}
+    }
+
+    li.menu-list-01:hover {
+        background-color: {{$backgroundVisaoGeral}}
+    }
+
+    li.menu-list-01-active {
+        background-color: {{$backgroundVisaoGeral}}
+    }
+
+    #menu-lateral {
+        background-color: {{ $backgroundVisaoGeral }}
+    }
+
+    .modal-header {
+        font-weight: bold;
+        background-color: {{$backgroundVisaoGeral}}
+    }
+
+</style>
+
+@if($ownauthcontroller->PermissaoCheck(1))
+<style type="text/css"> 
 
     .btn.btn-success.btn-sm{
         background: #0094D3; 
@@ -31,29 +59,16 @@
     #menu-lateral {
         background-color: #0094D3; 
     }
+
 </style>
 @else
 <style type="text/css">
-    #top{
-        background-color: {{ $backgroundColor }}
-    }
-
-    #lateral-top {
-        background-color: {{ $backgroundColor }}
-    }
-
-    div#back_to_top{
-        background-color: {{ $backgroundColor }} 
-    }
 
     .btn.btn-success.btn-sm{
         background-color:{{$backgroundColor}}
         border-color:{{$backgroundColor}}
     }
 
-    #menu-lateral {
-        background-color: {{ $backgroundColor }}
-    }
 </style>
 @endif
 
@@ -82,13 +97,27 @@
                     <br />GESTÃO ACADÊMICA MILITAR
                 </small>
             </h4>
+            @if($ownauthcontroller->PermissaoCheck(30))
+            <div>
+                <select class="custom-select" name="seletor_qms" style="text-align: center;">
+                    @foreach($cursos as $curso)
+                        @if(session()->has('qms_selecionada'))
+                            <option value="{{$curso->id}}" {{ ((session()->get('qms_selecionada') == $curso->id) ? 'selected': '') }}>{{$curso->qms}}</option>
+                        @else
+                            <option value="{{$curso->id}}" {{ (($curso->id == 9999) ? 'selected': '') }}>{{$curso->qms}}</option>
+                        @endif
+                    @endforeach
+                </select>
+            </div>
+            @endif
         </div>
+        
 
         <div style="border-top: 1px solid #ccc; height: auto; padding: 0 3px 12px 3px;">
             <div class="data_user_imagem_perfil" style="position: absolute; margin: -32px 0 0 101px; background: url({{$img_perfil}}) no-repeat center center; background-size: cover; width: 64px; height: 64px; border-radius: 50%;"></div> 
             <div style=" text-align: center; margin-top: 36px; font-size: 14px;">
             <span id="postograd_user"><b>{{$operador->postograd->postograd_abrev }}</b></span> <span id="nome_guerra_user"><b>{{$operador->nome_guerra}}</b></span>
-            <br /><span id="omct_user">{{$operador->omcts->sigla_omct }}</span>
+            <br /><span id="omct_user">{{ $operador->qms->qms }}</span>
                 @if($operador->id_funcao_operador!='' && is_array(explode(',', $operador->id_funcao_operador)))
                     <br />
                     <div style="padding: 0 8px;">
@@ -123,15 +152,22 @@
         <ul class="list-group list-group-flush">
 
             @if($ownauthcontroller->PermissaoCheck(1))
-                @include('menu_admin_operadores_gaviao')            
+                @include('menu_admin_operadores_gaviao')
             @else
-                @if($ownauthcontroller->PermissaoCheck(26))
                     <li class="list-group-item justify-content-between align-items-center menu-list-01">
-                        <a id="visao-geral" href="javascript: void(0);">                
+                        <a id="visao-geral-gaviao" href="javascript: void(0);">                
                             <i class="ion-ios-eye"></i>
                             Visão geral
                             <span class="badge badge-primary badge-pill"></span>
                         </a>
+                    </li>
+                @if($ownauthcontroller->PermissaoCheck(29))
+                    <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                        <a id="alunos-gaviao" href="javascript: void(0);">
+                            <i class="ion-android-contacts"></i>
+                            Alunos
+                            <span class="badge badge-primary badge-pill"></span>
+                        </a>                
                     </li>
                 @endif
             @endif
@@ -183,22 +219,22 @@
 
 <!-- MODALS CONTENTE DINAMICA NO STYLE -->
     
-<!--<div class="modal fade" id="modalDinamica_no_style" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="modalDinamica_no_style" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">-->
+      <div class="modal-content">
         <!--div class="modal-header" style="background-color: #F2F2F2">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
         </div-->
-        <!--<div class="modal-body" style="padding: 0"></div>-->
+        <div class="modal-body" style="padding: 0"></div>
         <!--div class="modal-footer" style="text-align: right;">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
           <button type="button" class="btn btn-primary">Save changes</button>
         </div-->
-      <!--</div>
+      </div>
     </div>
-</div> --> 
+</div>
 
 <!-- FINAL MODAL CONTENTE DINAMICA NO STYLE-->
 
@@ -312,6 +348,23 @@
                 }
             });
 
+            // Seleciona a QMS que será utilizada no sistema
+            $(document).on('change', 'select[name="seletor_qms"]', function(){
+                $.ajax({
+                    type: 'GET',
+                    url: '/gaviao/ajax/seletorQms/' + $('select[name="seletor_qms"] option:selected').val(),
+                    beforeSend: function(){
+                        loadingModalDinamica('show', 'lg');
+                    },
+                    success: function(data){
+                        if(data.success){
+                            window.location.reload();
+                        }
+                        loadingModalDinamica('hide');
+                    }
+                });
+            });
+
         });
 
         /* CARREGA LOADING DEFAULT MODAL DINAMICA */
@@ -328,6 +381,7 @@
 
             if (modo=='show'){
                 $('div#modalDinamica div.modal-header h5').empty();
+                $('div#modalDinamica div.modal-header i').empty();
                 $('div#modalDinamica div.modal-footer').empty();
                 $('div#modalDinamica div.modal-body').empty();
                 $('div#modalDinamica').modal('show');
@@ -348,7 +402,7 @@
             if(routeAs != undefined){
                 $.ajax({
                     type: 'GET',
-                    url: '/ajax/' + routeAs,
+                    url: '/gaviao/ajax/' + routeAs,
                     beforeSend: function(){
                         $('div.inside-content').html('<div id="temp" style="text-align: center; margin-top: 120px;"><img src="/images/loadings/loading_04.svg" style="width: 28px; margin-right: 8px;" /><br />Aguarde, carregando...</div>');
                     },
@@ -411,8 +465,6 @@
                 }                
             });
         }     
-
-        
 
         $(document).on('click', '.open_input_file', function(){
             $('div.erro-upload').slideUp(200, function(){
@@ -502,6 +554,30 @@
             });            
         }
 
+        function toogleContent2(elementCheckBox, target_elementID){
+            if($(elementCheckBox).val()==0){
+                $(elementCheckBox).val(1);    
+                $(target_elementID).slideDown();
+            } else {
+                $(elementCheckBox).val(0);    
+                $(target_elementID).slideUp();
+            }
+        }
+
+        // DIALOGO INFO DO USUARIO 
+        function dialogInfoUser(id_usr, tipo) {
+            $.ajax({
+            	type:'GET',
+                dataType: 'json',
+                url: '/ajax/dialog-info-user/' + tipo + '/' + id_usr,
+                beforeSend: function(){
+                    $('div#modalDinamica_no_style').modal('show');
+                },
+                success: function(data){
+                    $('div#modalDinamica_no_style div.modal-body').html(data.body);
+                }
+            });  
+        }
         /*$.ajaxSetup({
             error: function(jqxhr){
                 if(jqxhr.status==500){
@@ -558,83 +634,13 @@
             }
         }
 
-        function toogleContent2(elementCheckBox, target_elementID){
-            if($(elementCheckBox).val()==0){
-                $(elementCheckBox).val(1);    
-                $(target_elementID).slideDown();
-            } else {
-                $(elementCheckBox).val(0);    
-                $(target_elementID).slideUp();
-            }
-        }
+        
 
 
 
-        // AJAX - EDITAR DADOS OPERADOR 
+        
 
-        function AtualizarOperador(id){
-            var style_bg_inicial = $('tr#operador_' + id).css('background-color');
-            var dataForm = $('form#atualiza_dados_operador').serialize();
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                data: dataForm,
-                url: '/ajax/atualizar-operador/' + id,
-                beforeSend: function(){
-                    $('div.errors-cadastro-operador ul').remove().parent().hide();
-                    $('tr#operador_' + id).css('background-color', '#81F7BE');
-                },
-
-                success: function(data){
-                    $('div#modalDinamica').modal('hide');
-                    $('tr#operador_' + id).css('background-color', style_bg_inicial);
-                    $('tr#operador_' + id + ' td').eq(0).html(data.content_tr_eq0);
-                    $('tr#operador_' + id + ' td').eq(1).html(data.content_tr_eq1);
-                    $('tr#operador_' + id + ' td').eq(2).html(data.content_tr_eq2);
-                    $('tr#operador_' + id + ' td').eq(3).html(data.content_tr_eq3 + '<br />' + data.content_tr_eq4);
-                    if(data.typeUser==1){
-                        $('span#postograd_user').html('<b>' + data.content_1 + '</b>');
-                        $('span#nome_guerra_user').html('<b>' + data.nomeGuerra + '</b>');
-                        $('span#omct_user').html(data.content_tr_eq2);
-                        $('span#funcao_user').html(data.content_tr_eq1);
-                    }
-
-                },
-
-                error: function(jqxhr){
-                    $('tr#operador_' + id).css('background-color', style_bg_inicial);
-                    if(jqxhr.status==500){
-                        alert('Erro interno! Verifique se o email informado já se encontra cadastrado.');
-                    } else if(jqxhr.status==422){
-                        $('div.errors-cadastro-operador').slideDown(100);
-                        var errors = $.parseJSON(jqxhr.responseText);
-                        $('div.errors-cadastro-operador').prepend('<ul style="margin: 0 6px;"></ul>');                            
-                        $.each(errors.errors, function (index, value) {
-                            $('div.errors-cadastro-operador ul').append('<li>' + value + '</li>');
-                        });                           
-                    }
-                }                
-            });
-        }
-
-        // MOSTRA DIALOGO EDITAR OPERADORES 
-
-        function dialogEditarOperador(id){
-             $.ajax({
-            	type:'GET',
-                dataType: 'json',
-                url: '/ajax/dialog-editar-operador/' + id,
-                beforeSend: function(){
-                    loadingModalDinamica('show', 'lg');
-                },
-                success: function(data){
-                    $('div#modalDinamica div.modal-header h5').html(data.header);
-                    $('div#modalDinamica div.modal-body').html(data.body);
-                    $('div#modalDinamica div.modal-footer').html(data.footer);
-                    loadingModalDinamica('hide', 'lg');
-                }
-            });
-        }
+        
 
         // AJAX - EDITAR MEU PERFIL 
 
@@ -2118,86 +2124,9 @@
             });
         }
 
-        // DIALOGO EDITAR ANO FORMAÇÃO 
+                             
 
-        function dialogEditarAnoFormacao(id){
-             $.ajax({
-            	type:'GET',
-                dataType: 'json',
-                url: '/ajax/dialog-editar-ano-formacao/' + id,
-                beforeSend: function(){
-                    loadingModalDinamica('show', 'sm');
-                },
-                success: function(data){
-                    $('div#modalDinamica div.modal-header h5').html(data.header);
-                    $('div#modalDinamica div.modal-body').html(data.body);
-                    $('div#modalDinamica div.modal-footer').html(data.footer);
-                    setTimeout(function(){
-                        $('input[name="data_matricula"]').select();
-                    }, 600);
-                    loadingModalDinamica('hide', 'sm');
-                }
-            });
-        }
-
-        // ATUALIZAR ANO DE FORMAÇÃO 
-
-        function AtualizarAnoFormacao(id) {         
-            var dataForm = $('form#atualizar_ano_formacao').serialize();
-            var style_bg_inicial = $('div#ano_de_formacao_'+id).css('background-color');
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                data: dataForm,
-                url: '/ajax/atualizar-ano-formacao/' + id,
-                beforeSend: function(){
-                    $('div#modalDinamica').modal('hide');
-                    $('div#ano_de_formacao_'+id).css('background-color', '#81F7BE');
-                },
-                success: function(data){
-                    $('div#ano_de_formacao_'+id).css('background-color', style_bg_inicial);
-                    if(data.status=='ok'){
-                        $('span#ano_de_formacao_data_matricula_' + id).html(data.content)
-                    } else {
-                        $('div.errors-cadastro-ano-formacao').html('Houve um erro ao tentar atualizar a data inicial de matrícula. Verifique se foi informada uma data válida no formato DD/MM/AAAA.').slideDown();
-                        setTimeout(function(){
-                            $('div.errors-cadastro-ano-formacao').slideUp(200, function(){
-                                $(this).empty();    
-                            });
-                        }, 10000);
-                    }
-                },
-                error: function(jqxhr){
-                    $('div#ano_de_formacao_'+id).css('background-color', style_bg_inicial);
-                    $('div.errors-cadastro-ano-formacao').html('Erro interno ao tentar atualizar a data inicial de matrícula.').slideDown();
-                    setTimeout(function(){
-                            $('div.errors-cadastro-ano-formacao').slideUp(200, function(){
-                                $(this).empty();    
-                            });
-                        }, 10000);                    
-                }                    
-            });            
-        }                       
-
-        // MOSTRA DIALOGO ADICIONAR OPERADORES /          
-
-        function dialogAdicionarOperador(){
-             $.ajax({
-            	type:'GET',
-                dataType: 'json',
-                url: '/ajax/dialog-adicionar-operador',
-                beforeSend: function(){
-                    loadingModalDinamica('show', 'lg');
-                },
-                success: function(data){
-                    $('div#modalDinamica div.modal-header h5').html(data.header);
-                    $('div#modalDinamica div.modal-body').html(data.body);
-                    $('div#modalDinamica div.modal-footer').html(data.footer);
-                    loadingModalDinamica('hide', 'lg');
-                }
-            });
-        }
-
+        
         function dialogRemoverOperador(id, nome) {
             $(document).confirmAcao('Tem certeza que deseja remover o(a) operador(a) '+ nome +' do sistema?', function(){
                 $.ajax({
@@ -2397,18 +2326,7 @@
             });
         }          
 
-        // CHAMA EDIÇÃO DO ALUNO APOS PRESSIONAR ENTER NO INPUT 
-
-        $(document).on('keypress', 'input#input_busca_rapida_aluno', function(e) {
-            if (e.which==13) {
-                //var alunoNome = $(this).val();
-                var alunoId = $(this).val();
-
-                loadAdminAjaxContent('admin/aluno/' + alunoId);          
-                //Original Julião...
-                //dialogEditarCadastroAluno(alunoNome, 'byName');       
-            }
-        });
+        
         
         //FUNÇÃO AJAX QUE CHAMA MODAL PARA EDIÇÃO DOS DADOS DO ALUNO  
 
@@ -2517,22 +2435,7 @@
             }); 
         }
 
-        // DIALOGO INFO DO USUARIO 
-
-        function dialogInfoUser(id_usr, tipo) {
-            $.ajax({
-            	type:'GET',
-                dataType: 'json',
-                url: '/ajax/dialog-info-user/' + tipo + '/' + id_usr,
-                beforeSend: function(){
-                    $('div#modalDinamica_no_style').modal('show');
-                },
-                success: function(data){
-                    $('div#modalDinamica_no_style div.modal-body').html(data.body);
-                }
-            });  
-        }
-
+        
 
         function DialogAdicionarAluSitDivNovo(id){
             $.ajax({
@@ -2643,32 +2546,7 @@
             });            
         }
 
-        function OpcoesdeListagemSelecaoAlunos(dataButton){
-            var dataButtonContent = $(dataButton).html();
-            var dataForm = $('form#opcoes-listagem-selecao-alunos').serialize();
-            $('div.opcoes-de-listagem').empty().hide();
-            $.ajax({
-            	type:'GET',
-                dataType: 'json',
-                url: '/ajax/opcoes-listagem-selecao-alunos?' + dataForm,
-                beforeSend: function(){
-                    $(dataButton).html('<img src="/images/loadings/loading_03.svg" style="margin-right: 3px; width: 32px;" />Buscando registros...').addClass('disabled');
-                },
-                success: function(data){
-                    $(dataButton).html(dataButtonContent).removeClass('disabled');
-                    $('div#response').empty();
-                    if(data.status=='ok'){
-                        $('html, body').animate({
-                            scrollTop: ($('button#submitFiltroListagem').offset().top - 80)
-                        }, 1000);
-                        $('div#response').html(data.response);
-                    } else {                        
-                        $('div.opcoes-de-listagem').html(data.response).slideDown();
-                    }
-                    //$('div#modalDinamica_no_style div.modal-body').html(data.body);
-                }
-            });                
-        }
+        
 
         function dialogRelacaoVoluntariosAviacao(){
             $.ajax({

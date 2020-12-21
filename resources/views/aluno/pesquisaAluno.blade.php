@@ -3,17 +3,17 @@
         <input id="input_busca_rapida_aluno" class="pesquisar-in-card-title" type="text" placeholder="Busca rápida" list="alunos_list" style="width: 300px;" />
         <datalist id="alunos_list">
             @foreach($alunos['list'] as $aluno)
-            @if(!$ownauthcontroller->PermissaoCheck(1))
-            @if($aluno->omcts_id == session()->get('login.omctID'))
-            <option value="{{$aluno->id.' - '.$aluno->nome_completo}}" style="background-color: #ccc;">
-                <a href"#">Al {{$aluno->numero}} {{$aluno->nome_completo}} {{$aluno->omct->sigla_omct or ''}}</a>
-            </option>
-            @endif
-            @else
-            <option value="{{$aluno->id.' - '.$aluno->nome_completo}}" style="background-color: #ccc;">
-                <a href"#">Al {{$aluno->numero}} {{$aluno->nome_completo}} {{$aluno->omct->sigla_omct or ''}}</a>
-            </option>
-            @endif
+                @if(!$ownauthcontroller->PermissaoCheck(1) || !session()->has('login.qmsID'))
+                    @if($aluno->omcts_id == session()->get('login.omctID'))
+                    <option value="{{$aluno->id.' - '.$aluno->nome_completo}}" style="background-color: #ccc;">
+                        <a href"#">Al {{$aluno->numero}} {{$aluno->nome_completo}} {{$aluno->omct->sigla_omct or ''}}</a>
+                    </option>
+                    @endif
+                @else
+                <option value="{{$aluno->id.' - '.$aluno->nome_completo}}" style="background-color: #ccc;">
+                    <a href"#">Al {{$aluno->numero}} {{$aluno->nome_completo}} {{$aluno->omct->sigla_omct or ''}}</a>
+                </option>
+                @endif
             @endforeach
         </datalist>
         <a class="no-style" href="javascript: void(0);">

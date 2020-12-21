@@ -42,7 +42,7 @@ class AjaxImplantarAlunoController extends Controller
     {
         $this->request = $request;
         $this->classLog = $classLog;
-        $classLog->ip = $_SERVER['REMOTE_ADDR'];
+        $classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
     }
 
     public function DialogImplantarAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller)

@@ -486,7 +486,7 @@ function onMessageArrived(message) {
 
         /* MOSTRA DIALOGO EDITAR OPERADORES */
 
-        function dialogEditarOperador(id){
+        /*function dialogEditarOperador(id){
              $.ajax({
             	type:'GET',
                 dataType: 'json',
@@ -501,7 +501,7 @@ function onMessageArrived(message) {
                     loadingModalDinamica('hide', 'lg');
                 }
             });
-        }
+        }*/
 
         /* AJAX - EDITAR MEU PERFIL */
 

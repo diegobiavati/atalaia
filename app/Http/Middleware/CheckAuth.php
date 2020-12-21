@@ -16,9 +16,14 @@ class CheckAuth
     public function handle($request, Closure $next)
     {
         if (!auth()->check()) {
-            return redirect('login');
+            
+            if(preg_match('{gaviao}', $request->path())){
+                return redirect('gaviao');
+            }else{
+                return redirect('login');
+            }
+            
         }
-
         return $next($request);
     }
 }
