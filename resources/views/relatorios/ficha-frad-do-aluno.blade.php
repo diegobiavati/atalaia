@@ -26,7 +26,7 @@
         </table>
     </div>
     <div style="margin-top: 24px;">
-        <button id="btn-frad-geral" type="button" class="btn btn-primary" onclick="abrirFradGeral('{{route($rotaGeral)}}', '{{$idOmct}}', '{{$anoFormacao->id}}');">Visualizar FRAD (Geral)</button>
+        <button id="btn-frad-geral" type="button" class="btn btn-primary" onclick="abrirFradGeral('{{route($rotaGeral)}}', '{{$idUeteCurso}}', '{{$anoFormacao->id}}');">Visualizar FRAD (Geral)</button>
     </div>
 </form>
 <script>
@@ -34,7 +34,7 @@
         window.open(rota + '?aluno=' + aluno);
     }
 
-    function abrirFradGeral(rota, idOmct, idAnoFormacao) {
-        window.open(rota + '?omct=' + idOmct +'&idAnoFormacao=' + idAnoFormacao);
+    function abrirFradGeral(rota, idUeteCurso, idAnoFormacao) {
+        window.open(rota + '?UeteCurso=' + idUeteCurso +'&idAnoFormacao=' + idAnoFormacao);
     }
 </script>

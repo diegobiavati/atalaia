@@ -1,15 +1,9 @@
+
 <form id="submit-relatorio" action="{{route('relatorios.relacao_alunos_prontos')}}" method="get" target="_blank">
     <input type="hidden" name="ano_formacao_id" value="{{$anoFormacao->id or old('ano_formacao_id')}}">
-    <select name="omctID" class="custom-select required_to_show_button">
-        <option value="0" disabled selected hidden>Selecione uma UETE</option>
-        @if($ownauthcontroller->PermissaoCheck(1))
-        <option value="todas_omct">TODAS AS UETE</option>
-        @endif
-        @foreach ($uetes as $uete)
-        <option value={{$uete->id}}>{{ $uete->omct }}</option>
-        @endforeach
-    </select>
 
+    @include('ajax.componenteSelectUeteCurso')
+    
     <div style="text-align: right; margin-top: 12px;">
         <a class="marcar no-style" href="javascript: void(0);" onclick="$('input.custom-control-input').prop('checked', true); $('a.marcar').hide(); $('a.desmarcar').show();">
             Marcar todas
@@ -25,23 +19,27 @@
             <input type="checkbox" class="custom-control-input segmento" id="segmento_M" name="segmento[]" value="M" />
             <label class="custom-control-label" for="segmento_M">Masculino</label>
         </div>
+        @if(!session()->has('login.qmsID'))
         <div class="custom-control custom-checkbox" style="display: inline-block; margin: 0 10px 12px 0;">
             <input type="checkbox" class="custom-control-input segmento" id="segmento_F" name="segmento[]" value="F" />
             <label class="custom-control-label" for="segmento_F">Feminino</label>
         </div>
+        @endif
     </div>
 
-    <div style="width: 90%; margin: 22px auto; text-align: center; border-bottom: 1px solid #ccc;">
-        <h4 style="text-align: center; margin-bottom: 12px;">AREA</h4>
+    @if(isset($areas))
+        <div style="width: 90%; margin: 22px auto; text-align: center; border-bottom: 1px solid #ccc;">
+            <h4 style="text-align: center; margin-bottom: 12px;">AREA</h4>
 
-        @foreach ($areas as $area)
-        <div class="custom-control custom-checkbox" style="display: inline-block; margin: 0 10px 12px 0;">
-            <input type="checkbox" class="custom-control-input" id="{{'area_'.$area->id}}" name="areas[]" value={{$area->id}} />
-            <label class="custom-control-label" for="{{'area_'.$area->id}}">{{$area->area}}</label>
+            @foreach ($areas as $area)
+            <div class="custom-control custom-checkbox" style="display: inline-block; margin: 0 10px 12px 0;">
+                <input type="checkbox" class="custom-control-input" id="{{'area_'.$area->id}}" name="areas[]" value={{$area->id}} />
+                <label class="custom-control-label" for="{{'area_'.$area->id}}">{{$area->area}}</label>
+            </div>
+            @endforeach
         </div>
-        @endforeach
-    </div>
-
+    @endif
+    
     <div style="width: 90%; margin: 22px auto; text-align: center; border-bottom: 1px solid #ccc;">
         <h4 style="text-align: center; margin-bottom: 12px;">CONTENDO OS CAMPOS</h4>
 

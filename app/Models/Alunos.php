@@ -293,7 +293,9 @@ class Alunos extends Model
 
     public function qms()
     {
-        return $this->belongsTo('App\Models\QMS', 'qms_id', 'id');
+        return $this->belongsTo('App\Models\QMS', 'qms_id', 'id')->withDefault([
+            'qms' => 'Não Informada'
+        ]);
     }
 
     /* public function AvaliacaoTaf(){

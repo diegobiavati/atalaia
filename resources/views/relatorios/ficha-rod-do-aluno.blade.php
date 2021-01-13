@@ -26,7 +26,7 @@
         </table>
     </div>
     <div style="margin-top: 24px;">
-        <button id="btn-rod-geral" type="button" class="btn btn-primary" onclick="abrirRodGeral('{{route($rotaGeral)}}', '{{$idOmct}}', '{{$anoFormacao->id}}');">Visualizar ROD (Geral)</button>
+        <button id="btn-rod-geral" type="button" class="btn btn-primary" onclick="abrirRodGeral('{{route($rotaGeral)}}', '{{$idUeteCurso}}', '{{$anoFormacao->id}}');">Visualizar ROD (Geral)</button>
     </div>
 </form>
 <script>
@@ -34,7 +34,7 @@
         window.open(rota + '?aluno=' + aluno +'&idAnoFormacao=' + idAnoFormacao);
     }
 
-    function abrirRodGeral(rota, idOmct, idAnoFormacao) {
-        window.open(rota + '?omct=' + idOmct +'&idAnoFormacao=' + idAnoFormacao);
+    function abrirRodGeral(rota, idUeteCurso, idAnoFormacao) {
+        window.open(rota + '?UeteCurso=' + idUeteCurso +'&idAnoFormacao=' + idAnoFormacao);
     }
 </script>

@@ -38,7 +38,7 @@ class ROD_PDF extends PDF
         $this->SetX(($this->getX() + 3));
         $this->Cell(48, 7, utf8_decode('Número: ' . $this->aluno->numero), 'B', 0, 'L');
         $this->SetX(($this->getX() + 3));
-        $this->Cell(75, 7, utf8_decode('Curso: '), 'B', 1, 'L');
+        $this->Cell(75, 7, utf8_decode('Curso: '.$this->aluno->qms->qms), 'B', 1, 'L');
         $this->Cell(78, 7, utf8_decode('Pel/Turma: ' . $this->aluno->turma->turma), 'B', 1, 'L');
         
         $this->horizontal = $this->getY();

@@ -7,6 +7,7 @@ use App\Models\Alunos;
 use App\Models\AnoFormacao;
 use App\Models\AvaliacoesNotas;
 use App\Models\OMCT;
+use App\Models\QMS;
 use DateTime;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -127,6 +128,25 @@ class FuncoesController
         return $uetes;
     }
 
+    public static function retornaCursoPerfilAnoFormacao(AnoFormacao $anoFormacao){
+
+        $param['anoFormacao_id'] = $anoFormacao->id;
+        
+        if((session()->has('qms_selecionada') && session()->get('qms_selecionada') == 9999) || (session()->get('login.qmsID.0.qms_matriz_id') == 9999)){//ESA
+            $qmsMatriz = array(1,2,3,4,5);
+        }else if(session()->has('qms_selecionada')){
+            $qmsMatriz = array(session()->get('qms_selecionada'));
+        }else{
+            $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
+        }
+
+        $cursos = QMS::whereIn('qms_matriz_id', $qmsMatriz)->whereHas('escolhaQms', function($q) use ($param){
+            $q->where('ano_formacao_id', $param['anoFormacao_id']);
+        })->get();
+
+        return $cursos;
+    }
+
     public static function recalculaNotaAluno(Collection $avaliacoesNotas)
     {
 
@@ -220,10 +240,9 @@ class FuncoesController
             }
         return $Zoo;
     }
-
-    
-
+ 
     public static function retornaAnoFormacaoAtivoQualificacao(){
         return AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
     }
+
 }

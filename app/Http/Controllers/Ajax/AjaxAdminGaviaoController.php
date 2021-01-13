@@ -91,11 +91,13 @@ class AjaxAdminGaviaoController extends Controller
 
         if(session()->get('login.qmsID.0.qms_matriz_id') == 9999){
             $qmsMatriz = array(1,2,3,4,5,9999);
-            $cursos = QMSMatriz::whereIn('id', $qmsMatriz)->get();
             $operadores_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get();
         }else{
-            
+            $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
+            $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002])->get();
         }
+
+        $cursos = QMSMatriz::whereIn('id', $qmsMatriz)->get();
         
         foreach ($operadores_tipo as $tipo) {
             $attr_checked = (in_array($tipo->id, $funcao_operador)) ? 'checked' : '';
@@ -124,13 +126,13 @@ class AjaxAdminGaviaoController extends Controller
 
         if(session()->get('login.qmsID.0.qms_matriz_id') == 9999){
             $qmsMatriz = array(1,2,3,4,5,9999);
-            
-            $cursos = QMSMatriz::whereIn('id', $qmsMatriz)->get();
-            
             $operadores_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get();
         }else{
-
+            $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
+            $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002])->get();
         }
+
+        $cursos = QMSMatriz::whereIn('id', $qmsMatriz)->get();
 
         foreach ($operadores_tipo as $tipo) {
             $tipos[] = '<div class="custom-control custom-checkbox">
@@ -247,5 +249,10 @@ class AjaxAdminGaviaoController extends Controller
         }
 
         return view('ajax.relatorios.listagem-alunos-gaviao', compact('alunos', 'qmss', 'sexo', 'ownauthcontroller'));
+    }
+
+    public function Relatorios(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
+    {
+        return view('ajax.view-relatorios')->with('ownauthcontroller', $ownauthcontroller);
     }
 }

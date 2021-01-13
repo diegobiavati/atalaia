@@ -154,22 +154,38 @@
             @if($ownauthcontroller->PermissaoCheck(1))
                 @include('menu_admin_operadores_gaviao')
             @else
-                    <li class="list-group-item justify-content-between align-items-center menu-list-01">
-                        <a id="visao-geral-gaviao" href="javascript: void(0);">                
-                            <i class="ion-ios-eye"></i>
-                            Visão geral
-                            <span class="badge badge-primary badge-pill"></span>
-                        </a>
-                    </li>
-                @if($ownauthcontroller->PermissaoCheck(29))
-                    <li class="list-group-item justify-content-between align-items-center menu-list-01">
-                        <a id="alunos-gaviao" href="javascript: void(0);">
-                            <i class="ion-android-contacts"></i>
-                            Alunos
-                            <span class="badge badge-primary badge-pill"></span>
-                        </a>                
-                    </li>
+                <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                    <a id="visao-geral-gaviao" href="javascript: void(0);">
+                        <i class="ion-ios-eye"></i>
+                        Visão geral
+                        <span class="badge badge-primary badge-pill"></span>
+                    </a>
+                </li>
+                @if($ownauthcontroller->PermissaoCheck([13, 14]))
+                <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                    <a id="gerenciar-operadores-gaviao" href="javascript: void(0);">
+                        <i class="ion-ios-people"></i> 
+                        Gerenciar Operadores
+                        <span class="badge badge-primary badge-pill"></span>
+                    </a>
+                </li>
                 @endif
+                @if($ownauthcontroller->PermissaoCheck(29))
+                <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                    <a id="alunos-gaviao" href="javascript: void(0);">
+                        <i class="ion-android-contacts"></i>
+                        Gerenciar Alunos
+                        <span class="badge badge-primary badge-pill"></span>
+                    </a>                
+                </li>
+                @endif
+                <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                    <a id="view-relatorios" href="javascript: void(0);">                
+                        <i class="ion-ios-pie"></i>
+                        Documentação e relatórios
+                        <span class="badge badge-primary badge-pill"></span>
+                    </a>
+                </li>
             @endif
         </ul>    
     </div> 
@@ -331,23 +347,6 @@
                 $(this).val('');
             });
 
-            // PESQUISA NA TABELA DE OPERADORES
-
-            $(document).on('keyup', 'input.busca-operador', function(){
-                if($('td.operador-nome').is(':visible')){
-                    $('.box-pesquisa-not-found').hide();
-                    $("td.operador-nome:not(:contains('"+ $(this).val() +"'))").parent().hide();
-                    $("td.operador-nome:contains('"+ $(this).val() +"')").parent().show();
-                } else {
-                    $("td.operador-nome:contains('"+ $(this).val() +"')").parent().show();
-                    if($('td.operador-nome').is(':visible')){
-                        $('.box-pesquisa-not-found').hide(); 
-                    } else {
-                        $('.box-pesquisa-not-found').show();    
-                    }
-                }
-            });
-
             // Seleciona a QMS que será utilizada no sistema
             $(document).on('change', 'select[name="seletor_qms"]', function(){
                 $.ajax({
@@ -411,6 +410,20 @@
                     }
                 });
             }
+        }
+
+        function loadRelatorioAjaxContent(routeAs){
+            var idANoFormacao = $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
+            $.ajax({
+                type: 'GET',
+                url: '/gaviao/ajax/' + routeAs + '/' + idANoFormacao,
+                beforeSend: function(){
+                    $('div#relatorios-content').html('<div id="temp" style="text-align: center; margin-top: 24px;"><img src="/images/loadings/loading_04.svg" style="width: 28px; margin-right: 8px;" /><br />Aguarde, carregando...</div>');    
+                },
+                success: function(data){
+                    $('div#relatorios-content').html(data);    
+                }
+            });
         }
 
         /* MOSTRA DIALOGO EDITAR MEU PERFIL */
@@ -2164,19 +2177,7 @@
             }
         } 
 
-        function loadRelatorioAjaxContent(routeAs){
-            var idANoFormacao = $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
-            $.ajax({
-                type: 'GET',
-                url: '/ajax/' + routeAs + '/' + idANoFormacao,
-                beforeSend: function(){
-                    $('div#relatorios-content').html('<div id="temp" style="text-align: center; margin-top: 24px;"><img src="/images/loadings/loading_04.svg" style="width: 28px; margin-right: 8px;" /><br />Aguarde, carregando...</div>');    
-                },
-                success: function(data){
-                    $('div#relatorios-content').html(data);    
-                }
-            });
-        }
+        
 
         $(document).on('click', 'li.opcoes-relatorios', function(){
             $('li.opcoes-relatorios').removeClass('active');

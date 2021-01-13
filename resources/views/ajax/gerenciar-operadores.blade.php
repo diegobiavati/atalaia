@@ -105,7 +105,21 @@
                 }
         }); 
     
-        
+        // PESQUISA NA TABELA DE OPERADORES
+        $(document).on('keyup', 'input.busca-operador', function(){
+                if($('td.operador-nome').is(':visible')){
+                    $('.box-pesquisa-not-found').hide();
+                    $("td.operador-nome:not(:contains('"+ $(this).val() +"'))").parent().hide();
+                    $("td.operador-nome:contains('"+ $(this).val() +"')").parent().show();
+                } else {
+                    $("td.operador-nome:contains('"+ $(this).val() +"')").parent().show();
+                    if($('td.operador-nome').is(':visible')){
+                        $('.box-pesquisa-not-found').hide(); 
+                    } else {
+                        $('.box-pesquisa-not-found').show();    
+                    }
+                }
+        });
 
         // MOSTRA DIALOGO EDITAR OPERADORES 
         function dialogEditarOperador(id){

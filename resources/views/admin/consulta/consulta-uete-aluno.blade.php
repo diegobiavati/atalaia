@@ -1,15 +1,8 @@
 <form id="consulta-uete">
     <input type="hidden" name="ano_formacao_id" value="{{$anoFormacao->id or old('ano_formacao_id')}}">
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-    <select name="omctID" class="custom-select required_to_show_button">
-        <option value="0" disabled selected hidden>Selecione uma UETE</option>
-        @if($ownauthcontroller->PermissaoCheck(1))
-        <option value="todas_omct">TODAS AS UETE</option>
-        @endif
-        @foreach ($uetes as $uete)
-        <option value={{$uete->id}}>{{ $uete->omct }}</option>
-        @endforeach
-    </select>
+
+    @include('ajax.componenteSelectUeteCurso')
 
     <div style="width: 90%; margin: 22px auto; text-align: left; border-bottom: 1px solid #ccc;">
         <h4 style="text-align: center; margin-bottom: 12px;">Consulta de Aluno(a)</h4>

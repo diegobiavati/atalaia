@@ -38,7 +38,7 @@
                         </tr>
                         <tr style="background-color: #CCCCCC;">
                             <th scope="col" style="text-align:right;width: 20%;padding-right: 10px;font-weight: bold;">QMS/Naipe:</th>
-                            <td scope="col" style="text-align:left;padding-left: 10px;">Em Desenvolvimento</td>
+                            <td scope="col" style="text-align:left;padding-left: 10px;">{{ $aluno->qms->qms }}</td>
                         </tr>
                         <tr style="background-color: #CCCCCC;">
                             <th scope="col" style="text-align:right;width: 20%;padding-right: 10px;font-weight: bold;">Turma:</th>

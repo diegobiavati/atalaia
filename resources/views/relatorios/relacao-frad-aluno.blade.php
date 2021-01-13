@@ -1,15 +1,11 @@
+<?php
+    $url = ( (session()->get('login.omctID')) ? '/ajax/consulta-frad-aluno' : '/gaviao/ajax/consulta-frad-aluno');
+?>
 <form id="fradAluno">
     <input type="hidden" name="ano_formacao_id" value="{{$anoFormacao->id or old('ano_formacao_id')}}">
     <input type="hidden" name="_token" value="{{ csrf_token() }}">
-    <select name="omctID" class="custom-select required_to_show_button">
-        <option value="0" disabled selected hidden>Selecione uma UETE</option>
-        @if($ownauthcontroller->PermissaoCheck(1))
-        <option value="todas_omct">TODAS AS UETE</option>
-        @endif
-        @foreach ($uetes as $uete)
-        <option value={{$uete->id}}>{{ $uete->omct }}</option>
-        @endforeach
-    </select>
+
+    @include('ajax.componenteSelectUeteCurso')
 
     <div style="width: 90%; margin: 22px auto; text-align: left; border-bottom: 1px solid #ccc;">
         <h4 style="text-align: center; margin-bottom: 12px;">Consulta de FRAD(s)</h4>
@@ -49,7 +45,7 @@
 
             $.ajax({
                 type: 'GET',
-                url: '/ajax/consulta-frad-aluno',
+                url: '{{ $url }}',
                 data: dados,
                 beforeSend: function() {
                     $('div#parametros-content').empty();

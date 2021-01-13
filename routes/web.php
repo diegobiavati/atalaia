@@ -1,8 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-
 Route::group(['middleware' => 'auth', 'prefix' => 'operador', 'as' => 'operador.'], function () {
     Route::get('/', ['as' => 'admin', 'uses' => 'Operador\AdminOpController@ShowHome']);
 });
@@ -402,5 +399,32 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
 
     Route::resource('admin/aluno', 'Aluno\AlunoApiController')->middleware('checkauth');
 
-    Route::get('listagem-selecao-alunos-gaviao', 'Ajax\AjaxAdminGaviaoController@ListagemSelecaoAlunosGaviao');
+    Route::get('listagem-selecao-alunos-gaviao', 'Ajax\AjaxAdminGaviaoController@ListagemSelecaoAlunosGaviao')->middleware('checkauth');
+    Route::get('relacao-geral-alunos/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelatorioGeralGaviao')->middleware('checkauth');
+
+    Route::get('relacao-alunos', 'Relatorios\RelatorioAlunoController@ViewRelacaoAlunos')->middleware('checkauth');
+    Route::get('ficha-individual-aluno/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewFichaIndividualAlunoGaviao')->middleware('checkauth');
+
+    Route::get('view-frad-aluno/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewFradAlunoGaviao')->middleware('checkauth');
+    Route::get('consulta-frad-aluno', 'Relatorios\RelatorioAlunoController@ViewRelacaoFradAlunos')->middleware('checkauth');
+
+    Route::get('view-rod-aluno/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRodAlunoGaviao')->middleware('checkauth');
+    Route::get('consulta-rod-aluno', 'Relatorios\RelatorioAlunoController@ViewRelacaoRodAlunos')->middleware('checkauth');
+
+    Route::get('view-ficha-disciplinar/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewFichaDisciplinarGaviao')->middleware('checkauth');
+    Route::post('view-relacao-ficha-disciplinar/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoFDisciplinarAlunos')->middleware('checkauth');
+
+
+
+
+
+
+    Route::get('carrega-opcoes-relatorio/{item}', 'Ajax\AjaxRelatoriosGaviaoController@OpcoesRelatoriosDefault');
+
+    /* ROTAS PARA SUBMIT DE RELATÓRIOS */
+    Route::get('view-relatorios', ['as' => 'view-relatorios', 'uses' => 'Ajax\AjaxAdminGaviaoController@Relatorios']);
+
+    Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
+        
+    });
 });
