@@ -205,6 +205,7 @@
             @endforelse
         </table>
     </div>
+    
     @endforeach
 @endif
 
@@ -220,4 +221,13 @@
 {{header("Pragma: no-cache")}}
 
 @endif
+
+<div style="display: flex; justify-content: right; align-items: right;">
+<h6 style="margin-top: 20px;width: 30%;"> Consulta Realizada em {{ date('d/m/Y H:i:s') }} </h6>
+</div>
+<script>
+    $(document).ready(function() {
+        $("body").removeAttr("style"); //remove o display: table; para centralizar tudo
+    });
+</script>
 @stop
