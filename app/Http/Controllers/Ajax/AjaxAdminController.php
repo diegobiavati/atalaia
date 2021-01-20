@@ -4458,7 +4458,9 @@ class AjaxAdminController extends Controller
 
         $user = new User;
         $user->email = $request->email;
-        $user->password = bcrypt(uniqid());
+
+        $senha = explode('@', $user->email);
+        $user->password = bcrypt($senha[0]);
 
         $operador = new Operadores;
         $operador->nome = mb_strtoupper($request->nome, 'UTF-8');

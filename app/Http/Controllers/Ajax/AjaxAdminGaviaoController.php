@@ -214,9 +214,9 @@ class AjaxAdminGaviaoController extends Controller
             $id_ano_formacao = $request->anos_de_formacao;
         }
 
-        if ($ownauthcontroller->PermissaoCheck(1) && !isset($request->qmss)) {
+        if ($ownauthcontroller->PermissaoCheck([1, 10]) && !isset($request->qmss)) {
             $error[] = 'Pelo menos uma QMS deve ser selecionada';
-        } else if ($ownauthcontroller->PermissaoCheck(1)) {
+        } else if ($ownauthcontroller->PermissaoCheck([1, 10])) {
             $qmss = $request->qmss;
         } else {
             $qmss = array(session()->get('login.qmsID.0.id'));

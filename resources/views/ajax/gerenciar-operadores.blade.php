@@ -30,10 +30,7 @@
             </div>
             <div class="card-body">
                 <h5 class="card-title" style="text-align: center; margin: 18px 0 44px 0;">
-                    RELAÇÃO DE USUÁRIOS OPERADORES DO SISTEMA ATALAIA
-                    <!-- @if($ownauthcontroller->PermissaoCheck(1))
-                        TESTANDO PERMISSÃO NA VIEW
-                    @endif -->
+                    RELAÇÃO DE USUÁRIOS OPERADORES DO SISTEMA {{ ((session()->get('login.omctID')) ? 'ATALAIA': 'GAVIÃO') }}
                 </h5>
                     @if(count($operadores)>0)           
                         <p class="card-text">

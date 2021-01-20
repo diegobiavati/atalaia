@@ -364,7 +364,10 @@ class Alunos extends Model
                 $q->where('qms_matriz_id', '=', session()->get('qms_selecionada'));
             });
             
-        }else if(!in_array('9999', session()->get('login.perfil'))){
+        }else if(!in_array('9999', session()->get('login.perfil'))
+                && !in_array('9003', session()->get('login.perfil'))
+                && !in_array('9004', session()->get('login.perfil'))
+        ){
             $aluno->where('qms_id', session()->get('login.qmsID.0.id') );
         }                
 
