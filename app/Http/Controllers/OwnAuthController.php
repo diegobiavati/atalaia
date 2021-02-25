@@ -28,6 +28,37 @@ class OwnAuthController extends Controller
         $classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);    
         
     }
+
+    public function PerfilCheck($perfils){
+        if(session()->has('login')){
+            
+            $session_data = session()->get('login');
+
+            if(is_array($perfils)){
+                foreach($perfils as $perfil){
+                    if(in_array($perfil, $session_data['perfil'])){
+                        if(isset($not_authorized)){
+                            unset($not_authorized);
+                        }
+                        break;
+                    } else {
+                        $not_authorized = true;
+                    }
+                }
+
+                return (isset($not_authorized))?false:true;
+
+            } else {                
+                if(in_array($perfils, $session_data['perfil'])){
+                    return true;
+                } else {
+                    return false;   
+                }
+            }
+        } else {
+            return false;
+        }
+    }
     
     public function PermissaoCheck($permissao){
         

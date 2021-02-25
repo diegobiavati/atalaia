@@ -1,3 +1,10 @@
+<script src="/js/bootstrap-datepicker.min.js"></script>
+<script src="/js/bootstrap-datepicker.pt-BR.min.js"></script>
+<link href="/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
+
+<?php
+    $backgroundVisaoGeral = (session()->has('backgroundVisaoGeral') ? session()->get('backgroundVisaoGeral') : '#0A2A1B;');
+?>
 <style>
     .modal-full {
         min-width: 100%;
@@ -17,7 +24,7 @@
 
     <div class="box-option-menu-docs-rels">
         <a href="javascript: void(0);" class="no-style" id="lancarFO">
-            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: #0A2A1B; margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
+            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: {{$backgroundVisaoGeral}} margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
                 <i class="ion-android-list" style="font-size: 44px;"></i>
             </div>
             <span>Lançar FO</span>
@@ -25,7 +32,7 @@
     </div>
     <div class="box-option-menu-docs-rels">
         <a href="javascript: void(0);" class="no-style" id="consultarFO">
-            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: #0A2A1B; margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
+            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: {{$backgroundVisaoGeral}} margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
                 <i class="ion-search" style="font-size: 44px;"></i>
             </div>
             <span>Consultar FO</span>
@@ -33,7 +40,7 @@
     </div>
     <div class="box-option-menu-docs-rels">
         <a href="javascript: void(0);" class="no-style" id="consultarFATD">
-            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: #0A2A1B; margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
+            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: {{$backgroundVisaoGeral}} margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
                 <i class="ion-search" style="font-size: 44px;"></i>
             </div>
             <span>Consultar FATD</span>
@@ -90,6 +97,9 @@
 
         $('div.alert-success').html(null).slideUp();
         $('div.alert-danger').html(null).slideUp();
+
+        $('div#lancamentoTemp').empty();
+        $('div#body-full-modal').empty();
 
         $.ajax({
             type: 'GET',

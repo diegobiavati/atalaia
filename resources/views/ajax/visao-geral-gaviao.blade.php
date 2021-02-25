@@ -78,7 +78,51 @@
                 <span id="porcentagem_seg_masc" style="display: none;">{{$alunos['porcentagem_alunos']}}%</span>
             </div>
         </div>
-    </div>        
+    </div>
+
+    @if($ownauthcontroller->PerfilCheck(9001))
+    <!--Só libera se for Cmt de Cia-->
+    <div class="card">
+        <div style="background-color: {{$backgroundVisaoGeral}}; border-radius: 3px 3px 0 0;">
+            <div style="text-align: center; color: #fff; padding: 10px;">
+                <i class="ion-android-warning" style="font-size: 44px;"></i><br />
+                <h5>FATOS OBSERVADOS</h5>
+            </div>
+        </div>
+        <div class="card-body">
+
+            <h5 class="card-title"><b>Resolvidos</b></h5>
+            <div class="card-text" style="width: 80%; margin: 40px auto;">
+                <p class="card-text" style="text-align: center; font-size: 44px; line-height: 22px;">
+                    {{ $lancamentoFo->where('providencia', '<>', null)->count() .'/'. $lancamentoFo->count() }}
+                </p>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+    @endif
+
+    @if($ownauthcontroller->PerfilCheck(9002))
+    <!--Só libera se for Sargenteante da UETE-->
+    <div class="card">
+        <div style="background-color: {{$backgroundVisaoGeral}}; border-radius: 3px 3px 0 0;">
+            <div style="text-align: center; color: #fff; padding: 10px;">
+                <i class="ion-android-warning" style="font-size: 44px;"></i><br />
+                <h5>FATD</h5>
+            </div>
+        </div>
+        <div class="card-body">
+
+            <h5 class="card-title"><b>Pendentes</b></h5>
+            <div class="card-text" style="width: 80%; margin: 40px auto;">
+                <p class="card-text" style="text-align: center; font-size: 44px; line-height: 22px;">
+                    {{ $fatd->count() }}
+                </p>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+    @endif        
   </div>
 
     <script>

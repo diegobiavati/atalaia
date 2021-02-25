@@ -147,6 +147,13 @@ class FuncoesController
         return $cursos;
     }
 
+    public static function retornaCursoAnoFormacao(AnoFormacao $anoFormacao, int $idCurso){
+        $param['anoFormacao_id'] = $anoFormacao->id;
+        return QMS::where('qms_matriz_id', $idCurso)->whereHas('escolhaQms', function($q) use ($param){
+            $q->where('ano_formacao_id', $param['anoFormacao_id']);
+        })->first();
+    }
+
     public static function recalculaNotaAluno(Collection $avaliacoesNotas)
     {
 

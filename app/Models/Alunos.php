@@ -25,6 +25,7 @@ class Alunos extends Model
         'data_matricula',
         'primeira_data_praca',
         'turma_id',
+        'turma_esa_id',
         'omcts_id',
         'area_id',
         'instrumento_id',
@@ -131,6 +132,11 @@ class Alunos extends Model
     public function turma()
     {
         return ($this->belongsTo('App\Models\TurmasPB', 'turma_id', 'id')) ?? 'Não informada';
+    }
+
+    public function turmaEsa()
+    {
+        return ($this->belongsTo('App\Models\TurmasEsa', 'turma_esa_id', 'id')) ?? 'Não informada';
     }
 
     public function omct()
@@ -383,6 +389,10 @@ class Alunos extends Model
                 });
 
         return $aluno;
+    }
+
+    public static function retornaAlunosComQmsEspecifica($anoFormacaoID, $arrayIdQms){
+        return Alunos::retornaAlunosComQms($anoFormacaoID)->whereIn('qms_id', $arrayIdQms);
     }
 
     public static function filtraAlunosOmctAreaSeg($alunos, $omct_id, $area_id, $segmento)

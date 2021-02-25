@@ -1,22 +1,10 @@
-<form id="consultaFatoObservado">
-    <input type="hidden" name="_token" value="{{ csrf_token() }}">
     <input type="hidden" name="rotaConsulta" value="{{$rotaConsulta}}" />
 
     <div style="width: 50%; margin: 22px auto; text-align: left; border-bottom: 1px solid #ccc;">
         <h4 style="text-align: center; margin-bottom: 12px;">Consulta de Fatos Observados</h4>
 
-        {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao() !!}
-
-        <select name="omctID" class="custom-select required_to_show_button" style="margin-top: 32px;">
-            <option value="0" disabled selected hidden>Selecione uma UETE</option>
-            @if($ownauthcontroller->PermissaoCheck(1))
-            <option value="todas_omct">TODAS AS UETE</option>
-            @endif
-            @foreach ($uetes as $uete)
-            <option value={{$uete->id}}>{{ $uete->omct }}</option>
-            @endforeach
-        </select>
-
+        @include('ajax.componenteSelectUeteCurso')
+        
         <select name="opcaoRel" class="custom-select" style="margin-top: 32px;">
             <option value="0" disabled selected hidden>Selecione uma Opção</option>
             <option value="1">Listar Todos</option>
@@ -79,4 +67,3 @@
             
         });
     </script>
-</form>

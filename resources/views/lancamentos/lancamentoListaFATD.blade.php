@@ -26,7 +26,7 @@
                     <td>
                         <a href="javascript: void(0);" class="no-style" style="padding-right:10px;" title="Visualizar FATD" onclick="abrirFichaFATD('{{route($rota)}}', '{{$fatd->fatdLancada->lancamento_fo_id}}');"><i class="ion-android-clipboard" style="font-size: 22px;"></i></a>
                         <!--Perfil Sargenteante Pode Editar FATD-->
-                        @if( in_array(4, session()->get('login.perfil')))
+                        @if( $ownauthcontroller->PerfilCheck([4,9002]) )
                         <a href="javascript: void(0);" class="no-style" title="Lançar/Editar FATD" onclick="abrirFATD({{$fatd->fatdLancada->lancamento_fo_id}});"><i class="ion-android-create" style="font-size: 22px;"></i></a>
                         @endif
                     </td>

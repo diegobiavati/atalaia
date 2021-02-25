@@ -32,7 +32,7 @@
             <div class="btn-group btn-group-toggle" data-toggle="buttons" style="padding-bottom:10px;">
                 @foreach ($enquadramentos as $enquadramento)
                 <label class="btn btn-outline-info {{ (isset($fatd->enquadramento_id) && $fatd->enquadramento_id == $enquadramento->id)  ? 'active': ''}}" style="font-size: 13px;">
-                    <input type="radio" name="enquadramento_id" id="enquadramento_{{$enquadramento->id}}" value="{{$enquadramento->id}}" autocomplete="off">{{$enquadramento->enquadramento}}
+                    <input type="radio" name="enquadramento_id" id="enquadramento_{{$enquadramento->id}}" value="{{$enquadramento->id}}" autocomplete="off">{{$enquadramento->enquadramento_esa}}
                 </label>
                 @endforeach
             </div>
@@ -121,7 +121,7 @@
                 var formData = $('form#lancamentoFATD').serialize();
 
                 $.ajax({
-                    url: 'ajax/fatdSargenteante/{{$fatd->lancamento_fo_id}}',
+                    url: '/ajax/fatdSargenteante/{{$fatd->lancamento_fo_id}}',
                     type: 'POST',
                     data: formData,
                     beforeSend: function() {

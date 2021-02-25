@@ -1,29 +1,37 @@
-<script src="/js/bootstrap-datepicker.min.js"></script>
-<script src="/js/bootstrap-datepicker.pt-BR.min.js"></script>
-<link href="/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
-
 <form id="lancamentoFatoObservado">
 
-    <input type="hidden" name="_token" value="{{csrf_token()}}" />
     <input type="hidden" name="rotaTurma" value="{{$rotaTurma}}" />
-
-    {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao((isset($ano_formacao) ? $ano_formacao : null)) !!}
+    <input type="hidden" name="_token" value="{{csrf_token()}}" />
 
     <div style="width: 40%; margin: 22px auto; text-align: center; border-bottom: 0px solid #ccc;">
+
         <div style="margin-bottom: 15px;">
             <div>
                 <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
-                    <font style="color:rgb(255, 255, 255);">Uete</font>
+                    <font style="color:rgb(255, 255, 255);">{{ (isset($cursos) ? 'Curso' : 'Uete') }}</font>
                 </label>
             </div>
-            <div>
-                <select name="omctID" class="custom-select required_to_show_button" {{ $readOnly }}>
-                    <option value="0" disabled selected hidden>Selecione uma UETE</option>
-                    @foreach ($uetes as $uete)
-                    <option value={{$uete->id}} {{ (isset($lancamentoFo->aluno) && $uete->id == $lancamentoFo->aluno->omcts_id)  ? 'selected': ''}}>{{ $uete->omct }}</option>
-                    @endforeach
-                </select>
-            </div>
+            @if(isset($cursos))
+            <select name="qmsID" class="custom-select required_to_show_button" {{ $readOnly }}>
+                <option value="0" disabled selected hidden>Selecione um Curso</option>
+                @if($ownauthcontroller->PermissaoCheck(1))
+                <option value="todas_qmss">TODAS OS CURSOS</option>
+                @endif
+                @foreach ($cursos as $curso)
+                <option value={{$curso->id}} {{ (isset($lancamentoFo->aluno) && $curso->id == $lancamentoFo->aluno->qms_id)  ? 'selected': ''}}>{{ $curso->qms }}</option>
+                @endforeach
+            </select>
+            @else
+            <select name="omctID" class="custom-select required_to_show_button" {{ $readOnly }}>
+                <option value="0" disabled selected hidden>Selecione uma UETE</option>
+                @if($ownauthcontroller->PermissaoCheck(1))
+                <option value="todas_omct">TODAS AS UETE</option>
+                @endif
+                @foreach ($uetes as $uete)
+                <option value={{$uete->id}} {{ (isset($lancamentoFo->aluno) && $uete->id == $lancamentoFo->aluno->omcts_id)  ? 'selected': ''}}>{{ $uete->omct }}</option>
+                @endforeach
+            </select>
+            @endif
         </div>
         <div style="margin-bottom: 15px;">
             <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
@@ -92,7 +100,7 @@
         </div>
 
         <!--Só libera se for Cmt de Cia-->
-        <div id="divProvidencia" style="margin-bottom: 15px; display: {{ (in_array(2, session()->get('login.perfil')) || (isset($lancamentoFo) && isset($lancamentoFo->providencia))) ? 'block': 'none'}} ;">
+        <div id="divProvidencia" style="margin-bottom: 15px; display: {{ ($ownauthcontroller->PerfilCheck([2,9001]) || (isset($lancamentoFo) && isset($lancamentoFo->providencia))) ? 'block': 'none'}} ;">
             <div>
                 <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
                     <font style="color:rgb(255, 255, 255);">Providências</font>
@@ -151,188 +159,210 @@
             @endif
         </div>
     </div>
-    <script>
-        $(document).ready(function() {
-
-            $('div.errors-lancamento-fo').empty().hide();
-            $('div.success-lancamento-fo').empty().hide();
-
-            $('div#datepicker').datepicker({
-                format: "dd/mm/yyyy",
-                maxViewMode: 0,
-                language: "pt-BR"
-            });
-
-            $("div#datepicker").datepicker("setDate", $("#lancamentoFatoObservado input[name=dateObs]").val());
-
-            $(document).on('change', 'select.required_to_show_button', function() {
-                $('select.required_to_show_button').each(function(index, element) {
-                    if ($(element).val() == 0) {
-                        $('#btnRegistraFO.btn.btn-primary').slideUp(100);
-                        return false;
-                    }
-                    $('#btnRegistraFO.btn.btn-primary').slideDown(100);
-                });
-            });
-
-            $(document).on('change keyup paste', 'textarea.required_to_show_button', function() {
-                $('#btnAtualizaFO.btn.btn-success').slideDown(100);
-            });
-
-            $('#btnRegistraFO.btn.btn-primary').click(function(evt) {
-                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-
-                var formData = $('form#lancamentoFatoObservado').serialize();
-                var url = "ajax/lancamentos";
-
-                if ($("div#datepicker").datepicker("getDate") != null) {
-                    formData = formData + '&dataFO=' + $("div#datepicker").datepicker("getDate").toDateString();
-                }
-
-                $.ajax({
-                    dataType: 'json',
-                    url: url,
-                    type: 'POST',
-                    data: formData,
-                    beforeSend: function() {
-                        $('div.errors-lancamento-fo').empty().hide();
-                        $('div.success-lancamento-fo').empty().hide();
-                    },
-                    success: function(data) {
-
-                        if (data.status == 'err') {
-                            $('div.errors-lancamento-fo').html(data.response).slideDown();
-                        } else {
-                            $('div.success-lancamento-fo').html(data.response).slideDown();
-
-                            setTimeout(function() {
-                                $('div.success-lancamento-fo').slideUp(200, function() {
-                                    $(this).removeClass('alert-success').empty();
-                                    $('div#full-modal').modal('hide');
-                                });
-                            }, 3000);
-                        }
-
-                    },
-                    error: function(jqxhr) {
-                        $('div.errors-lancamento-fo').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
-                    }
-                });
-            });
-
-            $('#btnAtualizaFO.btn.btn-success').click(function(evt) {
-                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-
-                var formData = $('form#lancamentoFatoObservado').serialize();
-                var url = "ajax/lancamentos/{{ (isset($lancamentoFo->id) ? $lancamentoFo->id : null) }}";
-
-                $.ajax({
-                    dataType: 'json',
-                    url: url,
-                    type: 'PUT',
-                    data: formData,
-                    beforeSend: function() {
-                        $('div.errors-lancamento-fo').empty().hide();
-                        $('div.success-lancamento-fo').empty().hide();
-                    },
-                    success: function(data) {
-
-                        if (data.status == 'err') {
-                            $('div.errors-lancamento-fo').html(data.response).slideDown();
-                        } else {
-                            $('div.success-lancamento-fo').html(data.response).slideDown();
-
-                            setTimeout(function() {
-                                $('div.success-lancamento-fo').slideUp(200, function() {
-                                    $(this).removeClass('alert-success').empty();
-                                    $('div#full-modal').modal('hide');
-                                });
-                            }, 3000);
-                        }
-
-                    },
-                    error: function(jqxhr) {
-                        $('div.errors-lancamento-fo').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
-                    }
-                });
-            });
-
-            $(document).on('change', 'select.custom-select[name="turmaID"]', function(evt) {
-                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-
-                dataPost = '_token=' + $('input[name="_token"]').val() +
-                    '&turmaID=' + $(this).children("option:selected").val() +
-                    '&omctID=' + $('select.custom-select[name="omctID"]').children("option:selected").val() +
-                    '&anoFormacaoID=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
-
-                $.ajax({
-                    url: $('input[name="rotaTurma"]').val(),
-                    type: 'POST',
-                    data: dataPost,
-                    beforeSend: function() {
-                        $('div#container-turma').empty();
-                        $('div#container-turma').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
-                    },
-                    success: function(data) {
-                        $('div#container-turma').empty();
-                        $('div#container-turma').html(data);
-                    },
-                    error: function(jqxhr) {
-                        $('div#container-turma').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
-                    }
-                });
-            });
-
-            $(document).on('change', 'input[name="ano_formacao"]', function(evt) {
-                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-
-                $('form#lancamentoFatoObservado').get(0).reset();
-                $('div#container-turma').empty();
-                $('div#datepicker').datepicker('clearDates');
-                $('select.custom-select[name="turmaID"]').empty();
-            });
-
-            $(document).on('change', 'select[name="omctID"]', function(evt) {
-                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-
-                $('div#container-turma').empty();
-                $('div#datepicker').datepicker('clearDates');
-
-                dataPost = '_token=' + $('input[name="_token"]').val() +
-                    '&omctID=' + $('select.custom-select[name="omctID"]').children("option:selected").val() +
-                    '&anoFormacaoID=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
-
-                //Busca as turmas da UETE seleciona
-                $.ajax({
-                    url: 'ajax/consultaTurma',
-                    type: 'POST',
-                    data: dataPost,
-                    beforeSend: function() {
-                        $('select.custom-select[name="turmaID"]').empty();
-                    },
-                    success: function(data) {
-                        $('select.custom-select[name="turmaID"]').html(data);
-                    },
-                    error: function(jqxhr) {
-                        $('div#container-turma').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
-                    }
-                });
-            });
-
-            $('.custom-control.custom-radio input[type="radio"]').click(function(){
-                var radioValue = $('.custom-control.custom-radio input[type="radio"]:checked').val();
-                    if(radioValue > 0){
-                        $('#divProvidencia').css('display', 'block');
-                        $('.btn.btn-outline-danger').css('display', 'none');
-                        $('.btn.btn-outline-warning').addClass('active');
-                        $('.btn.btn-outline-warning input[type="radio"]').prop("checked", true);
-                    }else{
-                        $('#divProvidencia').css('display', 'none');
-                        $('.btn.btn-outline-warning').removeClass('active');
-                        $('.btn.btn-outline-warning input[type="radio"]').prop("checked", false);
-                    }
-            });
-
-        });
-    </script>
 </form>
+
+
+<script>
+    $(document).ready(function() {
+
+        $('div.errors-lancamento-fo').empty().hide();
+        $('div.success-lancamento-fo').empty().hide();
+
+        $('div#datepicker').datepicker({
+            
+            format: "dd/mm/yyyy",
+            maxViewMode: 0,
+            language: "pt-BR"
+        });
+
+        $("div#datepicker").datepicker("setDate", $("#lancamentoFatoObservado input[name=dateObs]").val());
+
+        $(document).on('change', 'select.required_to_show_button', function() {
+            $('select.required_to_show_button').each(function(index, element) {
+                if ($(element).val() == 0) {
+                    $('#btnRegistraFO.btn.btn-primary').slideUp(100);
+                    return false;
+                }
+                $('#btnRegistraFO.btn.btn-primary').slideDown(100);
+            });
+        });
+
+        $(document).on('change keyup paste', 'textarea.required_to_show_button', function() {
+            $('#btnAtualizaFO.btn.btn-success').slideDown(100);
+        });
+
+        $('#btnRegistraFO.btn.btn-primary').click(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+            var formData = $('form#lancamentoFatoObservado').serialize();
+            var url = "/ajax/lancamentos";
+
+            if ($("div#datepicker").datepicker("getDate") != null) {
+                formData = formData + '&dataFO=' + $("div#datepicker").datepicker("getDate").toDateString();
+            }
+
+            $.ajax({
+                dataType: 'json',
+                url: url,
+                type: 'POST',
+                data: formData,
+                beforeSend: function() {
+                    $('div.errors-lancamento-fo').empty().hide();
+                    $('div.success-lancamento-fo').empty().hide();
+                },
+                success: function(data) {
+
+                    if (data.status == 'err') {
+                        $('div.errors-lancamento-fo').html(data.response).slideDown();
+                    } else {
+                        $('div.success-lancamento-fo').html(data.response).slideDown();
+
+                        setTimeout(function() {
+                            $('div.success-lancamento-fo').slideUp(200, function() {
+                                $(this).removeClass('alert-success').empty();
+                                $('div#full-modal').modal('hide');
+                            });
+                        }, 3000);
+                    }
+
+                },
+                error: function(jqxhr) {
+                    $('div.errors-lancamento-fo').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                }
+            });
+        });
+
+        $('#btnAtualizaFO.btn.btn-success').click(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+            var formData = $('form#lancamentoFatoObservado').serialize();
+            var url = "/ajax/lancamentos/{{ (isset($lancamentoFo->id) ? $lancamentoFo->id : null) }}";
+
+            $.ajax({
+                dataType: 'json',
+                url: url,
+                type: 'PUT',
+                data: formData,
+                beforeSend: function() {
+                    $('div.errors-lancamento-fo').empty().hide();
+                    $('div.success-lancamento-fo').empty().hide();
+                },
+                success: function(data) {
+
+                    if (data.status == 'err') {
+                        $('div.errors-lancamento-fo').html(data.response).slideDown();
+                    } else {
+                        $('div.success-lancamento-fo').html(data.response).slideDown();
+
+                        setTimeout(function() {
+                            $('div.success-lancamento-fo').slideUp(200, function() {
+                                $(this).removeClass('alert-success').empty();
+                                $('div#full-modal').modal('hide');
+                            });
+                        }, 3000);
+                    }
+
+                },
+                error: function(jqxhr) {
+                    $('div.errors-lancamento-fo').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                }
+            });
+        });
+
+        $(document).on('change', 'form#lancamentoFatoObservado select.custom-select[name="turmaID"]', function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+            dataPost = '_token=' + $('input[name="_token"]').val() +
+                '&turmaID=' + $(this).children("option:selected").val() +
+                '&omctID=' + $('select.custom-select[name="omctID"]').children("option:selected").val() +
+                '&qmsID=' + $('select.custom-select[name="qmsID"]').children("option:selected").val() +
+                '&anoFormacaoID=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
+
+            $.ajax({
+                url: $('input[name="rotaTurma"]').val(),
+                type: 'POST',
+                data: dataPost,
+                beforeSend: function() {
+                    $('div#container-turma').empty();
+                    $('div#container-turma').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+                },
+                success: function(data) {
+                    $('div#container-turma').empty();
+                    $('div#container-turma').html(data);
+                },
+                error: function(jqxhr) {
+                    $('div#container-turma').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                }
+            });
+        });
+
+        $(document).on('change', 'form#lancamentoFatoObservado select[name="omctID"]', function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+            $('div#container-turma').empty();
+            $('div#datepicker').datepicker('clearDates');
+
+            dataPost = '_token=' + $('input[name="_token"]').val() +
+                '&omctID=' + $('select.custom-select[name="omctID"]').children("option:selected").val() +
+                '&anoFormacaoID=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
+
+            //Busca as turmas da UETE seleciona
+            $.ajax({
+                url: 'ajax/consultaTurma',
+                type: 'POST',
+                data: dataPost,
+                beforeSend: function() {
+                    $('select.custom-select[name="turmaID"]').empty();
+                },
+                success: function(data) {
+                    $('select.custom-select[name="turmaID"]').html(data);
+                },
+                error: function(jqxhr) {
+                    $('div#container-turma').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                }
+            });
+        });
+
+        $(document).on('change', 'form#lancamentoFatoObservado select[name="qmsID"]', function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+            $('div#container-turma').empty();
+            $('div#datepicker').datepicker('clearDates');
+
+            dataPost = '_token=' + $('input[name="_token"]').val() +
+                '&qmsID=' + $('select.custom-select[name="qmsID"]').children("option:selected").val() +
+                '&anoFormacaoID=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
+
+            //Busca as turmas da UETE seleciona
+            $.ajax({
+                url: '/ajax/consultaTurma',
+                type: 'POST',
+                data: dataPost,
+                beforeSend: function() {
+                    $('select.custom-select[name="turmaID"]').empty();
+                },
+                success: function(data) {
+                    $('select.custom-select[name="turmaID"]').html(data);
+                },
+                error: function(jqxhr) {
+                    $('div#container-turma').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                }
+            });
+        });
+
+        $('.custom-control.custom-radio input[type="radio"]').click(function() {
+            var radioValue = $('.custom-control.custom-radio input[type="radio"]:checked').val();
+            if (radioValue > 0) {
+                $('#divProvidencia').css('display', 'block');
+                $('.btn.btn-outline-danger').css('display', 'none');
+                $('.btn.btn-outline-warning').addClass('active');
+                $('.btn.btn-outline-warning input[type="radio"]').prop("checked", true);
+            } else {
+                $('#divProvidencia').css('display', 'none');
+                $('.btn.btn-outline-warning').removeClass('active');
+                $('.btn.btn-outline-warning input[type="radio"]').prop("checked", false);
+            }
+        });
+
+    });
+</script>

@@ -49,6 +49,9 @@
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
                         <a class="nav-item nav-link active" data-toggle="tab" href="#nav-alunos-visao-geral" role="tab" aria-controls="nav-home" aria-selected="true" onclick="$('a#alunos').trigger('click');">Visão geral do cadastro</a>
                         <a class="nav-item nav-link" data-toggle="tab" href="#nav-alunos-cadastro" role="tab" aria-controls="nav-home" aria-selected="true">Opções de listagem</a>
+                        @if($ownauthcontroller->PermissaoCheck([1,10]))
+                            <a class="nav-item nav-link" data-toggle="tab" href="#nav-alunos-turma" role="tab" aria-controls="nav-home" aria-selected="true">Seleção de Turmas</a>
+                        @endif
                         <!--a class="nav-item nav-link" data-toggle="tab" href="#nav-alunos-situacoes-diversas" role="tab" aria-controls="nav-home" aria-selected="true" onclick="loadAlunosSitDiv();">Alunos em situações diversas</a-->
                     </div>
                 </nav>
@@ -155,6 +158,36 @@
                         </form>                                                
                         <div id="response" style="margin-top: 84px;"></div>
                     </div>
+                    <div class="tab-pane fade" id="nav-alunos-turma" role="tabpanel" aria-labelledby="nav-profile-tab" style="padding: 56px;">
+                        <form id="opcoes-selecao-turma">
+                            @if($ownauthcontroller->PermissaoCheck([1,10]))
+                                <h4 style="text-align: center;">ANO DE FORMAÇÃO</h4>
+                                {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao(null) !!}
+
+                                <div style="width: 90%; margin: 16px auto; text-align: center; margin-top:50px;">
+                                    <h4 style="text-align: center;">CURSO</h4>
+                                    
+                                    <div style="text-align: center; margin: 22px auto; width: 70%;">
+                                        <select class="custom-select" name="curso">
+                                            <option>Selecione um Curso</option>
+                                            @foreach($cursos as $curso)
+                                                <option value="{{$curso->qms_matriz_id}}">{{$curso->qms}}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            @endif
+                            <div style="text-align: center; margin-top: 36px; ">
+                                <button id="submitTurmas" type="button" class="btn btn-success btn-lg" onclick="ListagemTurmas(this);">Listar seleção</button>
+                            </div>
+                            <div style="margin: 24px auto; border-bottom: 1px solid #ccc;">
+                                
+                                <div class="alert alert-danger errors-seleciona-turma" role="alert"></div>
+                                <div class="alert alert-success success-seleciona-turma" role="alert"></div>                      
+                            </div>
+                        </form>                                                
+                        <div id="response-selecao-turma" style="margin-top: 84px;"></div>
+                    </div>
                     <div class="tab-pane fade" id="nav-alunos-situacoes-diversas" role="tabpanel" aria-labelledby="nav-contact-tab">
                         <div style="width: 90%; margin: 94px auto; text-align: center;">
                             <h4 style="text-align: center; color: #696969;">RELAÇÃO DE ALUNOS EM SITUAÇÕES DIVERSAS</h4>     
@@ -169,7 +202,9 @@
 </div>
 
 <script>
-    
+$('div.errors-seleciona-turma').empty().hide();
+$('div.success-seleciona-turma').empty().hide();
+
 $("[data-toggle=popover]").popover({
     trigger: 'focus',
     html: true, 
@@ -212,6 +247,32 @@ function OpcoesdeListagemSelecaoAlunos(dataButton){
             }
         }
     });                
+}
+
+function ListagemTurmas(dataButton){
+    var dataButtonContent = $(dataButton).html();
+    var dataForm = $('form#opcoes-selecao-turma').serialize();
+    $('div.errors-seleciona-turma').empty().hide();
+    $('div.success-seleciona-turma').empty().hide();
+    $.ajax({
+        type:'GET',
+        url: '/gaviao/ajax/listagem-selecao-alunos-turma?' + dataForm,
+        beforeSend: function(){
+            $(dataButton).html('<img src="/images/loadings/loading_03.svg" style="margin-right: 3px; width: 32px;" />Buscando registros...').addClass('disabled');
+            $('div#response-selecao-turma').empty();
+        },
+        success: function(data){
+            $(dataButton).html(dataButtonContent).removeClass('disabled');
+            if(data.status=='err'){
+                $('div.errors-seleciona-turma').html(data.response).slideDown();
+            } else {                        
+                $('html, body').animate({
+                    scrollTop: ($('button#submitTurmas').offset().top - 80)
+                }, 1000);
+                $('div#response-selecao-turma').html(data);
+            }
+        }
+    });
 }
         
 </script>

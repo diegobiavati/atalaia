@@ -1,20 +1,8 @@
-<form id="consultaFATD">
-    <input type="hidden" name="_token" value="{{ csrf_token() }}">
 
     <div style="width: 50%; margin: 22px auto; text-align: left; border-bottom: 1px solid #ccc;">
         <h4 style="text-align: center; margin-bottom: 12px;">Consulta de FATD</h4>
 
-        {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao() !!}
-
-        <select name="omctID" class="custom-select required_to_show_button" style="margin-top: 32px;">
-            <option value="0" disabled selected hidden>Selecione uma UETE</option>
-            @if($ownauthcontroller->PermissaoCheck(1))
-            <option value="todas_omct">TODAS AS UETE</option>
-            @endif
-            @foreach ($uetes as $uete)
-            <option value={{$uete->id}}>{{ $uete->omct }}</option>
-            @endforeach
-        </select>
+        @include('ajax.componenteSelectUeteCurso')
 
         <div class="custom-control" style="display: inline-block; margin: 20px 10px 12px 0;">
             <label class="labelDescricao" for="numero_aluno">Número do Aluno</label>
@@ -47,7 +35,7 @@
                 //formData = formData + '&ano_formacao=' + $('.btn.btn-secondary.active input[name="ano_formacao"]').val();
                 
                 $.ajax({
-                    url: 'ajax/listaFATD',
+                    url: '/ajax/listaFATD',
                     type: 'POST',
                     data: formData,
                     beforeSend: function() {
@@ -67,4 +55,3 @@
             });
         });
     </script>
-</form>

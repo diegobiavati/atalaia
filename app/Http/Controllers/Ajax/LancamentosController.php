@@ -15,8 +15,10 @@ use App\Models\Operadores;
 use App\Models\TurmasPB;
 use Illuminate\Support\Facades\DB;
 use App\Http\FPDF\PDF;
+use App\Models\Alunos;
 use App\Models\Comportamento;
 use App\Models\Enquadramentos;
+use App\Models\TurmasEsa;
 use Illuminate\Support\Facades\Validator;
 
 class LancamentosController extends Controller
@@ -47,6 +49,94 @@ class LancamentosController extends Controller
     public function create()
     {
         //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        /*if ($this->_ownauthcontroller->PermissaoCheck(1)) {
+            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
+        } else {
+            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
+        }*/
+        
+        $lancamentoFo = LancamentoFo::find($id);
+        $ano_formacao = $lancamentoFo->aluno->data_matricula;
+
+        $conteudoAtitudinal = ConteudoAtitudinal::all();
+        $turmas = $lancamentoFo->aluno->turma;
+
+        $rotaTurma = '/ajax/lancamentosTurma';
+
+        //$operadores = $lancamentoFo->operador;
+        //$funcaoOperador = session()->get('login.perfil');
+
+        $readOnly = 'readOnly';
+
+        if(session()->get('login.omctID')){
+            $uetes = array($lancamentoFo->aluno->omct);
+
+            $turmas = array($lancamentoFo->aluno->turma);
+
+            return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly'))
+            ->with('ownauthcontroller', $this->_ownauthcontroller);
+        }else{
+            $cursos = array($lancamentoFo->aluno->qms);
+
+            $turmas = array($lancamentoFo->aluno->turmaEsa);
+
+            return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly'))
+            ->with('ownauthcontroller', $this->_ownauthcontroller);
+        }
+
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        $retorno['status'] = 'err';
+        $retorno['response'] = 'Ocorreu um Erro, Relogue no Sistema';
+
+        if($request->textAreaProvidencias == null){
+            $retorno['status'] = 'err';
+            $retorno['response'] = 'Informe a Providência.';
+
+            return response()->json($retorno);
+        }
+        //$lancamentoFo = LancamentoFo::find($id);
+
+        //Se for cancelamento de FO
+        if(isset($request->textAreaCancelamento)){
+            if ($this->CancelarFO($request, $id)) {
+                $retorno['status'] = 'success';
+                $retorno['response'] = 'Cancelamento de FO Efetuado Com Sucesso.';
+            }else{
+                $retorno['status'] = 'err';
+                $retorno['response'] = 'Erro ao Tentar Cancelar FO.';
+            }
+        }else{
+            
+            if ($this->LancarProvidencia($request, $id)) {
+                $retorno['status'] = 'success';
+                $retorno['response'] = 'Providência Lançada Com Sucesso.';
+            }else{
+                $retorno['status'] = 'err';
+                $retorno['response'] = 'Usuário sem Previlégios.';
+            }
+        }
+    
+        return response()->json($retorno);
     }
 
     /**
@@ -83,7 +173,13 @@ class LancamentosController extends Controller
             $lancamentoFo->operador_id = session()->get('login')['operadorID'];
             $lancamentoFo->tipo = $request->radioTipoFO;
             $lancamentoFo->observacao = $request->textAreaObservacaoFO;
-            //$lancamentoFo->providencia = $request->textAreaProvidencias;
+
+            //if($request->textAreaProvidencias != null && $this->_ownauthcontroller->PerfilCheck([2,9001])){
+            if($request->textAreaProvidencias != null){
+                $lancamentoFo->providencia = $request->textAreaProvidencias;
+                $lancamentoFo->frad = 'S';
+            }
+
             $lancamentoFo->data_obs = $dataFO;
 
             $lancamentoFo->conteudo_atitudinal = json_encode($listaAtitudinal);
@@ -113,38 +209,72 @@ class LancamentosController extends Controller
      */
     public function show($id)
     {
-        if ($this->_ownauthcontroller->PermissaoCheck(1)) {
-            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
-        } else {
-            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
+        
+        if(!session()->has('login.qmsID')){
+            if ($this->_ownauthcontroller->PermissaoCheck(1)) {
+                $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
+            } else {
+                $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
+            }
         }
-
+        
         //Registra o Observador na Sessão
         $operadores = Operadores::find(session()->get('login.operadorID'));
 
         if (isset($operadores)) {
             session()->flash('nomeOperador', $operadores->posto->postograd_abrev . ' ' . $operadores->nome_guerra);
 
-            switch ($id) {
+            $explode = explode('_', $id);
+
+            switch ($explode[0]) {
                 case 'lancarFO':
+                    $readOnly = null;
+
+                    if(count($explode) == 1){
+                        return view('lancamentos.lancamentoSelecaoAno');
+                    }
 
                     $conteudoAtitudinal = ConteudoAtitudinal::all();
 
-                    $rotaTurma = 'ajax/lancamentosTurma';
+                    $rotaTurma = '/ajax/lancamentosTurma';
 
                     $operadores = Operadores::find(session()->get('login')['operadorID']);
                     $funcaoOperador = explode(',', $operadores->id_funcao_operador);
 
-                    $readOnly = null;
+                    if(session()->has('login.qmsID')){
+                        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
+
+                        return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'funcaoOperador', 'readOnly'))
+                            ->with('ownauthcontroller', $this->_ownauthcontroller);
+                    }
 
                     return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'funcaoOperador', 'readOnly'))
                         ->with('ownauthcontroller', $this->_ownauthcontroller);
                 case 'viewConsultarFO':
 
-                    $rotaConsulta = 'ajax/listaFatosObservados';
+                    $rotaConsulta = '/ajax/listaFatosObservados';
+
+                    if(count($explode) == 1){
+                        return view('lancamentos.lancamentoConsultaFOSelecaoAno');
+                    }
+
+                    if(session()->has('login.qmsID')){
+                        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
+                        
+                        return view('lancamentos.lancamentoConsultaFO', compact('cursos', 'rotaConsulta'))->with('ownauthcontroller', $this->_ownauthcontroller);
+                    }
 
                     return view('lancamentos.lancamentoConsultaFO', compact('uetes', 'rotaConsulta'))->with('ownauthcontroller', $this->_ownauthcontroller);
                 case 'viewConsultarFATD':
+                    if(count($explode) == 1){
+                        return view('lancamentos.lancamentoConsultaFATDSelecaoAno');
+                    }
+
+                    if(session()->has('login.qmsID')){
+                        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
+                        
+                        return view('lancamentos.lancamentoConsultaFATD', compact('cursos'))->with('ownauthcontroller', $this->_ownauthcontroller);
+                    }
 
                     return view('lancamentos.lancamentoConsultaFATD', compact('uetes'))->with('ownauthcontroller', $this->_ownauthcontroller);
             }
@@ -157,14 +287,16 @@ class LancamentosController extends Controller
             return;
         }
 
-        //if($this->_ownauthcontroller->PermissaoCheck(1)){
-        //    $turmas = TurmasPB::all();
-        //}else{
-        $turmas = TurmasPB::whereHas('alunos', function ($query) use ($request) {
-            $query->where(['omcts_id' => $request->omctID, 'data_matricula' => $request->anoFormacaoID]);
-        })->get();
-        //}
-
+        if(isset($request->qmsID)){
+            $turmas = TurmasEsa::whereHas('alunos', function ($query) use ($request) {
+                $query->where(['qms_id' => $request->qmsID, 'data_matricula' => $request->anoFormacaoID]);
+            })->get();
+        }else{
+            $turmas = TurmasPB::whereHas('alunos', function ($query) use ($request) {
+                $query->where(['omcts_id' => $request->omctID, 'data_matricula' => $request->anoFormacaoID]);
+            })->get();
+        }
+        
         return view('lancamentos.lancamentoConsultaTurma', compact('turmas'));
     }
 
@@ -175,16 +307,24 @@ class LancamentosController extends Controller
             return;
         }
 
-        $alunosTurma = DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra
-                        , omcts.id AS omct_id, omcts.sigla_omct, omcts.omct, omcts.gu
-                        , turmas_pb.id AS turmas_id, turmas_pb.turma
-                        FROM alunos
-                            INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
-                            INNER JOIN turmas_pb ON (turmas_pb.id = alunos.turma_id)
-                        WHERE alunos.data_matricula = $request->anoFormacaoID
-                            AND alunos.omcts_id = $request->omctID
-                            AND alunos.turma_id = $request->turmaID");
+        if($request->qmsID != 'undefined'){
+            $alunosTurma = Alunos::join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
+            ->where([['alunos.data_matricula', '=', $request->anoFormacaoID], ['alunos.qms_id', '=', $request->qmsID], ['alunos.turma_esa_id', '=', $request->turmaID]])
+            ->select(['alunos.id', 'alunos.numero', 'alunos.nome_guerra', 'turmas_esa.id as turmas_id', 'turmas_esa.turma'])
+            ->get();
 
+        }else{
+            $alunosTurma = DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra
+            , omcts.id AS omct_id, omcts.sigla_omct, omcts.omct, omcts.gu
+            , turmas_pb.id AS turmas_id, turmas_pb.turma
+            FROM alunos
+                INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
+                INNER JOIN turmas_pb ON (turmas_pb.id = alunos.turma_id)
+            WHERE alunos.data_matricula = $request->anoFormacaoID
+                AND alunos.omcts_id = $request->omctID
+                AND alunos.turma_id = $request->turmaID");
+        }
+        
         return view('lancamentos.lancamentoAlunosFO', compact('alunosTurma'));
     }
 
@@ -195,10 +335,19 @@ class LancamentosController extends Controller
             return;
         }
 
-        if (!isset($request->omctID)) {
+        if (!isset($request->omctID) && !isset($request->qmsID)) {
+            if(session()->get('login.qmsID')){
+                return '<font style="color:red;font-size:14px;">Selecione um Curso</font>';
+            }
             return '<font style="color:red;font-size:14px;">Selecione uma UETE</font>';
         }
-        $whereUete = ((isset($request->omctID) && $request->omctID <> 'todas_omct') ? " AND alunos.omcts_id = $request->omctID" : null);
+
+        if(isset($request->omctID)){
+            $whereUeteCurso = ((isset($request->omctID) && $request->omctID <> 'todas_omct') ? " AND alunos.omcts_id = $request->omctID" : null);
+        }else{
+            $whereUeteCurso = ((isset($request->qmsID) && $request->qmsID <> 'todas_qmss') ? " AND alunos.qms_id = $request->qmsID" : null);
+        }
+
         $whereNumeroAluno = (isset($request->numero_aluno) ? " AND alunos.numero = $request->numero_aluno" : null);
         $whereNomeGuerra = (isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
 
@@ -228,7 +377,8 @@ class LancamentosController extends Controller
                                         FROM lancamento_fo
                                         INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
                                         INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
-                                        WHERE alunos.data_matricula = $request->ano_formacao " . $whereUete . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel);
+                                        WHERE alunos.data_matricula = $request->ano_formacao " . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
+                                        . 'ORDER BY lancamento_fo.data_obs DESC');
 
         return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'));
     }
@@ -240,11 +390,12 @@ class LancamentosController extends Controller
             return;
         }
 
-        if (!isset($request->omctID)) {
+        if (!isset($request->omctID) && !isset($request->qmsID)) {
+            if(session()->get('login.qmsID')){
+                return '<font style="color:red;font-size:14px;">Selecione um Curso</font>';
+            }
             return '<font style="color:red;font-size:14px;">Selecione uma UETE</font>';
         }
-
-        //dd(session()->get('login.perfil'));
 
         $rota = 'ajax.ficha-fatd';
 
@@ -252,10 +403,20 @@ class LancamentosController extends Controller
             $anoFormacao = AnoFormacao::find($request->ano_formacao);
 
             $where = array('data_matricula' => $anoFormacao->id);
-            if (($request->omctID <> 'todas_omct')) {
-                $where['omcts_id'] = $request->omctID;
+            
 
-                (isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
+            if(isset($request->omctID)){
+                if (($request->omctID <> 'todas_omct')) {
+                    $where['omcts_id'] = $request->omctID;
+    
+                    //(isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
+                }
+            }else{
+                if (($request->qmsID <> 'todas_qmss')) {
+                    $where['qms_id'] = $request->qmsID;
+    
+                    //(isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
+                }
             }
 
             if (isset($request->numero_aluno)) {
@@ -267,11 +428,11 @@ class LancamentosController extends Controller
             }
 
             $query->where($where);
-        })->whereHas('fatdLancada', function ($query) {
+        })->orderByDesc('data_obs')->whereHas('fatdLancada', function ($query) {
             $query->whereNotNull('lancamento_fo_id');
         })->get();
 
-        return view('lancamentos.lancamentoListaFATD', compact('lancamentoFATD', 'rota'));
+        return view('lancamentos.lancamentoListaFATD', compact('lancamentoFATD', 'rota'))->with('ownauthcontroller', $this->_ownauthcontroller);
     }
 
     public function ViewTelaFATD($id)
@@ -306,8 +467,13 @@ class LancamentosController extends Controller
         }
 
         $fatd = Fatd::where(['lancamento_fo_id' => $request->fatdID])->with('lancamentoFo')->first();
-        $operadorChefe = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2']])->first();
 
+        if(session()->get('login.qmsID')){
+            $operadorChefe = Operadores::where([['qms_matriz_id', '=', $fatd->lancamentoFo->aluno->qms->qms_matriz_id], ['id_funcao_operador', '=', '9001']])->first();
+        }else{
+            $operadorChefe = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2']])->first();
+        }
+        
         $pdf = new PDF();
         $pdf->SetAutoPageBreak(false);
         $pdf->AddPage();
@@ -471,80 +637,7 @@ class LancamentosController extends Controller
         exit();
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        if ($this->_ownauthcontroller->PermissaoCheck(1)) {
-            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
-        } else {
-            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
-        }
-
-        $lancamentoFo = LancamentoFo::find($id);
-        $ano_formacao = $lancamentoFo->aluno->data_matricula;
-
-        $conteudoAtitudinal = ConteudoAtitudinal::all();
-        $turmas = TurmasPB::all();
-
-        $rotaTurma = 'ajax/lancamentosTurma';
-
-        //$operadores = $lancamentoFo->operador;
-        //$funcaoOperador = session()->get('login.perfil');
-
-        $readOnly = 'readOnly';
-
-        return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly'))
-            ->with('ownauthcontroller', $this->_ownauthcontroller);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $retorno['status'] = 'err';
-        $retorno['response'] = 'Ocorreu um Erro, Relogue no Sistema';
-
-
-        if($request->textAreaProvidencias == null){
-            $retorno['status'] = 'err';
-            $retorno['response'] = 'Informe a Providência.';
-
-            return response()->json($retorno);
-        }
-        //$lancamentoFo = LancamentoFo::find($id);
-
-        //Se for cancelamento de FO
-        if(isset($request->textAreaCancelamento)){
-            if ($this->CancelarFO($request, $id)) {
-                $retorno['status'] = 'success';
-                $retorno['response'] = 'Cancelamento de FO Efetuado Com Sucesso.';
-            }else{
-                $retorno['status'] = 'err';
-                $retorno['response'] = 'Erro ao Tentar Cancelar FO.';
-            }
-        }else{
-            
-            if ($this->LancarProvidencia($request, $id)) {
-                $retorno['status'] = 'success';
-                $retorno['response'] = 'Providência Lançada Com Sucesso.';
-            }else{
-                $retorno['status'] = 'err';
-                $retorno['response'] = 'Usuário sem Previlégios.';
-            }
-        }
     
-        return response()->json($retorno);
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -560,7 +653,7 @@ class LancamentosController extends Controller
     private function LancarProvidencia(Request $request, $id)
     {
 
-        if(in_array(2, session()->get('login.perfil'))){
+        if($this->_ownauthcontroller->PerfilCheck([2,9001])){
             $providencia = $request->textAreaProvidencias;
             $fatd = ((isset($request->btnPunir) && $request->btnPunir == 'Fatd') ? 'S' : 'N');
             $frad = ((isset($request->btnPunir) && $request->btnPunir == 'Frad') ? 'S' : 'N');
@@ -581,14 +674,21 @@ class LancamentosController extends Controller
 
     private function LancarFatd(LancamentoFo $lancamentoFo)
     {
+
+        if(session()->get('login.qmsID')){
+            $where = 'INNER JOIN qms ON (qms.id = alunos.qms_id)
+            WHERE qms.id = ' . $lancamentoFo->aluno->qms_id;
+        }else{
+            $where = 'INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
+            WHERE omcts.id = ' . $lancamentoFo->aluno->omcts_id;
+        }
         //Verificar o último processo da uete
-        $processo = DB::select("SELECT fatd.nr_processo, fatd.ano, lancamento_fo.id, lancamento_fo.fatd FROM lancamento_fo
+        $processo = DB::select('SELECT fatd.nr_processo, fatd.ano, lancamento_fo.id, lancamento_fo.fatd FROM lancamento_fo
                             LEFT JOIN fatd ON (fatd.lancamento_fo_id = lancamento_fo.id)
                             INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
-                            INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
-                            WHERE omcts.id = " . $lancamentoFo->aluno->omcts_id . "
-                            AND fatd.ano = " . date('Y') . "
-                            ORDER BY fatd.nr_processo DESC limit 1");
+                            '.$where.'
+                            AND fatd.ano = ' . date('Y') . '
+                            ORDER BY fatd.nr_processo DESC limit 1');
 
         $nr_processo = (isset($processo[0]->nr_processo) ? ($processo[0]->nr_processo + 1) : 1);
 
@@ -664,7 +764,7 @@ class LancamentosController extends Controller
     function CancelarFO(Request $request, $id)
     {
         //Se perfil sargenteante deixa cancelar...
-        if(in_array(4, session()->get('login.perfil'))){
+        if($this->_ownauthcontroller->PerfilCheck([4])){
 
             $lancamentoFO = LancamentoFo::find($id);
 
