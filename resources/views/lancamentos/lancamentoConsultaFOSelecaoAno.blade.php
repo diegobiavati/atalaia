@@ -29,7 +29,7 @@
 
                     url = '/ajax/lancamentos/viewConsultarFO_' + evt.target.value;
 
-                    $('form#consultaFatoObservado').get(0).reset();
+                    //$('form#consultaFatoObservado').get(0).reset();
                     $('select.custom-select[name="turmaID"]').empty();
 
                     //Carrega a combo com Uetes ou Cursos

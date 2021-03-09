@@ -29,8 +29,7 @@
                     evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
                     url = '/ajax/lancamentos/viewConsultarFATD_' + evt.target.value;
-
-                    $('form#consultaFATD').get(0).reset();
+		//  $('form#consultaFATD').get(0).reset();
                     $('select.custom-select[name="turmaID"]').empty();
 
                     //Carrega a combo com Uetes ou Cursos

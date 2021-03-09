@@ -26,7 +26,11 @@
         </table>
     </div>
     <div style="margin-top: 24px;">
-        <button id="btn-frad-geral" type="button" class="btn btn-primary" onclick="abrirFichaPunidoGeral('{{route($rotaGeral)}}', '{{$idOmct}}', '{{$anoFormacao->id}}');">Visualizar FRAD (Geral)</button>
+        @if(isset($idCurso))
+            <button id="btn-frad-geral" type="button" class="btn btn-primary" onclick="abrirFichaPunidoGeralCurso('{{route($rotaGeral)}}', '{{$idCurso}}', '{{$anoFormacao->id}}');">Visualizar FRAD (Geral)</button>
+        @else
+            <button id="btn-frad-geral" type="button" class="btn btn-primary" onclick="abrirFichaPunidoGeral('{{route($rotaGeral)}}', '{{$idOmct}}', '{{$anoFormacao->id}}');">Visualizar FRAD (Geral)</button>
+        @endif
     </div>
 </form>
 <script>
@@ -40,5 +44,9 @@
 
     function abrirFichaPunidoGeral(rota, idOmct, idAnoFormacao) {
         window.open(rota + '?omct=' + idOmct +'&idAnoFormacao=' + idAnoFormacao + '&punido=' + punido + '&comportamento='+comportamento);
+    }
+
+    function abrirFichaPunidoGeralCurso(rota, idCurso, idAnoFormacao) {
+        window.open(rota + '?idCurso=' + idCurso +'&idAnoFormacao=' + idAnoFormacao + '&punido=' + punido + '&comportamento='+comportamento);
     }
 </script>

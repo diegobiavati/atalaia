@@ -35,7 +35,7 @@
 
                     url = '/ajax/lancamentos/lancarFO_' + evt.target.value;
 
-                    $('form#lancamentoFatoObservado').get(0).reset();
+                   // $('form#lancamentoFatoObservado').get(0).reset();
                     $('div#container-turma').empty();
                     $('div#datepicker').datepicker('clearDates');
                     $('select.custom-select[name="turmaID"]').empty();

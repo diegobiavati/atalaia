@@ -97,8 +97,15 @@ class FuncoesController
                         $response_ano_formacao[] = '<label class="btn btn-secondary ' . $status_active_label . ' " style="text-align: center;" ><input type="radio" name="ano_formacao" value="' . $ano_formacao->id . '" ' . $status_checked_input . ' /> ' . $ano_formacao->ano_cfs . '</label>';
                     }
                 } else {
-                    $status_active_label = ($i == 0) ? 'active' : '';
-                    $status_checked_input = ($i == 0) ? 'checked' : '';
+                    //Verificar se é perfil Gavião...
+                    if(session()->has('login.qmsID')){
+                        $status_active_label = ($ano_formacao->per_ativo_qualificacao == 'S') ? 'active' : '';
+                        $status_checked_input = ($ano_formacao->per_ativo_qualificacao == 'S') ? 'checked' : '';
+                    }else{
+                        $status_active_label = ($i == 0) ? 'active' : '';
+                        $status_checked_input = ($i == 0) ? 'checked' : '';
+                    }
+                    
                     $response_ano_formacao[] = '<label class="btn btn-secondary ' . $status_active_label . ' " style="text-align: center;" ><input type="radio" name="ano_formacao" value="' . $ano_formacao->id . '" ' . $status_checked_input . ' /> ' . $ano_formacao->ano_cfs . '</label>';
                 }
 

@@ -6006,14 +6006,22 @@ class AjaxAdminController extends Controller
 
     public function ViewSelecaoUeteAlunoPunicao(Request $request)
     {
-        $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
 
         $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
 
-        $rota = $request->path();
+        $rota = '/'.$request->path();
 
         $enquadramentos = Enquadramentos::all();
         $comportamentos = Comportamento::all();
+
+        if(session()->has('login.qmsID')){
+            $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($anoFormacao->id));
+
+            return view('admin.consulta.consulta-uete-aluno-punido', compact('cursos', 'anoFormacao', 'rota', 'enquadramentos', 'comportamentos'))
+            ->with('ownauthcontroller', $this->ownauthcontroller);
+        }
+
+        $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
 
         return view('admin.consulta.consulta-uete-aluno-punido', compact('uetes', 'anoFormacao', 'rota', 'enquadramentos', 'comportamentos'))
             ->with('ownauthcontroller', $this->ownauthcontroller);
