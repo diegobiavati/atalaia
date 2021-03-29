@@ -612,7 +612,8 @@ class Alunos extends Model
             'farda_tam_camiseta' => 'Camiseta',
             'farda_tam_gandola' => 'Gandola',
             'farda_tam_calca' => 'Calça',
-            'farda_tam_coturno' => 'Coturno'
+            'farda_tam_coturno' => 'Coturno',
+            'turma_esa_id' => 'Turma(ESA)'
         ];
     }
 

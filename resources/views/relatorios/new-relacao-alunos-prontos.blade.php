@@ -81,6 +81,8 @@
                     {{ $aluno->renda['descricao_renda'] }}
                     @elseif($coluna->field == 'id_estado_civil')
                     {{ $aluno->estado_civil['estado_civil'] }}
+                    @elseif($coluna->field == 'turma_esa_id')
+                    {{ $aluno->turmaEsa->turma }}
                     @else
                     {{ $aluno->{$coluna->field} }}
                     @endif

@@ -1197,12 +1197,12 @@ class RelatorioAlunoController extends Controller
 
         if(isset($request->idCurso)){
             $pdf->SetWidths(array(14, 15, 13, 10, 30, 75, 20, 10, 60, 10, 20));
+            $pdf->SetAligns(array('C', 'C', 'C', 'C', 'C', 'C'));
         }else{
             $pdf->SetWidths(array(14, 13, 10, 30, 75, 20, 10, 60, 10, 20));
+            $pdf->SetAligns(array('C', 'C', 'C', 'C', 'L', 'C'));
         }
         
-        $pdf->SetAligns(array('C', 'C', 'C', 'C', 'L', 'C'));
-
         $where = array();
 
         if (isset($request->punido)) {
