@@ -289,7 +289,12 @@ class LancamentosController extends Controller
 
         if(isset($request->qmsID)){
             $turmas = TurmasEsa::whereHas('alunos', function ($query) use ($request) {
-                $query->where(['qms_id' => $request->qmsID, 'data_matricula' => $request->anoFormacaoID]);
+                //$query->where(['qms_id' => $request->qmsID, 'data_matricula' => $request->anoFormacaoID]);
+                $anoFormacaoID = $request->anoFormacaoID;
+                $query->where(['qms_id' => $request->qmsID])->where(function($query) use ($anoFormacaoID){
+                    return $query->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
+                });
+
             })->get();
         }else{
             $turmas = TurmasPB::whereHas('alunos', function ($query) use ($request) {
@@ -308,8 +313,16 @@ class LancamentosController extends Controller
         }
 
         if($request->qmsID != 'undefined'){
-            $alunosTurma = Alunos::join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
+            /*$alunosTurma = Alunos::join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
             ->where([['alunos.data_matricula', '=', $request->anoFormacaoID], ['alunos.qms_id', '=', $request->qmsID], ['alunos.turma_esa_id', '=', $request->turmaID]])
+            ->select(['alunos.id', 'alunos.numero', 'alunos.nome_guerra', 'turmas_esa.id as turmas_id', 'turmas_esa.turma'])
+            ->get();*/
+            $anoFormacaoID = $request->anoFormacaoID;
+            $alunosTurma = Alunos::join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
+            ->where(function($query) use ($anoFormacaoID){
+                return $query->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
+            })
+            ->where([['alunos.qms_id', '=', $request->qmsID], ['alunos.turma_esa_id', '=', $request->turmaID]])
             ->select(['alunos.id', 'alunos.numero', 'alunos.nome_guerra', 'turmas_esa.id as turmas_id', 'turmas_esa.turma'])
             ->get();
 
@@ -377,7 +390,7 @@ class LancamentosController extends Controller
                                         FROM lancamento_fo
                                         INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
                                         INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
-                                        WHERE alunos.data_matricula = $request->ano_formacao " . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
+                                        WHERE (alunos.data_matricula = $request->ano_formacao OR alunos.ano_formacao_reintegr_id = $request->ano_formacao)" . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
                                         . 'ORDER BY lancamento_fo.data_obs DESC');
 
         return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'));
@@ -402,8 +415,8 @@ class LancamentosController extends Controller
         $lancamentoFATD = LancamentoFo::whereHas('aluno', function ($query) use ($request) {
             $anoFormacao = AnoFormacao::find($request->ano_formacao);
 
-            $where = array('data_matricula' => $anoFormacao->id);
-            
+            //$where = array('data_matricula' => $anoFormacao->id);
+            $where = array();
 
             if(isset($request->omctID)){
                 if (($request->omctID <> 'todas_omct')) {
@@ -427,7 +440,10 @@ class LancamentosController extends Controller
                 $where[] = array('nome_completo', 'like', '%' . $request->nome_aluno . '%');
             }
 
-            $query->where($where);
+            $query->where(function($query) use($anoFormacao){
+                return $query->where([['data_matricula', '=', $anoFormacao->id]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacao->id]]);
+            })->where($where);
+
         })->orderByDesc('data_obs')->whereHas('fatdLancada', function ($query) {
             $query->whereNotNull('lancamento_fo_id');
         })->get();

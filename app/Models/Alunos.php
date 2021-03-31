@@ -23,6 +23,7 @@ class Alunos extends Model
         'nome_guerra',
         'data_nascimento',
         'data_matricula',
+        'ano_formacao_reintegr_id',
         'primeira_data_praca',
         'turma_id',
         'turma_esa_id',
@@ -152,6 +153,11 @@ class Alunos extends Model
     public function ano_formacao()
     {
         return $this->belongsTo('App\Models\AnoFormacao', 'data_matricula', 'id');
+    }
+
+    public function ano_formacao_rematr()
+    {
+        return $this->belongsTo('App\Models\AnoFormacao', 'ano_formacao_reintegr_id', 'id');
     }
 
     public function user()
@@ -354,7 +360,12 @@ class Alunos extends Model
         }*/
         
         if($anoFormacaoID > 0){
-            return $aluno->where([['data_matricula', '=', $anoFormacaoID]]);
+            //return $aluno->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
+            //Passa a Pegar os alunos que foram integrados
+            return $aluno->where(function($query) use ($anoFormacaoID){
+                return $query->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
+            });
+            
         }
 
         return $aluno->with('qms');

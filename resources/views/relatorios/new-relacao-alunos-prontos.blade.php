@@ -42,7 +42,7 @@
                     @if(App\Http\Controllers\Utilitarios\FuncoesController::validDate($aluno->{$coluna->field}))
                     {{ App\Http\Controllers\Utilitarios\FuncoesController::formatDateEntoBr($aluno->{$coluna->field}) }}
                     @elseif($coluna->field == 'data_matricula')
-                    {{ $aluno->ano_formacao->formacao }}
+                    {{ (isset($aluno->ano_formacao_reintegr_id) ? $aluno->ano_formacao_rematr->formacao : $aluno->ano_formacao->formacao) }}
                     @elseif($coluna->field == 'primeira_data_praca')
                     {{ $aluno->PrimeiraDataPraca() }}
                     @elseif($coluna->field == 'turma_id')

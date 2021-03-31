@@ -221,6 +221,7 @@ class AjaxAdminGaviaoController extends Controller
         $ano_corrente_data = FuncoesController::retornaAnoFormacaoAtivoQualificacao();
         
         $alunos = Alunos::retornaAlunosComQmsESA();
+        $alunosAnoCorrente = Alunos::retornaAlunosComQmsESA($ano_corrente_data->id);
 
         foreach($alunos as $aluno){
             $cursos[$aluno->qms->qms_matriz_id] = $aluno->qms;
@@ -229,7 +230,7 @@ class AjaxAdminGaviaoController extends Controller
 
         foreach($qmss as $qms){
             
-            $alunos_por_qms = $alunos->where('qms_id', $qms->id)->where('data_matricula', $ano_corrente_data->id);
+            $alunos_por_qms = $alunosAnoCorrente->where('qms_id', $qms->id);
 
             $qmss_data[$qms->id] = array(
                 "total_sit_div" => 0,

@@ -188,7 +188,10 @@ class RelatorioAlunoController extends Controller
 
             if(session()->has('login.qmsID')){
                 $alunosSelect = Alunos::whereIn('sexo', $segmento_array)
-                ->where('data_matricula', $request->ano_formacao_id)
+                //->where('data_matricula', $request->ano_formacao_id)
+                ->where(function($query) use($request){
+                    return $query->where('data_matricula', $request->ano_formacao_id)->orWhere('ano_formacao_reintegr_id', $request->ano_formacao_id);
+                })
                 ->where('qms_id', (($request->qmsID == 'todas_qmss') ? '<>' : '='), (($request->qmsID == 'todas_qmss') ? 1 : $request->qmsID))
                 ->orderBy('numero', 'desc')->get();
 

@@ -11,6 +11,7 @@ use App\Models\Alunos;
 use App\Models\AlunosSitDiv;
 use App\Models\AlunosSitDivHistorico;
 use App\Models\AlunosVoluntAv;
+use App\Models\AnoFormacao;
 use App\Models\AvaliacaoTaf;
 use App\Models\Disciplinas;
 use App\Models\Motivos;
@@ -308,6 +309,10 @@ class AlunoSitDiversasController extends Controller
                     foreach($data['cadastro'] as $key => $valor){
                             $aluno->$key = $valor;
                     }
+
+                    //Informa o ano que ele será integrado
+                    //$anoFormacao = AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
+                    //$aluno->ano_formacao_reintegr_id = $anoFormacao->id;
 
                     unset($aluno->ano_formacao);
                     unset($aluno->turma);
