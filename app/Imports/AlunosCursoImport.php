@@ -39,8 +39,8 @@ class AlunosCursoImport implements ToModel, WithHeadingRow, WithBatchInserts, Wi
             ]);
 
             if (isset($alunosCurso)) {
-                $aluno->omcts_id = OMCT::retornaOmctsSisPB()[$row['sca_omct']]['cod_no_atalaia'];
-                $aluno->area_id = Areas::retornaAreasSisPB()[$row['area']]['cod_no_atalaia'];
+                //$aluno->omcts_id = OMCT::retornaOmctsConcurso()[$row['sca_omct']]['cod_no_atalaia'];
+                //$aluno->area_id = Areas::retornaAreasConcurso()[$row['area']]['cod_no_atalaia'];
                 $aluno->classif_cacfs = (($row['sca_classfinal'] == 'NULL') ? 0 : $row['sca_classfinal']);
                 $aluno->sexo = $row['sexo'];
                 $aluno->save();

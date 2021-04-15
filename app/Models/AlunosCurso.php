@@ -16,7 +16,8 @@ class AlunosCurso extends Model
         'senha',
         'nota_cacfs',
         'id_area',
-        'id_qmsnaipe',
+        //'id_qmsnaipe',
+        'id_qms',
         'id_pb_omct'
     ];
 

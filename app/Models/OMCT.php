@@ -13,7 +13,7 @@ class OMCT extends Model
         return $this->hasMany('App\Models\Operadores', 'omcts_id', 'id');
     }  
 
-    public static function retornaOmctsSisPB(){
+    public static function retornaOmctsConcurso(){
         $retorno = Array();
 
         $retorno[0]['om_sigla'] = 'NE';

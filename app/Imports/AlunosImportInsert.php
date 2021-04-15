@@ -3,7 +3,10 @@
 namespace App\Imports;
 
 use App\Models\Alunos;
+use App\Models\AlunosCurso;
 use App\Models\AnoFormacao;
+use App\Models\Areas;
+use App\Models\OMCT;
 use App\Models\Uf;
 use Carbon\Carbon;
 use Exception;
@@ -40,6 +43,7 @@ class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, W
         foreach (Uf::all() as $uf) {
             $this->ufs[$uf['uf_sigla']] = $uf;
         }
+        
     }
 
     /**
@@ -52,15 +56,18 @@ class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, W
         /*if($row['naturalidade_uf'] == 'XX'){
 dd($row);
         }*/
-       
+
             $aluno = Alunos::create([
-                'data_matricula' => $this->anoFormacao[$row['ano']]->id,
-                'al_inscricao' => $row['inscricao'],
-                'nome_completo' => $row['nome'],
+                //'data_matricula' => $this->anoFormacao[$row['ano']]->id,
+                'data_matricula' => $row['data_matricula'],
+                'al_inscricao' => $row['al_inscricao'],
+                'nome_completo' => $row['nome_completo'],
                 'data_nascimento' => Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['data_nascimento'])),
-                'nasc_cidade' => $row['naturalidade_cidade'],
-                'nasc_id_uf' => $this->ufs[$row['naturalidade_uf']]->id,
-                'nasc_pais' => $row['naturalidade_pais'],
+                'nasc_cidade' => $row['nasc_cidade'],
+                'nasc_id_uf' => $this->ufs[$row['nasc_uf']]->id,
+                'nasc_pais' => $row['nasc_pais'],
+                'omcts_id' => OMCT::retornaOmctsConcurso()[$row['omcts_id']]['cod_no_atalaia'],
+                'area_id' => Areas::retornaAreasConcurso()[$row['area_id']]['cod_no_atalaia'],
                 //'data_incorporacao' => ((strtoupper($row['data_incorporacao']) != 'NULL') ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['data_incorporacao'])) : null),
                 //'id_situacao_anterior' => (($row['cod_sitanterior'] == 100) ? 1 : $row['cod_sitanterior']),//Falta Verificar
                 'id_situacao_anterior' => 1, //Falta Verificar
@@ -71,14 +78,21 @@ dd($row);
                 'cidade' => $row['cidade'],
                 'id_uf' => $this->ufs[$row['uf']]->id,
                 'cep' => $row['cep'],
-                'telefone' => $row['tel_residencial'],
-                'celular1' => $row['tel_comercial'],
-                'celular2' => $row['celular'],
-                'celular3' => $row['celular2'],
+                'telefone' => $row['telefone'],
+                'celular1' => $row['celular1'],
+                'celular2' => $row['celular2'],
+                'celular3' => $row['celular3'],
                 'email' => $row['email']
             ]);
-        
-        //dd($row);
+
+            if(isset($aluno)){
+                $alunosCurso = AlunosCurso::create([
+                    'id_aluno' => $aluno->id,
+                    'senha' => 1234,
+                    'nota_cacfs' => 0
+                ]);
+            }
+            
     }
 
     public function batchSize(): int

@@ -181,7 +181,8 @@ class AlunoApiController extends Controller
                 $alunoCurso->id_aluno = $insert->id;
                 $alunoCurso->senha = 1234;
                 $alunoCurso->nota_cacfs = 0.0;
-                $alunoCurso->id_qmsnaipe = 99;
+                //$alunoCurso->id_qmsnaipe = 99;
+                $alunoCurso->id_qms = null;
 
                 $alunoCurso->save();
 

@@ -104,7 +104,7 @@
                     </div>
                     <div class="tab-pane fade" id="nav-alunos-cadastro" role="tabpanel" aria-labelledby="nav-profile-tab" style="padding: 56px;">
                         <form id="opcoes-listagem-selecao-alunos">
-                            @if($ownauthcontroller->PermissaoCheck([1,10]))
+                            @if($ownauthcontroller->PermissaoCheck([1,10,31]))
                                 <div style="width: 90%; margin: 0 auto; text-align: center; border-bottom: 1px solid #ccc;">
                                     <h4 style="text-align: center;">ANO DE FORMAÇÃO</h4>
                                     <div style="text-align: center; margin: 22px auto; width: 70%;">

@@ -5516,6 +5516,7 @@ class AjaxAdminController extends Controller
                 ->whereIn('area_id', $areas)
                 ->orderBy('sexo', 'asc')
                 ->orderBy('numero', 'asc')->get();
+
             $omctsNome = OMCT::get();
             foreach ($omctsNome as $val) {
                 $omctNome[$val->id] = $val->omct;

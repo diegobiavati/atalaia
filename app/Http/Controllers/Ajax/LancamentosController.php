@@ -487,7 +487,18 @@ class LancamentosController extends Controller
         if(session()->get('login.qmsID')){
             $operadorChefe = Operadores::where([['qms_matriz_id', '=', $fatd->lancamentoFo->aluno->qms->qms_matriz_id], ['id_funcao_operador', '=', '9001']])->first();
         }else{
-            $operadorChefe = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2']])->first();
+            //$operadorChefe = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2'], ['ativo', '=', 'S']])->first();
+            $operadoresAtivos = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['ativo', '=', 'S']])->get();
+
+            foreach($operadoresAtivos as $operador){
+                $funcaoOperador = explode(',', $operador->id_funcao_operador);
+
+                if(in_array(2, $funcaoOperador)){
+                    $operadorChefe = $operador;
+                    break;
+                }
+            }
+
         }
         
         $pdf = new PDF();
