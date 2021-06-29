@@ -1,4 +1,3 @@
-
 <div class="card bg-light mb-3">
     <div class="card-header">
         <i class="ion-person-add" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Implantar Aluno
