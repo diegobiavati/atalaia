@@ -718,7 +718,7 @@ class AjaxAdminController extends Controller
 
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
         $id_ano_corrente = ($ano_corrente->id) ?? 0;
-
+        
         $total_geral_alunos = Alunos::where('data_matricula', $id_ano_corrente)->where('sexo', 'M')->where('area_id', 1)->get(['id']);
         $total_geral_alunas = Alunos::where('data_matricula', $id_ano_corrente)->where('sexo', 'F')->where('area_id', 1)->get(['id']);
 
@@ -730,8 +730,10 @@ class AjaxAdminController extends Controller
             $alunasIds[] = $item->id;
         }
 
-        $alunosIDs = array_merge($alunosIds, $alunasIds);
-
+        if(isset($alunasIds)){
+            $alunosIDs = array_merge($alunosIds, $alunasIds);
+        }
+        
         $alunos_classificacao = AlunosClassificacao::whereIn('aluno_id', $alunosIDs)->where('ano_formacao_id', $id_ano_corrente)->where('reprovado', 'N')->get();
 
         if ($alunos_classificacao) {
@@ -762,8 +764,8 @@ class AjaxAdminController extends Controller
 
     public function DialogAdicionarPeriodoEscolhaQMS(Request $request)
     {
-
-        $qms_matriz = QMSMatriz::orderBy('id', 'asc')->get();
+        $qms_matriz_id = array(9999);//Remove a Matriz ESA
+        $qms_matriz = QMSMatriz::whereNotIn('id', $qms_matriz_id)->orderBy('id', 'asc')->get();
 
         /* SELECIONANDO TODOS ALUNOS EM SITUAÇÃO DE APROVADO DISPONÍVEIS Comb/Log/Av (Area 1) */
 
@@ -1205,8 +1207,9 @@ class AjaxAdminController extends Controller
             if ($escolha_qms->save()) {
 
                 /* OS DADOS DA QMS MATRIZ DEVEM SER PEGOS AUTOMATICAMENTE */
-
-                $qms_matriz = QMSMatriz::orderBy('id', 'asc')->get();
+                $qms_matriz_id = array(9999);//Remove a Matriz ESA
+                $qms_matriz = QMSMatriz::whereNotIn('id', $qms_matriz_id)->orderBy('id', 'asc')->get();
+                //$qms_matriz = QMSMatriz::orderBy('id', 'asc')->get();
 
                 foreach ($qms_matriz as $qms) {
                     $qms_instance = new QMS;
