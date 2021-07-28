@@ -9,7 +9,7 @@ use App\Models\EscolhaQMS;
 use App\Models\EscolhaQMSAlunosOpcoes;
 use App\Models\QMS;
 use App\Models\OMCT;
-
+use Exception;
 use Illuminate\Support\Facades\DB;
 
 
@@ -78,16 +78,20 @@ class EscolhaQMSLoader
             $opcoes_data = $this->alunos_opcoes->whereIn('aluno_id', $id)->where('escolha_qms_id', $this->escolha_qms_id)->get();
             foreach ($opcoes_data as $res) {
                 if (!is_null($res->opcoes)) {
-                    $data[$res->aluno_id] =  unserialize($res->opcoes);
+                    $data[$res->aluno_id]['info'] = json_encode($res);
+                    $data[$res->aluno_id]['opcoes'] =  unserialize($res->opcoes);
                 }
             }
 
             return (isset($data)) ? $data : false;
         } else if (!is_null($id) && !is_array($id)) {
-
+           
             $opcoes_data =  $this->alunos_opcoes->where('aluno_id', $id)->where('escolha_qms_id', $this->escolha_qms_id)->first();
 
-            return $data[$opcoes_data->aluno_id] = unserialize($opcoes_data->opcoes);
+            $data[$opcoes_data->aluno_id]['opcoes'] = unserialize($opcoes_data->opcoes);
+            $data[$opcoes_data->aluno_id]['info'] = json_encode($opcoes_data);
+
+            return $data;
         } else if (is_null($id) && !is_null($segmento)) {
 
             $opcoes_data = $this->alunos_opcoes->where('escolha_qms_id', $this->escolha_qms_id)->get();
@@ -248,7 +252,7 @@ class EscolhaQMSLoader
                 foreach ($alunos as $item) {
                     if (isset($alunos_opcoes[$item->id])) {
                         $o = 0;
-                        foreach ($alunos_opcoes[$item->id] as $prioridade) {
+                        foreach ($alunos_opcoes[$item->id]['opcoes'] as $prioridade) {
                             $o++;
                             if ($qms_id_vagas[$prioridade] > 0) {
                                 $escolha_result[$item->id] = array(
@@ -262,7 +266,7 @@ class EscolhaQMSLoader
                                     "qmsdesignda" => $prioridade,
                                     "qmsdesignda_nome" => $qms_id_nome[$prioridade],
                                     "qmsdesignda_nome_sigla" => $qms_id_nome_sigla[$prioridade],
-                                    "opcoes" => $alunos_opcoes[$item->id],
+                                    "opcoes" => $alunos_opcoes[$item->id]['opcoes'],
                                     "opcao_atendido" => $o
                                 );
                                 $qms_id_vagas[$prioridade]--;
@@ -278,7 +282,7 @@ class EscolhaQMSLoader
 
                 foreach ($alunos as $item) {
                     if (isset($alunos_opcoes[$item->id])) {
-                        foreach ($alunos_opcoes[$item->id] as $prioridade) {
+                        foreach ($alunos_opcoes[$item->id]['opcoes'] as $prioridade) {
                             if ($qms_id_vagas[$prioridade] > 0) {
                                 $escolha_result[$prioridade][$item->id] = array(
                                     "numero" => $item->numero,
@@ -291,7 +295,7 @@ class EscolhaQMSLoader
                                     "qmsdesignda" => $prioridade,
                                     "qmsdesignda_nome" => $qms_id_nome[$prioridade],
                                     "qmsdesignda_nome_sigla" => $qms_id_nome_sigla[$prioridade],
-                                    "opcoes" => $alunos_opcoes[$item->id]
+                                    "opcoes" => $alunos_opcoes[$item->id]['opcoes']
                                 );
                                 $qms_id_vagas[$prioridade]--;
                                 break;
@@ -395,12 +399,12 @@ class EscolhaQMSLoader
                     $opcao_qms[$item->id] = 1;
                 }
             }
-
+            
             foreach ($alunos as $item) {
                 if (isset($alunos_opcoes[$item->id])) {
                     $o = 0;
                     //dd($item);
-                    foreach ($alunos_opcoes[$item->id] as $prioridade) {
+                    foreach ($alunos_opcoes[$item->id]['opcoes'] as $prioridade) {
                         $o++;
                         if ($qms_id_vagas[$prioridade] > 0) {
                             $qms_id_vagas[$prioridade]--;
@@ -419,7 +423,7 @@ class EscolhaQMSLoader
                                 "qmsdesignda_nome" => $qms_id_nome[$prioridade],
                                 "qmsdesignda_nome_sigla" => $qms_id_nome_sigla[$prioridade],
                                 "classificacao_qmsdesignda" => $opcao_qms[$prioridade],
-                                "opcoes" => $alunos_opcoes[$item->id],
+                                "opcoes" => $alunos_opcoes[$item->id]['opcoes'],
                                 "qms_vagas_restantes" => $qms_id_vagas,
                                 "opcao_atendido" => $o
                             );
@@ -430,9 +434,26 @@ class EscolhaQMSLoader
                     }
     
                     $i = 0;
-                    foreach ($alunos_opcoes[$item->id] as $prioridade) {
-                        $i++;
-                        $opcao[$i][$prioridade]++;
+                    foreach ($alunos_opcoes[$item->id]['opcoes'] as $prioridade) {
+
+                        try{
+                            $i++;
+                            $opcao[$i][$prioridade]++;
+                        }catch(Exception $e){
+
+                            //$alunos_opcoes_new = $alunos_opcoes[$item->id]['opcoes'];
+                            //for($t = 1; $t <= count($alunos_opcoes_new); $t++){
+                               // if(isset($alunos_opcoes_new['prioridade_'.$t]) && $alunos_opcoes_new['prioridade_'.$t] == 102){
+                                  //  unset($alunos_opcoes_new['prioridade_'.$t]);
+                               // }
+                            //}
+                            
+                            //$info = json_decode($alunos_opcoes[$item->id]['info']);
+                            
+                            //EscolhaQMSAlunosOpcoes::where([['id', '=', $info->id]])->update(['opcoes' => serialize($alunos_opcoes_new)]);
+                            //dd($alunos_opcoes_new);
+                            //dd($alunos_opcoes[$item->id], $item->numero, $opcao);
+                        }                        
                     }
                 }
             }
