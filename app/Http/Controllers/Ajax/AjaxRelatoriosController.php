@@ -196,7 +196,7 @@ class AjaxRelatoriosController extends Controller
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'analise-parcial-provas\');">Análise parcial do resultado de provas</a></li>
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'analise-parcial-disciplinas\');">Análise parcial do resultado de disciplinas</a></li>
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'analise-parcial-pb\');">Análise parcial do resultado do período básico</a></li>
-                                            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'resultado-final-pb\');">RFPB</a></li>
+                                            <!--<li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'resultado-final-pb\');">RFPB</a></li>-->
                                             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent(\'dados-estatistico-gerais\');">Dados Estatísticos Gerais</a></li>
                                         </ul>
                                         <div id="relatorios-content" style="margin-top: 24px;"></div>
@@ -514,6 +514,8 @@ class AjaxRelatoriosController extends Controller
         $data[] = '<option value="12">Aviação - Segmento Feminino (Prévia com reprovadas)</option>';*/       
         $data[] = '</select>';
         $data[] = '</div>';
+
+        $data[] = view('relatorios.template-requisicao-html-excel');
 
         $data[] = ' <div style="margin-top: 24px;">
                         <button id="submit-relatorio" type="button" class="btn btn-primary" style="display: none;" onclick="$(\'form#submit-relatorio\').submit();">Visualizar</button>

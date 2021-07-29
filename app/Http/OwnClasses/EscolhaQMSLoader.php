@@ -415,6 +415,7 @@ class EscolhaQMSLoader
                                 "numero" => $item->numero,
                                 "nome" => $item->nome_completo,
                                 "nome_guerra" => $item->nome_guerra,
+                                "omct_id" => $item->omcts_id,
                                 "omct" => $omct_id_nome_abrev[$item->omcts_id],
                                 "NPB" =>  $item->nota_final_arredondada,
                                 "classificacao" =>  $item->classificacao,

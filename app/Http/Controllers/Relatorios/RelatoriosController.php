@@ -158,9 +158,13 @@ class RelatoriosController extends Controller
 
     public function RelatoriosEscolhaQMS (OwnAuthController $ownauthcontroller, Request $request, EscolhaQMSLoader $escolhaQMS) {
         
-        if(FuncoesController::validaSessao() != null){
-            return FuncoesController::validaSessao();
+        $valida = FuncoesController::validaSessao();
+
+        if (isset($valida)) {
+            return $valida;
         }
+
+        $relacao = $request->relacao;
 
         if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
             
@@ -321,7 +325,8 @@ class RelatoriosController extends Controller
                                                                         ->with('ano_selecionado', $ano_selecionado)
                                                                         ->with('ownauthcontroller', $this->ownauthcontroller)
                                                                         ->with('rota_bi', $rota_bi)
-                                                                        ->with('rota', $rota);
+                                                                        ->with('rota', $rota)
+                                                                        ->with('relacao', $relacao);
 
 
             } else if($request->tipo_relatorio==15 || $request->tipo_relatorio==16) {

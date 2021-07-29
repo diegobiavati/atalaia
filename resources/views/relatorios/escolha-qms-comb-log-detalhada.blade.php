@@ -85,32 +85,90 @@
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Por QMS Designada</b></td>
         </tr>
         @foreach ($data['aluno'] as $aluno)
+        
         <tr>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$loop->index + 1}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['numero']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['nome_guerra']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['nome']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['omct']}}</td>
+
+            @php
+                $html_ = null;
+            @endphp
+
             @foreach($aluno['opcoes'] as $opcao)
-            @if($aluno['qmsdesignda']==$opcao)
-            <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #ccc;">
-                @else
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;">
-                @endif
-                {{$qms_id_nome[$opcao]}}<br />
-                {{$aluno['qms_vagas_restantes'][$opcao]}}/{{$data['qms_vagas_fixas'][$opcao]}}
-            </td>
+
+                @php 
+                    $html_ .= (($aluno['qmsdesignda']==$opcao) ? '<td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #ccc;">' : '<td style="border: 1px solid #000; padding: 6px; text-align: center;">');
+                    $html_ .= '<div>'.$qms_id_nome[$opcao].'</div>
+                                    <div>'.$aluno['qms_vagas_restantes'][$opcao].'/'.$data['qms_vagas_fixas'][$opcao].'</div>
+                                </td>';
+                @endphp
+
             @endforeach
+
+            {!! $html_ !!}
+
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($aluno['NPB'], 3, ',', '')}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['classificacao']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['classificacao_por_area']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['opcao_atendido']}}ª</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['qmsdesignda_nome']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['classificacao_qmsdesignda']}}</td>
+
         </tr>
+        
+        @php 
+            $aluno['html'] = $html_;
+            $omct_alunos[$aluno['omct_id']][$aluno['numero']] = $aluno; 
+        @endphp
+
         @endforeach
     </table>
 
+    @if($relacao == 'excel')
+
+        @foreach ($omct_alunos as $key => $omct)
+                <h4>UETE - {{ App\Models\OMCT::find($key)->omct }}</h4>
+
+                <table id="esquolha-qms-tabela-omcts" style="border: 1px solid #000; border-collapse: collapse; margin: 32px auto; width: 96%; font-size: 12px;">
+                    <tr style="background-color: #E6E6E6;">
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Ordem</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Al Nr</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Nome Completo</b></td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
+                        @for($i=1;$i<=$total_opcoes;$i++) <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>{{$i}}ª</b></td>
+                            @endfor
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Geral</b></td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Por area e Segmento</b></td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Opção atendida</b></td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>QMS<br />Designada</b></td>
+                            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Classificação<br />Por QMS Designada</b></td>
+                    </tr>
+                    @foreach ($omct as $aluno)
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$loop->index + 1}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['numero']}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['nome_guerra']}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['nome']}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['omct']}}</td>
+                        
+                        {!! $aluno['html'] !!}
+
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($aluno['NPB'], 3, ',', '')}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['classificacao']}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['classificacao_por_area']}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['opcao_atendido']}}ª</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['qmsdesignda_nome']}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno['classificacao_qmsdesignda']}}</td>
+                    </tr>
+                    @endforeach
+                </table>
+        @endforeach
+    @endif
 
     @if(is_null($data['bi_bloqueio']))
         @if(isset($ownauthcontroller) && $ownauthcontroller->PermissaoCheck(1) && session()->get('login')['omctID'] == 1)
@@ -229,4 +287,16 @@
         });
     }
 </script>
+@if($relacao == 'excel')
+
+{{ $fileName = bcrypt(date('Y-m-d H:i:s')).'.ods' }}
+
+{{header("Content-Description: PHP Generated Data")}}
+{{header("Content-Type: application/x-msexcel")}}
+{{header("Content-Disposition: attachment; filename=\"{$fileName}\"")}}
+{{header("Expires: 0")}}
+{{header("Cache-Control: must-revalidate, post-check=0, pre-check=0")}}
+{{header("Pragma: no-cache")}}
+
+@endif
 @stop

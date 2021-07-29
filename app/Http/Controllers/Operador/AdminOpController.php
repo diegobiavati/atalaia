@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Operador;
 
+use App\Http\Controllers\Ajax\AjaxAdminGaviaoController;
 use App\Http\Controllers\Controller;
 
 use App\Models\Imagens;
@@ -9,6 +10,7 @@ use App\Models\Operadores;
 use App\Models\OperadoresTipo;
 use App\Models\QMSMatriz;
 use App\User;
+use Illuminate\Http\Request;
 
 class AdminOpController extends Controller
 {
@@ -83,6 +85,10 @@ class AdminOpController extends Controller
                     $backgroundColor = 'linear-gradient(#EC2125 47%, #E0B22E 50%,#0094D3 53%);';
                     $backgroundVisaoGeral = '#0094D3;';
                     $backgroundMenuLateral = 'linear-gradient(135deg, rgb(40, 139, 179), rgb(19, 92, 115));';
+
+                    if(!session()->has('qms_selecionada')){//Para setar a Qms no Login
+                        session()->put('qms_selecionada', 9999);
+                    }
                 break;
             }
             
