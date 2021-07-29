@@ -2475,6 +2475,13 @@ class AjaxAdminController extends Controller
                                                 <input class="no-style" style="width: 100%;" name="peso" type="text" value="" maxlength="5" autocomplete="off" placeholder="Peso" />
                                             </div>
                                             <div class="clear"></div>
+                                        </div>
+
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
+                                            <div class="custom-control custom-checkbox" style="margin-top: 20px;">
+                                                <input id="customCheck" name="tfm" type="checkbox" value="0" class="custom-control-input">
+                                                <label class="custom-control-label" for="customCheck">TFM (Treinamento Físico Militar)</label>
+                                            </div>
                                         </div>                                                                                
                                     </form>';
 
@@ -2595,6 +2602,7 @@ class AjaxAdminController extends Controller
     {
 
         $disciplina = Disciplinas::find($request->id);
+        $checked = ($disciplina->tfm == 'S') ? 'checked' : '';
 
         $data['header'] = '<i class="ion-android-create" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar disciplina';
         $data['body'] = '   <div class="alert alert-danger errors-adicionar-disciplinas" role="alert"></div>
@@ -2626,7 +2634,14 @@ class AjaxAdminController extends Controller
                                                 <input class="no-style" style="width: 100%;" name="peso" type="text" value="' . $disciplina->peso . '" maxlength="5" autocomplete="off" placeholder="Peso" />
                                             </div>
                                             <div class="clear"></div>
-                                        </div>                                                                                
+                                        </div>             
+                                        
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
+                                            <div class="custom-control custom-checkbox" style="margin-top: 20px;">
+                                                <input id="customCheck" name="tfm" type="checkbox" value="0" class="custom-control-input" '.$checked.'>
+                                                <label class="custom-control-label" for="customCheck">TFM (Treinamento Físico Militar)</label>
+                                            </div>
+                                        </div>                                                                    
                                     </form>';
 
         $data['footer'] = ' <button type="button" class="btn btn-secondary" data-dismiss="modal">
@@ -2640,12 +2655,14 @@ class AjaxAdminController extends Controller
 
     public function AdicionarDisciplina(DisciplinasRequest $request)
     {
+
         $peso = ($request->peso == '') ? 1 : $request->peso;
         $disciplina = new Disciplinas;
         $disciplina->nome_disciplina = $request->nome_disciplina;
         $disciplina->nome_disciplina_abrev = $request->nome_disciplina_abrev;
         $disciplina->ano_formacao_id = $request->ano_formacao_id;
         $disciplina->peso = $peso;
+        $disciplina->tfm = (isset($request->tfm) ? 'S':'N');
 
         if ($disciplina->save()) {
             $data['status'] = 'ok';
