@@ -1687,137 +1687,10 @@ class AjaxAdminController extends Controller
 
     public function DialogAdicionarAvaliacao()
     {
-
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
         $disciplinas = Disciplinas::orderBy('id', 'desc')->where('ano_formacao_id', '=', $ano_corrente->id)->get();
-        $options_disciplinas[] = '<option value="0">Selecione uma disciplina</option>';
-        foreach ($disciplinas as $disciplina) {
-            $options_disciplinas[] = '<option value="' . $disciplina->id . '">' . $disciplina->nome_disciplina . '</option>';
-        }
 
-        $data['header'] = '<i class="ion-ios-compose" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Adicionar avaliação';
-        $data['body'] = '   <div class="alert alert-danger errors-adicionar-avaliacoes" role="alert"></div>
-                                    <form id="adicionar_avaliacao">
-                                        <input type="hidden" name="_token" value="' . csrf_token() . '">
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                                            <div style="float: left; margin-top: 6px;">
-                                                <i class="ion-ios-bookmarks" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <select class="custom-select" name="disciplinas_id" onchange="loadDialogChamadas(this);">' . implode('', $options_disciplinas) . '</select>
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div>
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                                            <div style="float: left;">
-                                                <i class="ion-ios-compose" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" style="width: 100%;" name="nome_completo" type="text" value="" maxlength="100" autocomplete="off" placeholder="Nome completo da avaliação" />
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div>                                         
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                                            <div style="float: left;">
-                                                <i class="ion-ios-compose-outline" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" style="width: 100%;" name="nome_abrev" type="text" value="" maxlength="50" autocomplete="off" placeholder="Nome abreviado. Ex AC1" />
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div> 
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                                            <div style="float: left;">
-                                                <i class="ion-calendar" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style data_mask" style="width: 100%;" name="data_prova" type="text" value="" maxlength="10" autocomplete="off" placeholder="Data da prova" />
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div> 
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                                            <div style="float: left;">
-                                                <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style minuto_mask" style="width: 100%;" name="hora_prova" type="text" value="" maxlength="5" autocomplete="off" placeholder="Hora da prova" />
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div>
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                                            <div style="float: left;">
-                                                <i class="ion-android-done" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" style="width: 100%;" name="gbm" type="text" value="" maxlength="4" autocomplete="off" placeholder="GBM" />
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div>
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                                            <div style="float: left;">
-                                                <i class="ion-ios-flask" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" style="width: 100%;" name="peso" type="text" value="" maxlength="5" autocomplete="off" placeholder="Peso" />
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div>
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a UETE terá para informar o resultado obtido na avaliação">
-                                            <div style="float: left;">
-                                                <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" style="width: 100%;" name="prazo_nota" type="text" value="" maxlength="5" autocomplete="off" placeholder="Prazo para envio de resultado (Nº dias)" />
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div>       
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Data da Mostra">
-                                            <div style="float: left;">
-                                                <i class="ion-ios-calendar" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style data_mask" style="width: 100%;" name="data_mostra" type="text" value="" maxlength="10" autocomplete="off" placeholder="Data da Mostra"/>
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div>
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Limite de Dias do Pedido de Mostra">
-                                            <div style="float: left;">
-                                                <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" style="width: 100%;" name="limite_dias_pedido" type="text" value="" maxlength="5" autocomplete="off" placeholder="Limite de Dias do Pedido de Mostra"/>
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div>
-
-                                        <div class="box-dialog-chamadas"></div>
-
-                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                                            <div style="float: left; margin-top: 6px;">
-                                                <i class="ion-chatbubble-working" style="font-size: 24px; color: #696969;"></i>
-                                            </div>
-                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <textarea class="form-control" id="observacao" name="observacao" rows="3" placeholder="Observações pertinentes a avaliação"></textarea>
-                                            </div>
-                                            <div class="clear"></div>
-                                        </div>                                        
-
-                                    </form>';
-
-        $data['footer'] = ' <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                                Cancelar
-                            </button>
-                            <button type="button" class="btn btn-primary" onclick="AdicionarAvaliacao();">
-                                Salvar
-                            </button>                            
-                            <script>
-                                $(\'.minuto_mask\').mask(\'00:00\');
-                                $(\'.data_mask\').mask(\'00/00/0000\');
-                                $(function () {
-                                    $(\'[data-toggle="tooltip"]\').tooltip();
-                                });
-                            </script>                            ';
-        return $data;
+        return view('ajax.avaliacao.view-adiciona-avaliacao', compact('disciplinas'));
     }
 
     public function DialogAdicionarAvaliacaoRec()
@@ -1908,21 +1781,31 @@ class AjaxAdminController extends Controller
 
     public function AdicionarAvaliacao(AvaliacoesRequest $request)
     {
-        $peso = ($request->peso == '') ? 1 : $request->peso;
+        $disciplina = Disciplinas::find($request->disciplinas_id);
         $avaliacao = new Avaliacoes;
-        $avaliacao->disciplinas_id = $request->disciplinas_id;
+
+        if($disciplina->tfm == 'S'){
+
+            $avaliacao->tfm_abdominal = (isset($request->abdominal) ? 'S':'N');
+
+        }else{
+            $avaliacao->gbm = $request->gbm;
+
+            $avaliacao->data_mostra = FuncoesController::formatDateBrtoEn($request->data_mostra);
+            $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
+        }
+        $peso = ($request->peso == '') ? 1 : $request->peso;
+        
+        $avaliacao->disciplinas_id = $disciplina->id;
         $avaliacao->nome_completo = $request->nome_completo;
         $avaliacao->nome_abrev = $request->nome_abrev;
-        $avaliacao->gbm = $request->gbm;
+        
         $avaliacao->peso = $peso;
         $avaliacao->prazo_nota = $request->prazo_nota;
         $avaliacao->observacao = (empty($request->observacao)) ? '' : $request->observacao;
         $avaliacao->chamada = $request->chamada ?? 1;
         $avaliacao->chamada_refer_id = $request->chamada_refer_id ?? 0;
         $avaliacao->avaliacao_recuperacao = 0;
-
-        $avaliacao->data_mostra = FuncoesController::formatDateBrtoEn($request->data_mostra);
-        $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
 
         if (is_array(@explode('/', $request->data_prova)) && strtotime($request->hora_prova)) {
             $data_prova = explode('/', $request->data_prova);
@@ -2015,6 +1898,8 @@ class AjaxAdminController extends Controller
     function dialogEditarAvaliacao(Request $request)
     {
         $avaliacao = Avaliacoes::find($request->id);
+        $disciplinas[] = $avaliacao->disciplinas;
+        
         list($ano, $mes, $dia) = explode('-', $avaliacao->data);
         $data_prova = $dia . '/' . $mes . '/' . $ano;
         
@@ -2028,7 +1913,10 @@ class AjaxAdminController extends Controller
 
         if ($avaliacao->avaliacao_recuperacao == 0) {
 
-            $data['header'] = '<i class="ion-ios-compose" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar avaliação';
+            //Parei Aqui
+            return view('ajax.avaliacao.view-adiciona-avaliacao', compact('avaliacao', 'disciplinas'));
+            
+           /* $data['header'] = '<i class="ion-ios-compose" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar avaliação';
             $data['body'] = '   <div class="alert alert-danger errors-editar-avaliacoes" role="alert"></div>
                                     <form id="editar_avaliacao">
                                         <input type="hidden" name="_token" value="' . csrf_token() . '">
@@ -2142,7 +2030,7 @@ class AjaxAdminController extends Controller
                                             $(\'[data-toggle="tooltip"]\').tooltip();
                                         });
                                     </script>';
-            return $data;
+            return $data;*/
 
             /*
         
@@ -2150,6 +2038,8 @@ class AjaxAdminController extends Controller
 
         */
         } else {
+
+
             $data['header'] = '<i class="ion-loop" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar avaliação de recuperação';
             $data['body'] = '   <div class="alert alert-danger errors-editar-avaliacoes" role="alert"></div>
                                     <form id="editar_avaliacao">
@@ -2310,21 +2200,40 @@ class AjaxAdminController extends Controller
     public function DialogChamadas(Request $request)
     {
         $id = $request->id;
-        $avaliacoes = Avaliacoes::where('disciplinas_id', '=', $id)->where('chamada', '=', 1)->get();
-        if (count($avaliacoes) > 0) {
+        $disciplina = Disciplinas::find($id);
+        
+        $avaliacoes_chamada = Avaliacoes::where('disciplinas_id', '=', $id)->where('chamada', '=', 1)->get();
+        
+        if(isset($request->avaliacao)){
+            $avaliacoes = Avaliacoes::find($request->avaliacao);
+        }
+//dd('Falta Trazer os Campos Preenchidos Quando tentar Editar');
+        if (count($avaliacoes_chamada) > 0) {
+
+            $options_chamada[] = '';
+            for($i=1;$i<=2;$i++){
+                $disabled = null;
+                $selected = null;
+
+                if(isset($request->avaliacao)){
+                    $disabled = 'disabled';
+                    $selected = (($i == $avaliacoes->chamada) ? 'selected': '');
+                }
+                $options_chamada[] = '<option value="'.$i.'" '.$disabled.' '.$selected.'>'.$i.'ª Chamada</option>';
+            }
+
             $options_avaliacoes[] = '<option value="0">Selecione a avaliação de referência</option>';
-            foreach ($avaliacoes as $avaliacao) {
+            foreach ($avaliacoes_chamada as $avaliacao) {
                 $options_avaliacoes[] = '<option value="' . $avaliacao->id . '">' . $avaliacao->nome_completo . '</option>';
             }
+
             $data['result'] = ' <div style="margin: 14px auto; width: 70%; max-width: 380px;">
                                     <div style="float: left; margin-top: 6px;">
                                         <i class="ion-ios-clock" style="font-size: 24px; color: #696969;"></i>
                                     </div>
                                     <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
                                         <select class="custom-select" name="chamada" onchange="showDialogReferenciaAvaliacao(this);">
-                                            <option value="1">1ª Chamada</option>
-                                            <option value="2">2ª Chamada</option>
-                                            <!--option value="3">3ª Chamada</option-->
+                                            '.implode('', $options_chamada).'
                                         </select>
                                     </div>
                                     <div class="clear"></div>
@@ -2352,6 +2261,58 @@ class AjaxAdminController extends Controller
                                     <div class="clear"></div>
                                 </div>';
         }
+
+        if($disciplina->tfm == 'S'){
+
+            $checked = null;
+            $disabled = null;
+            if(isset($request->avaliacao)){
+                $checked = (($avaliacoes->tfm_abdominal == 'S') ? 'checked': null);
+                $disabled = 'disabled';    
+            }
+
+            $data['abdominal'] = '<div style="margin: 14px auto; width: 70%; max-width: 380px;">
+                                    <div class="custom-control custom-checkbox" style="margin-top: 20px;" >
+                                        <input id="customCheck" name="abdominal" type="checkbox" value="0" '.$disabled.'  class="custom-control-input" '.$checked.'>
+                                        <label class="custom-control-label" for="customCheck">Abdominal <font style="font-size:12px;color:rgb(255, 0, 0);">(Marque somente se o exercício for Abdominal)</font></label>
+                                    </div>
+                                </div>';
+
+            $data['gbm'] = '';
+            $data['mostra'] = '';
+        }else{
+            $data['abdominal'] = '';
+
+            $data['gbm'] = '<div style="margin: 14px auto; width: 70%; max-width: 380px;">
+                                <div style="float: left;">
+                                    <i class="ion-android-done" style="font-size: 24px; color: #696969;"></i>
+                                </div>
+                                <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                    <input class="no-style" style="width: 100%;" name="gbm" type="text" value="'.((isset($request->avaliacao)) ? $avaliacao->gbm : '').'" maxlength="4" autocomplete="off" placeholder="GBM" />
+                                </div>
+                                <div class="clear"></div>
+                            </div>';
+
+            $data['mostra'] = '<div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Data da Mostra">
+                                    <div style="float: left;">
+                                        <i class="ion-ios-calendar" style="font-size: 24px; color: #696969;"></i>
+                                    </div>
+                                    <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                        <input class="no-style data_mask" style="width: 100%;" name="data_mostra" type="text" value="'.((isset($request->avaliacao)) ? FuncoesController::formatDateEntoBr($avaliacao->data_mostra) : '').'" maxlength="10" autocomplete="off" placeholder="Data da Mostra" />
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                                <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Limite de Dias do Pedido de Mostra">
+                                    <div style="float: left;">
+                                        <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
+                                    </div>
+                                    <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                        <input class="no-style" style="width: 100%;" name="limite_dias_pedido" type="text" value="'.((isset($request->avaliacao)) ? $avaliacao->limite_dias_pedido : '').'" maxlength="5" autocomplete="off" placeholder="Limite de Dias do Pedido de Mostra" />
+                                    </div>
+                                    <div class="clear"></div>
+                                </div>
+                                <script>$(\'.data_mask\').mask(\'00/00/0000\');</script>';
+        }        
 
         return $data;
     }

@@ -621,55 +621,6 @@ function onMessageArrived(message) {
             });
         }
 
-        /* MOSTRA DIALOGO ADICIONAR AVALIAÇÃO */
-
-        function dialogAdicionarAvaliacao(){
-            $('div.errors-adicionar-avaliacoes2').slideUp();
-            $('.collapse').collapse('hide');
-             $.ajax({
-            	type:'GET',
-                dataType: 'json',
-                url: '/ajax/dialog-adicionar-avaliacao',
-                beforeSend: function(){
-                    loadingModalDinamica('show', 'lg');
-                },
-                success: function(data){
-                    $('div#modalDinamica div.modal-header h5').html(data.header);
-                    $('div#modalDinamica div.modal-body').html(data.body);
-                    $('div#modalDinamica div.modal-footer').html(data.footer);
-                    loadingModalDinamica('hide', 'lg');
-                    $('.carousel').carousel({
-                        interval: false
-                    });                    
-                    
-                }
-            });            
-        }
-
-        /* MOSTRA DIALOGO ADICIONAR AVALIAÇÃO RECUPERAÇÃO*/
-
-        function dialogAdicionarAvaliacaoRec(){
-            $('div.errors-adicionar-avaliacoes2').slideUp();
-            $('.collapse').collapse('hide');
-             $.ajax({
-            	type:'GET',
-                dataType: 'json',
-                url: '/ajax/dialog-adicionar-avaliacao-recuperacao',
-                beforeSend: function(){
-                    loadingModalDinamica('show', 'lg');
-                },
-                success: function(data){
-                    $('div#modalDinamica div.modal-header h5').html(data.header);
-                    $('div#modalDinamica div.modal-body').html(data.body);
-                    $('div#modalDinamica div.modal-footer').html(data.footer);
-                    loadingModalDinamica('hide', 'lg');
-                    $('.carousel').carousel({
-                        interval: false
-                    });                    
-                    
-                }
-            });            
-        }
 
         /* BOX DINAMICO REFERENCIA DA CHAMADA */
 
@@ -681,22 +632,7 @@ function onMessageArrived(message) {
             }
         }
 
-        /* CARREGA DINAMICAMENTE DIALOGO DAS CHAMADAS (DENTRO DA MODAL ADICIONAR AVALIAÇÃO) */
-
-        function loadDialogChamadas(select_value){
-            var disciplina_id = $(select_value).val();
-             $.ajax({
-            	type:'GET',
-                dataType: 'json',
-                url: '/ajax/dialog-chamadas/' + disciplina_id,
-                beforeSend: function(){
-                    $('.box-dialog-chamadas').html('<div style="text-align: center;"><img src="/images/loadings/loading_01.svg" style="width: 20px;"> Carregando opções...</div>');
-                },
-                success: function(data){
-                    $('.box-dialog-chamadas').html(data.result);
-                }
-            });                        
-        }
+        
 
         /* CARREGA PORTARIA AO MUDAR SELECT */
 
@@ -716,68 +652,6 @@ function onMessageArrived(message) {
                     }
                 });                
             }
-        }
-
-        /* ADICIONAR AVALIAÇÃO */
-
-        function AdicionarAvaliacao(){
-            var dataForm = $('form#adicionar_avaliacao').serialize();
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                data: dataForm,
-                url: '/ajax/adicionar-avaliacao',
-                beforeSend: function(){
-                    $('div.errors-adicionar-avaliacoes ul').remove().parent().hide();
-                },
-                success: function(data){
-                    if(data.data_prova=='err'){
-                        $('html, body').animate({scrollTop: 10}, 200);
-                        $('div.errors-adicionar-avaliacoes').html('<strong>ATENÇÃO: </strong> A data da prova não deve ser menor que o prazo para lançamento do Pronto de Faltas e Grau escolar. Por favor, aumente o prazo para UETE lançar os resultados ou altere a data da avaliação.').slideDown();     
-                    } else if(data.data_prova=='err1'){
-                        $('html, body').animate({scrollTop: 10}, 200);
-                        $('div.errors-adicionar-avaliacoes').html('<strong>ATENÇÃO: </strong> A avaliação deve ser criada mais próxima de sua realização.').slideDown();     
-                    } else if(data.data_prova=='err2'){
-                        $('html, body').animate({scrollTop: 10}, 200);
-                        $('div.errors-adicionar-avaliacoes').html('<strong>ATENÇÃO: </strong> A data/hora informada é inválida.').slideDown();     
-                    } else {
-                        if(data.err_chamada=='err'){
-                        $('html, body').animate({scrollTop: 10}, 200);
-                            $('div.errors-adicionar-avaliacoes').html('<strong>ATENÇÃO: </strong> Novas chamadas devem ter uma outra avaliação de referência.').slideDown();    
-                        } else {
-                            if(data.status=='ok'){
-                                $('div#modalDinamica').modal('hide');
-                                $('a#avaliacoes').trigger('click');
-                                setTimeout(function(){
-                                    $('button#disciplina_' + data.disciplinaID).trigger('click');
-                                    $('blockquote#disciplina_' + data.disciplinaID).show();
-                                    $('blockquote#disciplina_' + data.disciplinaID + ' footer').html('Uma avaliação criada agora mesmo!');
-                                    setTimeout(function(){
-                                        $('blockquote#disciplina_' + data.disciplinaID).fadeOut();
-                                        $('blockquote#disciplina_' + data.disciplinaID + ' footer').empty();
-                                    }, 10000);
-                                }, 460);
-                            } else {
-                                $('div#modalDinamica').modal('hide');
-                                $('div.errors-adicionar-avaliacoes2').html('<strong>ATENÇÃO: </strong> Houve um erro ao tentar inserir uma avaliação').slideDown();    
-                            }
-                        }
-                    }
-                },
-                error: function(jqxhr){
-                    if(jqxhr.status==500){
-                        $('div#modalDinamica').modal('hide');
-                        $('div.errors-adicionar-avaliacoes2').html('<strong>ATENÇÃO: </strong> Houve um erro interno ao tentar inserir uma nova avaliação. Por favor, repita a operação.').slideDown();    
-                    } else if(jqxhr.status==422){
-                        $('div.errors-adicionar-avaliacoes').slideDown(100);
-                        var errors = $.parseJSON(jqxhr.responseText);
-                        $('div.errors-adicionar-avaliacoes').prepend('<ul style="margin: 0 6px;"></ul>');                            
-                        $.each(errors.errors, function (index, value) {
-                            $('div.errors-adicionar-avaliacoes ul').append('<li>' + value + '</li>');
-                        });  
-                    }
-                }                    
-            });            
         }
 
         /* EDITAR AVALIAÇÃO */
@@ -931,24 +805,6 @@ function onMessageArrived(message) {
             });            
         }
         
-        /* DIALOG EDITAR AVALIAÇÃO */
-
-        function dialogEditarAvaliacao(id){
-            $.ajax({
-            	type:'GET',
-                dataType: 'json',
-                url: '/ajax/dialog-editar-avaliacao/' + id,
-                beforeSend: function(){
-                    loadingModalDinamica('show', 'lg');
-                },
-                success: function(data){
-                    $('div#modalDinamica div.modal-header h5').html(data.header);
-                    $('div#modalDinamica div.modal-body').html(data.body);
-                    $('div#modalDinamica div.modal-footer').html(data.footer);
-                    loadingModalDinamica('hide', 'lg');
-                }
-            });
-        }
 
         /* MOSTRA DIALOGO IMPORTAR DICIPLINAS */
 
