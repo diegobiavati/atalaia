@@ -127,9 +127,18 @@ class AjaxEscolhaDeQMSAlunoController extends Controller
                                                 </div>';
                                 } else {
                                     $escolhas = unserialize($escolha_realizada->opcoes);
+
+                                
                                     $data[] = '<div style="margin-top: 18px; text-align: center;">';
                                     for($i=1;$i<=20;$i++){
                                         if(isset($escolhas['prioridade_'.$i])) {
+
+                                            /*if($escolhas['prioridade_'.$i] == '102'){
+                                                unset($escolhas['prioridade_'.$i]);
+
+                                                EscolhaQMSAlunosOpcoes::where([['id', '=', $escolha_realizada->id]])->update(['opcoes' => serialize($escolhas)]);
+                                            }*/
+
                                             $data[] = '<div style="text-align: center;">'.$i.'ª Prioridade - <img src="'.$qms_data_array[$escolhas['prioridade_'.$i]]['img'].'" style="width: 32px; vertical-align: middle; margin-right: 6px;">'.$qms_data_array[$escolhas['prioridade_'.$i]]['nome'].'</div>';
                                         }
                                     }

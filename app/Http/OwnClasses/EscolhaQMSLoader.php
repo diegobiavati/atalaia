@@ -442,18 +442,19 @@ class EscolhaQMSLoader
                             $opcao[$i][$prioridade]++;
                         }catch(Exception $e){
 
-                            //$alunos_opcoes_new = $alunos_opcoes[$item->id]['opcoes'];
-                            //for($t = 1; $t <= count($alunos_opcoes_new); $t++){
-                               // if(isset($alunos_opcoes_new['prioridade_'.$t]) && $alunos_opcoes_new['prioridade_'.$t] == 102){
-                                  //  unset($alunos_opcoes_new['prioridade_'.$t]);
-                               // }
-                            //}
+                            //Corrige o lançamento de prioridade faltando
+                            /*$alunos_opcoes_new = $alunos_opcoes[$item->id]['opcoes'];
+                            for($t = 1; $t <= count($alunos_opcoes_new); $t++){
+                                if(isset($alunos_opcoes_new['prioridade_'.$t]) && $alunos_opcoes_new['prioridade_'.$t] == 102){
+                                    unset($alunos_opcoes_new['prioridade_'.$t]);
+                                }
+                            }
                             
-                            //$info = json_decode($alunos_opcoes[$item->id]['info']);
+                            $info = json_decode($alunos_opcoes[$item->id]['info']);
                             
-                            //EscolhaQMSAlunosOpcoes::where([['id', '=', $info->id]])->update(['opcoes' => serialize($alunos_opcoes_new)]);
-                            //dd($alunos_opcoes_new);
-                            //dd($alunos_opcoes[$item->id], $item->numero, $opcao);
+                            EscolhaQMSAlunosOpcoes::where([['id', '=', $info->id]])->update(['opcoes' => serialize($alunos_opcoes_new)]);
+                            dd($alunos_opcoes_new);
+                            dd($alunos_opcoes[$item->id], $item->numero, $opcao);*/
                         }                        
                     }
                 }
