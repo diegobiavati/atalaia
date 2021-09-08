@@ -279,38 +279,33 @@ class AjaxOperadorController extends Controller
     {
 
         // AVALIÇÃO id $request->id
-
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
         $id_ano_corrente = ($ano_corrente->id) ?? 0;
 
         /* PEGANDO OS DADOS DA AVALIAÇÃO */
-
         $avaliacao = Avaliacoes::find($request->id);
 
         // VERIFICANDO SE JÁ FOI DADO O PRONTO DE FALTAS 
-
         if (AvaliacoesProntoFaltasStatus::where('avaliacao_id', $request->id)->where('omcts_id', session()->get('login.omctID'))->count() > 0) {
 
             // BUSCANDO RELAÇÃO DE ALUNOS QUE FALTARAM A PROVA
-
             $alunos_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->id)->where('omcts_id', session()->get('login.omctID'))->get();
             foreach ($alunos_faltas as $falta) {
                 $faltas[] = $falta->aluno_id;
             }
 
             /* GUARDANDO NUM ARRAY AS NOTAS NA AVALIAÇÃO */
-
             $avaliacoes_notas = AvaliacoesNotas::where('avaliacao_id', $request->id)->get();
             foreach ($avaliacoes_notas as $notas) {
-                $nota[$notas->alunos_id] = $notas->gbo;
+                $nota[$notas->alunos_id]['gbo'] = $notas->gbo;
+                $nota[$notas->alunos_id]['nota_tfm'] = $notas->nota_tfm;
+                $nota[$notas->alunos_id]['suficiencia_abdominal'] = $notas->suficiencia_abdominal;
             }
 
             $faltas = ($faltas) ?? array();
 
             // RELAÇÃO DE ALUNOS
-
             /* CASO SEJA 1ª CHAMADA */
-
             if ($avaliacao->chamada == 1) {
                 $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->where('data_matricula', $id_ano_corrente)->whereNotIn('id', $faltas)->orderBy('numero', 'asc')->orderBy('sexo', 'desc')->get();
             } else if ($avaliacao->chamada == 0 && $avaliacao->avaliacao_recuperacao == 1) {
@@ -377,10 +372,12 @@ class AjaxOperadorController extends Controller
 
             if (count($alunos) > 0) {
 
-                $total_alunos = count($alunos);
+                //$total_alunos = count($alunos);
+                
+                $resul[] = view('ajax.avaliacao.notas.view-lanca-grau', compact('avaliacao', 'alunos', 'nota', 'request'));
 
-                $resul[] = ' <div style="margin-top: 64px; text-align: center; color: #696969;">
-                                <h5>LANÇAMENTO DO GRAU ESCOLAR INDIVIDUAL<h5>
+                /*$resul[] = ' <div style="margin-top: 64px; text-align: center; color: #696969;">
+                                <h5>'.(($avaliacao->disciplinas->tfm == 'S') ? 'LANÇAMENTO DE NOTAS DE TFM INDIVIDUAL' : 'LANÇAMENTO DO GRAU ESCOLAR INDIVIDUAL').'<h5>
                             </div>';
 
                 $resul[] = ' <div style="margin: 64px auto; width: 50%;">
@@ -390,14 +387,15 @@ class AjaxOperadorController extends Controller
                                     <thead>
                                         <tr>
                                             <th>ALUNO(A)</th>
-                                            <th style="text-align: center; width: 150px;">GBO</th>
+                                            <th style="text-align: center; width: 150px;">'.(($avaliacao->disciplinas->tfm == 'S') ? 'NOTA' : 'GBO').'</th>
                                         </tr>
                                     </thead>
                                     <tbody>';
 
                 $total_notas_lancadas = 0;
                 foreach ($alunos as $aluno) {
-                    $gbo = (isset($nota[$aluno->id])) ? $nota[$aluno->id] : '';
+                    $gbo = (isset($nota[$aluno->id])) ? $nota[$aluno->id]['gbo'] : '';
+
                     if (isset($nota[$aluno->id])) {
                         $td_content_nota_aluno = '  <div style="width: 100%; margin: 0 auto;" data-toggle="tooltip" data-placement="right" title="Clique aqui para retificação do grau">
                                                         <div style="float: left;">
@@ -413,11 +411,23 @@ class AjaxOperadorController extends Controller
                                                     </div>';
                         $total_notas_lancadas++;
                     } else {
-                        $td_content_nota_aluno = '  <div style="text-align: center;">
-                                                        <input type="text" name="nota_aluno_id_' . $aluno->id . '" value="" style="width: 38px; border: 1px solid #ccc; padding: 3px 4px; text-align: right; margin-top: -10px;" onkeyup="toogleConfirmGrau(this);" autocomplete="off" maxlength="3" /><br />
-                                                        <a href="javascript: void(0);" class="badge badge-success" onclick="registrarGrauAluno(' . $aluno->id . ', ' . $request->id . ');" style="display: none; margin-top: 8px;">Confirmar</a>
-                                                        <span class="badge badge-secondary" style="margin-top: 8px;">Confirma</span>
-                                                    </div>';
+
+                        $td_content_nota_aluno = '<div style="text-align: center;">';
+                        //Se for TFM e ABDOMINAL
+                        if(($avaliacao->disciplinas->tfm == 'S' && $avaliacao->tfm_abdominal == 'S')){
+                            $td_content_nota_aluno .= '<div style="display: inline-block; width: 120px;">
+                                                            <select class="custom-select" name="suficiencia_abdominal">
+                                                                <option value="S">Suficiente</option>
+                                                                <option value="NS"> Não suficiente</option>
+                                                            </select>
+                                                        </div>';
+                        }else{
+                            $td_content_nota_aluno .= '<input type="text" name="nota_aluno_id_' . $aluno->id . '" value="" style="width: 38px; border: 1px solid #ccc; padding: 3px 4px; text-align: right; margin-top: -10px;" onkeyup="toogleConfirmGrau(this);" autocomplete="off" maxlength="3" /><br />
+                            <a href="javascript: void(0);" class="badge badge-success" onclick="registrarGrauAluno(' . $aluno->id . ', ' . $request->id . ');" style="display: none; margin-top: 8px;">Confirmar</a>
+                            <span class="badge badge-secondary" style="margin-top: 8px;">Confirma</span>';
+                        }
+                        $td_content_nota_aluno .= '</div>';
+
                     }
                     $resul[] = ' <tr onclick="$(this).find(\'input\').focus();" style="cursor: pointer;">
                                     <td style="text-align: left;">
@@ -443,15 +453,13 @@ class AjaxOperadorController extends Controller
                                 <div id="porcentagem-preenchimento" style="padding: 3px; border: 1px solid #ccc; margin-top: 4px;">
                                     <div style="width: ' . $data['porcento_preenchido'] . '%; background-color: #0B6121; text-align: center; font-size: 12px; color: #D8F6CE;">' . $data['porcento_preenchido'] . '%</div>
                                 </div>
-                            </div>';
+                            </div>';*/
             } else {
                 $resul[] = '<div style="color: #B40404; text-align:center; margin: 32px;">Sem alunos previstos para lançamento de notas!</div>';
             }
         } else {
             $resul[] = '<div style="color: #B40404; text-align:center; margin: 32px;">É preciso enviar primeiro o pronto de faltas para então larçar o grau escolar referente a avaliação.</div>';
         }
-
-
 
         $data['response'] = implode('', $resul);
         return $data;
@@ -474,52 +482,64 @@ class AjaxOperadorController extends Controller
                 $omct_id = session()->get('login.omctID');
                 if ($aluno->omcts_id == $omct_id || $ownauthcontroller->PermissaoCheck(1)) {
                     AvaliacoesNotas::where('alunos_id', $request->id)->where('avaliacao_id', $request->avaliacaoID)->delete();
-                    $avaliacoes_notas = new AvaliacoesNotas;
-                    $avaliacoes_notas->alunos_id = $request->id;
-                    $avaliacoes_notas->avaliacao_id = $request->avaliacaoID;
-                    $avaliacoes_notas->gbo = $request->gbo;
-                    if ($request->gbo <= $avaliacao->gbm) {
-
-                        if ($avaliacoes_notas->save()) {
-
-                            /* CALCULANDO PORCENTAGEM PREENCHIDA */
-
-                            $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
-                            $id_ano_corrente = ($ano_corrente->id) ?? 0;
-
-                            $alunos_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->avaliacaoID)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
-                            foreach ($alunos_faltas as $falta) {
-                                $faltas[] = $falta->id;
-                            }
-
-                            $faltas = ($faltas) ?? array();
-
-                            $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->where('data_matricula', $id_ano_corrente)->whereNotIn('id', $faltas)->get(['id']);
-                            $total_alunos = count($alunos);
-                            foreach ($alunos as $aluno) {
-                                $alunos_id_array[] = $aluno->id;
-                            }
-
-                            $total_notas_lancadas = AvaliacoesNotas::whereIn('alunos_id', $alunos_id_array)->where('avaliacao_id', $request->avaliacaoID)->count();
-
-                            $data['status'] = 'ok';
-                            $data['porcento_preenchido'] = (floor(($total_notas_lancadas * 100) / $total_alunos) > 100) ? 100 : floor(($total_notas_lancadas * 100) / $total_alunos);
-                            $data['response'] = '   <div style="width: 100%; margin: 0 auto;" data-toggle="tooltip" data-placement="right" title="Clique aqui para retificação do grau">
-                                                        <div style="float: left;">
-                                                            <span><span style="color: #0B3B0B;"><b>GBO:</span></b> <span style="font-family: Tahoma;">' . $request->gbo . '</span></span><br />
-                                                            <span><span style="color: #0B3B0B;"><b>NOTA:</span></b> <span style="font-family: Tahoma;">' . $avaliacao->getNota($request->gbo) . '</span></span>                                                
+                    if($request->gbo > 0){
+                        $avaliacoes_notas = new AvaliacoesNotas;
+                        $avaliacoes_notas->alunos_id = $request->id;
+                        $avaliacoes_notas->avaliacao_id = $request->avaliacaoID;
+                        $avaliacoes_notas->gbo = $request->gbo;
+                        if ($request->gbo <= $avaliacao->gbm) {
+    
+                            if ($avaliacoes_notas->save()) {
+    
+                                /* CALCULANDO PORCENTAGEM PREENCHIDA */
+    
+                                $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
+                                $id_ano_corrente = ($ano_corrente->id) ?? 0;
+    
+                                $alunos_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->avaliacaoID)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
+                                foreach ($alunos_faltas as $falta) {
+                                    $faltas[] = $falta->id;
+                                }
+    
+                                $faltas = ($faltas) ?? array();
+    
+                                $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->where('data_matricula', $id_ano_corrente)->whereNotIn('id', $faltas)->get(['id']);
+                                $total_alunos = count($alunos);
+                                foreach ($alunos as $aluno) {
+                                    $alunos_id_array[] = $aluno->id;
+                                }
+    
+                                $total_notas_lancadas = AvaliacoesNotas::whereIn('alunos_id', $alunos_id_array)->where('avaliacao_id', $request->avaliacaoID)->count();
+    
+                                $data['status'] = 'ok';
+                                $data['porcento_preenchido'] = (floor(($total_notas_lancadas * 100) / $total_alunos) > 100) ? 100 : floor(($total_notas_lancadas * 100) / $total_alunos);
+                                $data['response'] = '   <div style="width: 100%; margin: 0 auto;" data-toggle="tooltip" data-placement="right" title="Clique aqui para retificação do grau">
+                                                            <div style="float: left;">
+                                                                <span><span style="color: #0B3B0B;"><b>GBO:</span></b> <span style="font-family: Tahoma;">' . $request->gbo . '</span></span><br />
+                                                                <span><span style="color: #0B3B0B;"><b>NOTA:</span></b> <span style="font-family: Tahoma;">' . $avaliacao->getNota($request->gbo) . '</span></span>                                                
+                                                            </div>
+                                                            <div style="float: right; margin: 8px 10px 0 0;">
+                                                                <a href="javascript: void(0);" class="no-style" onclick="editarRegistroGrauAluno(' . $request->id . ', ' . $request->avaliacaoID . ');">    
+                                                                    <i class="ion-android-create" style="color: #0B610B; font-size: 18px;"></i>
+                                                                </a>
+                                                            </div>
+                                                            <div class="clear"></div>
+                                                        </div>';
+                            } else {
+                                $data['status'] = 'err';
+                                $data['response'] = '   <div style="padding: 12px 18px; margin-top: 10px; text-transform: uppercase;">
+                                                            <b>Houve um erro e o grau não foi registrado!</b>
                                                         </div>
-                                                        <div style="float: right; margin: 8px 10px 0 0;">
-                                                            <a href="javascript: void(0);" class="no-style" onclick="editarRegistroGrauAluno(' . $request->id . ', ' . $request->avaliacaoID . ');">    
-                                                                <i class="ion-android-create" style="color: #0B610B; font-size: 18px;"></i>
-                                                            </a>
-                                                        </div>
-                                                        <div class="clear"></div>
-                                                    </div>';
+                                                        <div style="padding: 8px 24px; text-align: right;">
+                                                            <a href="javascript: void(0)" class="no-style" data-dismiss="modal" style="color: #2E64FE; font-size: 12px;">
+                                                                <b>OK</b>
+                                                            </a>                                                    
+                                                        </div>';
+                            }
                         } else {
                             $data['status'] = 'err';
                             $data['response'] = '   <div style="padding: 12px 18px; margin-top: 10px; text-transform: uppercase;">
-                                                        <b>Houve um erro e o grau não foi registrado!</b>
+                                                        <b>O GBO NÃO DEVE SER MAIOR QUE O ATUAL GBM (' . $avaliacao->gbm . ')</b>
                                                     </div>
                                                     <div style="padding: 8px 24px; text-align: right;">
                                                         <a href="javascript: void(0)" class="no-style" data-dismiss="modal" style="color: #2E64FE; font-size: 12px;">
@@ -527,17 +547,13 @@ class AjaxOperadorController extends Controller
                                                         </a>                                                    
                                                     </div>';
                         }
-                    } else {
-                        $data['status'] = 'err';
-                        $data['response'] = '   <div style="padding: 12px 18px; margin-top: 10px; text-transform: uppercase;">
-                                                    <b>O GBO NÃO DEVE SER MAIOR QUE O ATUAL GBM (' . $avaliacao->gbm . ')</b>
-                                                </div>
-                                                <div style="padding: 8px 24px; text-align: right;">
-                                                    <a href="javascript: void(0)" class="no-style" data-dismiss="modal" style="color: #2E64FE; font-size: 12px;">
-                                                        <b>OK</b>
-                                                    </a>                                                    
-                                                </div>';
+                    }else{
+                        $data['status'] = 'ok';
+                        $data['response'] = '<input type="text" name="nota_aluno_id_'.$aluno->id.'" value="" style="width: 38px; border: 1px solid #ccc; padding: 3px 4px; text-align: right; margin-top: -10px;" onkeyup="toogleConfirmGrau(this);" autocomplete="off" maxlength="3" /><br />
+                                                    <a href="javascript: void(0);" class="badge badge-success" onclick="registrarGrauAluno('.$aluno->id.', '.$request->avaliacaoID.');" style="display: none; margin-top: 8px;">Confirmar</a>
+                                                    <span class="badge badge-secondary" style="margin-top: 8px;">Confirma</span>';
                     }
+                    
                 } else {
                     $data['status'] = 'err';
                     $data['response'] = '   <div style="padding: 12px 18px; margin-top: 10px; text-transform: uppercase;">

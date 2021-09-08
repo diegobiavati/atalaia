@@ -50,11 +50,8 @@ use App\Models\TafFlexaoBarra;
 use App\Models\TafFlexaoBraco;
 use App\Models\TafPortarias;
 use App\Models\TurmasPB;
-use App\Models\UsersTopicMQTT;
 
-use App\Mail\BemVindo;
 use App\Http\OwnClasses\OwnValidator;
-use App\Http\OwnClasses\phpMQTT;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\AvaliacoesMostra;
 use App\Models\AvaliacoesMostrasRespostas;
@@ -78,7 +75,7 @@ class AjaxAdminController extends Controller
         $this->lancarTaf = $avaliacaTaf;
         $this->request = $request;
         $this->classLog = $classLog;
-        $classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);    
+        $classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
         $this->ownauthcontroller = $ownauthcontroller;
     }
 
@@ -106,7 +103,7 @@ class AjaxAdminController extends Controller
         if ($this->ownauthcontroller->PermissaoCheck(1)) {
             $operadores = Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])->orderBy('qms_matriz_id', 'asc')->orderBy('postograd_id', 'asc')->get();
         } else {
-            $operadores = Operadores::where([['qms_matriz_id', '=',session()->get('login.qmsID.0.qms_matriz_id')], ['ativo', '=', 'S']])->orderBy('postograd_id', 'asc')->get();
+            $operadores = Operadores::where([['qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id')], ['ativo', '=', 'S']])->orderBy('postograd_id', 'asc')->get();
         }
 
         //$operadores = Operadores::orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
@@ -176,10 +173,10 @@ class AjaxAdminController extends Controller
             $notas_array['MEDIA'] = $avaliacoes_taf->media;
             $media = number_format($avaliacoes_taf->media, '3', '.', '');
 
-            if(isset($avaliacoes_taf->reprovado_recuperacao)){
-                if($avaliacoes_taf->reprovado_recuperacao == 'N'){
+            if (isset($avaliacoes_taf->reprovado_recuperacao)) {
+                if ($avaliacoes_taf->reprovado_recuperacao == 'N') {
                     $media = $avaliacoes_taf->media_recuperacao;
-                }else{
+                } else {
                     $notas_array_recuperacao["AR"] = $avaliacoes_taf->media_recuperacao;
                 }
             }
@@ -209,21 +206,21 @@ class AjaxAdminController extends Controller
                 $media = 0.000;
             }*/
             foreach ($avaliacoes_notas as $key => $info) {
-                if($key != 'alunosID'){
+                if ($key != 'alunosID') {
                     foreach ($info as $notas) {
-                        if(is_array($notas)){
+                        if (is_array($notas)) {
 
-                                foreach($notas['avaliacoes'] as $avaliacao){
-                                    if($avaliacao->nome_abrev == 'AR'){
-                                        $notas_array_recuperacao["AR"] = $avaliacao->nota;
-                                    }else{    
-                                        $notas_array[$avaliacao->nome_abrev] = $avaliacao->nota;
-                                    }
+                            foreach ($notas['avaliacoes'] as $avaliacao) {
+                                if ($avaliacao->nome_abrev == 'AR') {
+                                    $notas_array_recuperacao["AR"] = $avaliacao->nota;
+                                } else {
+                                    $notas_array[$avaliacao->nome_abrev] = $avaliacao->nota;
                                 }
-    
+                            }
+
                             $media = number_format($notas['media'], '3', '.', '');
                         }
-                    }    
+                    }
                 }
             }
 
@@ -232,14 +229,14 @@ class AjaxAdminController extends Controller
             }
         }
         $nd_recuperada = 0;
-//dd($notas_array, array_sum($razao), array_sum($notas_array) / array_sum($razao));
-        if (($media < 5 && isset($notas_array)) || ($request->disciplina == 99999 && (isset($avaliacoes_taf) && ($avaliacoes_taf->reprovado == 'S' && $avaliacoes_taf->reprovado_recuperacao == 'S') ))) {
-            
+        //dd($notas_array, array_sum($razao), array_sum($notas_array) / array_sum($razao));
+        if (($media < 5 && isset($notas_array)) || ($request->disciplina == 99999 && (isset($avaliacoes_taf) && ($avaliacoes_taf->reprovado == 'S' && $avaliacoes_taf->reprovado_recuperacao == 'S')))) {
+
             if (isset($notas_array_recuperacao["AR"])) {
                 $nd_recuperada = $notas_array_recuperacao["AR"];
                 if ($nd_recuperada > 5) {
                     $nd_recuperada = '5.000';
-                }else{
+                } else {
                     $nd_recuperada = $media;
                 }
             }
@@ -580,14 +577,14 @@ class AjaxAdminController extends Controller
         $this->lancarTaf->reprovado = $reprovado;
 
         if ($this->lancarTaf->where('aluno_id', $request->id)->first()) {
-            $update['corrida_nota'] = str_replace(',', '.', $corrida) ;
+            $update['corrida_nota'] = str_replace(',', '.', $corrida);
             $update['flexao_braco_nota'] = str_replace(',', '.', $flex_bra);
             $update['flexao_barra_nota'] = str_replace(',', '.', $flex_barr);
             $update['abdominal_suficiencia'] = $request->suficiencia_abdominal;
             $update['media'] = $media_banco;
             $update['reprovado'] = $reprovado;
 
-            if($reprovado == 'N'){
+            if ($reprovado == 'N') {
                 $update['corrida_nota_recuperacao'] = null;
                 $update['flexao_braco_nota_recuperacao'] = null;
                 $update['flexao_barra_nota_recuperacao'] = null;
@@ -633,7 +630,7 @@ class AjaxAdminController extends Controller
         //CASO SEJA ATLETA APLICA A REGRA DE ACRESCIMO DE PONTOS 
 
         $media = (($corrida + $flex_bra + $flex_barr) / $razao);
-        
+
         if ($alunos->atleta_marexaer == 'S') {
             if ($media >= 5 && $media <= 6.999) {
                 $media = $media + 1;
@@ -643,10 +640,10 @@ class AjaxAdminController extends Controller
 
             $media = ($media > 10) ? 10 : $media;
         }
-        
-        if((!isset($abdominal)) && $media >= 5){
+
+        if ((!isset($abdominal)) && $media >= 5) {
             $reprovado = 'N';
-        }else if ($abdominal == 'NS') {
+        } else if ($abdominal == 'NS') {
             $reprovado = 'S';
         } else if ($abdominal == 'S' && $media >= 5) {
             $reprovado = 'N';
@@ -656,23 +653,23 @@ class AjaxAdminController extends Controller
         } else {
             $reprovado = 'S';
         }
-        
+
         if ($media >= 5) {
             $media = 5;
         } else {
             $array_notas = array($corrida, $flex_bra, $flex_barr);
 
-            for($i=count($array_notas);$i>0;$i++){
+            for ($i = count($array_notas); $i > 0; $i++) {
                 $media = max($array_notas);
-                if($media < 5){
+                if ($media < 5) {
                     break;
-                }else{
+                } else {
                     $key = array_search($media, $array_notas);
                     unset($array_notas[$key]);
                 }
             }
         }
-        
+
         $media_tela = number_format($media, '3', ',', '');
         $media_banco = number_format($media, '3', '.', '');
 
@@ -718,7 +715,7 @@ class AjaxAdminController extends Controller
 
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
         $id_ano_corrente = ($ano_corrente->id) ?? 0;
-        
+
         $total_geral_alunos = Alunos::where('data_matricula', $id_ano_corrente)->where('sexo', 'M')->where('area_id', 1)->get(['id']);
         $total_geral_alunas = Alunos::where('data_matricula', $id_ano_corrente)->where('sexo', 'F')->where('area_id', 1)->get(['id']);
 
@@ -730,10 +727,10 @@ class AjaxAdminController extends Controller
             $alunasIds[] = $item->id;
         }
 
-        if(isset($alunasIds)){
+        if (isset($alunasIds)) {
             $alunosIDs = array_merge($alunosIds, $alunasIds);
         }
-        
+
         $alunos_classificacao = AlunosClassificacao::whereIn('aluno_id', $alunosIDs)->where('ano_formacao_id', $id_ano_corrente)->where('reprovado', 'N')->get();
 
         if ($alunos_classificacao) {
@@ -764,7 +761,7 @@ class AjaxAdminController extends Controller
 
     public function DialogAdicionarPeriodoEscolhaQMS(Request $request)
     {
-        $qms_matriz_id = array(9999);//Remove a Matriz ESA
+        $qms_matriz_id = array(9999); //Remove a Matriz ESA
         $qms_matriz = QMSMatriz::whereNotIn('id', $qms_matriz_id)->orderBy('id', 'asc')->get();
 
         /* SELECIONANDO TODOS ALUNOS EM SITUAÇÃO DE APROVADO DISPONÍVEIS Comb/Log/Av (Area 1) */
@@ -1207,7 +1204,7 @@ class AjaxAdminController extends Controller
             if ($escolha_qms->save()) {
 
                 /* OS DADOS DA QMS MATRIZ DEVEM SER PEGOS AUTOMATICAMENTE */
-                $qms_matriz_id = array(9999);//Remove a Matriz ESA
+                $qms_matriz_id = array(9999); //Remove a Matriz ESA
                 $qms_matriz = QMSMatriz::whereNotIn('id', $qms_matriz_id)->orderBy('id', 'asc')->get();
                 //$qms_matriz = QMSMatriz::orderBy('id', 'asc')->get();
 
@@ -1255,7 +1252,7 @@ class AjaxAdminController extends Controller
     {
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
         $escolha_aviacao_status = EscolhaAviacaoStatus::where('ano_formacao_id', $ano_corrente->id)->first();
-        
+
         if ($escolha_aviacao_status->status == 0) {
             $escolha_aviacao_status->status = 1;
         } else {
@@ -1314,12 +1311,12 @@ class AjaxAdminController extends Controller
                                 <tbody>';
 
             $i = 1;
-            
-                foreach ($alunos as $aluno) {
-                    $status_checked_aptos_is = ($aluno->apto_is == 'N') ? '' : 'checked';
-                    $status_checked_aptos_avi = ($aluno->apto_avi == 'N') ? '' : 'checked';
-                         
-                    $data[] = ' <tr style="cursor: pointer;">
+
+            foreach ($alunos as $aluno) {
+                $status_checked_aptos_is = ($aluno->apto_is == 'N') ? '' : 'checked';
+                $status_checked_aptos_avi = ($aluno->apto_avi == 'N') ? '' : 'checked';
+
+                $data[] = ' <tr style="cursor: pointer;">
                                     <td style="text-align: center; vertical-align: middle;">' . $i . '</td>
                                     <td>
                                         <div class="custom-control custom-checkbox" style="width: 36%; margin: 4px auto;">
@@ -1339,11 +1336,11 @@ class AjaxAdminController extends Controller
                                         ' . $aluno->omct->sigla_omct . '
                                     </td>
                                 </tr>';
-                           
-                    $i++;
-                }
-            
-            
+
+                $i++;
+            }
+
+
             $data[] = '         </tbody>
                             </table>
                             </form>
@@ -1431,8 +1428,8 @@ class AjaxAdminController extends Controller
         //$avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)->where('data', '>', date('Y-m-d'))->orderBy('data', 'asc')->get();
 
         $avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinas_id)
-        ->whereRaw('DATE_ADD(avaliacoes.data_mostra, INTERVAL avaliacoes.limite_dias_pedido DAY) >= CURRENT_DATE')
-        ->orderBy('data', 'asc')->get();
+            ->whereRaw('DATE_ADD(avaliacoes.data_mostra, INTERVAL avaliacoes.limite_dias_pedido DAY) >= CURRENT_DATE')
+            ->orderBy('data', 'asc')->get();
 
         return  view('ajax.visao-geral')->with('total_operadores', Operadores::count())
             ->with('mostras_pendentes', AvaliacoesMostra::whereIn('status', array('P', 'A'))->get())
@@ -1445,7 +1442,7 @@ class AjaxAdminController extends Controller
             ->with('ownauthcontroller', $ownauthcontroller);
     }
 
-    
+
 
     public function Relatorios(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
@@ -1618,15 +1615,15 @@ class AjaxAdminController extends Controller
 
         $per_ativo_qualificacao = $request->has('per_ativo_qualificacao');
 
-        if($per_ativo_qualificacao){
-            if(AnoFormacao::where([['id', '<>', $request->id], ['per_ativo_qualificacao', '=', 'S']])->count() > 0){
+        if ($per_ativo_qualificacao) {
+            if (AnoFormacao::where([['id', '<>', $request->id], ['per_ativo_qualificacao', '=', 'S']])->count() > 0) {
                 $data['status'] = 'err';
                 $data['content'] = 'Já Existe Um Período Ativo Para a Qualificação.';
                 return $data;
             }
         }
 
-        $ano_formacao->per_ativo_qualificacao = (($per_ativo_qualificacao) ? 'S': 'N');
+        $ano_formacao->per_ativo_qualificacao = (($per_ativo_qualificacao) ? 'S' : 'N');
 
         if (!checkdate($mes, $dia, $ano)) {
             $data['status'] = 'err';
@@ -1648,7 +1645,7 @@ class AjaxAdminController extends Controller
     public function DialogEditarAnoFormacao(Request $request)
     {
         $ano_formacao = AnoFormacao::find($request->id);
-        
+
         $checked = ($ano_formacao->per_ativo_qualificacao == 'S') ? 'checked' : '';
 
         $data['header'] = '<i class="ion-ios-calendar-outline" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar ano de formação';
@@ -1665,7 +1662,7 @@ class AjaxAdminController extends Controller
                                             <div class="clear"></div>
                                             <div style="margin: 14px auto; width: 80%; max-width: 380px;">
                                                 <div class="custom-control custom-checkbox" style="margin-top: 20px;">
-                                                    <input id="customCheck1" name="per_ativo_qualificacao" type="checkbox" value="0" class="custom-control-input" '.$checked.' />
+                                                    <input id="customCheck1" name="per_ativo_qualificacao" type="checkbox" value="0" class="custom-control-input" ' . $checked . ' />
                                                     <label class="custom-control-label" for="customCheck1">Período Ativo (Qualificação)</label>
                                                 </div>
                                             </div>
@@ -1784,22 +1781,21 @@ class AjaxAdminController extends Controller
         $disciplina = Disciplinas::find($request->disciplinas_id);
         $avaliacao = new Avaliacoes;
 
-        if($disciplina->tfm == 'S'){
+        if ($disciplina->tfm == 'S') {
 
-            $avaliacao->tfm_abdominal = (isset($request->abdominal) ? 'S':'N');
-
-        }else{
+            $avaliacao->tfm_abdominal = (isset($request->abdominal) ? 'S' : 'N');
+        } else {
             $avaliacao->gbm = $request->gbm;
 
             $avaliacao->data_mostra = FuncoesController::formatDateBrtoEn($request->data_mostra);
             $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
         }
         $peso = ($request->peso == '') ? 1 : $request->peso;
-        
+
         $avaliacao->disciplinas_id = $disciplina->id;
         $avaliacao->nome_completo = $request->nome_completo;
         $avaliacao->nome_abrev = $request->nome_abrev;
-        
+
         $avaliacao->peso = $peso;
         $avaliacao->prazo_nota = $request->prazo_nota;
         $avaliacao->observacao = (empty($request->observacao)) ? '' : $request->observacao;
@@ -1899,10 +1895,10 @@ class AjaxAdminController extends Controller
     {
         $avaliacao = Avaliacoes::find($request->id);
         $disciplinas[] = $avaliacao->disciplinas;
-        
+
         list($ano, $mes, $dia) = explode('-', $avaliacao->data);
         $data_prova = $dia . '/' . $mes . '/' . $ano;
-        
+
         /* aqui existem 2 situações: ou é avaliações convencionais ou avaliação de recuperação */
 
         /*
@@ -1915,8 +1911,8 @@ class AjaxAdminController extends Controller
 
             //Parei Aqui
             return view('ajax.avaliacao.view-adiciona-avaliacao', compact('avaliacao', 'disciplinas'));
-            
-           /* $data['header'] = '<i class="ion-ios-compose" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar avaliação';
+
+            /* $data['header'] = '<i class="ion-ios-compose" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar avaliação';
             $data['body'] = '   <div class="alert alert-danger errors-editar-avaliacoes" role="alert"></div>
                                     <form id="editar_avaliacao">
                                         <input type="hidden" name="_token" value="' . csrf_token() . '">
@@ -2087,7 +2083,7 @@ class AjaxAdminController extends Controller
                                                 <i class="ion-ios-calendar" style="font-size: 24px; color: #696969;"></i>
                                             </div>
                                             <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style data_mask" style="width: 100%;" name="data_mostra" type="text" value="' . FuncoesController::formatDateEntoBr($avaliacao->data_mostra)  .'" maxlength="10" autocomplete="off" placeholder="Data da Mostra"/>
+                                                <input class="no-style data_mask" style="width: 100%;" name="data_mostra" type="text" value="' . FuncoesController::formatDateEntoBr($avaliacao->data_mostra)  . '" maxlength="10" autocomplete="off" placeholder="Data da Mostra"/>
                                             </div>
                                             <div class="clear"></div>
                                         </div>
@@ -2137,13 +2133,22 @@ class AjaxAdminController extends Controller
 
         $avaliacao->nome_completo = $request->nome_completo;
         $avaliacao->nome_abrev = $request->nome_abrev;
-        $avaliacao->gbm = $request->gbm;
+
+        $avaliacao->gbm = 0;
+        $avaliacao->data_mostra = null;
+        $avaliacao->limite_dias_pedido = null;
+
+
+        if ($avaliacao->disciplinas->tfm == 'N') {
+            $avaliacao->gbm = $request->gbm;
+            $avaliacao->data_mostra = FuncoesController::formatDateBrtoEn($request->data_mostra);
+            $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
+        }
+
         $avaliacao->prazo_nota = $request->prazo_nota;
         $avaliacao->observacao = (empty($request->observacao)) ? '' : $request->observacao;
 
-        $avaliacao->data_mostra = FuncoesController::formatDateBrtoEn($request->data_mostra);
-        $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
-        
+
         if ($avaliacao->avaliacao_recuperacao == 0) {
             $avaliacao->peso = $peso;
         }
@@ -2201,25 +2206,25 @@ class AjaxAdminController extends Controller
     {
         $id = $request->id;
         $disciplina = Disciplinas::find($id);
-        
+
         $avaliacoes_chamada = Avaliacoes::where('disciplinas_id', '=', $id)->where('chamada', '=', 1)->get();
-        
-        if(isset($request->avaliacao)){
+
+        if (isset($request->avaliacao)) {
             $avaliacoes = Avaliacoes::find($request->avaliacao);
         }
-//dd('Falta Trazer os Campos Preenchidos Quando tentar Editar');
+        //dd('Falta Trazer os Campos Preenchidos Quando tentar Editar');
         if (count($avaliacoes_chamada) > 0) {
 
             $options_chamada[] = '';
-            for($i=1;$i<=2;$i++){
+            for ($i = 1; $i <= 2; $i++) {
                 $disabled = null;
                 $selected = null;
 
-                if(isset($request->avaliacao)){
+                if (isset($request->avaliacao)) {
                     $disabled = 'disabled';
-                    $selected = (($i == $avaliacoes->chamada) ? 'selected': '');
+                    $selected = (($i == $avaliacoes->chamada) ? 'selected' : '');
                 }
-                $options_chamada[] = '<option value="'.$i.'" '.$disabled.' '.$selected.'>'.$i.'ª Chamada</option>';
+                $options_chamada[] = '<option value="' . $i . '" ' . $disabled . ' ' . $selected . '>' . $i . 'ª Chamada</option>';
             }
 
             $options_avaliacoes[] = '<option value="0">Selecione a avaliação de referência</option>';
@@ -2233,7 +2238,7 @@ class AjaxAdminController extends Controller
                                     </div>
                                     <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
                                         <select class="custom-select" name="chamada" onchange="showDialogReferenciaAvaliacao(this);">
-                                            '.implode('', $options_chamada).'
+                                            ' . implode('', $options_chamada) . '
                                         </select>
                                     </div>
                                     <div class="clear"></div>
@@ -2262,25 +2267,25 @@ class AjaxAdminController extends Controller
                                 </div>';
         }
 
-        if($disciplina->tfm == 'S'){
+        if ($disciplina->tfm == 'S') {
 
             $checked = null;
             $disabled = null;
-            if(isset($request->avaliacao)){
-                $checked = (($avaliacoes->tfm_abdominal == 'S') ? 'checked': null);
-                $disabled = 'disabled';    
+            if (isset($request->avaliacao)) {
+                $checked = (($avaliacoes->tfm_abdominal == 'S') ? 'checked' : null);
+                $disabled = 'disabled';
             }
 
             $data['abdominal'] = '<div style="margin: 14px auto; width: 70%; max-width: 380px;">
                                     <div class="custom-control custom-checkbox" style="margin-top: 20px;" >
-                                        <input id="customCheck" name="abdominal" type="checkbox" value="0" '.$disabled.'  class="custom-control-input" '.$checked.'>
+                                        <input id="customCheck" name="abdominal" type="checkbox" value="0" ' . $disabled . '  class="custom-control-input" ' . $checked . '>
                                         <label class="custom-control-label" for="customCheck">Abdominal <font style="font-size:12px;color:rgb(255, 0, 0);">(Marque somente se o exercício for Abdominal)</font></label>
                                     </div>
                                 </div>';
 
             $data['gbm'] = '';
             $data['mostra'] = '';
-        }else{
+        } else {
             $data['abdominal'] = '';
 
             $data['gbm'] = '<div style="margin: 14px auto; width: 70%; max-width: 380px;">
@@ -2288,7 +2293,7 @@ class AjaxAdminController extends Controller
                                     <i class="ion-android-done" style="font-size: 24px; color: #696969;"></i>
                                 </div>
                                 <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                    <input class="no-style" style="width: 100%;" name="gbm" type="text" value="'.((isset($request->avaliacao)) ? $avaliacao->gbm : '').'" maxlength="4" autocomplete="off" placeholder="GBM" />
+                                    <input class="no-style" style="width: 100%;" name="gbm" type="text" value="' . ((isset($request->avaliacao)) ? $avaliacao->gbm : '') . '" maxlength="4" autocomplete="off" placeholder="GBM" />
                                 </div>
                                 <div class="clear"></div>
                             </div>';
@@ -2298,7 +2303,7 @@ class AjaxAdminController extends Controller
                                         <i class="ion-ios-calendar" style="font-size: 24px; color: #696969;"></i>
                                     </div>
                                     <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                        <input class="no-style data_mask" style="width: 100%;" name="data_mostra" type="text" value="'.((isset($request->avaliacao)) ? FuncoesController::formatDateEntoBr($avaliacao->data_mostra) : '').'" maxlength="10" autocomplete="off" placeholder="Data da Mostra" />
+                                        <input class="no-style data_mask" style="width: 100%;" name="data_mostra" type="text" value="' . ((isset($request->avaliacao)) ? FuncoesController::formatDateEntoBr($avaliacao->data_mostra) : '') . '" maxlength="10" autocomplete="off" placeholder="Data da Mostra" />
                                     </div>
                                     <div class="clear"></div>
                                 </div>
@@ -2307,12 +2312,12 @@ class AjaxAdminController extends Controller
                                         <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
                                     </div>
                                     <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                        <input class="no-style" style="width: 100%;" name="limite_dias_pedido" type="text" value="'.((isset($request->avaliacao)) ? $avaliacao->limite_dias_pedido : '').'" maxlength="5" autocomplete="off" placeholder="Limite de Dias do Pedido de Mostra" />
+                                        <input class="no-style" style="width: 100%;" name="limite_dias_pedido" type="text" value="' . ((isset($request->avaliacao)) ? $avaliacao->limite_dias_pedido : '') . '" maxlength="5" autocomplete="off" placeholder="Limite de Dias do Pedido de Mostra" />
                                     </div>
                                     <div class="clear"></div>
                                 </div>
                                 <script>$(\'.data_mask\').mask(\'00/00/0000\');</script>';
-        }        
+        }
 
         return $data;
     }
@@ -2599,7 +2604,7 @@ class AjaxAdminController extends Controller
                                         
                                         <div style="margin: 14px auto; width: 70%; max-width: 380px;">
                                             <div class="custom-control custom-checkbox" style="margin-top: 20px;">
-                                                <input id="customCheck" name="tfm" type="checkbox" value="0" class="custom-control-input" '.$checked.'>
+                                                <input id="customCheck" name="tfm" type="checkbox" value="0" class="custom-control-input" ' . $checked . '>
                                                 <label class="custom-control-label" for="customCheck">TFM (Treinamento Físico Militar)</label>
                                             </div>
                                         </div>                                                                    
@@ -2623,7 +2628,7 @@ class AjaxAdminController extends Controller
         $disciplina->nome_disciplina_abrev = $request->nome_disciplina_abrev;
         $disciplina->ano_formacao_id = $request->ano_formacao_id;
         $disciplina->peso = $peso;
-        $disciplina->tfm = (isset($request->tfm) ? 'S':'N');
+        $disciplina->tfm = (isset($request->tfm) ? 'S' : 'N');
 
         if ($disciplina->save()) {
             $data['status'] = 'ok';
@@ -2661,16 +2666,16 @@ class AjaxAdminController extends Controller
             $funcao_operador[] = $funcao;
         }
 
-        if(session()->get('login.omctID') > 1){
+        if (session()->get('login.omctID') > 1) {
             $omcts = OMCT::where([['id', '=', session()->get('login.omctID')]])->get();
 
-            $whereInOperadores = [2, 3, 4, 6];//Comandante de CIA, SPPA, Sargenteante e Instrutor.
+            $whereInOperadores = [2, 3, 4, 6]; //Comandante de CIA, SPPA, Sargenteante e Instrutor.
             $operadores_tipo = OperadoresTipo::whereIn('id', $whereInOperadores)->get();
-        }else{
+        } else {
             $omcts = OMCT::get();
             $operadores_tipo = OperadoresTipo::where([['id', '<', 9000]])->get();
         }
-        
+
         foreach ($operadores_tipo as $tipo) {
             $attr_checked = (in_array($tipo->id, $funcao_operador)) ? 'checked' : '';
             $tipos[] = '<div class="custom-control custom-checkbox">
@@ -2761,7 +2766,7 @@ class AjaxAdminController extends Controller
                                             </div>
                                             <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
                                                 <div class="custom-control custom-checkbox">
-                                                    <input type="checkbox" name="ativo" class="custom-control-input" id="ativoCheck" '.(($operador->ativo == 'S') ? 'checked': '').'>
+                                                    <input type="checkbox" name="ativo" class="custom-control-input" id="ativoCheck" ' . (($operador->ativo == 'S') ? 'checked' : '') . '>
                                                     <label class="custom-control-label" for="ativoCheck">Ativo</label><br />
                                                     <span style="font-size: 12px; color: #FE2E2E;">Desmarcando essa opção o operador não será mais listado</span>
                                                 </div>
@@ -3003,12 +3008,12 @@ class AjaxAdminController extends Controller
     public function DialogAdicionarOperador(Request $request)
     {
 
-        if(session()->get('login.omctID') > 1){
+        if (session()->get('login.omctID') > 1) {
             $omcts = OMCT::where([['id', '=', session()->get('login.omctID')]])->get();
 
-            $whereInOperadores = [2, 3, 4, 6];//Comandante de CIA, SPPA, Sargenteante e Instrutor.
+            $whereInOperadores = [2, 3, 4, 6]; //Comandante de CIA, SPPA, Sargenteante e Instrutor.
             $operadores_tipo = OperadoresTipo::whereIn('id', $whereInOperadores)->get();
-        }else{
+        } else {
             $omcts = OMCT::get();
             $operadores_tipo = OperadoresTipo::get();
         }
@@ -3023,7 +3028,7 @@ class AjaxAdminController extends Controller
         /* LOOP QUE BUSCA AS OMCTS */
 
         $options_omcts[] = '<option value="0">Informe a UETE</option>';
-        
+
         foreach ($omcts as $omct) {
             $options_omcts[] = '<option value="' . $omct->id . '">' . $omct->omct . '</option>';
         }
@@ -3146,7 +3151,7 @@ class AjaxAdminController extends Controller
         return $data;
     }
 
-    
+
 
     public function DialogAdicionarPortaria()
     {
@@ -4450,12 +4455,12 @@ class AjaxAdminController extends Controller
         $operador->idt_militar_o_exp = $request->idt_militar_o_exp;
         $operador->postograd_id = $request->postograd_id;
 
-        if(isset($request->qms_id)){
+        if (isset($request->qms_id)) {
             $operador->qms_matriz_id = $request->qms_id;
-        }else{
+        } else {
             $operador->omcts_id = $request->omcts_id;
         }
-        
+
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;
         $operador->email = $request->email;
         if ($request->tipo_operador_check) {
@@ -4485,36 +4490,36 @@ class AjaxAdminController extends Controller
 
         $email = $operador->email;
 
-        $operador->ativo = (($request->ativo == 'on') ? 'S':'N');
+        $operador->ativo = (($request->ativo == 'on') ? 'S' : 'N');
         $operador->nome = $request->nome;
         $operador->nome_guerra = $request->nome_guerra;
         $operador->idt_militar = $request->idt_militar;
         $operador->idt_militar_o_exp = $request->idt_militar_o_exp;
 
-        if(isset($request->qms_id)){
+        if (isset($request->qms_id)) {
             $operador->qms_matriz_id = $request->qms_id;
-        }else{
+        } else {
             $operador->omcts_id = $request->omcts_id;
         }
-        
+
         $operador->postograd_id = $request->postograd_id;
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;
         $operador->email = $request->email;
-        
-        if (!in_array(1, session()->get('login.perfil'))) {//Valida se não é perfil ESA...
 
-            if(in_array(4, explode(',', $operador->id_funcao_operador))){//Verifica se o Operador é Sargenteante...
+        if (!in_array(1, session()->get('login.perfil'))) { //Valida se não é perfil ESA...
 
-                if(!isset($request->tipo_operador_check) || !in_array(4, $request->tipo_operador_check)){//Verifica se não existe o Sargenteante na requisição...
+            if (in_array(4, explode(',', $operador->id_funcao_operador))) { //Verifica se o Operador é Sargenteante...
+
+                if (!isset($request->tipo_operador_check) || !in_array(4, $request->tipo_operador_check)) { //Verifica se não existe o Sargenteante na requisição...
                     //Seleciona todos os operadores que tem perfil sargenteante ativo na UETE...
-                    if(Operadores::where([['omcts_id', '=', session()->get('login.omctID')], ['ativo', '=', 'S'],['id_funcao_operador', 'LIKE', '%4%']])->count() <= 1){
+                    if (Operadores::where([['omcts_id', '=', session()->get('login.omctID')], ['ativo', '=', 'S'], ['id_funcao_operador', 'LIKE', '%4%']])->count() <= 1) {
                         $data['errors'] = (object)['erro' => array('Operação Cancelada, Deve Existir Pelo Menos Um Sargenteante Cadastrado na UETE!!!')];
                         return response()->json($data, 422);
                     }
                 }
             }
         }
-        
+
         if ($request->tipo_operador_check) {
             $operador->id_funcao_operador = implode(',', $request->tipo_operador_check);
         } else {
@@ -4555,7 +4560,7 @@ class AjaxAdminController extends Controller
         $data['typeUser'] = ($request->id == auth()->id()) ? 1 : 0;
 
         $this->classLog->RegistrarLog('Atualizou operador', auth()->user()->email);
-       
+
         return $data;
     }
 
@@ -4675,7 +4680,7 @@ class AjaxAdminController extends Controller
                                             <h5>AL ' . $aluno->numero . ' ' . $aluno->nome_guerra . '</h5>
                                             <h6>' . $aluno->nome_completo . '</h6>
                                             <h6>' . $aluno->omct->omct . '</h6>
-                                            '.(((isset($aluno->qms_id)) ? '<h6>' . strtoupper($aluno->qms->qms) . '</h6>' : '')).'
+                                            ' . (((isset($aluno->qms_id)) ? '<h6>' . strtoupper($aluno->qms->qms) . '</h6>' : '')) . '
                                             
                                         </div>
                                         <div class="clear"></div>
@@ -5991,16 +5996,16 @@ class AjaxAdminController extends Controller
 
         $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
 
-        $rota = '/'.$request->path();
+        $rota = '/' . $request->path();
 
         $enquadramentos = Enquadramentos::all();
         $comportamentos = Comportamento::all();
 
-        if(session()->has('login.qmsID')){
+        if (session()->has('login.qmsID')) {
             $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($anoFormacao->id));
 
             return view('admin.consulta.consulta-uete-aluno-punido', compact('cursos', 'anoFormacao', 'rota', 'enquadramentos', 'comportamentos'))
-            ->with('ownauthcontroller', $this->ownauthcontroller);
+                ->with('ownauthcontroller', $this->ownauthcontroller);
         }
 
         $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
@@ -6059,47 +6064,46 @@ class AjaxAdminController extends Controller
         return response()->json($retorno);
     }
 
-    public function AplicaEscolhaQms(Request $request){
+    public function AplicaEscolhaQms(Request $request)
+    {
 
-        if($request->session()->has('aplicar_qms')){
-            
+        if ($request->session()->has('aplicar_qms')) {
+
             $aplicar_qms = unserialize($request->session()->get('aplicar_qms'));
             $aplicar_qms['recuperado'] = true;
 
             $request->session()->regenerate();
 
-            if($aplicar_qms['segmento'] == 'M'){
+            if ($aplicar_qms['segmento'] == 'M') {
 
                 $select = EscolhaQMS::select('escolha_qms_masculino as escolha_qms_final')->where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])->first();
-                if($select->escolha_qms_final == null){
+                if ($select->escolha_qms_final == null) {
                     $update = EscolhaQMS::where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])
-                    ->update(['escolha_qms_masculino' => serialize($aplicar_qms)]);
-                }else{
+                        ->update(['escolha_qms_masculino' => serialize($aplicar_qms)]);
+                } else {
                     $update = EscolhaQMS::where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])
-                    ->update(['escolha_qms_masculino' => null]);
+                        ->update(['escolha_qms_masculino' => null]);
                 }
-
-            }else{
+            } else {
 
                 $select = EscolhaQMS::select('escolha_qms_feminino as escolha_qms_final')->where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])->first();
-                if($select->escolha_qms_final == null){
+                if ($select->escolha_qms_final == null) {
                     $update = EscolhaQMS::where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])
-                    ->update(['escolha_qms_feminino' => serialize($aplicar_qms)]);
-                }else{
+                        ->update(['escolha_qms_feminino' => serialize($aplicar_qms)]);
+                } else {
                     $update = EscolhaQMS::where([['ano_formacao_id', '=', $aplicar_qms['ano_formacao']->id]])
-                    ->update(['escolha_qms_feminino' => null]);
+                        ->update(['escolha_qms_feminino' => null]);
                 }
-
             }
 
-            if($update > 0){
+            if ($update > 0) {
                 $retorno['status'] = 'success';
                 $retorno['response'][] = 'Informações Registradas Com Sucesso!!!';
-            }else{
+            } else {
                 $retorno['status'] = 'err';
                 $retorno['response'][] = 'Não foi possível Registrar!!!';
             }
-        }else{
+        } else {
             $retorno['status'] = 'err';
             $retorno['response'][] = 'Recarregue Página!!!';
         }
@@ -6107,47 +6111,149 @@ class AjaxAdminController extends Controller
         return response()->json($retorno);
     }
 
-    public function AplicaEscolhaQmsBI(Request $request){
+    public function AplicaEscolhaQmsBI(Request $request)
+    {
 
         $retorno['status'] = 'err';
 
-        $parametro[($request->segmento == 'M' ? 'bi_qms_masculino': 'bi_qms_feminino')] = $request->nota_bi;
+        $parametro[($request->segmento == 'M' ? 'bi_qms_masculino' : 'bi_qms_feminino')] = $request->nota_bi;
         $select = EscolhaQMS::where([['ano_formacao_id', '=', $request->ano_formacao]]);
 
         $update = $select->update($parametro);
 
-        if($update > 0){
+        if ($update > 0) {
 
-            $info = unserialize( (($request->segmento == 'M' ? $select->first()->escolha_qms_masculino : $select->first()->escolha_qms_feminino)) );
-            
-            Alunos::where([['data_matricula', '=', $request->ano_formacao]
-            , ['sexo', '=', ($request->segmento == 'M' ? 'M': 'F')]])->update(['periodo_cfs' => 'PB', 'qms_id' => null]);
+            $info = unserialize((($request->segmento == 'M' ? $select->first()->escolha_qms_masculino : $select->first()->escolha_qms_feminino)));
 
-            $qms_aviacao = QMS::where([['segmento', '=', ($request->segmento == 'M' ? 'M': 'F')]
-            , ['qms_alias', '=', ($request->segmento == 'M' ? 'aviacao': 'aviacao_feminino')]
-            , ['escolha_qms_id', '=', $select->first()->id]])->first();
+            Alunos::where([
+                ['data_matricula', '=', $request->ano_formacao], ['sexo', '=', ($request->segmento == 'M' ? 'M' : 'F')]
+            ])->update(['periodo_cfs' => 'PB', 'qms_id' => null]);
+
+            $qms_aviacao = QMS::where([
+                ['segmento', '=', ($request->segmento == 'M' ? 'M' : 'F')], ['qms_alias', '=', ($request->segmento == 'M' ? 'aviacao' : 'aviacao_feminino')], ['escolha_qms_id', '=', $select->first()->id]
+            ])->first();
 
             //Transfere o Aluno para o 2º Ano de Aviação
-            if(!is_null($info['alunos_aviacao'])){
-                foreach($info['alunos_aviacao'] as $aluno){
+            if (!is_null($info['alunos_aviacao'])) {
+                foreach ($info['alunos_aviacao'] as $aluno) {
                     Alunos::where([['id', '=', $aluno->id]])->update(['periodo_cfs' => 'AV', 'qms_id' => $qms_aviacao->id]);
                 }
             }
-            
+
             //Transfere o Aluno para o 2º Ano Qualificação
-            if(!is_null($info['aluno'])){
-                foreach($info['aluno'] as $key => $aluno){
+            if (!is_null($info['aluno'])) {
+                foreach ($info['aluno'] as $key => $aluno) {
                     Alunos::where([['id', '=', $key]])->update(['periodo_cfs' => 'PQ', 'qms_id' => $aluno['qmsdesignda']]);
                 }
             }
-            
+
             $retorno['status'] = 'success';
             $retorno['response'][] = 'Informações Registradas Com Sucesso!!!';
-        }else{
+        } else {
             $retorno['status'] = 'err';
             $retorno['response'][] = 'Não foi possível Registrar!!!';
         }
 
         return response()->json($retorno);
+    }
+
+    public function LancarAbdominalAluno(Request $request)
+    {
+
+        if ($request->ajax()) {
+            $this->classLog->RegistrarLog('Lançou o Abdominal do Aluno ID ' . $request->idAluno, auth()->user()->email);
+
+            $avaliacoesNotas = AvaliacoesNotas::updateOrCreate(
+                ['alunos_id' => $request->idAluno, 'avaliacao_id' => $request->idAvaliacao],
+                ['suficiencia_abdominal' => $request->suficiencia]
+            );
+
+            /* GUARDANDO NUM ARRAY AS NOTAS NA AVALIAÇÃO */
+            $nota[$avaliacoesNotas->alunos_id]['gbo'] = null;
+            $nota[$avaliacoesNotas->alunos_id]['nota_tfm'] = null;
+            $nota[$avaliacoesNotas->alunos_id]['suficiencia_abdominal'] = $avaliacoesNotas->suficiencia_abdominal;
+
+            $data['status'] = 'ok';
+            $view[] = view('ajax.avaliacao.notas.view-suficiencia-abdominal', compact('nota', 'request'))->with('avaliacao', $avaliacoesNotas->avaliacao)->with('aluno', $avaliacoesNotas->aluno);
+        } else {
+            $data['status'] = 'err';
+            $mensagem = 'Houve um erro e o Lançamento não foi registrado!';
+            $view[] = view('ajax.erros.view-erro-padrao', compact('mensagem'));
+        }
+
+        $data['response'] = implode('', $view);
+        return $data;
+    }
+
+    public function EditarAbdominalAluno(Request $request)
+    {
+
+        if ($request->ajax()) {
+            $this->classLog->RegistrarLog('Editou o Abdominal do Aluno ID ' . $request->idAluno, auth()->user()->email);
+
+            $aluno = Alunos::find($request->idAluno);
+            $avaliacao = Avaliacoes::find($request->idAvaliacao);
+            AvaliacoesNotas::where('alunos_id', $aluno->id)->where('avaliacao_id', $avaliacao->id)->delete();
+
+            $data['status'] = 'ok';
+            $view[] = view('ajax.avaliacao.notas.view-lanca-abdominal', compact('aluno', 'avaliacao'));
+        } else {
+            $data['status'] = 'err';
+            $mensagem = 'Houve um erro e ao editar o lançamento!';
+            $view[] = view('ajax.erros.view-erro-padrao', compact('mensagem'));
+        }
+
+        $data['response'] = implode('', $view);
+        return $data;
+    }
+
+    public function LancarTfmAluno(Request $request)
+    {
+
+        if ($request->ajax()) {
+            $this->classLog->RegistrarLog('Lançou o TFM do Aluno ID ' . $request->idAluno, auth()->user()->email);
+
+            $avaliacoesNotas = AvaliacoesNotas::updateOrCreate(
+                ['alunos_id' => $request->idAluno, 'avaliacao_id' => $request->idAvaliacao],
+                ['nota_tfm' => $request->nota]
+            );
+
+            /* GUARDANDO NUM ARRAY AS NOTAS NA AVALIAÇÃO */
+            $nota[$avaliacoesNotas->alunos_id]['gbo'] = null;
+            $nota[$avaliacoesNotas->alunos_id]['nota_tfm'] = $avaliacoesNotas->nota_tfm;
+            $nota[$avaliacoesNotas->alunos_id]['suficiencia_abdominal'] = null;
+
+            $data['status'] = 'ok';
+            $view[] = view('ajax.avaliacao.notas.view-nota-tfm', compact('nota', 'request'))->with('avaliacao', $avaliacoesNotas->avaliacao)->with('aluno', $avaliacoesNotas->aluno);
+        } else {
+            $data['status'] = 'err';
+            $mensagem = 'Houve um erro e o Lançamento não foi registrado!';
+            $view[] = view('ajax.erros.view-erro-padrao', compact('mensagem'));
+        }
+
+        $data['response'] = implode('', $view);
+        return $data;
+    }
+
+    public function EditarTfmAluno(Request $request)
+    {
+
+        if ($request->ajax()) {
+            $this->classLog->RegistrarLog('Editou o TFM do Aluno ID ' . $request->idAluno, auth()->user()->email);
+
+            $aluno = Alunos::find($request->idAluno);
+            $avaliacao = Avaliacoes::find($request->idAvaliacao);
+            AvaliacoesNotas::where('alunos_id', $aluno->id)->where('avaliacao_id', $avaliacao->id)->delete();
+
+            $data['status'] = 'ok';
+            $view[] = view('ajax.avaliacao.notas.view-lanca-tfm', compact('aluno', 'avaliacao'));
+        } else {
+            $data['status'] = 'err';
+            $mensagem = 'Houve um erro e ao editar o lançamento!';
+            $view[] = view('ajax.erros.view-erro-padrao', compact('mensagem'));
+        }
+
+        $data['response'] = implode('', $view);
+        return $data;
     }
 }
