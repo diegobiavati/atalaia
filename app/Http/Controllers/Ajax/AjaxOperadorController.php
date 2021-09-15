@@ -184,8 +184,12 @@ class AjaxOperadorController extends Controller
             ])->orderBy('sexo', 'desc')->get();
         }
 
-
         if (isset($alunos)) {
+            //Se for aluno da área de música não listar
+            if($chamadas->tfm_barra == 'S'){
+                $alunos = $alunos->whereNotIn('area_id', [3]);
+            }
+
             if (count($alunos) > 0) {
 
                 $data[] = ' <div style="margin-top: 64px; text-align: center; color: #696969;">
@@ -307,7 +311,9 @@ class AjaxOperadorController extends Controller
             // RELAÇÃO DE ALUNOS
             /* CASO SEJA 1ª CHAMADA */
             if ($avaliacao->chamada == 1) {
-                $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->where('data_matricula', $id_ano_corrente)->whereNotIn('id', $faltas)->orderBy('numero', 'asc')->orderBy('sexo', 'desc')->get();
+                $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))
+                    ->where('data_matricula', $id_ano_corrente)
+                    ->whereNotIn('id', $faltas)->orderBy('numero', 'asc')->orderBy('sexo', 'desc')->get();
             } else if ($avaliacao->chamada == 0 && $avaliacao->avaliacao_recuperacao == 1) {
 
                 // VERIFICO OS ALUNOS QUE FICARAM COM MÉDIA < 5,00 NA DISCIPLINA
@@ -371,7 +377,10 @@ class AjaxOperadorController extends Controller
             }
 
             if (count($alunos) > 0) {
-
+                //Se for aluno da área de música não listar
+                if($avaliacao->tfm_barra == 'S'){
+                    $alunos = $alunos->whereNotIn('area_id', [3]);
+                }
                 //$total_alunos = count($alunos);
                 
                 $resul[] = view('ajax.avaliacao.notas.view-lanca-grau', compact('avaliacao', 'alunos', 'nota', 'request'));
