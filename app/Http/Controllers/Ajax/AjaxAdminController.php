@@ -1374,13 +1374,12 @@ class AjaxAdminController extends Controller
             $alunosAviacao = AlunosVoluntAv::whereHas('aluno', function ($q) use ($param) {
                 $q->where([['data_matricula', '=', $param['anoCorrente']->id]]);
             })->where([['selecionado_exame', '=', 'S']]);
-
+            
             $alunosAviacao->update(['apto_is' => 'N', 'apto_avi' => 'N']);
 
-
-            $alunosAviacao->whereIn('id', $request->alunos_aptos_is)->update(['apto_is' => 'S']);
-            $alunosAviacao->whereIn('id', $request->alunos_aptos_avi)->update(['apto_avi' => 'S']);
-
+            //$alunosAviacao->whereIn('id', $request->alunos_aptos_is)->update(['apto_is' => 'S']);
+            AlunosVoluntAv::whereIn('id', $request->alunos_aptos_avi)->update(['apto_avi' => 'S']);
+            AlunosVoluntAv::whereIn('id', $request->alunos_aptos_is)->update(['apto_is' => 'S']);
 
             /*$alunos = Alunos::join('alunos_voluntarios_aviacao', 'alunos.id', '=', 'alunos_voluntarios_aviacao.alunos_id')
                 ->where('data_matricula', $ano_corrente->id)
@@ -1784,6 +1783,7 @@ class AjaxAdminController extends Controller
         if ($disciplina->tfm == 'S') {
 
             $avaliacao->tfm_abdominal = (isset($request->abdominal) ? 'S' : 'N');
+            $avaliacao->tfm_barra = (isset($request->flex_barra) ? 'S' : 'N');
         } else {
             $avaliacao->gbm = $request->gbm;
 
@@ -2111,7 +2111,7 @@ class AjaxAdminController extends Controller
             $data['footer'] = ' <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                         Cancelar
                                     </button>
-                                    <button type="button" class="btn btn-primary" onclick="EditarAvaliacao(' . $avaliacao->id . ');">
+                                    <button type="button" class="btn btn-primary" onclick="EditarAvaliacaoRec(' . $avaliacao->id . ');">
                                         Salvar
                                     </button>                            
                                     <script>
@@ -2120,6 +2120,61 @@ class AjaxAdminController extends Controller
                                         $(function () {
                                             $(\'[data-toggle="tooltip"]\').tooltip();
                                         });
+
+                                        /* EDITAR AVALIAÇÃO */
+
+                                        function EditarAvaliacaoRec(id){
+                                            var dataForm = $(\'form#editar_avaliacao\').serialize();
+                                            
+                                            $.ajax({
+                                                type: \'POST\',
+                                                dataType: \'json\',
+                                                data: dataForm,
+                                                url: \'/ajax/editar-avaliacao/\' + id,
+                                                beforeSend: function(){
+                                                    $(\'div.errors-editar-avaliacoes ul\').remove().parent().hide();
+                                                },
+                                                success: function(data){
+                                                    if(data.data_prova==\'err\'){
+                                                        $(\'div.errors-editar-avaliacoes\').html(\'<strong>ATENÇÃO: </strong> A data da prova não deve ser menor que o prazo para lançamento do Pronto de Faltas e Grau escolar. Por favor, aumente o prazo para UETE lançar os resultados ou altere a data da avaliação.\').slideDown();     
+                                                    } else if(data.data_prova==\'err1\'){
+                                                        $(\'div.errors-editar-avaliacoes\').html(\'<strong>ATENÇÃO: </strong> A avaliação deve ser criada mais próxima de sua realização.\').slideDown();     
+                                                    } else if(data.data_prova==\'err2\'){
+                                                        $(\'div.errors-editar-avaliacoes\').html(\'<strong>ATENÇÃO: </strong> A data/hora informada é inválida.\').slideDown();     
+                                                    } else {
+                                                        if(data.status==\'ok\'){
+                                                            $(\'div#modalDinamica\').modal(\'hide\');
+                                                            $(\'a#avaliacoes\').trigger(\'click\');
+                                                            setTimeout(function(){
+                                                                $(\'button#disciplina_\' + data.disciplinaID).trigger(\'click\');
+                                                                $(\'blockquote#disciplina_\' + data.disciplinaID).show();
+                                                                $(\'blockquote#disciplina_\' + data.disciplinaID + \' footer\').html(\'Uma avaliação atualizada agora mesmo!\');
+                                                                setTimeout(function(){
+                                                                    $(\'blockquote#disciplina_\' + data.disciplinaID).fadeOut();
+                                                                    $(\'blockquote#disciplina_\' + data.disciplinaID + \' footer\').empty();
+                                                                }, 10000);
+                                                            }, 460);
+                                                        } else {
+                                                            $(\'div#modalDinamica\').modal(\'hide\');
+                                                            $(\'div.errors-adicionar-avaliacoes2\').html(\'<strong>ATENÇÃO: </strong> Houve um erro ao tentar editar a avaliação\').slideDown();    
+                                                        }
+                                                    }
+                                                },
+                                                error: function(jqxhr){
+                                                    if(jqxhr.status==500){
+                                                        $(\'div#modalDinamica\').modal(\'hide\');
+                                                        $(\'div.errors-adicionar-avaliacoes2\').html(\'<strong>ATENÇÃO: </strong> Houve um erro interno ao tentar inserir uma nova avaliação. Por favor, repita a operação.\').slideDown();    
+                                                    } else if(jqxhr.status==422){
+                                                        $(\'div.errors-editar-avaliacoes\').slideDown(100);
+                                                        var errors = $.parseJSON(jqxhr.responseText);
+                                                        $(\'div.errors-editar-avaliacoes\').prepend(\'<ul style="margin: 0 6px;"></ul>\');                            
+                                                        $.each(errors.errors, function (index, value) {
+                                                            $(\'div.errors-editar-avaliacoes ul\').append(\'<li>\' + value + \'</li>\');
+                                                        });  
+                                                    }
+                                                }                    
+                                            });            
+                                        }
                                     </script>';
             return $data;
         }
@@ -2127,6 +2182,7 @@ class AjaxAdminController extends Controller
 
     public function EditarAvaliacao(AvaliacoesRequest $request)
     {
+        
         $id = $request->id;
         $avaliacao = Avaliacoes::find($id);
         $peso = ($request->peso == '') ? 1 : $request->peso;
@@ -2270,9 +2326,12 @@ class AjaxAdminController extends Controller
         if ($disciplina->tfm == 'S') {
 
             $checked = null;
+            $checkedBarra = null;
             $disabled = null;
             if (isset($request->avaliacao)) {
                 $checked = (($avaliacoes->tfm_abdominal == 'S') ? 'checked' : null);
+                $checkedBarra = (($avaliacoes->tfm_barra == 'S') ? 'checked' : null);
+
                 $disabled = 'disabled';
             }
 
@@ -2280,6 +2339,10 @@ class AjaxAdminController extends Controller
                                     <div class="custom-control custom-checkbox" style="margin-top: 20px;" >
                                         <input id="customCheck" name="abdominal" type="checkbox" value="0" ' . $disabled . '  class="custom-control-input" ' . $checked . '>
                                         <label class="custom-control-label" for="customCheck">Abdominal <font style="font-size:12px;color:rgb(255, 0, 0);">(Marque somente se o exercício for Abdominal)</font></label>
+                                    </div>
+                                    <div class="custom-control custom-checkbox" style="margin-top: 20px;" >
+                                        <input id="customCheckBarra" name="flex_barra" type="checkbox" value="0" ' . $disabled . '  class="custom-control-input" ' . $checkedBarra . '>
+                                        <label class="custom-control-label" for="customCheckBarra">Barra <font style="font-size:12px;color:rgb(255, 0, 0);">(Marque somente se o exercício for Flexão na Barra)</font></label>
                                     </div>
                                 </div>';
 
