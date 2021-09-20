@@ -26,10 +26,23 @@ class AvaliacoesNotas extends Model
     public function getNota()
     {
 
-        $gbo = $this->gbo;
-        $gbm = $this->avaliacao->gbm;
-        $nota = number_format($gbo * 10 / $gbm, 3, '.', '');
+        //Verifica se é TFM
+        if ($this->avaliacao->disciplinas->tfm == 'S') {
+            //Verifica se é Abdominal
+            if ($this->avaliacao->tfm_abdominal == 'S') {
+                //S = Suficiente; NS = Insuficiente
+                $nota = $this->suficiencia_abdominal;
+                return $nota;
+            } else {
+                $nota = number_format($this->nota_tfm, 3, '.', '');
+                return $nota;
+            }
+        } else {
+            $gbo = $this->gbo;
+            $gbm = $this->avaliacao->gbm;
+            $nota = number_format($gbo * 10 / $gbm, 3, '.', '');
 
-        return $nota;
+            return $nota;
+        }
     }
 }

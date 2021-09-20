@@ -1776,6 +1776,7 @@ class AjaxRelatoriosController extends Controller
 
             //2ºTen João Victor, Alteração no Cálculo da NOTA
             $alunoNota = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
+            
             //dd($alunoNota[24][2188]);
             $alunosID = $alunoNota['alunosID'];
             //Fim Alteração 2ºTen João Victor
@@ -1785,7 +1786,7 @@ class AjaxRelatoriosController extends Controller
 
             // CASO ESTEJA SELECIONADO AS AVALIAÇÕES DE TFM 99999
 
-            if(in_array(99999, $avaliacoesIDs)){
+            /*if(in_array(99999, $avaliacoesIDs)){
 
                 $avaliacoes_taf = AvaliacaoTaf::whereIn('aluno_id', $alunosID)->get();
 
@@ -1814,9 +1815,6 @@ class AjaxRelatoriosController extends Controller
                                 $disciplinasID = array_merge($disciplinasID, array(88888));  
                             }
                             
-                            /*if($aluno_id == 2385){
-                                dd($taf_nota[$aluno_id]);
-                            }*/
 
                             $alunoNota[88888][$aluno_id]['notas'][] = $taf_nota[$aluno_id]->media_recuperacao;
 
@@ -1857,161 +1855,191 @@ class AjaxRelatoriosController extends Controller
                     //$alunoNota[99999][$aluno_id]['media'] = number_format(array_sum($alunoNota[99999][$aluno_id]['notas'])/$alunoNota[99999][$aluno_id]['disciplina_razao'], '3', '.','');
                 }
 
-            }
+            }*/
 
             if(isset($alunosID) && isset($alunoNota)){
                 foreach($disciplinasID as $disciplinas){
                     foreach($alunosID as $alunoID){
                         if(isset($alunoNota[$disciplinas][$alunoID])){
+                            if($alunoNota[$disciplinas][$alunoID]['tfm'] == 'S'){
+                                $k[$alunoID]['avaliacoes_tfm'][] = $alunoNota[$disciplinas][$alunoID];
+                            }
+                            
                             $k[$alunoID][] = $alunoNota[$disciplinas][$alunoID];
                         }
                     }
                 }
                 
-                //dd($k[2188]);
                 if(isset($k)){
                     foreach($alunosID as $alunoID){
                         $discAprovConselhoEnsino = array();
                         foreach($k[$alunoID] as $key => $z){
+                            if(is_numeric($key)){
+                                $k[$alunoID][$key]['media'] = (isset($z['media'])) ? $z['media'] : 0;
 
-                            $k[$alunoID][$key]['media'] = (isset($z['media'])) ? $z['media'] : 0;
+                                // AQUI VERIFICO SE O  ALUNO OBTEVE MEDIA FINAL INFERIOR A 5 NESSA DISCIPLINA
+        
+                                //Original Julião
+                                //if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['disciplina_id']!=99999){
+                                if($k[$alunoID][$key]['media']<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
 
-                            // AQUI VERIFICO SE O  ALUNO OBTEVE MEDIA FINAL INFERIOR A 5 NESSA DISCIPLINA
-    
-                            //Original Julião
-                            //if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['disciplina_id']!=99999){
-                            if($k[$alunoID][$key]['media']<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
+                                    $avaliacao_rec_nota = null;
+                                    $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $k[$alunoID][$key]['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
+                                    
+                                    if($avaliacao_rec_id){
+                                        $avaliacao_rec_nota = AvaliacoesNotas::where('alunos_id', $alunoID)->where('avaliacao_id', $avaliacao_rec_id->id)->first();
 
-                                $avaliacao_rec_nota = null;
-                                $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $k[$alunoID][$key]['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
-                                
-                                if($avaliacao_rec_id){
-                                    $avaliacao_rec_nota = AvaliacoesNotas::where('alunos_id', $alunoID)->where('avaliacao_id', $avaliacao_rec_id->id)->first();
-
-                                    if(isset($avaliacao_rec_nota)){
-                                        $k[$alunoID][$key]['AR'] = $avaliacao_rec_nota->getNota();
-                                        $k[$alunoID][$key]['avaliacoes']['ACR'] = $avaliacao_rec_nota->getNota();
-    
-                                        //if((($k[$alunoID][$key]['AR'] + $k[$alunoID][$key]['media'])/2) >=5){
-                                        //    $k[$alunoID][$key]['media'] = 5;    
-                                        //}
-    
-                                        /*
-                                        
-                                            Caso o discente obtenha nota igual ou superior a 5,000, receberá a nota 5,000 como nota final da disciplina respectiva
-                                            Caso o discente obtenha nota inferior a 5,000, permanecerá com ND obtida antes da ACR como nota final da disciplina respectiva
-    
-                                        */
-    
-                                        if(($k[$alunoID][$key]['AR']) >=5){
-                                            $k[$alunoID][$key]['media'] = 5;    
+                                        if(isset($avaliacao_rec_nota)){
+                                            $k[$alunoID][$key]['AR'] = $avaliacao_rec_nota->getNota();
+                                            $k[$alunoID][$key]['avaliacoes']['ACR'] = $avaliacao_rec_nota->getNota();
+        
+                                            //if((($k[$alunoID][$key]['AR'] + $k[$alunoID][$key]['media'])/2) >=5){
+                                            //    $k[$alunoID][$key]['media'] = 5;    
+                                            //}
+        
+                                            
+                                            
+                                                //Caso o discente obtenha nota igual ou superior a 5,000, receberá a nota 5,000 como nota final da disciplina respectiva
+                                                //Caso o discente obtenha nota inferior a 5,000, permanecerá com ND obtida antes da ACR como nota final da disciplina respectiva
+        
+                                            
+        
+                                            if(($k[$alunoID][$key]['AR']) >=5){
+                                                $k[$alunoID][$key]['media'] = 5;    
+                                            }
                                         }
                                     }
-                                }
-                                // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO
-
-                                $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', $k[$alunoID][$key]['disciplina_id'])->first();
-                                
-                                /*if($alunos_em_conselho){
-                                    $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
-                                    $mf[] = number_format(5, '4', '.', '');
-                                    $mf_tmp = number_format(5, '4', '.', '');
-                                } else {
-                                    $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
-                                    $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
-                                }*/
-
-                                if($alunos_em_conselho){
-                                    $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
-                                    $discAprovConselhoEnsino[] = $k[$alunoID][$key]['disciplina_id'];
-                                } 
-
-                                if(is_numeric($k[$alunoID][$key]['media'])){
-                                    $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
-                                    $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
-                                }
-                                
-                            } else {
-
-                                if($k[$alunoID][$key]['disciplina_id']==99999){
-                                    $mf['taf'] = number_format($z['media'], '3', '.','');
-                                    $key99999 = $key;
-                                }else if($k[$alunoID][$key]['disciplina_id']==88888){
-                                    $mf['taf'] = number_format($z['media'], '3', '.','');
-
-                                    //ALTERA A MÉDIA DO TFM PARA PUXAR NOS RELATÓRIOS...
-                                    $k[$alunoID][$key99999]['media_anterior'] = $k[$alunoID][$key99999]['media'];
-                                    $k[$alunoID][$key99999]['media'] = $z['media'];
-                                } else {
-                                    $mf[] = number_format($z['media'], '3', '.','');
-                                }
-                                $mf_tmp = number_format($z['media'], '3', '.','');
-
-                            }
-
-                            if($mf_tmp<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
-
-                                $reprovado[] = 1;
-                                $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
-
-                            } else if(in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))) {
-                                
-                                if($k[$alunoID][$key]['disciplina_id'] == 99999 && $k[$alunoID][$key]['reprovado']=='S'){
-
                                     // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO
-                                    $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', 99999)->first();
+
+                                    $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', $k[$alunoID][$key]['disciplina_id'])->first();
+                                    
+                                    /*if($alunos_em_conselho){
+                                        $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
+                                        $mf[] = number_format(5, '4', '.', '');
+                                        $mf_tmp = number_format(5, '4', '.', '');
+                                    } else {
+                                        $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
+                                        $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
+                                    }*/
 
                                     if($alunos_em_conselho){
                                         $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
-                                        $alunoNota[99999][$alunoID]['reprovado'] = 'N';
-                                        $k[$alunoID][$key]['reprovado']= $alunoNota[99999][$alunoID]['reprovado'];
-                                        $reprovado[] = 0;
-                                        $disciplinas_reprovado_array[] = 0;
+                                        $discAprovConselhoEnsino[] = $k[$alunoID][$key]['disciplina_id'];
+                                    } 
 
-                                        $discAprovConselhoEnsino[] = 99999;
-                                    } else {
-                                        $reprovado[] = 1;
-                                        $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
+                                    if(is_numeric($k[$alunoID][$key]['media'])){
+                                        $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
+                                        $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
                                     }
                                     
-                                }else if($k[$alunoID][$key]['disciplina_id'] == 88888){
-                                      
-                                    if($alunoNota[88888][$alunoID]['reprovado']=='S'){
+                                } else {
 
-                                        // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO DE TFM ID 99999
+                                    if($k[$alunoID][$key]['disciplina_id']==99999){
+                                        $mf['taf'] = number_format($z['media'], '3', '.','');
+                                        $key99999 = $key;
+                                    }else if($k[$alunoID][$key]['disciplina_id']==88888){
+                                        $mf['taf'] = number_format($z['media'], '3', '.','');
+
+                                        //ALTERA A MÉDIA DO TFM PARA PUXAR NOS RELATÓRIOS...
+                                        $k[$alunoID][$key99999]['media_anterior'] = $k[$alunoID][$key99999]['media'];
+                                        $k[$alunoID][$key99999]['media'] = $z['media'];
+                                    } else {
+                                        $mf[] = number_format($z['media'], '3', '.','');
+                                    }
+                                    $mf_tmp = number_format($z['media'], '3', '.','');
+
+                                }
+
+                                if($mf_tmp<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
+
+                                    $reprovado[] = 1;
+                                    $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
+
+                                } /*else if(in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))) {
+                                    
+                                    if($k[$alunoID][$key]['disciplina_id'] == 99999 && $k[$alunoID][$key]['reprovado']=='S'){
+
+                                        // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO
                                         $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', 99999)->first();
-                                        
+
                                         if($alunos_em_conselho){
                                             $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
-                                            $alunoNota[88888][$alunoID]['reprovado'] = 'N';
-                                            $k[$alunoID][$key]['reprovado']= $alunoNota[88888][$alunoID]['reprovado'];
+                                            $alunoNota[99999][$alunoID]['reprovado'] = 'N';
+                                            $k[$alunoID][$key]['reprovado']= $alunoNota[99999][$alunoID]['reprovado'];
                                             $reprovado[] = 0;
                                             $disciplinas_reprovado_array[] = 0;
-
-                                            $k[$alunoID][$key99999]['media'] = $k[$alunoID][$key99999]['media_anterior'];
-                                            $mf['taf'] = $k[$alunoID][$key99999]['media'];
-                                            unset($k[$alunoID][$key99999]['media_anterior']);
 
                                             $discAprovConselhoEnsino[] = 99999;
                                         } else {
                                             $reprovado[] = 1;
                                             $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
                                         }
-                                    }else{
-                                        //Remove o reprovado do TFM 99999
-                                        array_pop($reprovado);
-                                        array_pop($disciplinas_reprovado_array);
+                                        
+                                    }else if($k[$alunoID][$key]['disciplina_id'] == 88888){
+                                        
+                                        if($alunoNota[88888][$alunoID]['reprovado']=='S'){
+
+                                            // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO DE TFM ID 99999
+                                            $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', 99999)->first();
+                                            
+                                            if($alunos_em_conselho){
+                                                $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
+                                                $alunoNota[88888][$alunoID]['reprovado'] = 'N';
+                                                $k[$alunoID][$key]['reprovado']= $alunoNota[88888][$alunoID]['reprovado'];
+                                                $reprovado[] = 0;
+                                                $disciplinas_reprovado_array[] = 0;
+
+                                                $k[$alunoID][$key99999]['media'] = $k[$alunoID][$key99999]['media_anterior'];
+                                                $mf['taf'] = $k[$alunoID][$key99999]['media'];
+                                                unset($k[$alunoID][$key99999]['media_anterior']);
+
+                                                $discAprovConselhoEnsino[] = 99999;
+                                            } else {
+                                                $reprovado[] = 1;
+                                                $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
+                                            }
+                                        }else{
+                                            //Remove o reprovado do TFM 99999
+                                            array_pop($reprovado);
+                                            array_pop($disciplinas_reprovado_array);
+                                        }
+
+                                    } else {
+                                        $reprovado[] = 0;
+                                        $disciplinas_reprovado_array[] = 0;                                   
+                                    }
+                                }*/ else {
+                                    $reprovado[] = 0;
+                                    $disciplinas_reprovado_array[] = 0;
+                                }
+                            }else{
+
+                                // Faz cálculo da NA do TFM
+                                if($key == 'avaliacoes_tfm'){
+                                   
+                                    $soma = 0;
+                                    $soma_avaliacoes = 0;
+                                    $colspan_demonstrativo = 1;
+                                    foreach($z as $avaliacao){
+                                        //Não soma o abdominal
+                                        if($avaliacao['tfm_abdominal'] == 'N'){
+                                            $soma += $avaliacao['media'];
+                                            $soma_avaliacoes++;
+
+                                            if(count($avaliacao['avaliacoes']) > $colspan_demonstrativo){
+                                                $colspan_demonstrativo = count($avaliacao['avaliacoes']);
+                                            }
+                                        }
                                     }
 
-                                } else {
-                                    $reprovado[] = 0;
-                                    $disciplinas_reprovado_array[] = 0;                                   
+                                    $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format($soma / $soma_avaliacoes, '4', '.', '');
+                                    $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = ($colspan_demonstrativo + 1);
                                 }
-                            } else {
-                                $reprovado[] = 0;
-                                $disciplinas_reprovado_array[] = 0;
+
+                                if($key == 'media_final'){
+                                    arsort($k[$alunoID]);
+                                }
                             }
-                            
                         }
 /*if($alunoID == 2188){//ERICK SILVA DE SOUZA
     dd($k[$alunoID], $mf, $reprovado, $disciplinas_reprovado_array);
