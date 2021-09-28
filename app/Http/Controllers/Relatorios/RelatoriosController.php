@@ -823,10 +823,7 @@ class RelatoriosController extends Controller
         
         $disciplina = Disciplinas::find($avaliacao_data->disciplinas->id);
 
-        $ano_selecionado = AnoFormacao::find($request->ano_formacao_id);
-
         // SELECIONANDO TODAS AS AVALIAÇÕES DA DISCIPLINA ACIMA SELECIONADA (inclusive 2 chamadas)
-
         $avaliacoes = Avaliacoes::where('disciplinas_id', $disciplina->id)->where('avaliacao_recuperacao', 0)->get();
 
         foreach($avaliacoes as $avaliacao){
@@ -835,14 +832,38 @@ class RelatoriosController extends Controller
             }
 
             $avaliacoesIDs[] = $avaliacao->id;
-
         }
 
         $avaliacoesIDs = (isset($avaliacoesIDs))?array_unique($avaliacoesIDs):array(0);
-        $razao = (isset($disciplina_razao))?array_sum($disciplina_razao):1;
+
+        //2ºTen João Victor, Alteração no Cálculo da NOTA
+        $aluno_notas = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
+        //Fim Alteração 2ºTen João Victor
+        if($ownauthcontroller->PermissaoCheck(1)){
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
+        } else {
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
+        }
+
+        foreach($alunos as $aluno){
+            foreach($aluno_notas as $notas){
+                if(isset($notas[$aluno->id]) && ($notas[$aluno->id]['disciplina_razao'] > 0)){
+                    
+                    $media = $notas[$aluno->id]['media'];
+                    if($media<5){
+                        $nd_aluno[$aluno->id] = number_format($media, 3, ',', ''); 
+                        $alunos_em_recuperacao[] = $aluno->id;
+                    }
+                }    
+            }
+        }
+
+        $nd_aluno = ($nd_aluno)??array(0);
+        $alunos_em_recuperacao = ($alunos_em_recuperacao)??array(0);
+
+        /*$razao = (isset($disciplina_razao))?array_sum($disciplina_razao):1;
 
         // SELECIONANDO TODAS AS NOTAS (avaliacoes_notas) DE TODAS AVALIAÇÕES EM $avaliacoesIDs
-
         $notas = AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get();
         
         foreach($notas as $item){
@@ -850,13 +871,6 @@ class RelatoriosController extends Controller
                 $aluno_notas[$item->alunos_id][] = $item->getNota();
             }
         }
-
-        if($ownauthcontroller->PermissaoCheck(1)){
-            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
-        } else {
-            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
-        }
-
 
         foreach($alunos as $aluno){
             if(isset($aluno_notas[$aluno->id])){
@@ -866,13 +880,15 @@ class RelatoriosController extends Controller
             }    
         }
 
-        $alunos_em_recuperacao = ($alunos_em_recuperacao)??array(0);
+        $alunos_em_recuperacao = ($alunos_em_recuperacao)??array(0);*/
 
         $avaliacao_notas = AvaliacoesNotas::whereIn('alunos_id', $alunos_em_recuperacao)->where('avaliacao_id', $request->avaliacaoID)->get();
 
         foreach($avaliacao_notas as $item){
             $aluno_fizeram_ar[]=$item->alunos_id;
         }
+
+//dd($aluno_fizeram_ar, $alunos_em_recuperacao, $avaliacao_notas);
 
         $aluno_fizeram_ar = ($aluno_fizeram_ar)??array(0);
 

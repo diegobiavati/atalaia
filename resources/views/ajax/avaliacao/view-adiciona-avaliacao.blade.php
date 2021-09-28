@@ -221,7 +221,7 @@
 
         /* EDITAR AVALIAÇÃO */
 
-        function EditarAvaliacao(id){
+        /*function EditarAvaliacao(id){
             var dataForm = $('form#form_avaliacao').serialize();
             $.ajax({
                 type: 'POST',
@@ -272,6 +272,6 @@
                     }
                 }                    
             });            
-        }
+        }*/
     </script>
 </div>

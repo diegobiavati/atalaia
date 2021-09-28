@@ -201,15 +201,14 @@ function onMessageArrived(message) {
                     </li>
                 @endif
                 @if($ownauthcontroller->PermissaoCheck(3)) <!-- Visão geral restrita a respectiva UETE -->
-                    <li class="list-group-item justify-content-between align-items-center menu-list-01">
-                        <!--<a id="lancar-taf-aluno" href="javascript: void(0);">-->
+                    <!--<li class="list-group-item justify-content-between align-items-center menu-list-01">
+                        
                         <a id="menu-tfm-aluno" href="javascript: void(0);">
                             <i class="ion-android-walk"></i> 
-                            <!--Lançar TFM aluno-->
                             TFM do aluno
                             <span class="badge badge-primary badge-pill"></span>
                         </a>
-                    </li>
+                    </li>-->
                 @endif
                 @if($ownauthcontroller->PermissaoCheck(25)) <!-- Visão geral restrita para SPPA UETE -->
                     <li class="list-group-item justify-content-between align-items-center menu-list-01">
@@ -655,6 +654,61 @@ function onMessageArrived(message) {
         }
 
         
+        /* EDITAR AVALIAÇÃO */
+
+        function EditarAvaliacao(id){
+            var dataForm = $('form#form_avaliacao').serialize();
+            
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                data: dataForm,
+                url: '/ajax/editar-avaliacao/' + id,
+                beforeSend: function(){
+                    $('div.errors-editar-avaliacoes ul').remove().parent().hide();
+                },
+                success: function(data){
+                    //errors-editar-avaliacoes
+                    if(data.data_prova=='err'){
+                        $('div.errors-editar-avaliacoes').html('<strong>ATENÇÃO: </strong> A data da prova não deve ser menor que o prazo para lançamento do Pronto de Faltas e Grau escolar. Por favor, aumente o prazo para UETE lançar os resultados ou altere a data da avaliação.').slideDown();     
+                    } else if(data.data_prova=='err1'){
+                        $('div.errors-editar-avaliacoes').html('<strong>ATENÇÃO: </strong> A avaliação deve ser criada mais próxima de sua realização.').slideDown();     
+                    } else if(data.data_prova=='err2'){
+                        $('div.errors-editar-avaliacoes').html('<strong>ATENÇÃO: </strong> A data/hora informada é inválida.').slideDown();     
+                    } else {
+                        if(data.status=='ok'){
+                            $('div#modalDinamica').modal('hide');
+                            $('a#avaliacoes').trigger('click');
+                            setTimeout(function(){
+                                $('button#disciplina_' + data.disciplinaID).trigger('click');
+                                $('blockquote#disciplina_' + data.disciplinaID).show();
+                                $('blockquote#disciplina_' + data.disciplinaID + ' footer').html('Uma avaliação atualizada agora mesmo!');
+                                setTimeout(function(){
+                                    $('blockquote#disciplina_' + data.disciplinaID).fadeOut();
+                                    $('blockquote#disciplina_' + data.disciplinaID + ' footer').empty();
+                                }, 10000);
+                            }, 460);
+                        } else {
+                            $('div#modalDinamica').modal('hide');
+                            $('div.errors-adicionar-avaliacoes2').html('<strong>ATENÇÃO: </strong> Houve um erro ao tentar editar a avaliação').slideDown();    
+                        }
+                    }
+                },
+                error: function(jqxhr){
+                    if(jqxhr.status==500){
+                        $('div#modalDinamica').modal('hide');
+                        $('div.errors-adicionar-avaliacoes2').html('<strong>ATENÇÃO: </strong> Houve um erro interno ao tentar inserir uma nova avaliação. Por favor, repita a operação.').slideDown();    
+                    } else if(jqxhr.status==422){
+                        $('div.errors-editar-avaliacoes').slideDown(100);
+                        var errors = $.parseJSON(jqxhr.responseText);
+                        $('div.errors-editar-avaliacoes').prepend('<ul style="margin: 0 6px;"></ul>');                            
+                        $.each(errors.errors, function (index, value) {
+                            $('div.errors-editar-avaliacoes ul').append('<li>' + value + '</li>');
+                        });  
+                    }
+                }                    
+            });            
+        }
 
         /* ADICIONAR AVALIAÇÃO DE RECUPERAÇÃO*/
 

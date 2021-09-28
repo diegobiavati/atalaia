@@ -1294,7 +1294,6 @@ class AjaxRelatoriosController extends Controller
     public function ProntoLancamentoNotasAR(Request $request){
 
         /* SELECIONANDO TODAS DISCIPLINAS DO ANO DE FORMAÇÃO SELECIONADO */
-
         $disciplinas = Disciplinas::where('ano_formacao_id', $request->id_ano_formacao)->get(['id']);
         foreach($disciplinas as $disciplina){
             $disciplinasID[] = $disciplina->id;
@@ -1304,7 +1303,6 @@ class AjaxRelatoriosController extends Controller
 
 
         /* SELECIONANDO AS AVALIAÇÕES DAS $disciplinasID COM DATA E HORA MENOR QUE A ATUAL */
-
         $avaliacoes = Avaliacoes::whereIn('disciplinas_id', $disciplinasID)->where('data', '<', date('Y-m-d'))
                                                                            ->where('avaliacao_recuperacao', 1)
                                                                            ->orderBy('disciplinas_id', 'asc')
@@ -2014,27 +2012,36 @@ class AjaxRelatoriosController extends Controller
                                 }
                             }else{
 
-                                // Faz cálculo da NA do TFM
-                                if($key == 'avaliacoes_tfm'){
-                                   
-                                    $soma = 0;
-                                    $soma_avaliacoes = 0;
-                                    $colspan_demonstrativo = 1;
-                                    foreach($z as $avaliacao){
-                                        //Não soma o abdominal
-                                        if($avaliacao['tfm_abdominal'] == 'N'){
-                                            $soma += $avaliacao['media'];
-                                            $soma_avaliacoes++;
+                                try{
+                                    // Faz cálculo da NA do TFM
+                                    if($key == 'avaliacoes_tfm'){
+                                                                    
+                                        $soma = 0;
+                                        $soma_avaliacoes = 0;
+                                        $colspan_demonstrativo = 1;
+                                        foreach($z as $avaliacao){
+                                            //Não soma o abdominal
+                                            if($avaliacao['tfm_abdominal'] == 'N'){
+                                                $soma += $avaliacao['media'];
+                                                $soma_avaliacoes++;
 
-                                            if(count($avaliacao['avaliacoes']) > $colspan_demonstrativo){
-                                                $colspan_demonstrativo = count($avaliacao['avaliacoes']);
+                                                if(count($avaliacao['avaliacoes']) > $colspan_demonstrativo){
+                                                    $colspan_demonstrativo = count($avaliacao['avaliacoes']);
+                                                }
                                             }
                                         }
-                                    }
 
-                                    $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format($soma / $soma_avaliacoes, '4', '.', '');
-                                    $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = ($colspan_demonstrativo + 1);
+                                        $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = 0;
+                                        $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = 0;
+                                        if($soma > 0){
+                                            $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format($soma / $soma_avaliacoes, '4', '.', '');
+                                            $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = ($colspan_demonstrativo + 1);
+                                        }
+                                    }
+                                }catch(Exception $ex){
+                                    dd($ex, $avaliacao);
                                 }
+                                
 
                                 if($key == 'media_final'){
                                     arsort($k[$alunoID]);

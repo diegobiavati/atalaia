@@ -78,14 +78,16 @@ $data_array = unserialize($class->data_demonstrativo);
         {{-- {{var_dump($data)}} --}}
         @endforeach
 
-        <div style="margin: 8px;">
-            <b>TREINAMENTO FÍSICO MILITAR</b>
-        </div>
+        
 
         @php
         $valida_col_tfm = false;
         @endphp
         @isset($data_array['avaliacoes_tfm'])
+        <div style="margin: 8px;">
+            <b>TREINAMENTO FÍSICO MILITAR</b>
+        </div>
+        
         <table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 100%;">
             @foreach($data_array['avaliacoes_tfm'] as $data)
             @if(is_array($data))
