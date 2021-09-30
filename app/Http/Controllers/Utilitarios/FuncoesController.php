@@ -14,6 +14,12 @@ use Illuminate\Database\Eloquent\Collection;
 class FuncoesController
 {
 
+    public static function removerCaracterEspeciais($string){
+        $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
+        $string = str_replace('-', '', $string);
+        return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
+    }
+
     public static function formatDateBrtoEn($date)
     {
 

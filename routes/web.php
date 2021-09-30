@@ -27,6 +27,12 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('avaliacoes', ['as' => 'avaliacoes', 'uses' => 'Ajax\AjaxAdminController@Avaliacoes']);
     Route::get('conselho-escolar', ['as' => 'conselho-escolar', 'uses' => 'Ajax\AjaxAdminController@ConselhoEscolar']);
     Route::get('lancar-taf-aluno', ['as' => 'lancar-taf-aluno', 'uses' => 'Ajax\AjaxAdminController@LancarTafAluno']);
+    Route::post('lancar-abdominal-aluno', ['as' => 'lancar-abdominal-aluno', 'uses' => 'Ajax\AjaxAdminController@LancarAbdominalAluno']);
+    Route::post('editar-abdominal-aluno', ['as' => 'editar-abdominal-aluno', 'uses' => 'Ajax\AjaxAdminController@EditarAbdominalAluno']);
+
+    Route::post('lancar-tfm-aluno', ['as' => 'lancar-tfm-aluno', 'uses' => 'Ajax\AjaxAdminController@LancarTfmAluno']);
+    Route::post('editar-tfm-aluno', ['as' => 'editar-tfm-aluno', 'uses' => 'Ajax\AjaxAdminController@EditarTfmAluno']);
+
     Route::get('lancar-taf-aluno-recuperacao', ['as' => 'lancar-taf-aluno-recuperacao', 'uses' => 'Ajax\AjaxAdminController@LancarTafAluno']);
     Route::get('menu-tfm-aluno', ['as' => 'menu-tfm-aluno', 'uses' => 'Ajax\AjaxOperadorController@MenuTfmAluno']);
     Route::post('gravar-taf-aluno', ['as' => 'gravar-taf-aluno', 'uses' => 'Ajax\AjaxAdminController@GravarTafAluno']);
@@ -109,7 +115,7 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     Route::get('dialog-importar-disciplina/', 'Ajax\AjaxAdminController@DialogImportarDisciplina');
     Route::get('dialog-adicionar-avaliacao/', 'Ajax\AjaxAdminController@DialogAdicionarAvaliacao');
     Route::get('dialog-adicionar-avaliacao-recuperacao/', 'Ajax\AjaxAdminController@DialogAdicionarAvaliacaoRec');
-    Route::get('dialog-chamadas/{id}', 'Ajax\AjaxAdminController@DialogChamadas');
+    Route::get('dialog-chamadas/{id}/{avaliacao?}', 'Ajax\AjaxAdminController@DialogChamadas');
     Route::get('dialog-editar-nome-portaria/{id}', 'Ajax\AjaxAdminController@DialogEditarNomePortaria');
     Route::get('dialog-adicionar-periodo-escolha-qms/', 'Ajax\AjaxAdminController@DialogAdicionarPeriodoEscolhaQMS');
     Route::get('dialog-editar-periodo-escolha-qms/{id}', 'Ajax\AjaxAdminController@DialogEditarPeriodoEscolhaQMS');
@@ -433,5 +439,16 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
 
     Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
         
+    });
+
+    /* Rotas Para Diploma Digital */
+    Route::get('view-diploma', ['as' => 'view-diploma', 'uses' => 'Ajax\AjaxAdminGaviaoController@DiplomaDigital'])->middleware('checkauth');
+
+    Route::group(['prefix' => 'diploma', 'as' => 'diploma.'], function () {
+        Route::resource('diploma-periodo', 'Ajax\Diploma\DiplomaController')->middleware('checkauth');
+
+
+        //Exportar o Xlsx para o Diploma Digital
+        Route::get('exportaAluno', ['as' => 'exportaAluno', 'uses' => 'Ajax\Diploma\DiplomaController@exportAlunos'])->middleware('checkauth');
     });
 });

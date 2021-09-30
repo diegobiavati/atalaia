@@ -371,7 +371,7 @@ class Alunos extends Model
         return $aluno->with('qms');
     }
 
-    public static function retornaAlunosComQmsESA($anoFormacaoID=0){
+    public static function retornaAlunosComQmsESA($anoFormacaoID=0, $colunas=[]){
 
         $aluno = Alunos::retornaAlunosComQmsESAGeral($anoFormacaoID);
         
@@ -388,7 +388,10 @@ class Alunos extends Model
             $aluno->where('qms_id', session()->get('login.qmsID.0.id') );
         }                
 
-        return $aluno->get();
+        if(count($colunas) == 0){
+            $colunas = null;
+        }
+        return $aluno->get($colunas);
     }
 
     public static function retornaAlunosComQmsESAGeral($anoFormacaoID=0){
@@ -398,7 +401,7 @@ class Alunos extends Model
                 ->whereHas('qms', function($query) use($qms_alias_esa) {
                     $query->whereIn('qms_alias', $qms_alias_esa);
                 });
-
+                
         return $aluno;
     }
 
