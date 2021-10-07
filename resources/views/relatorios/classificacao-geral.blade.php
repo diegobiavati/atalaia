@@ -404,7 +404,9 @@
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>SEGMENTO</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>OMCT</b></td>
                         @foreach ($disciplinas as $disciplina)
+                            @if($disciplina['tfm'] == 'N')
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND<br />{{$disciplina->nome_disciplina_abrev}}</b></td>                            
+                            @endif
                         @endforeach
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND<br />TFM</b></td>
                         <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>N1</b></td>
@@ -421,6 +423,11 @@
                             $i++;
                         }
                     
+                        $media_tfm = null;
+                        if(isset($notas_data_array[$aluno->aluno_id]['data_demonstrativo']['avaliacoes_tfm'])){
+                            $media_tfm=number_format($notas_data_array[$aluno->aluno_id]['data_demonstrativo']['avaliacoes_tfm']['media_tfm'], '3', ',', '');
+                        }
+                        
                     @endphp
                     
                     @if($aluno->aluno->area_id==$area->id)
@@ -430,6 +437,7 @@
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ $aluno->aluno->sexo }}</td>
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ $aluno->aluno->omct->sigla_omct }}</td>
                             @foreach ($disciplinas as $disciplina)
+                                @if($disciplina['tfm'] == 'N')
                                 <td style="border: 1px solid #000; padding: 6px; text-align: center;">
                                     @if(isset($notas_data_array[$aluno->aluno_id]['data_demonstrativo']))
                                     
@@ -447,20 +455,11 @@
                                                     {!! '<br><b>APROV CE</b></br>' !!}
                                                 @endif
                                             @endif
-                                            @if(isset($item['disciplina_id']) && $item['disciplina_id']==99999)
-                                                @php    
-                                                  $media_tfm=number_format($item['media'], '3', ',', '');
-                                                @endphp
-                                                @if(isset($item['avaliacoes']['CE']) && $item['avaliacoes']['CE'] == 'APROVADO')
-                                                    @php
-                                                        $media_tfm.='<br><b>APROV CE</b></br>';
-                                                    @endphp
-                                                @endif
-                                              
-                                            @endif
+                                            
                                         @endforeach
                                     @endif
-                                </td>                            
+                                </td>   
+                                @endif                         
                             @endforeach
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{!!$media_tfm or '--'!!}</td>
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{ number_format($aluno->nota_final_arredondada, '3', ',', '') }}</td>

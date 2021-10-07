@@ -22,6 +22,7 @@
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>SEGMENTO</b></td>
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
                             @foreach ($disciplinas as $disciplina)
+                            
                                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND<br />{{$disciplina->nome_disciplina_abrev}}</b></td>                            
                             @endforeach
                             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>ND<br />TFM</b></td>

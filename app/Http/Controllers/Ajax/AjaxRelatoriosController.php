@@ -1879,7 +1879,8 @@ class AjaxRelatoriosController extends Controller
         
                                 //Original Julião
                                 //if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['disciplina_id']!=99999){
-                                if($k[$alunoID][$key]['media']<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
+                                //if($k[$alunoID][$key]['media']<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
+                                if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['tfm'] == 'N'){
 
                                     $avaliacao_rec_nota = null;
                                     $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $k[$alunoID][$key]['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
@@ -1930,9 +1931,9 @@ class AjaxRelatoriosController extends Controller
                                         $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
                                     }
                                     
-                                } else {
+                                } else if($k[$alunoID][$key]['tfm'] == 'N'){
 
-                                    if($k[$alunoID][$key]['disciplina_id']==99999){
+                                    /*if($k[$alunoID][$key]['disciplina_id']==99999){
                                         $mf['taf'] = number_format($z['media'], '3', '.','');
                                         $key99999 = $key;
                                     }else if($k[$alunoID][$key]['disciplina_id']==88888){
@@ -1944,6 +1945,9 @@ class AjaxRelatoriosController extends Controller
                                     } else {
                                         $mf[] = number_format($z['media'], '3', '.','');
                                     }
+                                    $mf_tmp = number_format($z['media'], '3', '.','');*/
+
+                                    $mf[] = number_format($z['media'], '3', '.','');
                                     $mf_tmp = number_format($z['media'], '3', '.','');
 
                                 }
@@ -2034,7 +2038,8 @@ class AjaxRelatoriosController extends Controller
                                         $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = 0;
                                         $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = 0;
                                         if($soma > 0){
-                                            $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format($soma / $soma_avaliacoes, '4', '.', '');
+                                            $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format($soma / $soma_avaliacoes, '3', '.', '');
+                                            $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '4', '.', '');
                                             $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = ($colspan_demonstrativo + 1);
                                         }
                                     }
@@ -2048,7 +2053,7 @@ class AjaxRelatoriosController extends Controller
                                 }
                             }
                         }
-/*if($alunoID == 2188){//ERICK SILVA DE SOUZA
+/*if($alunoID == 3293){//ALANA DA SILVA DE CARVALHO
     dd($k[$alunoID], $mf, $reprovado, $disciplinas_reprovado_array);
 }*/
                         if(isset($mf)){

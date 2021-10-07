@@ -94,7 +94,7 @@ $data_array = unserialize($class->data_demonstrativo);
             <tr>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;" colspan="{{$data_array['avaliacoes_tfm']['colspan_demonstrativo']}}"><b>{{ $data['disciplina_nome'] }}</b></td>
                 @if(!$valida_col_tfm)
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;"><b>NA TFM</b></td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;"><b>ND TFM</b></td>
 
                 @endif
             </tr>
