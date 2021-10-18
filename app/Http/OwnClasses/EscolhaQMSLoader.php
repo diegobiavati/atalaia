@@ -356,7 +356,7 @@ class EscolhaQMSLoader
             } else {
                 $alunos_class_data = $this->classificacao->where('ano_formacao_id', $this->ano_formacao)->get();
             }
-    
+            
             foreach ($alunos_class_data as $item) {
                 if (is_numeric($item->aluno_id)) {
                     $alunos_class[] = $item->aluno_id;
@@ -368,7 +368,7 @@ class EscolhaQMSLoader
             // SELECIONANDO TODOS OS ALUNOS DO SEGMENTO SELECIONADO (aprovados menos os já designados para aviação)
     
             //$alunos = $this->alunos->where('sexo', $segmento)->whereIn('id', $alunos_aprovados)->whereNotIn('id', $alunos_aviacao_ID)->orderBy($this->alunos->classificacao(), 'asc')->get();
-    
+            
             $alunos = DB::select("SELECT alunos.*, alunos_classificacao.classificacao, alunos_classificacao.classificacao_por_area, alunos_classificacao.nota_final_arredondada FROM alunos
                                     INNER JOIN alunos_classificacao ON alunos.id=alunos_classificacao.aluno_id
                                     WHERE sexo='" . $segmento . "'
@@ -402,6 +402,34 @@ class EscolhaQMSLoader
             
             foreach ($alunos as $item) {
                 if (isset($alunos_opcoes[$item->id])) {
+
+                    
+                    
+                    $i = 0;
+                    foreach ($alunos_opcoes[$item->id]['opcoes'] as $prioridade) {
+
+                        try{
+                            $i++;
+                            $opcao[$i][$prioridade]++;
+                        }catch(Exception $e){//Remover em 2022 -- Corrige a escolha de QMS ESA que foi lancado errado
+
+                            //Remover Depois
+                            //Corrige o lançamento de prioridade errado para o Ano de 2022
+                            $alunos_opcoes_new = $alunos_opcoes[$item->id]['opcoes'];
+                            for($t = 1; $t <= count($alunos_opcoes_new); $t++){
+                                if(isset($alunos_opcoes_new['prioridade_'.$t]) && $alunos_opcoes_new['prioridade_'.$t] == 102){
+                                    unset($alunos_opcoes_new['prioridade_'.$t]);
+                                }
+                            }
+                            
+                            $info = json_decode($alunos_opcoes[$item->id]['info']);
+                            
+                            EscolhaQMSAlunosOpcoes::where([['id', '=', $info->id]])->update(['opcoes' => serialize($alunos_opcoes_new)]);
+                            dd($alunos_opcoes[$item->id], $item->numero, $opcao);
+                            //Fim Remover
+                        }                        
+                    }
+
                     $o = 0;
                     //dd($item);
                     foreach ($alunos_opcoes[$item->id]['opcoes'] as $prioridade) {
@@ -434,31 +462,7 @@ class EscolhaQMSLoader
                         }
                     }
     
-                    $i = 0;
-                    foreach ($alunos_opcoes[$item->id]['opcoes'] as $prioridade) {
-
-                        try{
-                            $i++;
-                            $opcao[$i][$prioridade]++;
-                        }catch(Exception $e){
-
-                            //Remover Depois
-                            //Corrige o lançamento de prioridade errado para o Ano de 2022
-                            $alunos_opcoes_new = $alunos_opcoes[$item->id]['opcoes'];
-                            for($t = 1; $t <= count($alunos_opcoes_new); $t++){
-                                if(isset($alunos_opcoes_new['prioridade_'.$t]) && $alunos_opcoes_new['prioridade_'.$t] == 102){
-                                    unset($alunos_opcoes_new['prioridade_'.$t]);
-                                }
-                            }
-                            
-                            $info = json_decode($alunos_opcoes[$item->id]['info']);
-                            
-                            EscolhaQMSAlunosOpcoes::where([['id', '=', $info->id]])->update(['opcoes' => serialize($alunos_opcoes_new)]);
-                            //dd($alunos_opcoes_new);
-                            //dd($alunos_opcoes[$item->id], $item->numero, $opcao);
-                            //Fim Remover
-                        }                        
-                    }
+                    
                 }
             }
     

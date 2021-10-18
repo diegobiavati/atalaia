@@ -212,7 +212,8 @@
         @foreach($data['qmEsses'] as $qms)
         <tr>
             <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #E6E6E6;">{{$qms->qms}}</td>
-            @for($i=1;$i<=$total_opcoes;$i++) <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$data['estatistica']['opcao'][$i][$qms->id]-1}}</td>
+            @for($i=1;$i<=$total_opcoes;$i++) 
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$data['estatistica']['opcao'][$i][$qms->id]-1}}</td>
                 @endfor
         </tr>
         @endforeach

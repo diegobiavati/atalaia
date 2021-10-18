@@ -304,6 +304,7 @@ class RelatoriosController extends Controller
 
                 /*Novo Modo*/
                 $designacao = $escolhaQMS->designacaoFinalQMSDetalhada($segmento, 'N');
+                //$designacao = $escolhaQMS->designacaoFinalQMSDetalhada($segmento, 'S');
 
                 if(key_exists('aluno', $designacao)){
                     $designacao['total_opcoes'] = count($qms);
@@ -754,7 +755,7 @@ class RelatoriosController extends Controller
             }
 
             $opcao_aluno = ($opcao_aluno)??array();
-
+            
             // SELECIONANDO AS QMS PARA GUARDAR SEUS NOMES EM UMA ARRAY
 
             $qms_list = QMS::where('escolha_qms_id', $request->escolhaQMS)->get();

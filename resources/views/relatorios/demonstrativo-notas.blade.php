@@ -51,8 +51,18 @@ $data_array = unserialize($class->data_demonstrativo);
                     {{ $avaliacoes->nota }}
                     @endif
                     @else
+                    
+                    @if($key == 'ACR')
+                        {{ $data['avaliacoes'][$key] }}
+                    @elseif($key == 'CE')
+                        {{ $data['avaliacoes'][$key] }}
+                    @else
                     Sem Nota
                     @endif
+                    
+                    
+                    @endif
+                    
                 </td>
                 @endif
                 @endforeach
