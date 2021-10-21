@@ -2633,6 +2633,21 @@ class AjaxAdminController extends Controller
         $disciplina = Disciplinas::find($request->id);
         $checked = ($disciplina->tfm == 'S') ? 'checked' : '';
 
+        $options = array('N' => 'Nota', 'C' => 'Conceito', 'S' => 'Situação');
+
+        $options_avaliacao[] = '<option value="0">Selecione um Tipo de Avaliação</option>';
+        foreach($options as $key => $option){
+            $options_avaliacao[] = '<option value="'.$key.'" '.(($key == $disciplina->tipo_avaliacao) ? 'selected': '').'>'.$option.'</option>';
+        }
+
+        $options = array('OB' => 'Obrigatória', 'EL' => 'Eletiva', 'OP' => 'Optativa');
+
+        $options_disciplina[] = '<option value="0">Selecione um Tipo de Avaliação</option>';
+        foreach($options as $key => $option){
+            $options_disciplina[] = '<option value="'.$key.'" '.(($key == $disciplina->tipo_disciplina) ? 'selected': '').'>'.$option.'</option>';
+        }
+        
+        
         $data['header'] = '<i class="ion-android-create" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar disciplina';
         $data['body'] = '   <div class="alert alert-danger errors-adicionar-disciplinas" role="alert"></div>
                                     <form id="editar_disciplina">
@@ -2664,7 +2679,36 @@ class AjaxAdminController extends Controller
                                             </div>
                                             <div class="clear"></div>
                                         </div>             
-                                        
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
+                                            <div style="float: left;">
+                                                <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
+                                                <input class="no-style" style="width: 100%;" name="carga_horaria" type="text" value="' . $disciplina->carga_horaria . '" maxlength="5" autocomplete="off" placeholder="Carga Horária" />
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
+                                            <div style="float: left; margin-top: 3px;">
+                                                <i class="ion-information-circled" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float:right; width: 93%;">
+                                            <select class="custom-select" name="tipo_avaliacao">' . implode('', $options_avaliacao) . '</select>
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+
+                                        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
+                                            <div style="float: left; margin-top: 3px;">
+                                                <i class="ion-information-circled" style="font-size: 24px; color: #696969;"></i>
+                                            </div>
+                                            <div style="float:right; width: 93%;">
+                                            <select class="custom-select" name="tipo_disciplina">' . implode('', $options_disciplina) . '</select>
+                                            </div>
+                                            <div class="clear"></div>
+                                        </div>
+
                                         <div style="margin: 14px auto; width: 70%; max-width: 380px;">
                                             <div class="custom-control custom-checkbox" style="margin-top: 20px;">
                                                 <input id="customCheck" name="tfm" type="checkbox" value="0" class="custom-control-input" ' . $checked . '>
@@ -2709,6 +2753,10 @@ class AjaxAdminController extends Controller
         $disciplina->nome_disciplina = $request->nome_disciplina;
         $disciplina->nome_disciplina_abrev = $request->nome_disciplina_abrev;
         $disciplina->peso = $peso;
+
+        $disciplina->carga_horaria = $request->carga_horaria;
+        $disciplina->tipo_avaliacao = $request->tipo_avaliacao;
+        $disciplina->tipo_disciplina = $request->tipo_disciplina;
 
         if ($disciplina->save()) {
             $data['status'] = 'ok';
