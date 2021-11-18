@@ -131,14 +131,13 @@ class AjaxOperadorController extends Controller
                     $alunos = Alunos::where([
                         'omcts_id' => session()->get('login.omctID'),
                         'data_matricula' => $ano_corrente->id
-                    ])->whereIn('id', $alunos_faltosos)->orderBy('sexo', 'desc')->get();
+                    ])->whereIn('id', $alunos_faltosos)->orderBy('numero', 'asc')->orderBy('sexo', 'desc')->get();
                 }
             } else {
                 $data[] = '<div style="color: #B40404; text-align:center; margin: 32px;">O pronto de faltas da avaliação de referência não foi enviado!</div>';
             }
         } else if ($chamadas->chamada == 0 && $chamadas->avaliacao_recuperacao == 1) {
             // VERIFICO OS ALUNOS QUE FICARAM COM MÉDIA < 5,00 NA DISCIPLINA
-
             // ID DA DISCIPLINAS
             $disciplina_id = $chamadas->disciplinas_id;
 
@@ -154,7 +153,8 @@ class AjaxOperadorController extends Controller
             $param['ano_formacao_id'] = $ano_corrente->id;
 
             $avaliacoes_notas = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereHas('aluno', function ($q) use ($param) {
-                $q->where([['omcts_id', '=', $param['uete_id']], ['data_matricula', '=', $param['ano_formacao_id']]]);
+                $q->where([['omcts_id', '=', $param['uete_id']], ['data_matricula', '=', $param['ano_formacao_id']]])
+                ->orderBy('numero', 'asc');
             })->whereIn('avaliacao_id', $avaliacoes_array)->get());
 
             foreach ($avaliacoes_notas as $key => $avaliacoes) {
@@ -162,7 +162,8 @@ class AjaxOperadorController extends Controller
                     if (!($key == 'alunosID')) {
                         //$media = array_sum($informacao['notas']) / $informacao['disciplina_razao'];
 
-                        if ($informacao['media'] < 5) {
+                        if ((($informacao['tfm'] == 'N') || ($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'N')) 
+                        && $informacao['media'] < 5) {
                             $alunosID_recuperacao[] = $key_aluno;
                         }
                     }
@@ -175,13 +176,14 @@ class AjaxOperadorController extends Controller
             $alunos = Alunos::where([
                 'omcts_id' => session()->get('login.omctID'),
                 'data_matricula' => $ano_corrente->id
-            ])->whereIn('id', $alunosID_recuperacao)->orderBy('sexo', 'desc')->get();
+            ])->whereIn('id', $alunosID_recuperacao)->orderBy('numero', 'asc')->orderBy('sexo', 'desc')->get();
         } else {
             //$alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->orderBy('sexo', 'desc')->get();
             $alunos = Alunos::where([
                 'omcts_id' => session()->get('login.omctID'),
                 'data_matricula' => $ano_corrente->id
-            ])->orderBy('sexo', 'desc')->get();
+            //])->orderBy('sexo', 'desc')->get();
+            ])->orderBy('numero', 'asc')->orderBy('sexo', 'desc')->get();
         }
 
         if (isset($alunos)) {
@@ -356,6 +358,7 @@ class AjaxOperadorController extends Controller
                 $array_whereIn_IDs = array_diff($alunosID_recuperacao, $faltas);
 
                 $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->whereIn('id', $array_whereIn_IDs)->orderBy('sexo', 'desc')->get();
+                
             } else {
 
                 /* CASO SEJA 2ª CHAMADA */
