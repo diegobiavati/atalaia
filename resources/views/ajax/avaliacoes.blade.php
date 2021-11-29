@@ -50,6 +50,7 @@ foreach ($uetes as $uete) {
         $style_color_chamada = 'bg-secondary';
         $style_color_footer = 'border-secondary';
         $avaliacao_referencia = 'Única chamada';
+        $recuperacao = true;
       } else if ($avaliacao->chamada == 1) {
         $style_color_chamada = 'bg-success';
         $style_color_footer = 'border-success';
@@ -157,6 +158,7 @@ foreach ($uetes as $uete) {
       $tfm = (($avaliacao->disciplinas->tfm == 'S') ? true : false);
       
       $gbm = ($tfm ? null: '<b>GBM:</b> ' . $avaliacao->gbm . ' <br />');
+      $peso = (isset($recuperacao) ? null : '<b>Peso:</b> ' . $avaliacao->peso . '<br />');
       $dataMostra = ($tfm ? null: '<b>Data da Mostra:</b> <cite title="Source Title">' . $dataMostra . '</cite><br /> ');
       $dataLimiteMostra = ($tfm ? null: '<b>Limite do Pedido de Revisão da Prova:</b> <cite title="Source Title">' . $dataLimiteMostra . '</cite>');
 
@@ -178,7 +180,7 @@ foreach ($uetes as $uete) {
                                                   <div class="clear"></div>
                                                   <p style="margin-top: -10px;"></p>
                                                     '.$gbm.'
-                                                    <b>Peso:</b> ' . $avaliacao->peso . '<br />
+                                                    '.$peso.'
                                                     <b>Limite para laçamento de grau:</b> <cite title="Source Title">' . strftime('%A, %d de %B de %Y às %H:%M', strtotime("+" . $avaliacao->prazo_nota . " days", strtotime($avaliacao->data . ' ' . $avaliacao->hora))) . '</cite><br /> 
                                                     ' . $dataMostra . '
                                                     ' . $dataLimiteMostra . '
@@ -373,20 +375,38 @@ foreach ($uetes as $uete) {
     $('.collapse').collapse('hide');
     $.ajax({
       type: 'GET',
-      dataType: 'json',
-      url: '/ajax/dialog-adicionar-avaliacao-recuperacao',
+      url: '/ajax/dialog-adicionar-avaliacao',
       beforeSend: function() {
         loadingModalDinamica('show', 'lg');
+        $('div#modalDinamica div.modal-body').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
       },
       success: function(data) {
-        $('div#modalDinamica div.modal-header h5').html(data.header);
-        $('div#modalDinamica div.modal-body').html(data.body);
-        $('div#modalDinamica div.modal-footer').html(data.footer);
+        $('div#modalDinamica div.modal-content').html(data);
         loadingModalDinamica('hide', 'lg');
         $('.carousel').carousel({
           interval: false
         });
+      }
+    });
 
+  }
+
+  function dialogAdicionarAvaliacaoRec() {
+    $('div.errors-adicionar-avaliacoes2').slideUp();
+    $('.collapse').collapse('hide');
+    $.ajax({
+      type: 'GET',
+      url: '/ajax/dialog-adicionar-avaliacao-recuperacao',
+      beforeSend: function() {
+        loadingModalDinamica('show', 'lg');
+        $('div#modalDinamica div.modal-body').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+      },
+      success: function(data) {
+        $('div#modalDinamica div.modal-content').html(data);
+        loadingModalDinamica('hide', 'lg');
+        $('.carousel').carousel({
+          interval: false
+        });
       }
     });
  

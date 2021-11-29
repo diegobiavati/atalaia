@@ -848,6 +848,7 @@ class RelatoriosController extends Controller
 
         foreach($alunos as $aluno){
             foreach($aluno_notas as $notas){
+                
                 if(isset($notas[$aluno->id]) && ($notas[$aluno->id]['disciplina_razao'] > 0)){
                     
                     $media = $notas[$aluno->id]['media'];
@@ -855,7 +856,16 @@ class RelatoriosController extends Controller
                         $nd_aluno[$aluno->id] = number_format($media, 3, ',', ''); 
                         $alunos_em_recuperacao[] = $aluno->id;
                     }
-                }    
+                }else if(isset($notas[$aluno->id]['tfm']) 
+                    && ($notas[$aluno->id]['tfm'] == 'S' && $notas[$aluno->id]['tfm_abdominal'] == 'S')){
+                    
+                    foreach($notas[$aluno->id]['avaliacoes'] as $aval){
+                        
+                        if($aval->nota == 'NS'){
+                            $alunos_em_recuperacao[] = $aluno->id;
+                        }
+                    }
+                } 
             }
         }
 
@@ -916,7 +926,6 @@ class RelatoriosController extends Controller
     public function ProntoLancamentoTAF(Request $request) {
         
         // SELECIONADO OS ALUNOS DO ANO DE FORMAÇÃO $request->ano_formacao_id;
-
         $avaliacoes_lancadas = AvaliacaoTaf::get();
 
         foreach($avaliacoes_lancadas as $aluno){
@@ -983,21 +992,10 @@ class RelatoriosController extends Controller
                 $alunosID = Alunos::where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->get(['id']);
             }
 
-            $alunos_classif = AlunosClassificacao::whereHas('aluno', function($q) use ($request) {
-                $q->where('data_matricula', '=', $request->ano_formacao_id);
-            })->orderBy('classificacao', 'asc')->get();
-            
-            /*foreach($alunos_classif as $classificacao){
-                
-                if(isset($classificacao->aluno->sexo)){
-                    $class_por_area_seg[$classificacao->aluno->sexo][$classificacao->aluno->area_id][] = $classificacao->aluno_id;
-                }
-                
-                // CLASSIFICAÇÃO GERAL                
-                $class_geral[] = $classificacao->aluno_id; 
-            }*/
-           
-            $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)->get();
+            $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)
+            ->whereHas('aluno', function($q) use ($request) {
+                $q->orderBy('numero', 'asc');
+            })->get();
 
             //dd(unserialize($alunos_classif[0]->data_demonstrativo));
             $mencoes = Mencoes::get();
@@ -1419,6 +1417,14 @@ class RelatoriosController extends Controller
 
         }
                                                                         
+    }
+
+    public function RelatorioDisciplinasDiplomaUete(Request $request){
+
+       $anoFormacao = AnoFormacao::find($request->ano_formacao_id);
+       $disciplinas = Disciplinas::where([['ano_formacao_id', '=', $anoFormacao->id]])->get();
+
+       return view('ajax.relatorios.listagem-disciplinas-diploma-uete', compact('anoFormacao', 'disciplinas')); 
     }
 
 }

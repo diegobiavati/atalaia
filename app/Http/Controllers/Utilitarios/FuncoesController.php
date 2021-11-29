@@ -174,6 +174,7 @@ class FuncoesController
     {
 
         foreach ($avaliacoesNotas as $nota) {
+            
             if (!is_null($nota->alunos_id)) {
 
                 $alunosID[] = $nota->alunos_id;

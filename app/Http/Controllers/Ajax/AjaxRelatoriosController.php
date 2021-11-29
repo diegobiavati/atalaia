@@ -1645,8 +1645,8 @@ class AjaxRelatoriosController extends Controller
                 $avaliacao_array[] = '<input '.$status_checked.' type="checkbox" value="'.$avaliacao->id.'" id="avaliacao-'.$avaliacao->id.'" name="avaliacoesID[]" /> <label style="font-size: 12px;" for="avaliacao-'.$avaliacao->id.'">'.$avaliacao->nome_abrev.' '.$avaliacao->disciplinas->nome_disciplina.'</label>';
             }
             
-            $status_checked = (in_array(99999, $disciplinas_marcadas))? 'checked="checked"':'';            
-            $avaliacao_array[] = '<input '.$status_checked.' type="checkbox" value="99999" id="avaliacao-99999" name="avaliacoesID[]" /> <label style="font-size: 12px;" for="avaliacao-99999">TFM</label>';
+            //$status_checked = (in_array(99999, $disciplinas_marcadas))? 'checked="checked"':'';            
+            //$avaliacao_array[] = '<input '.$status_checked.' type="checkbox" value="99999" id="avaliacao-99999" name="avaliacoesID[]" /> <label style="font-size: 12px;" for="avaliacao-99999">TFM</label>';
  
             $status_checked_input = ($rel_conf->valor==0)?'':'checked';
 
@@ -1774,86 +1774,12 @@ class AjaxRelatoriosController extends Controller
 
             //2ºTen João Victor, Alteração no Cálculo da NOTA
             $alunoNota = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
-            
-            //dd($alunoNota[24][2188]);
+            //dd($alunoNota[33][3378]);
             $alunosID = $alunoNota['alunosID'];
             //Fim Alteração 2ºTen João Victor
             $alunosID = array_unique($alunosID);
 
             sort($alunosID);
-
-            // CASO ESTEJA SELECIONADO AS AVALIAÇÕES DE TFM 99999
-
-            /*if(in_array(99999, $avaliacoesIDs)){
-
-                $avaliacoes_taf = AvaliacaoTaf::whereIn('aluno_id', $alunosID)->get();
-
-                if($avaliacoes_taf){
-                    foreach($avaliacoes_taf as $notas_taf){
-                        $taf_nota[$notas_taf->aluno_id] = $notas_taf;
-                    }
-                }
-
-                foreach($alunosID as $aluno_id){
-
-                    if(isset($taf_nota[$aluno_id])){
-
-                        $alunoNota[99999][$aluno_id]['notas'][] = $taf_nota[$aluno_id]->media;
-
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['CORRIDA'] = $taf_nota[$aluno_id]->corrida_nota;
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['FLEXÃO DE BRAÇO'] = $taf_nota[$aluno_id]->flexao_braco_nota;
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['FLEXÃO NA BARRA'] = $taf_nota[$aluno_id]->flexao_barra_nota;
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['ABDOMINAL'] = $taf_nota[$aluno_id]->abdominal_suficiencia;
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['ATLETA'] = $taf_nota[$aluno_id]->aluno->atleta_marexaer;                        
-                        $alunoNota[99999][$aluno_id]['reprovado'] = $taf_nota[$aluno_id]->reprovado;                        
-                        
-                        if(isset($taf_nota[$aluno_id]->reprovado_recuperacao)){
-                            //Inclui a Disciplina de TFM Recuperacao
-                            if(!in_array(88888, $disciplinasID)){
-                                $disciplinasID = array_merge($disciplinasID, array(88888));  
-                            }
-                            
-
-                            $alunoNota[88888][$aluno_id]['notas'][] = $taf_nota[$aluno_id]->media_recuperacao;
-
-
-                            $valNotaRecuperacao = (($taf_nota[$aluno_id]->media >= 5) ? true : false);
-
-                            $alunoNota[88888][$aluno_id]['avaliacoes']['CORRIDA'] = (($valNotaRecuperacao) ? '-' : $taf_nota[$aluno_id]->corrida_nota_recuperacao);
-                            $alunoNota[88888][$aluno_id]['avaliacoes']['FLEXÃO DE BRAÇO'] = (($valNotaRecuperacao) ? '-' : $taf_nota[$aluno_id]->flexao_braco_nota_recuperacao);
-                            $alunoNota[88888][$aluno_id]['avaliacoes']['FLEXÃO NA BARRA'] = (($valNotaRecuperacao) ? '-' : $taf_nota[$aluno_id]->flexao_barra_nota_recuperacao);
-                            $alunoNota[88888][$aluno_id]['avaliacoes']['ABDOMINAL'] = (isset($taf_nota[$aluno_id]->abdominal_suficiencia_recuperacao) ? $taf_nota[$aluno_id]->abdominal_suficiencia_recuperacao : '-');
-                            $alunoNota[88888][$aluno_id]['avaliacoes']['ATLETA'] = $taf_nota[$aluno_id]->aluno->atleta_marexaer;                        
-                            $alunoNota[88888][$aluno_id]['reprovado'] = $taf_nota[$aluno_id]->reprovado_recuperacao; 
-
-                            $alunoNota[88888][$aluno_id]['disciplina_razao'] = 0;
-                            $alunoNota[88888][$aluno_id]['disciplina_id'] = 88888;   
-                            $alunoNota[88888][$aluno_id]['disciplina_nome'] = 'TREINAMENTO FÍSICO MILITAR 1 (RECUPERAÇÃO)'; 
-                            $alunoNota[88888][$aluno_id]['media'] = (isset($taf_nota[$aluno_id]->media_recuperacao) ? $taf_nota[$aluno_id]->media_recuperacao : 0);
-                        }
-
-                    } else {
-                        $alunoNota[99999][$aluno_id]['notas'][] = 0;
-
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['CORRIDA'] = '-';
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['FLEXÃO DE BRAÇO'] = '-';
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['FLEXÃO NA BARRA'] = '-';
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['ABDOMINAL'] = '-';
-                        $alunoNota[99999][$aluno_id]['avaliacoes']['ATLETA'] = '-';
-                        $alunoNota[99999][$aluno_id]['reprovado'] = 'S';
-
-
-                    }
-                    
-                    $alunoNota[99999][$aluno_id]['disciplina_razao'] = 1;
-                    $alunoNota[99999][$aluno_id]['disciplina_id'] = 99999;
-                    //$alunoNota[99999][$aluno_id]['disciplina_nome'] = 'TESTE DE APTIDÃO FÍSICA';    
-                    $alunoNota[99999][$aluno_id]['disciplina_nome'] = 'TREINAMENTO FÍSICO MILITAR 1';    
-                    $alunoNota[99999][$aluno_id]['media'] = (isset($taf_nota[$aluno_id]) ? $taf_nota[$aluno_id]->media : 0);
-                    //$alunoNota[99999][$aluno_id]['media'] = number_format(array_sum($alunoNota[99999][$aluno_id]['notas'])/$alunoNota[99999][$aluno_id]['disciplina_razao'], '3', '.','');
-                }
-
-            }*/
 
             if(isset($alunosID) && isset($alunoNota)){
                 foreach($disciplinasID as $disciplinas){
@@ -1869,17 +1795,15 @@ class AjaxRelatoriosController extends Controller
                 }
                 
                 if(isset($k)){
+                    
                     foreach($alunosID as $alunoID){
                         $discAprovConselhoEnsino = array();
                         foreach($k[$alunoID] as $key => $z){
-                            if(is_numeric($key)){
+                            $reprovado = [];
+                            if(is_numeric($key) && $k[$alunoID][$key]['tfm'] == 'N'){
                                 $k[$alunoID][$key]['media'] = (isset($z['media'])) ? $z['media'] : 0;
 
-                                // AQUI VERIFICO SE O  ALUNO OBTEVE MEDIA FINAL INFERIOR A 5 NESSA DISCIPLINA
-        
-                                //Original Julião
-                                //if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['disciplina_id']!=99999){
-                                //if($k[$alunoID][$key]['media']<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
+                                //AQUI VERIFICO SE O  ALUNO OBTEVE MEDIA FINAL INFERIOR A 5 NESSA DISCIPLINA
                                 if($k[$alunoID][$key]['media']<5 && $k[$alunoID][$key]['tfm'] == 'N'){
 
                                     $avaliacao_rec_nota = null;
@@ -1892,35 +1816,16 @@ class AjaxRelatoriosController extends Controller
                                             $k[$alunoID][$key]['AR'] = $avaliacao_rec_nota->getNota();
                                             $k[$alunoID][$key]['avaliacoes']['ACR'] = $avaliacao_rec_nota->getNota();
         
-                                            //if((($k[$alunoID][$key]['AR'] + $k[$alunoID][$key]['media'])/2) >=5){
-                                            //    $k[$alunoID][$key]['media'] = 5;    
-                                            //}
-        
-                                            
-                                            
-                                                //Caso o discente obtenha nota igual ou superior a 5,000, receberá a nota 5,000 como nota final da disciplina respectiva
-                                                //Caso o discente obtenha nota inferior a 5,000, permanecerá com ND obtida antes da ACR como nota final da disciplina respectiva
-        
-                                            
-        
+                                            //Caso o discente obtenha nota igual ou superior a 5,000, receberá a nota 5,000 como nota final da disciplina respectiva.
+                                            //Caso o discente obtenha nota inferior a 5,000, permanecerá com ND obtida antes da ACR como nota final da disciplina respectiva.                                      
                                             if(($k[$alunoID][$key]['AR']) >=5){
                                                 $k[$alunoID][$key]['media'] = 5;    
                                             }
                                         }
                                     }
                                     // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO
-
                                     $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', $k[$alunoID][$key]['disciplina_id'])->first();
                                     
-                                    /*if($alunos_em_conselho){
-                                        $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
-                                        $mf[] = number_format(5, '4', '.', '');
-                                        $mf_tmp = number_format(5, '4', '.', '');
-                                    } else {
-                                        $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
-                                        $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
-                                    }*/
-
                                     if($alunos_em_conselho){
                                         $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
                                         $discAprovConselhoEnsino[] = $k[$alunoID][$key]['disciplina_id'];
@@ -1932,131 +1837,195 @@ class AjaxRelatoriosController extends Controller
                                     }
                                     
                                 } else if($k[$alunoID][$key]['tfm'] == 'N'){
-
-                                    /*if($k[$alunoID][$key]['disciplina_id']==99999){
-                                        $mf['taf'] = number_format($z['media'], '3', '.','');
-                                        $key99999 = $key;
-                                    }else if($k[$alunoID][$key]['disciplina_id']==88888){
-                                        $mf['taf'] = number_format($z['media'], '3', '.','');
-
-                                        //ALTERA A MÉDIA DO TFM PARA PUXAR NOS RELATÓRIOS...
-                                        $k[$alunoID][$key99999]['media_anterior'] = $k[$alunoID][$key99999]['media'];
-                                        $k[$alunoID][$key99999]['media'] = $z['media'];
-                                    } else {
-                                        $mf[] = number_format($z['media'], '3', '.','');
-                                    }
-                                    $mf_tmp = number_format($z['media'], '3', '.','');*/
-
-                                    $mf[] = number_format($z['media'], '3', '.','');
                                     $mf_tmp = number_format($z['media'], '3', '.','');
-
+                                    $mf[] = $mf_tmp;
                                 }
 
-                                if($mf_tmp<5 && !in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))){
-
+                                if($k[$alunoID][$key]['tfm'] == 'N' && $mf_tmp<5){
                                     $reprovado[] = 1;
                                     $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
-
-                                } /*else if(in_array($k[$alunoID][$key]['disciplina_id'], array(99999,88888))) {
-                                    
-                                    if($k[$alunoID][$key]['disciplina_id'] == 99999 && $k[$alunoID][$key]['reprovado']=='S'){
-
-                                        // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO
-                                        $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', 99999)->first();
-
-                                        if($alunos_em_conselho){
-                                            $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
-                                            $alunoNota[99999][$alunoID]['reprovado'] = 'N';
-                                            $k[$alunoID][$key]['reprovado']= $alunoNota[99999][$alunoID]['reprovado'];
-                                            $reprovado[] = 0;
-                                            $disciplinas_reprovado_array[] = 0;
-
-                                            $discAprovConselhoEnsino[] = 99999;
-                                        } else {
-                                            $reprovado[] = 1;
-                                            $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
-                                        }
-                                        
-                                    }else if($k[$alunoID][$key]['disciplina_id'] == 88888){
-                                        
-                                        if($alunoNota[88888][$alunoID]['reprovado']=='S'){
-
-                                            // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO DE TFM ID 99999
-                                            $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', 99999)->first();
-                                            
-                                            if($alunos_em_conselho){
-                                                $k[$alunoID][$key]['avaliacoes']['CE'] = 'APROVADO';
-                                                $alunoNota[88888][$alunoID]['reprovado'] = 'N';
-                                                $k[$alunoID][$key]['reprovado']= $alunoNota[88888][$alunoID]['reprovado'];
-                                                $reprovado[] = 0;
-                                                $disciplinas_reprovado_array[] = 0;
-
-                                                $k[$alunoID][$key99999]['media'] = $k[$alunoID][$key99999]['media_anterior'];
-                                                $mf['taf'] = $k[$alunoID][$key99999]['media'];
-                                                unset($k[$alunoID][$key99999]['media_anterior']);
-
-                                                $discAprovConselhoEnsino[] = 99999;
-                                            } else {
-                                                $reprovado[] = 1;
-                                                $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
-                                            }
-                                        }else{
-                                            //Remove o reprovado do TFM 99999
-                                            array_pop($reprovado);
-                                            array_pop($disciplinas_reprovado_array);
-                                        }
-
-                                    } else {
-                                        $reprovado[] = 0;
-                                        $disciplinas_reprovado_array[] = 0;                                   
-                                    }
-                                }*/ else {
+                                }else {
                                     $reprovado[] = 0;
                                     $disciplinas_reprovado_array[] = 0;
                                 }
-                            }else{
+
+                            }else if(!is_numeric($key)){
 
                                 try{
                                     // Faz cálculo da NA do TFM
                                     if($key == 'avaliacoes_tfm'){
-                                                                    
-                                        $soma = 0;
+                                              
+                                        $soma = null;
                                         $soma_avaliacoes = 0;
                                         $colspan_demonstrativo = 1;
-                                        foreach($z as $avaliacao){
-                                            //Não soma o abdominal
-                                            if($avaliacao['tfm_abdominal'] == 'N'){
-                                                $soma += $avaliacao['media'];
-                                                $soma_avaliacoes++;
+
+                                        $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = 0;
+                                        $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = 0;
+                                        $k[$alunoID]['avaliacoes_tfm']['media_tfm_abdominal'] = 'NS';
+                                        $k[$alunoID]['avaliacoes_tfm']['AR_tfm_abdominal'] = false;
+                                        $k[$alunoID]['avaliacoes_tfm']['notas_AR'] = null;
+                                        $k[$alunoID]['avaliacoes_tfm']['notas_sem_grau_minimo'] = null;
+
+                                        foreach($k[$alunoID][$key] as $key_aval => $avaliacao){
+
+                                            //Valida se é os arrays com as avaliações e não o valor final de média
+                                            if(is_numeric($key_aval)){
+    
+                                                $media_tfm = $k[$alunoID][$key][$key_aval]['media'];
+                                                /********************************************************
+                                                ***********       Recuperação de TFM       **************                                  
+                                                *********************************************************/
+
+                                                $avaliacao_rec_nota = null;
+                                                $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $avaliacao['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
+
+                                                if($avaliacao_rec_id){
+                                                    $avaliacao_rec_nota = AvaliacoesNotas::where('alunos_id', $alunoID)->where('avaliacao_id', $avaliacao_rec_id->id)->first();
+
+                                                    if(isset($avaliacao_rec_nota)){
+                                                        $colspan_demonstrativo++;
+                                                        $k[$alunoID][$key][$key_aval]['AR'] = $avaliacao_rec_nota->getNota();
+                                                        $k[$alunoID][$key][$key_aval]['avaliacoes']['ACR'] = $k[$alunoID][$key][$key_aval]['AR'];                                   
+                                                        
+                                                        //Não soma o abdominal para a ND Final
+                                                        if(isset($avaliacao['tfm_abdominal']) && $avaliacao['tfm_abdominal'] == 'N'){
+                                                            
+                                                            if($k[$alunoID][$key][$key_aval]['AR'] >= 5){
+                                                                $k[$alunoID][$key][$key_aval]['media'] = 5;
+                                                            }
+                                                            $k[$alunoID]['avaliacoes_tfm']['notas_AR'][] = $k[$alunoID][$key][$key_aval]['AR'];
+                                                        }
+                                                    }
+                                                }
+
+                                                // VERIFICANDO SE O ALUNO ESTÁ EM CONSELHO
+                                                $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', $k[$alunoID][$key][$key_aval]['disciplina_id'])->first();
+                                                
+                                                if($alunos_em_conselho){
+                                                    $k[$alunoID][$key][$key_aval]['avaliacoes']['CE'] = 'APROVADO';
+                                                    $discAprovConselhoEnsino[] = $k[$alunoID][$key][$key_aval]['disciplina_id'];
+                                                    $k[$alunoID][$key][$key_aval]['media'] = $media_tfm;
+                                                } 
+
+                                                /********************************************************
+                                                ***********      Fim Recuperação de TFM     *************
+                                                *********************************************************/
+ 
+                                                if(isset($avaliacao['tfm_abdominal']) && $avaliacao['tfm_abdominal'] == 'N'){                                                
+                                                    /** Faz a Soma das Médias para Gerar a ND Final **/
+                                                    $soma += (0 + $k[$alunoID][$key][$key_aval]['media']);
+                                                    $soma_avaliacoes++;    
+
+                                                    if($k[$alunoID][$key][$key_aval]['media'] < 5 
+                                                        && !isset($k[$alunoID][$key][$key_aval]['avaliacoes']['CE'])){
+                                                        $k[$alunoID]['avaliacoes_tfm']['notas_sem_grau_minimo'][] = $k[$alunoID][$key][$key_aval]['media'];
+                                                    }
+                                                }else if(isset($avaliacao['tfm_abdominal']) && $avaliacao['tfm_abdominal'] == 'S'){
+                                                    foreach($avaliacao['avaliacoes'] as $aval){
+                                                        $k[$alunoID]['avaliacoes_tfm']['media_tfm_abdominal'] = $aval->nota;
+                                                    }
+
+                                                    //Se Existir Recuperação sobrepoe a nota do abdominal
+                                                    if(isset($k[$alunoID][$key][$key_aval]['AR'])){
+                                                        $k[$alunoID]['avaliacoes_tfm']['media_tfm_abdominal'] = $k[$alunoID][$key][$key_aval]['AR'];
+                                                        $k[$alunoID]['avaliacoes_tfm']['AR_tfm_abdominal'] = true;
+                                                    }
+                                                }
 
                                                 if(count($avaliacao['avaliacoes']) > $colspan_demonstrativo){
                                                     $colspan_demonstrativo = count($avaliacao['avaliacoes']);
                                                 }
+                                                /*Fim Soma das Médias*/                                                    
+                                                
                                             }
                                         }
 
-                                        $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = 0;
-                                        $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = 0;
-                                        if($soma > 0){
+                                        if(!is_null($soma)){
+                                            //ND TFM
                                             $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format($soma / $soma_avaliacoes, '3', '.', '');
-                                            $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '4', '.', '');
+                                            $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '3', '.', '');
                                             $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = ($colspan_demonstrativo + 1);
                                         }
+
+                                        /********************************************************
+                                        ***********       Regras de AR de TFM      **************
+                                        *********************************************************/
+
+                                        //Regra III
+                                        //Aluno não alcance Suficiência na AR de Abdominal e não  tenha alcançado o grau minímo para aprovação em um ou mais teste físicos.
+                                        //ND = média aritmética simples das notas das AR abaixo de 5,000 + 4,900 do abdominal supra para o cálculo.
+                                        if($k[$alunoID]['avaliacoes_tfm']['AR_tfm_abdominal'] == true 
+                                            && $k[$alunoID]['avaliacoes_tfm']['media_tfm_abdominal'] == 'NS' 
+                                            && !is_null($k[$alunoID]['avaliacoes_tfm']['notas_sem_grau_minimo'])){
+                                             
+                                            $notas_ar = [];
+                                            foreach($k[$alunoID]['avaliacoes_tfm']['notas_AR'] as $notas){
+                                                if($notas < 5){
+                                                    $notas_ar[] = $notas;
+                                                }
+                                            }
+
+                                            $notas_ar[] = 4.900;//Adiciona a Nota do Abdominal
+                                            $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format((array_sum($notas_ar) / count($notas_ar)), '3', '.', '');
+                                            
+                                            array_pop($mf);//Remove a última Média Lançada
+                                            $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '3', '.', '');
+
+                                        //Regra II
+                                        //Aluno não alcance Suficiência Na AR de Abdominal  e obtenha grau igual ou superior a 5,000 nas demais AR
+                                        //ND = 4,900 
+                                        }else if($k[$alunoID]['avaliacoes_tfm']['AR_tfm_abdominal'] == true 
+                                            && $k[$alunoID]['avaliacoes_tfm']['media_tfm_abdominal'] == 'NS' 
+                                            && is_null($k[$alunoID]['avaliacoes_tfm']['notas_sem_grau_minimo'])){
+
+                                            $notas_ar = [];
+                                            $notas_ar[] = 4.900;//Adiciona a Nota do Abdominal
+                                            $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format(array_sum($notas_ar), '3', '.', '');
+
+                                            array_pop($mf);//Remove a última Média Lançada
+                                            $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '3', '.', '');
+
+                                        //Regra I
+                                        //Aluno tenha alcançado Suficiência no Abdominal Supra, mas não tenha alcançado o grau mínimo para aprovação em um ou mais teste físicos.
+                                        //ND = média aritmética simples das notas das AR dos teste que obeteve abaixo de 5,000.
+                                        }else if($k[$alunoID]['avaliacoes_tfm']['media_tfm_abdominal'] == 'S'
+                                            && !is_null($k[$alunoID]['avaliacoes_tfm']['notas_sem_grau_minimo'])
+                                            && !is_null($k[$alunoID]['avaliacoes_tfm']['notas_AR'])){
+
+                                            $notas_ar = [];
+                                            foreach($k[$alunoID]['avaliacoes_tfm']['notas_AR'] as $notas){
+                                                if($notas < 5){
+                                                    $notas_ar[] = $notas;
+                                                }
+                                            }
+
+                                            $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format((array_sum($notas_ar) / count($notas_ar)), '3', '.', '');
+                                            
+                                            array_pop($mf);//Remove a última Média Lançada
+                                            $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '3', '.', '');
+                                        } 
+                                        
+                                        /*if($alunoID == 3290){//Aluno BUROCK 3646 
+                                            dd($k[$alunoID][$key], $soma, $soma_avaliacoes);
+                                        }*/
+                                        /*if($alunoID == 4085){
+                                            dd($k[$alunoID][$key], $soma, $soma_avaliacoes);
+                                        }*/
                                     }
                                 }catch(Exception $ex){
                                     dd($ex, $avaliacao);
                                 }
                                 
-
                                 if($key == 'media_final'){
                                     arsort($k[$alunoID]);
                                 }
                             }
                         }
-/*if($alunoID == 3293){//ALANA DA SILVA DE CARVALHO
+/*if($alunoID == 4085){//THAYANE (THAYANE DA SILVA DE ALMÊDA)
     dd($k[$alunoID], $mf, $reprovado, $disciplinas_reprovado_array);
 }*/
                         if(isset($mf)){
+                            
                             if(array_sum($reprovado)>0){
                                 $val = false;
                                 foreach(array_unique($disciplinas_reprovado_array) as $disciplina){
@@ -2079,12 +2048,14 @@ class AjaxRelatoriosController extends Controller
                             }
 
                             $k[$alunoID]['media_final'] = number_format((array_sum($mf)) / (count($mf)), '10', '.', '');
-        
+/*if($alunoID == 3365){//THAYANE (THAYANE DA SILVA DE ALMÊDA)
+    dd($k[$alunoID], $mf, $reprovado, $disciplinas_reprovado_array, $discAprovConselhoEnsino);
+}*/        
                             unset($mf);
                             unset($reprovado); 
                             unset($disciplinas_reprovado_array);
                         }
-    
+   
                         if(!is_null($alunoID)){
 
                             $class = new AlunosClassificacao;

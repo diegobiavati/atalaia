@@ -161,10 +161,18 @@ class AjaxOperadorController extends Controller
                 foreach ($avaliacoes as $key_aluno => $informacao) {
                     if (!($key == 'alunosID')) {
                         //$media = array_sum($informacao['notas']) / $informacao['disciplina_razao'];
-
-                        if ((($informacao['tfm'] == 'N') || ($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'N')) 
+                        
+                        if (( (($informacao['tfm'] == 'N') || ($informacao['tfm'] == 'S')) && $informacao['tfm_abdominal'] == 'N')
                         && $informacao['media'] < 5) {
                             $alunosID_recuperacao[] = $key_aluno;
+                        }else if($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'S'){
+                            $abdominal = 'S';
+                            foreach($informacao['avaliacoes'] as $avaliacao){
+                                if($avaliacao->nota == 'NS'){
+                                    $abdominal = 'NS';
+                                    $alunosID_recuperacao[] = $key_aluno;
+                                }
+                            }
                         }
                     }
                 }
@@ -345,13 +353,34 @@ class AjaxOperadorController extends Controller
                     foreach ($avaliacoes as $key_aluno => $informacao) {
                         if (!($key == 'alunosID')) {
                             //$media = array_sum($informacao['notas']) / $informacao['disciplina_razao'];
+                            
+                            if (( (($informacao['tfm'] == 'N') || ($informacao['tfm'] == 'S')) && $informacao['tfm_abdominal'] == 'N')
+                            && $informacao['media'] < 5) {
+                                $alunosID_recuperacao[] = $key_aluno;
+                            }else if($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'S'){
+                                $abdominal = 'S';
+                                foreach($informacao['avaliacoes'] as $aval){
+                                    if($aval->nota == 'NS'){
+                                        $abdominal = 'NS';
+                                        $alunosID_recuperacao[] = $key_aluno;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                /*foreach ($avaliacoes_notas as $key => $avaliacoes) {
+                    foreach ($avaliacoes as $key_aluno => $informacao) {
+                        if (!($key == 'alunosID')) {
+                            //$media = array_sum($informacao['notas']) / $informacao['disciplina_razao'];
 
                             if ($informacao['media'] < 5) {
                                 $alunosID_recuperacao[] = $key_aluno;
                             }
                         }
                     }
-                }
+                }*/
 
                 $alunosID_recuperacao = ($alunosID_recuperacao) ?? array();
 

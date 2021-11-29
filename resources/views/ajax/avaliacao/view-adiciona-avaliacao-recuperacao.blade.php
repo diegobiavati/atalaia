@@ -1,10 +1,10 @@
 <div class="modal-header" style="background-color: #F2F2F2">
-    <i class="ion-ios-compose" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Adicionar avaliação
+    <i class="ion-ios-compose" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Adicionar Avaliação de Recuperação
 </div>
 
 <div class="modal-body">
     <div class="alert alert-danger errors-adicionar-avaliacoes" role="alert"></div>
-    <form id="form_avaliacao">
+    <form id="adicionar_avaliacao_recuperacao">
         @csrf
         <div style="margin: 14px auto; width: 70%; max-width: 380px;">
             <div style="float: left; margin-top: 6px;">
@@ -23,7 +23,7 @@
 
         <div class="input_abdominal"></div>
 
-        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
+        <div style="margin: 14px auto; width: 70%; max-width: 380px; display:none;">
             <div style="float: left;">
                 <i class="ion-ios-compose" style="font-size: 24px; color: #696969;"></i>
             </div>
@@ -32,7 +32,7 @@
             </div>
             <div class="clear"></div>
         </div>
-        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
+        <div style="margin: 14px auto; width: 70%; max-width: 380px; display:none;">
             <div style="float: left;">
                 <i class="ion-ios-compose-outline" style="font-size: 24px; color: #696969;"></i>
             </div>
@@ -41,6 +41,7 @@
             </div>
             <div class="clear"></div>
         </div>
+
         <div style="margin: 14px auto; width: 70%; max-width: 380px;">
             <div style="float: left;">
                 <i class="ion-calendar" style="font-size: 24px; color: #696969;"></i>
@@ -62,15 +63,6 @@
 
         <div class="input_gbm"></div>
 
-        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-            <div style="float: left;">
-                <i class="ion-ios-flask" style="font-size: 24px; color: #696969;"></i>
-            </div>
-            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                <input class="no-style" style="width: 100%;" name="peso" type="text" value="{{ $avaliacao->peso or old('peso') }}" maxlength="5" autocomplete="off" placeholder="Peso" />
-            </div>
-            <div class="clear"></div>
-        </div>
         <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a UETE terá para informar o resultado obtido na avaliação">
             <div style="float: left;">
                 <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>
@@ -80,11 +72,6 @@
             </div>
             <div class="clear"></div>
         </div>
-        
-        <div class="input_mostra"></div>
-
-        <div class="box-dialog-chamadas"></div>
-
         <div style="margin: 14px auto; width: 70%; max-width: 380px;">
             <div style="float: left; margin-top: 6px;">
                 <i class="ion-chatbubble-working" style="font-size: 24px; color: #696969;"></i>
@@ -94,6 +81,7 @@
             </div>
             <div class="clear"></div>
         </div>
+
     </form>
 </div>
 
@@ -102,11 +90,11 @@
         Cancelar
     </button>
     @if(isset($avaliacao))
-    <button type="button" class="btn btn-primary" onclick="EditarAvaliacao({{ $avaliacao->id }});">
+    <button type="button" class="btn btn-primary" onclick="EditarAvaliacaoRec({{ $avaliacao->id }});">
         Editar
     </button>
     @else
-    <button type="button" class="btn btn-primary" onclick="AdicionarAvaliacao();">
+    <button type="button" class="btn btn-primary" onclick="AdicionarAvaliacaoRec();">
         Salvar
     </button>
     @endif
@@ -144,20 +132,20 @@
                 success: function(data){
                     $('.box-dialog-chamadas').html(data.result);
                     $('div.input_gbm').html(data.gbm);
-                    $('div.input_mostra').html(data.mostra);
                     $('div.input_abdominal').html(data.abdominal);
                 }
             });                        
         }
 
-        /* ADICIONAR AVALIAÇÃO */
-        function AdicionarAvaliacao() {
-            var dataForm = $('form#form_avaliacao').serialize();
+        // ADICIONAR AVALIAÇÃO DE RECUPERAÇÃO
+
+        function AdicionarAvaliacaoRec() {
+            var dataForm = $('form#adicionar_avaliacao_recuperacao').serialize();
             $.ajax({
                 type: 'POST',
                 dataType: 'json',
                 data: dataForm,
-                url: '/ajax/adicionar-avaliacao',
+                url: '/ajax/adicionar-avaliacao-recuperacao',
                 beforeSend: function() {
                     $('div.errors-adicionar-avaliacoes ul').remove().parent().hide();
                 },
@@ -219,10 +207,10 @@
             });
         }
 
-        /* EDITAR AVALIAÇÃO */
+        //EDITAR AVALIAÇÃO
 
-        function EditarAvaliacao(id){
-            var dataForm = $('form#form_avaliacao').serialize();
+        function EditarAvaliacaoRec(id){
+            var dataForm = $('form#adicionar_avaliacao_recuperacao').serialize();
             $.ajax({
                 type: 'POST',
                 dataType: 'json',
