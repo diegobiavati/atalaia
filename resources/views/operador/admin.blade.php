@@ -656,7 +656,7 @@ function onMessageArrived(message) {
         
         /* EDITAR AVALIAÇÃO */
 
-        function EditarAvaliacao(id){
+        /*function EditarAvaliacao(id){
             var dataForm = $('form#form_avaliacao').serialize();
             
             $.ajax({
@@ -708,65 +708,9 @@ function onMessageArrived(message) {
                     }
                 }                    
             });            
-        }
+        }*/
 
-        /* ADICIONAR AVALIAÇÃO DE RECUPERAÇÃO*/
-
-        function AdicionarAvaliacaoRec(){
-            var dataForm = $('form#adicionar_avaliacao_recuperacao').serialize();
-            $.ajax({
-                type: 'POST',
-                dataType: 'json',
-                data: dataForm,
-                url: '/ajax/adicionar-avaliacao-recuperacao',
-                beforeSend: function(){
-                    $('div.errors-adicionar-avaliacoes ul').remove().parent().hide();
-                },
-                success: function(data){
-                    if(data.data_prova=='err'){
-                        $('div.errors-adicionar-avaliacoes').html('<strong>ATENÇÃO: </strong> A data da prova não deve ser menor que o prazo para lançamento do Pronto de Faltas e Grau escolar. Por favor, aumente o prazo para UETE lançar os resultados ou altere a data da avaliação.').slideDown();     
-                    } else if(data.data_prova=='err1'){
-                        $('div.errors-adicionar-avaliacoes').html('<strong>ATENÇÃO: </strong> A avaliação deve ser criada mais próxima de sua realização.').slideDown();     
-                    } else if(data.data_prova=='err2'){
-                        $('div.errors-adicionar-avaliacoes').html('<strong>ATENÇÃO: </strong> A data/hora informada é inválida.').slideDown();     
-                    } else {                    
-                        if(data.err_chamada=='err'){
-                            $('div.errors-adicionar-avaliacoes').html('<strong>ATENÇÃO: </strong> Novas chamadas devem ter uma outra avaliação de referência.').slideDown();    
-                        } else {
-                            if(data.status=='ok'){
-                                $('div#modalDinamica').modal('hide');
-                                $('a#avaliacoes').trigger('click');
-                                setTimeout(function(){
-                                    $('button#disciplina_' + data.disciplinaID).trigger('click');
-                                    $('blockquote#disciplina_' + data.disciplinaID).show();
-                                    $('blockquote#disciplina_' + data.disciplinaID + ' footer').html('Avaliação de recuperação criada agora mesmo!');
-                                    setTimeout(function(){
-                                        $('blockquote#disciplina_' + data.disciplinaID).fadeOut();
-                                        $('blockquote#disciplina_' + data.disciplinaID + ' footer').empty();
-                                    }, 10000);
-                                }, 460);
-                            } else {
-                                $('div#modalDinamica').modal('hide');
-                                $('div.errors-adicionar-avaliacoes2').html('<strong>ATENÇÃO: </strong> Houve um erro ao tentar inserir uma avaliação').slideDown();    
-                            }
-                        }
-                    }                        
-                },
-                error: function(jqxhr){
-                    if(jqxhr.status==500){
-                        $('div#modalDinamica').modal('hide');
-                        $('div.errors-adicionar-avaliacoes2').html('<strong>ATENÇÃO: </strong> Houve um erro interno ao tentar inserir uma nova avaliação. Por favor, repita a operação.').slideDown();    
-                    } else if(jqxhr.status==422){
-                        $('div.errors-adicionar-avaliacoes').slideDown(100);
-                        var errors = $.parseJSON(jqxhr.responseText);
-                        $('div.errors-adicionar-avaliacoes').prepend('<ul style="margin: 0 6px;"></ul>');                            
-                        $.each(errors.errors, function (index, value) {
-                            $('div.errors-adicionar-avaliacoes ul').append('<li>' + value + '</li>');
-                        });  
-                    }
-                }                    
-            });            
-        }
+        
 
         /* MOSTRA DIALOGO REMOVER AVALIAÇÃO */
 

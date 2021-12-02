@@ -62,15 +62,6 @@
 
         <div class="input_gbm"></div>
 
-        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-            <div style="float: left;">
-                <i class="ion-ios-flask" style="font-size: 24px; color: #696969;"></i>
-            </div>
-            <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                <input class="no-style" style="width: 100%;" name="peso" type="text" value="{{ $avaliacao->peso or old('peso') }}" maxlength="5" autocomplete="off" placeholder="Peso" />
-            </div>
-            <div class="clear"></div>
-        </div>
         <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Informe o prazo em dias que a UETE terá para informar o resultado obtido na avaliação">
             <div style="float: left;">
                 <i class="ion-compass" style="font-size: 24px; color: #696969;"></i>

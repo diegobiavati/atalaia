@@ -23,6 +23,10 @@ class Disciplinas extends Model
         return $this->hasMany('App\Models\Avaliacoes', 'disciplinas_id', 'id');
     }
 
+    public function avaliacao(){
+        return $this->hasOne('App\Models\Avaliacoes', 'disciplinas_id', 'id');
+    }
+
 
     public function getNotaDisciplina(){
 

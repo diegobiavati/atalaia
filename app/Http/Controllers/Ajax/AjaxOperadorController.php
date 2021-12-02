@@ -137,6 +137,7 @@ class AjaxOperadorController extends Controller
                 $data[] = '<div style="color: #B40404; text-align:center; margin: 32px;">O pronto de faltas da avaliação de referência não foi enviado!</div>';
             }
         } else if ($chamadas->chamada == 0 && $chamadas->avaliacao_recuperacao == 1) {
+            
             // VERIFICO OS ALUNOS QUE FICARAM COM MÉDIA < 5,00 NA DISCIPLINA
             // ID DA DISCIPLINAS
             $disciplina_id = $chamadas->disciplinas_id;
@@ -162,8 +163,8 @@ class AjaxOperadorController extends Controller
                     if (!($key == 'alunosID')) {
                         //$media = array_sum($informacao['notas']) / $informacao['disciplina_razao'];
                         
-                        if (( (($informacao['tfm'] == 'N') || ($informacao['tfm'] == 'S')) && $informacao['tfm_abdominal'] == 'N')
-                        && $informacao['media'] < 5) {
+                        if (($informacao['tfm_abdominal'] == 'N' || ($informacao['tfm_abdominal'] == null))
+                         && $informacao['media'] < 5) {
                             $alunosID_recuperacao[] = $key_aluno;
                         }else if($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'S'){
                             $abdominal = 'S';
@@ -354,7 +355,8 @@ class AjaxOperadorController extends Controller
                         if (!($key == 'alunosID')) {
                             //$media = array_sum($informacao['notas']) / $informacao['disciplina_razao'];
                             
-                            if (( (($informacao['tfm'] == 'N') || ($informacao['tfm'] == 'S')) && $informacao['tfm_abdominal'] == 'N')
+                            //if (( (($informacao['tfm'] == 'N') || ($informacao['tfm'] == 'S')) && $informacao['tfm_abdominal'] == 'N')
+                            if (($informacao['tfm_abdominal'] == 'N' || ($informacao['tfm_abdominal'] == null))
                             && $informacao['media'] < 5) {
                                 $alunosID_recuperacao[] = $key_aluno;
                             }else if($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'S'){

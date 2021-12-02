@@ -284,4 +284,18 @@ class FuncoesController
     {
         return AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
     }
+
+    public static function isArrayKeyNumeric($array){
+        
+        $loop = array_filter($array, 'is_array');
+
+        foreach($loop as $key => $valor){
+            if(is_numeric($key)){
+                $retorno[] = $valor;
+            }
+        }
+
+        return $retorno;
+    }
+
 }

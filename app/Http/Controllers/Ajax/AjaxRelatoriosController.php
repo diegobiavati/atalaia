@@ -1879,6 +1879,8 @@ class AjaxRelatoriosController extends Controller
                                                 $avaliacao_rec_nota = null;
                                                 $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $avaliacao['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
 
+                                                $colspan_demonstrativo++;
+
                                                 if($avaliacao_rec_id){
                                                     $avaliacao_rec_nota = AvaliacoesNotas::where('alunos_id', $alunoID)->where('avaliacao_id', $avaliacao_rec_id->id)->first();
 
@@ -1902,6 +1904,7 @@ class AjaxRelatoriosController extends Controller
                                                 $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', $k[$alunoID][$key][$key_aval]['disciplina_id'])->first();
                                                 
                                                 if($alunos_em_conselho){
+                                                    $colspan_demonstrativo++;
                                                     $k[$alunoID][$key][$key_aval]['avaliacoes']['CE'] = 'APROVADO';
                                                     $discAprovConselhoEnsino[] = $k[$alunoID][$key][$key_aval]['disciplina_id'];
                                                     $k[$alunoID][$key][$key_aval]['media'] = $media_tfm;
@@ -1932,6 +1935,7 @@ class AjaxRelatoriosController extends Controller
                                                     }
                                                 }
 
+                                                
                                                 if(count($avaliacao['avaliacoes']) > $colspan_demonstrativo){
                                                     $colspan_demonstrativo = count($avaliacao['avaliacoes']);
                                                 }
@@ -2004,7 +2008,14 @@ class AjaxRelatoriosController extends Controller
                                             array_pop($mf);//Remove a última Média Lançada
                                             $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '3', '.', '');
                                         } 
+
+                                        /********************************************************
+                                        ***********       Fim de AR de TFM      **************
+                                        *********************************************************/
                                         
+                                        /*if($alunoID == 3678){//Aluno 1050 KARINA CARDOSO
+                                            dd($k[$alunoID][$key], $soma, $soma_avaliacoes);
+                                        }*/
                                         /*if($alunoID == 3290){//Aluno BUROCK 3646 
                                             dd($k[$alunoID][$key], $soma, $soma_avaliacoes);
                                         }*/

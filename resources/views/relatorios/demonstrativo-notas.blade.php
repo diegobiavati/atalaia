@@ -90,6 +90,7 @@ $data_array = unserialize($class->data_demonstrativo);
 
         @php
         $valida_col_tfm = false;
+        $rowspan = 0;
         @endphp
         @isset($data_array['avaliacoes_tfm'])
         <div style="margin: 8px;">
@@ -99,102 +100,104 @@ $data_array = unserialize($class->data_demonstrativo);
         <table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 100%;">
             @foreach($data_array['avaliacoes_tfm'] as $key_aval => $data)
             @if(is_numeric($key_aval))
-            <tr>
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;" colspan="{{$data_array['avaliacoes_tfm']['colspan_demonstrativo']}}"><b>{{ $data['disciplina_nome'] }}</b></td>
-                @if(!$valida_col_tfm)
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;"><b>ND TFM</b></td>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;" colspan="{{$data_array['avaliacoes_tfm']['colspan_demonstrativo']}}"><b>{{ $data['disciplina_nome'] }}</b></td>
+                    @if(!$valida_col_tfm)
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;"><b>ND TFM</b></td>
+                    @endif
+                </tr>
+                @if(isset($data['avaliacoes']))
+                <tr>
+                    @php
+                    $valida_colspan = false;
+                    @endphp
 
-                @endif
-            </tr>
-            @if(isset($data['avaliacoes']))
-            <tr>
-                @php
-                $valida_colspan = false;
-                @endphp
+                    @foreach($data['avaliacoes'] as $key => $avaliacoes)
 
-                @foreach($data['avaliacoes'] as $key => $avaliacoes)
+                        @if($valida_colspan)
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee;"><b>{{$key}}</b></td>
+                        @else
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee;" colspan='{{ ($data_array['avaliacoes_tfm']['colspan_demonstrativo'] - count($data['avaliacoes'])) }}'><b>{{$key}}</b></td>
+                        @endif
 
-                @if($valida_colspan)
-                <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee;"><b>{{$key}}</b></td>
+                        @php
+                        $valida_colspan = true;
+                        $rowspan++;
+                        @endphp
+                    @endforeach
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #eee;"><b>NA</b></td>
+
+                    @if(!$valida_col_tfm)
+                        <td style="border: 1px solid #000; text-align: center;" rowspan="{{ ((count(App\Http\Controllers\Utilitarios\FuncoesController::isArrayKeyNumeric($data_array['avaliacoes_tfm'])) * 3) - 1) }}">{{$data_array['avaliacoes_tfm']['media_tfm']}}</td>
+                        @php
+                        $valida_col_tfm = true;
+                        @endphp
+                    @endif
+                </tr>
+                <tr>
+                    @php
+                    $valida_colspan = false;
+                    @endphp
+                    
+                    @foreach($data['avaliacoes'] as $key => $avaliacoes)
+
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;" {{ (($valida_colspan) ? '' : 'colspan='.($data_array['avaliacoes_tfm']['colspan_demonstrativo'] - count($data['avaliacoes'])).'') }}>
+                        @if((isset($avaliacoes->nota) && is_numeric($avaliacoes->nota)))
+                        {{ number_format($avaliacoes->nota, '3', ',', '') }}
+                        @elseif($key == 'CE')
+                        {{ $avaliacoes }}
+                        @elseif($key == 'ACR')
+                        @if($data['tfm'] == 'S' && $data['tfm_abdominal'] == 'S')
+                        @php
+                        $abdominal = ($avaliacoes == 'S') ? 'SUFICIENTE': 'NÃO SUFICIENTE' ;
+                        @endphp
+                        {{ $abdominal }}
+                        @else
+                            {{ $avaliacoes}}
+                        @endif
+                        @else
+                        @php
+                        $abdominal = (isset($avaliacoes->nota) && $avaliacoes->nota == 'S') ? 'SUFICIENTE': 'NÃO SUFICIENTE' ;
+                        @endphp
+                        {{ $abdominal }}
+                        @endif
+                    </td>
+
+                    @php
+                    $valida_colspan = true;
+                    @endphp
+
+                    @endforeach
+
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">
+                    
+                        @if(isset($data['media_sem_peso']))
+                        
+                            @if(isset($data['AR']))
+                            {{ (!is_numeric($data['AR'])) ? ($data['AR'] == 'S' ? 'SUFICIENTE':'NÃO SUFICIENTE') : number_format($data['AR'], '3', ',', '') }}
+                            @else
+                            {{ ($data['tfm_abdominal'] == 'S') ? ($data_array['avaliacoes_tfm']['media_tfm_abdominal'] == 'S' ? 'SUFICIENTE':'NÃO SUFICIENTE') : number_format($data['media_sem_peso'], '3', ',', '') }}
+                            @endif
+                        
+                        @else
+
+                            @if(isset($data['tfm_abdominal']) && $data['tfm_abdominal'] == 'S')
+                            {{ $abdominal }}
+                            @else
+                            {{(isset($data['media_anterior']) ? number_format($data['media_anterior'], '3', ',', '') : (is_numeric($data['media']) ? number_format($data['media'], '3', ',', '') : $data['media']) ) }}
+                            @endif
+                        
+                        @endif
+                    </td>
+                </tr>
                 @else
-                <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee;" colspan='{{ ($data_array['avaliacoes_tfm']['colspan_demonstrativo'] - count($data['avaliacoes'])) }}'><b>{{$key}}</b></td>
+                <tr>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">NÃO HÁ AVALIAÇÕES LANÇADAS</td>
+                </tr>
                 @endif
 
-                @php
-                $valida_colspan = true;
-                @endphp
-                @endforeach
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #eee;"><b>NA</b></td>
-
-                @if(!$valida_col_tfm)
-                <td style="text-align: center;" rowspan="{{ (($loop->count * 2) - 1) }}">{{$data_array['avaliacoes_tfm']['media_tfm']}}</td>
-                @php
-                $valida_col_tfm = true;
-                @endphp
-                @endif
-            </tr>
-            <tr>
-                @php
-                $valida_colspan = false;
-                @endphp
-                
-                @foreach($data['avaliacoes'] as $key => $avaliacoes)
-
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;" {{ (($valida_colspan) ? '' : 'colspan='.($data_array['avaliacoes_tfm']['colspan_demonstrativo'] - count($data['avaliacoes'])).'') }}>
-                    @if((isset($avaliacoes->nota) && is_numeric($avaliacoes->nota)))
-                    {{ number_format($avaliacoes->nota, '3', ',', '') }}
-                    @elseif($key == 'CE')
-                    {{ $avaliacoes }}
-                    @elseif($key == 'ACR')
-                    @if($data['tfm'] == 'S' && $data['tfm_abdominal'] == 'S')
-                    @php
-                    $abdominal = ($avaliacoes == 'S') ? 'SUFICIENTE': 'INSUFICIENTE' ;
-                    @endphp
-                    {{ $abdominal }}
-                    @else
-                        {{ $avaliacoes}}
-                    @endif
-                    @else
-                    @php
-                    $abdominal = (isset($avaliacoes->nota) && $avaliacoes->nota == 'S') ? 'SUFICIENTE': 'INSUFICIENTE' ;
-                    @endphp
-                    {{ $abdominal }}
-                    @endif
-                </td>
-
-                @php
-                $valida_colspan = true;
-                @endphp
-
-                @endforeach
-
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;">
-                
-                    @if(isset($data['media_sem_peso']))
-                    
-                    @if(isset($data['AR']))
-                    {{ (!is_numeric($data['AR'])) ? ($data['AR'] == 'S' ? 'SUFICIENTE':'INSUFICIENTE') : number_format($data['AR'], '3', ',', '') }}
-                    @else
-                    {{ ($data['tfm_abdominal'] == 'S') ? ($data_array['avaliacoes_tfm']['media_tfm_abdominal'] == 'S' ? 'SUFICIENTE':'INSUFICIENTE') : number_format($data['media_sem_peso'], '3', ',', '') }}
-                    @endif
-                    
-                    @else
-                    @if(isset($data['tfm_abdominal']) && $data['tfm_abdominal'] == 'S')
-                    {{ $abdominal }}
-                    @else
-                    {{(isset($data['media_anterior']) ? number_format($data['media_anterior'], '3', ',', '') : (is_numeric($data['media']) ? number_format($data['media'], '3', ',', '') : $data['media']) ) }}
-                    @endif
-                    
-                    @endif
-                </td>
-            </tr>
-            @else
-            <tr>
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;">NÃO HÁ AVALIAÇÕES LANÇADAS</td>
-            </tr>
             @endif
-
-            @endif
+            
             @endforeach
         </table>
         @endisset
