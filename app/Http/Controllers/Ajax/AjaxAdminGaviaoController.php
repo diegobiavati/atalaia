@@ -249,6 +249,16 @@ class AjaxAdminGaviaoController extends Controller
             ->with('cursos', $cursos);
     }
 
+    public function ShowChkBoxAnoFormacaoQms($idAnoFormacao){
+        $alunosAnoCorrente = Alunos::retornaAlunosComQmsESA($idAnoFormacao);
+
+        foreach($alunosAnoCorrente as $aluno){
+            $qmss[$aluno->qms->id] = $aluno->qms;
+        }
+
+        return view('ajax.chkbox-ano-qms', compact('qmss'));
+    }
+
     public function ListagemSelecaoAlunosTurma(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
      
         $anoFormacao = AnoFormacao::find($request->ano_formacao);
@@ -313,6 +323,13 @@ class AjaxAdminGaviaoController extends Controller
     public function Relatorios(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
         return view('ajax.view-relatorios')->with('ownauthcontroller', $ownauthcontroller);
+    }
+
+    public function DiplomaDigital(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
+    {
+        $url_diploma_periodo = '/gaviao/ajax/diploma/diploma-periodo';
+
+        return view('ajax.diploma.view-diploma', compact('ownauthcontroller', 'url_diploma_periodo'));
     }
 
     public function SelecionaAlunoTurma(){

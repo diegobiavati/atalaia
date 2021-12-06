@@ -321,6 +321,9 @@ Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
 
     Route::post('ajax/aplicar-escolha-qms', ['as' => 'aplicar-escolha-qms', 'uses' => 'Ajax\AjaxAdminController@AplicaEscolhaQms']);
     Route::post('ajax/aplicar-escolha-qms-bi', ['as' => 'aplicar-escolha-qms-bi', 'uses' => 'Ajax\AjaxAdminController@AplicaEscolhaQmsBI']);
+
+    /* Diploma Digital */
+    Route::get('ajax/disciplinas-diploma-uete/{ano_formacao_id}', ['as' => 'disciplinas-diploma-uete', 'uses' => 'Relatorios\RelatoriosController@RelatorioDisciplinasDiplomaUete']);
 });
 
 /* AUTENTICAÇÃO ROTAS */
@@ -394,6 +397,7 @@ Route::get('/gaviao/sair', function () {
 
 Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
 
+    Route::get('show-checkbox-anoformacao-qms/{id}', 'Ajax\AjaxAdminGaviaoController@ShowChkBoxAnoFormacaoQms');
     Route::get('anos-de-formacao', ['as' => 'anos-de-formacao', 'uses' => 'Ajax\AjaxAdminController@AnosDeFormacao']);
     Route::get('visao-geral-gaviao', ['as' => 'visao-geral-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@VisaoGeralGaviao']);
     Route::get('gerenciar-operadores-gaviao', ['as' => 'gerenciar-operadores-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@GerenciarOperadoresGaviao'])->middleware('checkauth');
@@ -427,10 +431,6 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
     
     //Lançamentos FATD, FO
     Route::get('viewLancamentos', ['as' => 'lancamentos', 'uses' => 'Ajax\AjaxAdminController@ViewLancamentos']);
-
-
-
-    
 
     Route::get('carrega-opcoes-relatorio/{item}', 'Ajax\AjaxRelatoriosGaviaoController@OpcoesRelatoriosDefault');
 

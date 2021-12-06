@@ -40,3 +40,12 @@
         <span class="badge badge-primary badge-pill"></span>
     </a>
 </li>
+@if(session()->has('qms_selecionada') && session()->get('qms_selecionada') == 9999)
+    <li class="list-group-item justify-content-between align-items-center menu-list-01">
+        <a id="view-diploma" href="javascript: void(0);">                
+            <i class="ion-university"></i>
+            Diploma Digital
+            <span class="badge badge-primary badge-pill"></span>
+        </a>
+    </li>
+@endif

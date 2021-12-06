@@ -372,7 +372,7 @@ class Alunos extends Model
     }
 
     public static function retornaAlunosComQmsESA($anoFormacaoID=0, $colunas=[]){
-
+        
         $aluno = Alunos::retornaAlunosComQmsESAGeral($anoFormacaoID);
         
         if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){

@@ -118,6 +118,7 @@
                                             @endif
                                         @endforeach
                                         </select>
+                                        
                                     </div>
                                 </div>                            
                                 <div style="width: 90%; margin: 16px auto; text-align: center; border-bottom: 1px solid #ccc;">
@@ -126,12 +127,9 @@
                                         <button type="button" class="btn btn-primary btn-sm" onclick="$('input.omcts').prop('checked', true);">Marcar todas</button>
                                         <button type="button" class="btn btn-warning btn-sm" style="margin-left: 6px;" onclick="$('input.omcts').prop('checked', false);">Desmarcar todas</button>
                                     </div>
-                                    @foreach($qmss as $qms)
-                                        <div class="custom-control custom-checkbox" style="display: inline-block; margin: 0 10px 12px 0;">
-                                            <input type="checkbox" class="custom-control-input omcts" id="qms_{{$qms->id}}" name="qmss[]" value="{{$qms->id}}" />
-                                            <label class="custom-control-label" for="qms_{{$qms->id}}">{{$qms->qms}}</label>
-                                        </div>
-                                    @endforeach
+                                    <div class="chk_listagem_qms">
+                                        
+                                    </div>
                                 </div>
                             @endif
                             <div style="width: 90%; margin: 16px auto; text-align: center; border-bottom: 1px solid #ccc;">
@@ -202,27 +200,51 @@
 </div>
 
 <script>
-$('div.errors-seleciona-turma').empty().hide();
-$('div.success-seleciona-turma').empty().hide();
 
-$("[data-toggle=popover]").popover({
-    trigger: 'focus',
-    html: true, 
-    delay: { "show": 100, "hide": 400 },
-    content: function() {
-        return $('#popover-content').html();
-    }
+$(document).ready(function() {
+   
+    $('div.errors-seleciona-turma').empty().hide();
+    $('div.success-seleciona-turma').empty().hide();
+
+    $("[data-toggle=popover]").popover({
+        trigger: 'focus',
+        html: true, 
+        delay: { "show": 100, "hide": 400 },
+        content: function() {
+            return $('#popover-content').html();
+        }
+    });
+
+    // CHAMA EDIÇÃO DO ALUNO APOS PRESSIONAR ENTER NO INPUT 
+    $(document).on('keypress', 'input#input_busca_rapida_aluno', function(e) {
+        e.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+        if (e.which==13) {
+            var alunoId = $(this).val();
+            loadAdminAjaxContent('admin/aluno/' + alunoId);          
+        }
+    });
+
+    //Carrega os CheckBox dos Cursos
+    $('select[name="anos_de_formacao"].custom-select').on('change', function() {
+        CarregaCheckBoxAlunosGaviaoPeriodo(this.value);
+    });
+
+    CarregaCheckBoxAlunosGaviaoPeriodo({{$ano_corrente_data->id}});
 });
 
-// CHAMA EDIÇÃO DO ALUNO APOS PRESSIONAR ENTER NO INPUT 
-$(document).on('keypress', 'input#input_busca_rapida_aluno', function(e) {
-    e.stopImmediatePropagation(); //Não deixa duplicar os eventos
-
-    if (e.which==13) {
-        var alunoId = $(this).val();
-        loadAdminAjaxContent('admin/aluno/' + alunoId);          
-    }
-});
+function CarregaCheckBoxAlunosGaviaoPeriodo(idAnoFormacao){
+    $.ajax({
+        type:'GET',
+        url: '/gaviao/ajax/show-checkbox-anoformacao-qms/' + idAnoFormacao,
+        beforeSend: function(){
+            $('div.chk_listagem_qms').empty();
+        },
+        success: function(data){
+            $('div.chk_listagem_qms').html(data).slideDown();
+        }
+    }); 
+}
 
 function OpcoesdeListagemSelecaoAlunos(dataButton){
     var dataButtonContent = $(dataButton).html();
