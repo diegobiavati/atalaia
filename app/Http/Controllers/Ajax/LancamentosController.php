@@ -355,8 +355,11 @@ class LancamentosController extends Controller
             return '<font style="color:red;font-size:14px;">Selecione uma UETE</font>';
         }
 
+        $anoFormacao = AnoFormacao::find($request->ano_formacao);
+        $dataFim = $anoFormacao->ano_per_basico.'-12-31';
+
         if(isset($request->omctID)){
-            $whereUeteCurso = ((isset($request->omctID) && $request->omctID <> 'todas_omct') ? " AND alunos.omcts_id = $request->omctID" : null);
+            $whereUeteCurso = ((isset($request->omctID) && $request->omctID <> 'todas_omct') ? " AND alunos.omcts_id = $request->omctID AND lancamento_fo.data_obs BETWEEN '$anoFormacao->data_matricula' AND '$dataFim'" : null);
         }else{
             $whereUeteCurso = ((isset($request->qmsID) && $request->qmsID <> 'todas_qmss') ? " AND alunos.qms_id = $request->qmsID" : null);
         }
@@ -390,7 +393,7 @@ class LancamentosController extends Controller
                                         FROM lancamento_fo
                                         INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
                                         INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
-                                        WHERE (alunos.data_matricula = $request->ano_formacao OR alunos.ano_formacao_reintegr_id = $request->ano_formacao)" . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
+                                        WHERE (alunos.data_matricula = $anoFormacao->id OR alunos.ano_formacao_reintegr_id = $anoFormacao->id)" . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
                                         . 'ORDER BY lancamento_fo.data_obs DESC');
 
         return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'));
