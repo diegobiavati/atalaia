@@ -66,11 +66,11 @@ class AjaxOperadorController extends Controller
 
         $param = $ano_formacao;
         $lancamentoFo = LancamentoFo::whereHas('aluno', function ($query) use ($param) {
-            $query->where(['data_matricula' => $param, 'omcts_id' => session()->get('login.omctID')]);
+            $query->where(['data_matricula' => $param, 'omcts_id' => session()->get('login.omctID')])->whereNull('qms_id');
         })->get();
 
         $fatd = LancamentoFo::whereHas('aluno', function ($query) use ($param) {
-            $query->where(['data_matricula' => $param, 'omcts_id' => session()->get('login.omctID')]);
+            $query->where(['data_matricula' => $param, 'omcts_id' => session()->get('login.omctID')])->whereNull('qms_id');
         })->whereHas('fatdLancada', function ($query) {
             $query->where(['justificado' => null]);
         })->get();
