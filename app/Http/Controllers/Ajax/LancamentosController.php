@@ -114,12 +114,12 @@ class LancamentosController extends Controller
         $retorno['status'] = 'err';
         $retorno['response'] = 'Ocorreu um Erro, Relogue no Sistema';
 
-        if($request->textAreaProvidencias == null){
+        /*if($request->textAreaProvidencias == null){
             $retorno['status'] = 'err';
             $retorno['response'] = 'Informe a Providência.';
 
             return response()->json($retorno);
-        }
+        }*/
         //$lancamentoFo = LancamentoFo::find($id);
 
         //Se for cancelamento de FO
@@ -132,6 +132,13 @@ class LancamentosController extends Controller
                 $retorno['response'] = 'Erro ao Tentar Cancelar FO.';
             }
         }else{
+
+            if($request->textAreaProvidencias == null){
+                $retorno['status'] = 'err';
+                $retorno['response'] = 'Informe a Providência.';
+    
+                return response()->json($retorno);
+            }
             
             if ($this->LancarProvidencia($request, $id)) {
                 $retorno['status'] = 'success';
@@ -394,11 +401,12 @@ class LancamentosController extends Controller
             }
         }
 
-        $lancamentoFO = DB::select("SELECT lancamento_fo.id, lancamento_fo.data_obs, lancamento_fo.tipo, lancamento_fo.observacao, alunos.numero, alunos.nome_guerra, omcts.omct as uete
+        $lancamentoFO = DB::select("SELECT lancamento_fo.id, lancamento_fo.data_obs, lancamento_fo.tipo, lancamento_fo.observacao, alunos.numero, alunos.nome_guerra, omcts.omct as uete, qms.qms AS curso
                                         , lancamento_fo.providencia, lancamento_fo.fatd, lancamento_fo.cancelado
                                         FROM lancamento_fo
                                         INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
                                         INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
+                                        LEFT JOIN qms ON (qms.id = alunos.qms_id)
                                         WHERE (alunos.data_matricula = $anoFormacao->id OR alunos.ano_formacao_reintegr_id = $anoFormacao->id)" . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
                                         . 'ORDER BY lancamento_fo.data_obs DESC');
 
@@ -806,7 +814,7 @@ class LancamentosController extends Controller
     function CancelarFO(Request $request, $id)
     {
         //Se perfil sargenteante deixa cancelar...
-        if($this->_ownauthcontroller->PerfilCheck([4])){
+        if($this->_ownauthcontroller->PerfilCheck([4, 9002])){
 
             $lancamentoFO = LancamentoFo::find($id);
 

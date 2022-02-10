@@ -143,7 +143,9 @@
                 @endif
             </div>
             <div id="container-cancelamento">
-                @if((isset($lancamentoFo) && in_array(4, session()->get('login.perfil'))) || (isset($lancamentoFo) && $lancamentoFo->cancelado == 'S'))
+                @if((isset($lancamentoFo) 
+                && (in_array(4, session()->get('login.perfil')) || in_array(9002, session()->get('login.perfil'))) ) 
+                || (isset($lancamentoFo) && $lancamentoFo->cancelado == 'S'))
                 @include('lancamentos.lancamentoCancelamentoFO', $lancamentoFo)
                 @endif
             </div>

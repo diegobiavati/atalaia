@@ -8,6 +8,9 @@
                     <th style="width: 10%;text-align: left;">Data Obs</th>
                     <th>Tipo</th>
                     <th style="width: 30%;text-align: left;">Observação</th>
+                    @if(session()->get('login.qmsID') !== null)
+                    <th>Curso</th>
+                    @endif
                     <th>UETE</th>
                     <th>Opções</th>
                     <th>Situação</th>
@@ -22,6 +25,9 @@
                     <td style="text-align: left;">{{ App\Http\Controllers\Utilitarios\FuncoesController::formatDateEntoBr($aluno->data_obs)}}</td>
                     <td style="text-align: center;">{{ (($aluno->tipo == 0) ? 'Negativo' : (($aluno->tipo == 1) ? 'Neutro' : (($aluno->tipo == 2) ? 'Positivo' : null)) ) }}</td>
                     <td style="text-align: left;">{{$aluno->observacao}}</td>
+                    @if(session()->get('login.qmsID') !== null)
+                    <td style="text-align: left;">{{$aluno->curso}}</td>
+                    @endif
                     <td style="text-align: left;">{{$aluno->uete}}</td>
                     <td><a href="javascript: void(0);" class="no-style" title="Visualizar Fato Observado" onclick="abrirFichaIndividual({{$aluno->id}});"><i class="ion-android-clipboard" style="font-size: 22px;"></i></a></td>
                     <td>

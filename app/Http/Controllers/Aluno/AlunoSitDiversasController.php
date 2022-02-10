@@ -300,7 +300,6 @@ class AlunoSitDiversasController extends Controller
                 $idAluno = $alunoSitDiv->id;
                 $aluno = new Alunos;
 
-                
                     $alunoSitDivHistorico = \App\Models\AlunosSitDivHistorico::where('aluno_id', $idAluno)->first();
 
                     $data = unserialize($alunoSitDivHistorico->data);
@@ -310,9 +309,14 @@ class AlunoSitDiversasController extends Controller
                             $aluno->$key = $valor;
                     }
 
-                    //Informa o ano que ele será integrado
-                    //$anoFormacao = AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
-                    //$aluno->ano_formacao_reintegr_id = $anoFormacao->id;
+                    if($request->sistema == 'gaviao'){
+                        //Informa o ano que ele será integrado
+                        $anoFormacao = AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
+                        $aluno->ano_formacao_reintegr_id = $anoFormacao->id;
+                    }else{
+                        $aluno->ano_formacao_reintegr_id = null;
+                    }
+                    
 
                     unset($aluno->ano_formacao);
                     unset($aluno->turma);
