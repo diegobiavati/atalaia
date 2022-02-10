@@ -90,8 +90,14 @@ class LancamentosController extends Controller
 
             $turmas = array($lancamentoFo->aluno->turmaEsa);
 
-            return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly'))
-            ->with('ownauthcontroller', $this->_ownauthcontroller);
+            if(isset($lancamentoFo->aluno->turmaEsa)){
+                return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly'))
+                ->with('ownauthcontroller', $this->_ownauthcontroller);
+            }else{
+                $mensagem = 'Selecione a Turma do Aluno no Período ESA';
+                return view('ajax.erros.view-erro-padrao-centralizado', compact('mensagem'));
+            }
+            
         }
 
     }
@@ -562,7 +568,11 @@ class LancamentosController extends Controller
         //$pdf->Cell(145, 0, 'Nome Completo: '.utf8_decode($fatd->lancamentoFo->operador->nome), 0, 1, 'L', false);
         $pdf->SetXY(145, 93);
         $pdf->Cell(0, 0, 'Nr / Idt ' . $fatd->lancamentoFo->operador->idt_militar . ' ' . $fatd->lancamentoFo->operador->idt_militar_o_exp, 0, 1, 'L', false);
-        $pdf->Cell(0, 8, 'Subunidade/OM: ' . utf8_decode($fatd->lancamentoFo->operador->omcts->sigla_omct), 0, 1, 'L', false);
+        
+        $pdf->Cell(0, 8, 'Subunidade/OM: ' . utf8_decode((isset($fatd->lancamentoFo->operador->omcts) 
+        ? $fatd->lancamentoFo->operador->omcts->sigla_omct 
+        : $fatd->lancamentoFo->operador->qms->qms_sigla)) , 0, 1, 'L', false);
+
         $pdf->Line(10, 105, 200, 105);
 
         $pdf->SetFont('Times', 'B', 12);
@@ -573,8 +583,10 @@ class LancamentosController extends Controller
         $pdf->WriteHTML(utf8_decode($fatd->lancamentoFo->observacao));
 
         $pdf->SetXY(10, 190);
-        $omct = explode('-', $fatd->lancamentoFo->operador->omcts->gu);
-        $pdf->Cell(0, 4, utf8_decode($omct[0] . ', ' . $omct[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
+        
+        $guarnicao = explode('-', (isset($fatd->lancamentoFo->operador->omcts) ? $fatd->lancamentoFo->operador->omcts->gu : $fatd->lancamentoFo->operador->qms->gu) );
+
+        $pdf->Cell(0, 4, utf8_decode($guarnicao[0] . ', ' . $guarnicao[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
         $pdf->Ln(10);
         $pdf->WriteHTML(utf8_decode('<p align="center">______________________________________________</p>'));
         $pdf->WriteHTML(utf8_decode('<p align="center">' . trim($fatd->lancamentoFo->operador->nome) . ' - ' . $fatd->lancamentoFo->operador->posto->postograd_abrev . '</p>'));
@@ -590,7 +602,7 @@ class LancamentosController extends Controller
         $pdf->MultiCell(0, 5, utf8_decode('      Declaro que tenho conhecimento de que me está sendo imputada a autoria dos fatos acima e me foi concedido o prazo de três dias úteis, para apresentar, por escrito, as minhas justificativas ou razões de defesa.'));
         $pdf->Ln(5);
 
-        $pdf->Cell(0, 4, utf8_decode($omct[0] . ', ' . $omct[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
+        $pdf->Cell(0, 4, utf8_decode($guarnicao[0] . ', ' . $guarnicao[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
         $pdf->Ln(10);
 
         $pdf->SetFont('Times', '', 12);
@@ -624,7 +636,7 @@ class LancamentosController extends Controller
 
         $pdf->SetFont('Times', '', 10);
         $pdf->Ln(5);
-        $pdf->Cell(0, 4, utf8_decode($omct[0] . ', ' . $omct[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
+        $pdf->Cell(0, 4, utf8_decode($guarnicao[0] . ', ' . $guarnicao[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
         $pdf->Ln(12);
 
         $pdf->SetFont('Times', '', 12);
@@ -651,7 +663,7 @@ class LancamentosController extends Controller
 
         $pdf->SetFont('Times', '', 10);
         $pdf->Ln(10);
-        $pdf->Cell(0, 4, utf8_decode($omct[0] . ', ' . $omct[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
+        $pdf->Cell(0, 4, utf8_decode($guarnicao[0] . ', ' . $guarnicao[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
 
         $pdf->SetFont('Times', '', 12);
         $pdf->Ln(10);
