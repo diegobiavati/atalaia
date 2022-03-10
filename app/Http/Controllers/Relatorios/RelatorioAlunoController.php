@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\FPDF\PDF;
+use App\Http\FPDF\PDF_AUD_FO;
 use App\Http\FPDF\ROD_PDF;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\Alunos;
@@ -305,6 +306,73 @@ class RelatorioAlunoController extends Controller
         return view('relatorios/ficha-individual-do-aluno', compact('anoFormacao', 'rota', 'alunos'));
     }
 
+    public function ViewRelacaoAudienciaFO(Request $request)
+    {
+
+        /*$request->ano_formacao_id = 4;
+        $request->data_inicial = '01/01/2022';
+        $request->data_final = '28/02/2022';
+        $request->qmsID = 82;*/
+
+        $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
+
+        if(session()->has('login.qmsID')){
+            
+            $lancamentoFo = LancamentoFo::whereHas('aluno', function($query) use($anoFormacao){
+                $query->where('data_matricula', $anoFormacao->id)->orWhere('ano_formacao_reintegr_id', $anoFormacao->id);
+            })->whereBetween('data_obs', array(FuncoesController::formatDateBrtoEn($request->data_inicial), FuncoesController::formatDateBrtoEn($request->data_final)))
+            ->where('cancelado', 'N')
+            ->whereNull('providencia');
+
+            if ($request->qmsID != 'todas_qmss') {
+                $qmsId = $request->qmsID;
+
+                //filtra somente do curso especificado
+                $lancamentoFo->whereHas('aluno', function($query) use($qmsId){
+                    $query->where('qms_id', $qmsId);
+                });
+            }
+
+            $lancamentosFo = $lancamentoFo->get();
+
+            $pdf = new PDF_AUD_FO('P');
+            $pdf->AliasNbPages();
+            $pdf->SetAutoPageBreak(true, 10);
+
+            $pdf->setPeriodos($request->data_inicial, $request->data_final);
+    
+            $pdf->AddPage();
+            $pdf->SetFillColor(255, 255, 255);
+
+            $pdf->SetWidths(array(14, 15, 30, 30, 40, 40, 20));
+            $pdf->SetAligns(array('C', 'L', 'C', 'C', 'C', 'L', 'C'));
+            $pdf->SetFont('Times', '', 7);
+
+            foreach ($lancamentosFo as $key) {
+        
+                $pdf->Row(array(
+                    FuncoesController::formatDateEntoBr($key->data_obs), ($key->tipo == 0 ? 'NEGATIVO' : (($key->tipo == 1) ? 'NEUTRO': 'POSITIVO'))
+                    , utf8_decode($key->aluno->numero.'-'.$key->aluno->nome_guerra), utf8_decode($key->operador->posto->postograd_abrev.'-'.$key->operador->nome_guerra)
+                    , utf8_decode($key->observacao), utf8_decode('Em Desenvolvimento')
+                    , null
+                ));
+
+            }
+    
+            FuncoesController::LimpaPastaTemp();
+            $nomeArquivo = 'Aud_FO_'.uniqid().'.pdf';
+            $pdf->Output('F', storage_path('app/public/temp/').$nomeArquivo);
+
+            $data['success'] = true; 
+            $data['arquivo'] = $nomeArquivo;
+            $data['rota'] = 'ajax/relatorios/download-pdf';
+            
+            return response()->json($data);
+        }
+
+        exit();
+    }
+
     public function ViewRelacaoFradAlunos(Request $request)
     {
         $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
@@ -360,7 +428,7 @@ class RelatorioAlunoController extends Controller
         if(isset($alunos)){
             return $alunos->whereHas('lancamento_fo', function($query){
                         $query->where('fatd', 'S')->orWhere('frad', 'S');
-                    })->groupBy('alunos.id')->get();
+                    })->groupBy('alunos.id')->orderBy('alunos.numero')->get();
         }else{
             return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
                         FROM alunos
@@ -368,7 +436,8 @@ class RelatorioAlunoController extends Controller
                             WHERE alunos.data_matricula = $idAnoFormacao
                             $where
                             AND ( lancamento_fo.fatd = 'S' OR lancamento_fo.frad = 'S')
-                        GROUP BY alunos.id");
+                        GROUP BY alunos.id
+                        ORDER BY alunos.numero");
                     }
         
     }
@@ -846,6 +915,19 @@ class RelatorioAlunoController extends Controller
         return view('admin/consulta/relacao-ficha-disciplinar', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idUeteCurso'));
     }
 
+    public function ViewAudienciaFO(Request $request)
+    {
+        
+        $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
+
+        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao($anoFormacao);
+
+        $rota = 'ajax/view-relacao-audiencia-fo';
+
+        return view('admin.consulta.consulta-audiencia-fo', compact('cursos', 'anoFormacao', 'rota'))
+            ->with('ownauthcontroller', $this->ownauthcontroller);
+    }
+
     public function RelatorioFichaDisciplinarAlunos(Request $request)
     {
 
@@ -1018,7 +1100,7 @@ class RelatorioAlunoController extends Controller
             return $alunos->whereHas('lancamento_fo', function($query) {
                         $query->whereHas('fatdLancada', function($query2){
                         });
-                    })->groupBy('alunos.id')->get();
+                    })->groupBy('alunos.id')->orderBy('alunos.numero')->get();
         }else{
             return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
                                     FROM alunos
@@ -1026,7 +1108,8 @@ class RelatorioAlunoController extends Controller
                                     INNER JOIN fatd ON (fatd.lancamento_fo_id = lancamento_fo.id)
                                     WHERE alunos.data_matricula = $idAnoFormacao
                                     $where
-                                    GROUP BY alunos.id");
+                                    GROUP BY alunos.id
+                                    ORDER BY alunos.numero");
         }
     }
 
@@ -1241,5 +1324,12 @@ class RelatorioAlunoController extends Controller
 
         $pdf->Output('I', 'Ficha_Disciplinar.pdf');
         exit();
+    }
+
+    public function Download(Request $request){
+
+        $file= storage_path('app/public/temp/').$request->arquivo;
+
+        return response()->download($file, $request->arquivo, [], 'inline');
     }
 }

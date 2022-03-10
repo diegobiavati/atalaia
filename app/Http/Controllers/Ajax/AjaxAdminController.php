@@ -1656,7 +1656,7 @@ class AjaxAdminController extends Controller
                                                 <i class="ion-calendar" style="font-size: 24px; color: #696969;"></i>
                                             </div>
                                             <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                                <input class="no-style" style="width: 100%;" name="data_matricula" type="text" value="' . strftime('%d/%m/%Y', strtotime($ano_formacao->data_matricula)) . '" maxlength="10" autocomplete="off" placeholder="Data de matrúcla (DD/MM/AAAA)." />
+                                                <input class="no-style" style="width: 100%;" name="data_matricula" type="text" value="' . strftime('%d/%m/%Y', strtotime($ano_formacao->data_matricula)) . '" maxlength="10" autocomplete="off" placeholder="Data de matrícula (DD/MM/AAAA)." />
                                             </div>
                                             <div class="clear"></div>
                                             <div style="margin: 14px auto; width: 80%; max-width: 380px;">
@@ -2252,7 +2252,7 @@ class AjaxAdminController extends Controller
                                     </div>
                                 </div>';
 
-            $data['gbm'] = ($disciplina->avaliacao->tfm_abdominal == 'S' ? '': $data['peso']);
+            $data['gbm'] = ((isset($disciplina->avaliacao->tfm_abdominal) && $disciplina->avaliacao->tfm_abdominal == 'S') ? '': $data['peso']);
             $data['mostra'] = '';
         } else {
             $data['abdominal'] = '';
@@ -2659,6 +2659,7 @@ class AjaxAdminController extends Controller
         $disciplina->nome_disciplina = $request->nome_disciplina;
         $disciplina->nome_disciplina_abrev = $request->nome_disciplina_abrev;
         $disciplina->peso = $peso;
+        $disciplina->tfm = (isset($request->tfm) ? 'S' : 'N');
 
         $disciplina->carga_horaria = $request->carga_horaria;
         $disciplina->tipo_avaliacao = $request->tipo_avaliacao;

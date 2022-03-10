@@ -127,13 +127,13 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
     //Route::get('dialog-editar-cadastro-aluno/{pesquisa}/{tipo}', 'Ajax\AjaxAdminController@DialogEditarCadastroAluno');    
 
     //Route::get('dialog-implantar-aluno/', 'Ajax\AjaxImplantarAlunoController@DialogImplantarAluno');    
-    //Criada Por Ten João Victor
+    //Criado Por Ten João Victor
     Route::resource('admin/aluno', 'Aluno\AlunoApiController');
     //Route::resource('visao-geral', 'Aluno\AlunoApiController');  
 
     //Original Julião...
     //Route::get('dialog-adicionar-aluno-situacao-diversa/{id}', 'Ajax\AjaxAdminController@DialogAdicionarAluSitDiv');
-    //Criacao or Ten João Victor
+    //Criado Por Ten João Victor
     Route::resource('admin/alunoSitDiversas', 'Aluno\AlunoSitDiversasController');
 
     Route::get('dialog-editar-cadastro-aluno-situacoes-diversas/{id}', 'Ajax\AjaxAdminController@DialogEditarCadastroAlunoSitDiv');
@@ -367,7 +367,10 @@ Route::get('pdfTeste', function(){
 });
 
 //Reintegrar Aluno Situacao Diversas
-Route::get('reintegrar/{requisicao}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
+//Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
+
+//Gerar Notas Aluno Capitani
+Route::get('modelo-pb-capitani/{id_ano_formacao}', 'Aluno\AlunoApiController@modeloPBCapitani')->middleware('checkauth');
 
 //Importador de Arquivo Excel para integrar o banco de dados do SisPB com o Atalaia
 Route::resource('importar-excel-sispb-alunos', 'Utilitarios\ImportadorController');
@@ -397,12 +400,12 @@ Route::get('/gaviao/sair', function () {
 
 Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
 
-    Route::get('show-checkbox-anoformacao-qms/{id}', 'Ajax\AjaxAdminGaviaoController@ShowChkBoxAnoFormacaoQms');
+    Route::get('show-checkbox-anoformacao-qms/{id}', 'Ajax\AjaxAdminGaviaoController@ShowChkBoxAnoFormacaoQms')->middleware('checkauth');
     Route::get('anos-de-formacao', ['as' => 'anos-de-formacao', 'uses' => 'Ajax\AjaxAdminController@AnosDeFormacao']);
     Route::get('visao-geral-gaviao', ['as' => 'visao-geral-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@VisaoGeralGaviao']);
     Route::get('gerenciar-operadores-gaviao', ['as' => 'gerenciar-operadores-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@GerenciarOperadoresGaviao'])->middleware('checkauth');
-    Route::get('dialog-editar-operador-gaviao/{id}', 'Ajax\AjaxAdminGaviaoController@DialogEditarOperadorGaviao');
-    Route::get('dialog-adicionar-operador-gaviao', 'Ajax\AjaxAdminGaviaoController@DialogAdicionarOperadorGaviao');
+    Route::get('dialog-editar-operador-gaviao/{id}', 'Ajax\AjaxAdminGaviaoController@DialogEditarOperadorGaviao')->middleware('checkauth');
+    Route::get('dialog-adicionar-operador-gaviao', 'Ajax\AjaxAdminGaviaoController@DialogAdicionarOperadorGaviao')->middleware('checkauth');
     Route::get('alunos-gaviao', ['as' => 'alunos-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@GerenciarAlunosGaviao'])->middleware('checkauth');
 
     Route::get('seletorQms/{qms_id}', ['as' => 'seletorQms', 'uses' => 'Ajax\AjaxAdminGaviaoController@SelecionaQMS'])->middleware('checkauth');
@@ -426,11 +429,14 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
     Route::get('view-ficha-disciplinar/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewFichaDisciplinarGaviao')->middleware('checkauth');
     Route::post('view-relacao-ficha-disciplinar/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoFDisciplinarAlunos')->middleware('checkauth');
 
-    Route::get('view-relacao-punidos/{id_ano_formacao}', 'Ajax\AjaxAdminController@ViewSelecaoUeteAlunoPunicao');
-    Route::post('view-relacao-punidos/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoAlunoUetePunido');
+    Route::get('view-audiencia-fo/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewAudienciaFO')->middleware('checkauth');
+    Route::post('view-relacao-audiencia-fo/', 'Relatorios\RelatorioAlunoController@ViewRelacaoAudienciaFO')->middleware('checkauth');
+
+    Route::get('view-relacao-punidos/{id_ano_formacao}', 'Ajax\AjaxAdminController@ViewSelecaoUeteAlunoPunicao')->middleware('checkauth');
+    Route::post('view-relacao-punidos/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelacaoAlunoUetePunido')->middleware('checkauth');
     
     //Lançamentos FATD, FO
-    Route::get('viewLancamentos', ['as' => 'lancamentos', 'uses' => 'Ajax\AjaxAdminController@ViewLancamentos']);
+    Route::get('viewLancamentos', ['as' => 'lancamentos', 'uses' => 'Ajax\AjaxAdminController@ViewLancamentos'])->middleware('checkauth');
 
     Route::get('carrega-opcoes-relatorio/{item}', 'Ajax\AjaxRelatoriosGaviaoController@OpcoesRelatoriosDefault');
 
@@ -438,7 +444,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
     Route::get('view-relatorios', ['as' => 'view-relatorios', 'uses' => 'Ajax\AjaxAdminGaviaoController@Relatorios']);
 
     Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
-        
+        Route::get('download-pdf/{arquivo}', 'Relatorios\RelatorioAlunoController@Download')->middleware('checkauth');
     });
 
     /* Rotas Para Diploma Digital */
@@ -451,4 +457,6 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
         //Exportar o Xlsx para o Diploma Digital
         Route::get('exportaAluno', ['as' => 'exportaAluno', 'uses' => 'Ajax\Diploma\DiplomaController@exportAlunos'])->middleware('checkauth');
     });
+
+    //Route::get('correcao-comandanteCurso', 'Ajax\LancamentosController@CorrecaoComandante');
 });

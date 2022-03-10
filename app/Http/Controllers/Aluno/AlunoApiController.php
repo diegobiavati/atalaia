@@ -24,11 +24,15 @@ use App\Models\SituacaoMatricula;
 use App\Models\Uf;
 use App\Models\TurmasPB;
 use App\Models\Alunos;
+use App\Models\AlunosClassificacao;
 use App\Models\AlunosCurso;
 use App\Models\AlunosSitDiv;
 use App\Models\Areas;
 use App\Models\AnoFormacao;
+use App\Models\Disciplinas;
 use App\Models\Instrumentos;
+use App\Models\Mencoes;
+use App\Models\ModeloNotasCapitani;
 use App\Models\OMCT;
 use App\Models\SituacoesDiversas;
 use App\Models\Users;
@@ -150,6 +154,9 @@ class AlunoApiController extends Controller
         $dados['data_sgttemp'] = FuncoesController::formatDateBrtoEn($dados['data_sgttemp']);
         $dados['data_baixa_ultima_om'] = FuncoesController::formatDateBrtoEn($dados['data_baixa_ultima_om']);
         $dados['doc_idt_militar_dt_exp'] = FuncoesController::formatDateBrtoEn($dados['doc_idt_militar_dt_exp']);
+
+        $dados['cpf_pai'] = preg_replace('/[^0-9]/', '', $dados['cpf_pai']);
+        $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
 
         $validador = Validator::make($dados, $this->aluno->regras(), [], $this->aluno->atributos());
 
@@ -319,6 +326,9 @@ class AlunoApiController extends Controller
         $dados['data_baixa_ultima_om'] = FuncoesController::formatDateBrtoEn($dados['data_baixa_ultima_om']);
         $dados['doc_idt_militar_dt_exp'] = FuncoesController::formatDateBrtoEn($dados['doc_idt_militar_dt_exp']);
 
+        $dados['cpf_pai'] = preg_replace('/[^0-9]/', '', $dados['cpf_pai']);
+        $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
+
         $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
 
         if (
@@ -410,5 +420,157 @@ class AlunoApiController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function modeloPBCapitani(Request $request){
+
+            ModeloNotasCapitani::truncate();
+
+            $alunosID = Alunos::retornaAlunosComQmsESAGeral($request->id_ano_formacao)->get(['id']);
+
+            $id_anoForm_disc = Alunos::retornaAlunosComQmsESAGeral($request->id_ano_formacao)
+                                ->groupBy('data_matricula')->pluck('data_matricula')->toArray();
+
+            $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)
+            ->whereHas('aluno', function($q) use ($request) {
+                $q->orderBy('numero', 'asc');
+            })->get();
+
+            //dd(unserialize($alunos_classif[0]->data_demonstrativo));
+
+            $disciplinas_capitani['ARMTO'] = 'ARMT';
+            $disciplinas_capitani['LID'] = 'LIDMIL';
+            $disciplinas_capitani['ÉTICA'] = 'ETICA';
+            $disciplinas_capitani['TEC MIL 1'] = 'TEC_MIL_I';
+            $disciplinas_capitani['TEC MIL 2'] = 'TEC_MIL_II';
+            $disciplinas_capitani['TEC MIL 3'] = 'TEC_MIL_III';
+            $disciplinas_capitani['HIST'] = 'HIST';
+            $disciplinas_capitani['Hist Mil BR'] = 'HIST';
+            $disciplinas_capitani['ING 1'] = 'INGLES_I';
+            $disciplinas_capitani['TFM'] = 'TFM1';
+            
+            $mencoes = Mencoes::get();
+            $disciplinas = Disciplinas::whereIn('ano_formacao_id', $id_anoForm_disc)->get();
+
+            foreach($disciplinas as $disciplina){
+                if($disciplina->tfm == 'N'){
+                    $disciplinas_array['TFM-'.$disciplina->tfm][$disciplinas_capitani[$disciplina->nome_disciplina_abrev]][$disciplina->id] = $disciplina;   
+                    $disciplinas_utilz[] = $disciplinas_capitani[$disciplina->nome_disciplina_abrev];
+                }
+            }
+
+            $disciplinas = $disciplinas_array;
+            
+            $lista_retorno = array();
+            $lista_colunas = array('Ano_Cad', 'Numero', 'ND_TFM');
+            
+            foreach($disciplinas_utilz as $dsp){
+                $lista_colunas[] = $dsp;
+            }
+            
+            array_push($lista_colunas, 'N1', 'class', 'MEN', 'QR_1');
+
+            $lista_colunas = array_unique($lista_colunas);
+            
+            foreach ($alunos_classif as $class){
+
+                $modeloNotas = new ModeloNotasCapitani();
+
+                $modeloNotas->ano_cad = $class->anoFormacao->formacao;
+                $modeloNotas->numero = $class->aluno->numero;
+                
+                $mencao_aluno = 'Não Informada';
+                                
+                $data_array = unserialize($class->data_demonstrativo);
+                $media_disciplina = null;
+                $qr = 0;
+                
+                if(!isset($data_array['avaliacoes_tfm'])){
+                    foreach($data_array as $key => $data){
+                        if(is_numeric($key) && $data['disciplina_id'] == 99999){
+                            $data_array['avaliacoes_tfm']['media_tfm'] = number_format($data['media'], '3', ',', '');
+                            break;
+                        }
+                    }
+                }
+
+                $modeloNotas->nd_tfm = $data_array['avaliacoes_tfm']['media_tfm'];
+                
+                $modeloNotas->nd_armt = 0.000;
+                $modeloNotas->nd_lidmil = 0.000;
+                $modeloNotas->nd_etica = 0.000;
+                $modeloNotas->nd_tec_mil_1 = 0.000;
+                $modeloNotas->nd_tec_mil_2 = 0.000;
+                $modeloNotas->nd_tec_mil_3 = 0.000;
+                $modeloNotas->nd_hist = 0.000;
+                $modeloNotas->nd_ingles_1 = 0.000;
+
+                foreach ($disciplinas['TFM-N'] as $keydisc => $disciplina){
+                    foreach($data_array as $key => $data){
+                    
+                        if(is_numeric($key)){
+                            if(in_array($data['disciplina_id'], array_keys($disciplina))){
+                                if(isset($data['AR'])){
+                                    $qr++;
+                                }
+                                $media_disciplina = (isset($data['media_sem_peso']) ? $data['media_sem_peso'] : $data['media']);
+                                break;
+                            }
+                        }
+                    }
+                   
+                    $media_disciplina = (is_numeric($media_disciplina) ? number_format($media_disciplina, '3', ',', '') : number_format(0, '3', ',', ''));
+                    
+                    switch($keydisc){
+                        case 'ARMT':
+                            $modeloNotas->nd_armt = $media_disciplina;
+                            break;
+                        case 'LIDMIL':
+                            $modeloNotas->nd_lidmil = $media_disciplina;
+                            break;
+                        case 'ETICA':
+                            $modeloNotas->nd_etica = $media_disciplina;
+                            break;
+                        case 'TEC_MIL_I':
+                            $modeloNotas->nd_tec_mil_1 = $media_disciplina;
+                            break;
+                        case 'TEC_MIL_II':
+                            $modeloNotas->nd_tec_mil_2 = $media_disciplina;
+                            break;
+                        case 'TEC_MIL_III':
+                            $modeloNotas->nd_tec_mil_3 = $media_disciplina;
+                            break;
+                        case 'HIST':
+                            $modeloNotas->nd_hist = $media_disciplina;
+                            break;
+                        case 'INGLES_I':
+                            $modeloNotas->nd_ingles_1 = $media_disciplina;
+                            break;
+                    }
+
+                }
+
+                $modeloNotas->n1 = $class->nota_final_arredondada;
+                $modeloNotas->class = $class->classificacao;
+                                
+                foreach($mencoes as $mencao){
+                    if($class->nota_final>=$mencao->inicio && $class->nota_final<=$mencao->fim){
+                        $mencao_aluno = $mencao->mencao;
+                        break;
+                    }
+                }
+
+                $modeloNotas->qr_1 = $qr;
+                $modeloNotas->men = $mencao_aluno;
+
+                $lista_retorno[] = $modeloNotas;
+
+                $modeloNotas->save();
+            }
+
+            $this->classLog->RegistrarLog('Acessou modelo de notas capitani', auth()->user()->email);
+            //return view('relatorios.modelo-notas-capitani', compact('mencoes', 'disciplinas', 'disciplinas_capitani', 'alunos_classif'));
+            return view('relatorios.modelo-notas-capitani', compact('lista_colunas', 'lista_retorno'));
+
     }
 }

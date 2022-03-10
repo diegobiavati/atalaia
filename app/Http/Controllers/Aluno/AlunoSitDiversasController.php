@@ -317,7 +317,6 @@ class AlunoSitDiversasController extends Controller
                         $aluno->ano_formacao_reintegr_id = null;
                     }
                     
-
                     unset($aluno->ano_formacao);
                     unset($aluno->turma);
                     unset($aluno->omct);

@@ -80,9 +80,12 @@ dd($row);
                 'cep' => $row['cep'],
                 'telefone' => $row['telefone'],
                 'celular1' => $row['celular1'],
-                'celular2' => $row['celular2'],
-                'celular3' => $row['celular3'],
-                'email' => $row['email']
+                'email' => $row['email'],
+                'cotista' => $row['vaga_cota'],
+                'doc_cpf' => $row['doc_cpf'],
+                'doc_idt_civil' => $row['doc_idt_civil'],
+                'doc_idt_civil_o_exp' => $row['doc_idt_civil_o_exp'],
+                'sexo' => $row['sexo']
             ]);
 
             if(isset($aluno)){

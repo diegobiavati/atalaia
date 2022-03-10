@@ -12,4 +12,9 @@ class QMS extends Model
     public function escolhaQms(){
         return $this->hasOne('App\Models\EscolhaQMS', 'id', 'escolha_qms_id');
     }
+
+    public function comandanteCurso()
+    {
+        return $this->belongsTo('App\Models\Operadores', 'comandante_operador_id', 'id');
+    }
 }

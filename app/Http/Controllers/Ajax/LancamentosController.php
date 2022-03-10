@@ -18,6 +18,7 @@ use App\Http\FPDF\PDF;
 use App\Models\Alunos;
 use App\Models\Comportamento;
 use App\Models\Enquadramentos;
+use App\Models\QMS;
 use App\Models\TurmasEsa;
 use Illuminate\Support\Facades\Validator;
 
@@ -179,6 +180,21 @@ class LancamentosController extends Controller
             }
         }
 
+        if(session()->get('login.qmsID')){
+            $comandanteCurso = QMS::find($request->qmsID)->comandanteCurso;
+        }else{
+            $operadoresAtivos = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['ativo', '=', 'S']])->get();
+
+            foreach($operadoresAtivos as $operador){
+                $funcaoOperador = explode(',', $operador->id_funcao_operador);
+
+                if(in_array(2, $funcaoOperador)){
+                    $comandanteCurso = $operador;
+                    break;
+                }
+            }
+        }
+
         $invalidaOperacao = false;
         foreach ($listaAlunos as $idAluno) {
             $lancamentoFo = new LancamentoFo();
@@ -186,6 +202,7 @@ class LancamentosController extends Controller
             $lancamentoFo->operador_id = session()->get('login')['operadorID'];
             $lancamentoFo->tipo = $request->radioTipoFO;
             $lancamentoFo->observacao = $request->textAreaObservacaoFO;
+            $lancamentoFo->comandante_operador_id = $comandanteCurso->id;
 
             //if($request->textAreaProvidencias != null && $this->_ownauthcontroller->PerfilCheck([2,9001])){
             if($request->textAreaProvidencias != null){
@@ -502,16 +519,16 @@ class LancamentosController extends Controller
         $fatd = Fatd::where(['lancamento_fo_id' => $request->fatdID])->with('lancamentoFo')->first();
 
         if(session()->get('login.qmsID')){
-            $operadorChefe = Operadores::where([['qms_matriz_id', '=', $fatd->lancamentoFo->aluno->qms->qms_matriz_id], ['id_funcao_operador', '=', '9001']])->first();
+            $comandanteCurso = QMS::find($fatd->lancamentoFo->aluno->qms_id)->comandanteCurso;
         }else{
-            //$operadorChefe = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2'], ['ativo', '=', 'S']])->first();
+            //$comandanteCurso = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2'], ['ativo', '=', 'S']])->first();
             $operadoresAtivos = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['ativo', '=', 'S']])->get();
 
             foreach($operadoresAtivos as $operador){
                 $funcaoOperador = explode(',', $operador->id_funcao_operador);
 
                 if(in_array(2, $funcaoOperador)){
-                    $operadorChefe = $operador;
+                    $comandanteCurso = $operador;
                     break;
                 }
             }
@@ -535,7 +552,11 @@ class LancamentosController extends Controller
         //Cria a Borda
         $pdf->Rect(10, 10, 190, 278);
 
-        $pdf->Cell(0, 4, utf8_decode($fatd->lancamentoFo->aluno->omct->omct), 0, 1, 'C', false);
+        if(session()->get('login.qmsID')){
+            $pdf->Cell(0, 4, utf8_decode('Curso de '.$fatd->lancamentoFo->aluno->qms->qms), 0, 1, 'C', false);
+        }else{
+            $pdf->Cell(0, 4, utf8_decode($fatd->lancamentoFo->aluno->omct->omct), 0, 1, 'C', false);
+        }
 
         $pdf->SetFont('Times', 'B', 12);
         $pdf->ln(5);
@@ -675,10 +696,10 @@ class LancamentosController extends Controller
 
         $pdf->SetFont('Times', '', 12);
         $pdf->Ln(10);
-        $pdf->WriteHTML(utf8_decode('<p align="center">' . $operadorChefe->nome . ' - ' . $operadorChefe->posto->postograd_abrev . '</p>'));
+        $pdf->WriteHTML(utf8_decode('<p align="center">' . $comandanteCurso->nome . ' - ' . $comandanteCurso->posto->postograd_abrev . '</p>'));
 
         $pdf->SetFont('Times', '', 10);
-        $pdf->Cell(0, 6, $operadorChefe->operadoresTipo->funcao_abrev, 0, 1, 'C', false);
+        $pdf->Cell(0, 6, $comandanteCurso->operadoresTipo->funcao_abrev, 0, 1, 'C', false);
 
         $pdf->SetXY(20, 282);
         $pdf->Cell(0, 5, utf8_decode('PUNIÇÃO PUBLICADA NO Adt BI Nr ______________, de ________ de _______________________ de ________'), 0, 1, 'L', false);
@@ -829,6 +850,30 @@ class LancamentosController extends Controller
             }
         }else{
             return false;
+        }
+    }
+
+    function CorrecaoComandante(){
+
+        $alunosIds = Alunos::retornaAlunosComQmsESAGeral(4)->pluck('id')->toArray();
+
+        //Pega somente os alunos que são da ESA
+        $lancamentoFO = LancamentoFo::whereHas('aluno', function ($query) use ($alunosIds){
+            $query->whereIn('aluno_id', $alunosIds);
+        })->where([['data_obs', '>=', '2022-01-01']])->get();
+
+        foreach($lancamentoFO as $lancamento){
+
+            $comandanteCurso = QMS::find($lancamento->aluno->qms_id)->comandanteCurso;
+            
+            if(isset($comandanteCurso)){
+                $lancamento->comandante_operador_id = $comandanteCurso->id;
+
+                $lancamento->save();
+            }else{
+                dd($comandanteCurso, $lancamento->aluno, $lancamento->aluno->qms);
+            }
+            
         }
     }
 }

@@ -134,7 +134,7 @@
                     <div class="divImplantarAluno" style="border-bottom:none; width: 20%;">
                         <i class="ion-android-calendar" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
                         <label class="labelDescricao">Ano de Formação</label>
-                        <select class="custom-select" id="ano_formacao" name="ano_formacao" style="margin-top:5px;" onchange="$('select#data_matricula').val( $(this).val() );">
+                        <select class="custom-select" id="ano_formacao" name="ano_formacao" style="margin-top:5px;" onchange="$('select#data_matricula').val( $(this).val() );" {{ ( (session()->get('login.qmsID') == null) ? '' : 'readonly') }}>
                             <option value="0" disabled selected hidden>Ano de Formação</option>
                             @foreach ($anoCorrente as $formacao)
                             <option value={{$formacao->id}} {{ (isset($aluno) && $formacao->id == $aluno->ano_formacao->id) ? 'selected' : ''}}>{{ $formacao->formacao }}</option>
@@ -565,6 +565,11 @@
                         <label class="labelDescricao">Nome do Pai</label>
                         <input class="no-style text-uppercase" name="nome_pai" value="{{$aluno->nome_pai or old('nome_pai') }}" type="text" maxlength="255" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
                     </div>
+                    <div class="divImplantarAluno" style="margin-left:20px; width: 8%;">
+                        <i class="ion-bookmark" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
+                        <label class="labelDescricao">CPF do Pai</label>
+                        <input class="no-style cpf_mask" style="margin-top:10px;width:100%;" name="cpf_pai" value="{{$aluno->cpf_pai or old('cpf_pai') }}" type="text" pattern="[0-9]+$" autocomplete="off" maxlength="30" placeholder="" />
+                    </div>
                     <div class="divImplantarAluno" style="width: 30%; margin-left:20px; border-bottom:none;">
                         <i class="ion-settings" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">Profissão Pai</label>
@@ -581,6 +586,11 @@
                         <i class="ion-female" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">Nome da Mãe</label>
                         <input class="no-style text-uppercase" name="nome_mae" value="{{$aluno->nome_mae or old('nome_mae') }}" type="text" maxlength="255" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;" />
+                    </div>
+                    <div class="divImplantarAluno" style="margin-left:20px; width: 8%;">
+                        <i class="ion-bookmark" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
+                        <label class="labelDescricao">CPF da Mãe</label>
+                        <input class="no-style cpf_mask" style="margin-top:10px;width:100%;" name="cpf_mae" value="{{$aluno->cpf_mae or old('cpf_mae') }}" type="text" pattern="[0-9]+$" autocomplete="off" maxlength="30" placeholder="" />
                     </div>
                     <div class="divImplantarAluno" style="width: 30%; margin-left:20px; border-bottom:none;">
                         <i class="ion-settings" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
@@ -724,6 +734,7 @@
         $('.cep_mask').mask('00000-000');
         $('.telefone_mask').mask('(00)-0000-0000');
         $('.celular_mask').mask('(00)-00000-0000');
+        $('.cpf_mask').mask('000.000.000-00');
 
         $('#nav-tab a').click(function() {
             $('div.errors-implantar-aluno').empty().hide();

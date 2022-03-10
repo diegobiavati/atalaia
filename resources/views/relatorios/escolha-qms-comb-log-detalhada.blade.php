@@ -45,9 +45,20 @@
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->nome_guerra}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->nome_completo}}</td>
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->omct->sigla_omct}}</td>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($aluno->classificacao->nota_final_arredondada, 3, ',', '.')}}</td>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->classificacao}}</td>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->classificacao_por_area}}</td>
+                    @php
+                        try{ 
+                    @endphp
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($aluno->classificacao->nota_final_arredondada, 3, ',', '.')}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->classificacao}}</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$aluno->classificacao->classificacao_por_area}}</td>
+                    @php
+                        }catch(\Exception $ex){
+                    @endphp
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">Sem Classificação</td>
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">Sem Classificação</td>
+                    @php
+                        }
+                    @endphp
                 </tr>    
             @endforeach
         </table>

@@ -16,5 +16,8 @@ class AlunosClassificacao extends Model
                         
     }
 
-            
+    public function anoFormacao()
+    {
+        return $this->hasOne(AnoFormacao::class, 'id', 'ano_formacao_id');                   
+    }       
 }

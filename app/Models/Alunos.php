@@ -36,6 +36,7 @@ class Alunos extends Model
         'habilidades',
         'sexo',
         'email',
+        'cotista',
         'precedencia',
         'data_cadastro',
         'al_inscricao',
@@ -65,8 +66,10 @@ class Alunos extends Model
         'celular2',
         'celular3',
         'nome_mae',
+        'cpf_mae',
         'id_profissao_mae',
         'nome_pai',
+        'cpf_pai',
         'id_profissao_pai',
         'doc_idt_civil',
         'doc_idt_civil_o_exp',
@@ -347,7 +350,7 @@ class Alunos extends Model
 
     private static function retornaAlunosComQms($anoFormacaoID=0){
 
-        $aluno = Alunos::whereNotNull('qms_id');
+        $aluno = Alunos::whereNotNull('qms_id')->orderBy('numero');
 
         /*if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
 
