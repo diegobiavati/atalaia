@@ -5,7 +5,7 @@
 @section('content')
 
 <h3 style="text-align: center; margin-top: -8px; font-size: 18px; font-family: Arial;">
-    <u>MAPA DE CONTROLE DE EFETIVO / CFS {{$anoFormacao->ano_per_basico.'-'.$anoFormacao->ano_per_qualificacao}}</u><br />
+    <u>MAPA DE CONTROLE DE EFETIVO / CFGS {{$anoFormacao->ano_per_basico.'-'.$anoFormacao->ano_per_qualificacao}}</u><br />
     Situação Geral em {{ date('d/m/Y H:i:s') }}<br />
 </h3>
 <div style="margin: 14px auto; width: 100%; text-align: center;">

@@ -178,6 +178,8 @@ class AlunoApiController extends Controller
         if ($validador->passes()) {
             $retorno['status'] = 'ok';
 
+            $dados['nome_guerra'] = strtoupper($dados['nome_guerra']);
+            $dados['nome_completo'] = strtoupper($dados['nome_completo']);
             $insert = $this->aluno->create($dados);
 
             // Verifica se inseriu com sucesso

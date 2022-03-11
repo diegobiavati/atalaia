@@ -142,6 +142,7 @@ class AnalisesNotasController extends Controller
                 $intervalo[$i] = number_format($i, 1, ',', '').' à '.number_format(($i+0.9), 1, ',', '');
                 
                 foreach($avaliacoes_notas_novo as $key => $aval_nota){
+                    
                     if($key != 'alunosID'){
                         foreach($aval_nota as $keyInfo => $info){
                             if(is_numeric($keyInfo)){
@@ -156,7 +157,7 @@ class AnalisesNotasController extends Controller
 
             $intervalo[9] = "9,0 à 9,499";
             $intervalo[10] = "9,5 à 10";
-
+            
             foreach($avaliacoes_notas_novo as $key => $aval_nota){
                 if($key != 'alunosID'){
                     foreach($aval_nota as $keyInfo => $info){
@@ -259,6 +260,7 @@ class AnalisesNotasController extends Controller
                     $disciplina_resultados[] = $disciplinas->getNotasAluno($alunoID);
                 }
 
+                
                 foreach($disciplina_resultados as $item){
                     if($item['ND']!=null){
                         $array_nds[] = $item['ND'];
@@ -316,13 +318,14 @@ class AnalisesNotasController extends Controller
 
                 for($i=0;$i<=8;$i++){
                     $intervalo[$i] = number_format($i, 1, ',', '').' à '.number_format(($i+0.9), 1, ',', '');
+                    
                     foreach($array_nds as $item){
                         if($item>=$i && $item<=($i+0.999)){
                             $notas_obtidas[$i][] = 1;    
                         }
                     }   
                 }
-
+                
                 $intervalo[9] = "9,0 à 9,499";
                 $intervalo[10] = "9,5 à 10";
 

@@ -5561,8 +5561,8 @@ class AjaxAdminController extends Controller
 
                         $lista[] = '    <tr id="alunoID_' . $aluno->id . '">
                                             <td>' . $aluno->numero . '</td>
-                                            <td>' . $aluno->nome_guerra . '</td>
-                                            <td>' . $aluno->nome_completo . '</td>
+                                            <td class="text-uppercase">' . $aluno->nome_guerra . '</td>
+                                            <td class="text-uppercase">' . $aluno->nome_completo . '</td>
                                             <td>' . $sexo[$aluno->sexo] . '</td>
                                             <td>' . $turma . '<br />' . $aluno->area->area . '</td>
                                             ' . $pendencia_cel . '

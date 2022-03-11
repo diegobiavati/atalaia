@@ -230,7 +230,7 @@ $(document).ready(function() {
         CarregaCheckBoxAlunosGaviaoPeriodo(this.value);
     });
 
-    CarregaCheckBoxAlunosGaviaoPeriodo({{$ano_corrente_data->id}});
+    CarregaCheckBoxAlunosGaviaoPeriodo('{{$ano_corrente_data->id}}');
 });
 
 function CarregaCheckBoxAlunosGaviaoPeriodo(idAnoFormacao){
