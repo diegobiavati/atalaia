@@ -169,7 +169,7 @@ class LancamentosController extends Controller
         }
 
         $dataFO = (is_null($request->dataFO) ? date('Y/m/d') : date('Y/m/d', strtotime($request->dataFO)));
-
+        
         $listaAtitudinal = [];
         $listaAlunos = [];
         foreach ($request->all() as $parametros => $value) {
@@ -183,8 +183,8 @@ class LancamentosController extends Controller
         if(session()->get('login.qmsID')){
             $comandanteCurso = QMS::find($request->qmsID)->comandanteCurso;
         }else{
-            $operadoresAtivos = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['ativo', '=', 'S']])->get();
-
+            $operadoresAtivos = Operadores::where([['omcts_id', '=', $request->omctID], ['ativo', '=', 'S']])->get();
+            
             foreach($operadoresAtivos as $operador){
                 $funcaoOperador = explode(',', $operador->id_funcao_operador);
 
