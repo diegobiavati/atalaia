@@ -318,6 +318,8 @@ class RelatorioAlunoController extends Controller
 
         if(session()->has('login.qmsID')){
             
+            
+
             $lancamentoFo = LancamentoFo::whereHas('aluno', function($query) use($anoFormacao){
                 $query->where('data_matricula', $anoFormacao->id)->orWhere('ano_formacao_reintegr_id', $anoFormacao->id);
             })->whereBetween('data_obs', array(FuncoesController::formatDateBrtoEn($request->data_inicial), FuncoesController::formatDateBrtoEn($request->data_final)))
@@ -325,11 +327,20 @@ class RelatorioAlunoController extends Controller
             ->whereNull('providencia');
 
             if ($request->qmsID != 'todas_qmss') {
-                $qmsId = $request->qmsID;
+                $parametros['qms'] = QMS::find($request->qmsID);
+                $parametros['cia'] = $request->cia;
 
-                //filtra somente do curso especificado
-                $lancamentoFo->whereHas('aluno', function($query) use($qmsId){
-                    $query->where('qms_id', $qmsId);
+                //Filtra somente do curso especificado
+                $lancamentoFo->whereHas('aluno', function($query) use($parametros){
+                    $query->where('qms_id', $parametros['qms']->id);
+
+                    if($parametros['qms']->qms_matriz_id == 1){//Infantaria
+                        if($parametros['cia'] == 1){
+                            $query->whereIn('turma_esa_id', array(1,2,3));//Turma I1, I2, I3
+                        }else if($parametros['cia'] == 2){
+                            $query->whereIn('turma_esa_id', array(4,5,15));//Turma I4, I5, I6
+                        }   
+                    }
                 });
             }
 

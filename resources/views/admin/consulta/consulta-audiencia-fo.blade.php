@@ -8,6 +8,11 @@
 
     @include('ajax.componenteSelectUeteCurso')
 
+    <div id="cia-content" style="display: none;margin-top: 24px;">
+        @include('ajax.componenteSelectCiaInfantaria')
+    </div>
+    
+
     <div style="width: 90%; margin: 22px auto; text-align: left; border-bottom: 1px solid #ccc;">
         <h4 style="text-align: center; margin-bottom: 12px;">Consulta de Audiência de Fato Observado</h4>
 
@@ -45,7 +50,14 @@
             format: 'dd/mm/yyyy'
         });
 
-        $(document).on('change', 'select.required_to_show_button', function() {
+        $(document).on('change', 'select.required_to_show_button', function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+            $('div#cia-content').slideUp(100);
+            if($(this).children("option:selected").html() == 'Infantaria'){
+                $('div#cia-content').slideDown(100);
+            }
+
             $('select.required_to_show_button').each(function(index, element) {
 
                 if ($(element).val() == 99) {
