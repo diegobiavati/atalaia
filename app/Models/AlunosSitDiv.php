@@ -19,6 +19,10 @@ class AlunosSitDiv extends Model
         return $this->belongsTo('App\Models\OMCT', 'omcts_id', 'id'); 
     }
 
+    public function qms(){
+        return $this->belongsTo('App\Models\QMS', 'qms_id', 'id'); 
+    }
+
     public function area(){
         return $this->belongsTo('App\Models\Areas', 'area_id', 'id'); 
     }

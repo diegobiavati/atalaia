@@ -4430,7 +4430,6 @@ class AjaxAdminController extends Controller
     {
 
         /* REMOVENDO DA TABELA ALUNOS */
-
         if ($ownauthcontroller->PermissaoCheck(1)) {
 
             $id = $request->id;
@@ -4444,8 +4443,7 @@ class AjaxAdminController extends Controller
             $email = $aluno->email;
             $aluno->delete();
 
-            /* REMOVENDO DA TABELA user */
-
+            /* REMOVENDO DA TABELA User */
             User::where('email', '=', $email)->delete();
 
             $data['response'] = 'ok';

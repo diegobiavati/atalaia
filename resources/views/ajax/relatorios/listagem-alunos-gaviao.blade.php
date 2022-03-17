@@ -42,7 +42,7 @@
                     @endif
                     
                     @if($ownauthcontroller->PermissaoCheck(11))
-                        <a href="javascript: void(0);" class="no-style" onclick="DialogAdicionarAluSitDivNovo({{ $aluno->id }});" title="Incluir aluno na lista de alunos em situações diversas."> <i class="ion-forward" style="font-size: 24px;"></i> </a>
+                        <a href="javascript: void(0);" class="no-style" onclick="DialogAdicionarAluSitDivNovo({{ $aluno->id }});" title="Incluir aluno em situações diversas."> <i class="ion-forward" style="font-size: 24px;"></i> </a>
                     @endif
 
                     <!--@if($ownauthcontroller->PermissaoCheck(9))
@@ -62,4 +62,28 @@
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
     });
+
+    function DialogAdicionarAluSitDivNovo(id){
+        $.ajax({
+            type:'GET',
+            dataType: 'json',
+            url: '/ajax/admin/alunoSitDiversas/' + id,
+            beforeSend: function(){
+                loadingModalDinamica('show', 'sm');
+            },
+            success: function(data){
+                $('#modalDinamica div.modal-content').empty();
+
+                $(data).each(function(key,value){
+                    $('div#modalDinamica div.modal-content').append(value);
+                });
+            },
+            error: function(jqxhr){
+                setTimeout(function(){
+                    $('div#modalDinamica').modal('hide');
+                    alert('ERRO INTERNO/Violação de acesso!/CARACTERE NÃO PERMITIDO PARA ESTA OPERAÇÃO');
+                }, 1000);
+            }                    
+        });              
+    }
 </script>

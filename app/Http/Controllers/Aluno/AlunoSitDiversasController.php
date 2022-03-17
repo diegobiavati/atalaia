@@ -150,9 +150,11 @@ class AlunoSitDiversasController extends Controller
                 $alunoSitDiv->nome_guerra = $aluno->nome_guerra;
                 $alunoSitDiv->data_nascimento = $aluno->data_nascimento;
                 $alunoSitDiv->data_matricula = $aluno->data_matricula;
+                $alunoSitDiv->ano_formacao_reintegr_id = $aluno->ano_formacao_reintegr_id;
                 $alunoSitDiv->primeira_data_praca = $aluno->primeira_data_praca;
                 $alunoSitDiv->turma_id = $aluno->turma_id;
                 $alunoSitDiv->omcts_id = $aluno->omcts_id;
+                $alunoSitDiv->qms_id = $aluno->qms_id;
                 $alunoSitDiv->area_id = $aluno->area_id;
                 $alunoSitDiv->sexo = $aluno->sexo;
                 $alunoSitDiv->email = $aluno->email;

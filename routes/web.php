@@ -417,6 +417,8 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
     Route::get('listagem-selecao-alunos-turma', 'Ajax\AjaxAdminGaviaoController@ListagemSelecaoAlunosTurma')->middleware('checkauth');
     Route::post('seleciona-turma/{idTurma}/{idAluno}', 'Ajax\AjaxAdminGaviaoController@SelecionaAlunoTurma')->middleware('checkauth');
 
+    Route::get('load-alunos-gaviao-situacoes-diversas/', 'Ajax\AjaxAdminGaviaoController@LoadAlunosSitDiv');
+
     Route::get('relacao-alunos', 'Relatorios\RelatorioAlunoController@ViewRelacaoAlunos')->middleware('checkauth');
     Route::get('ficha-individual-aluno/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewFichaIndividualAlunoGaviao')->middleware('checkauth');
 

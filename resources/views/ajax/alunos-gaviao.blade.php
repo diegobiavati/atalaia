@@ -47,12 +47,12 @@
             <div style="margin-top: 24px;">
                 <nav class="nav-justified">
                     <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <a class="nav-item nav-link active" data-toggle="tab" href="#nav-alunos-visao-geral" role="tab" aria-controls="nav-home" aria-selected="true" onclick="$('a#alunos').trigger('click');">Visão geral do cadastro</a>
-                        <a class="nav-item nav-link" data-toggle="tab" href="#nav-alunos-cadastro" role="tab" aria-controls="nav-home" aria-selected="true">Opções de listagem</a>
+                        <a class="nav-item nav-link active" data-toggle="tab" href="#nav-alunos-visao-geral" role="tab" aria-controls="nav-home" aria-selected="true" onclick="$('a#alunos').trigger('click');">Visão Geral do Cadastro</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#nav-alunos-cadastro" role="tab" aria-controls="nav-home" aria-selected="true">Listagem</a>
+                        <a class="nav-item nav-link" data-toggle="tab" href="#nav-alunos-situacoes-diversas" role="tab" aria-controls="nav-home" aria-selected="true" onclick="loadAlunosSitDiv();">Alunos em Situações Diversas</a>
                         @if($ownauthcontroller->PermissaoCheck([1,10]))
                             <a class="nav-item nav-link" data-toggle="tab" href="#nav-alunos-turma" role="tab" aria-controls="nav-home" aria-selected="true">Seleção de Turmas</a>
                         @endif
-                        <!--a class="nav-item nav-link" data-toggle="tab" href="#nav-alunos-situacoes-diversas" role="tab" aria-controls="nav-home" aria-selected="true" onclick="loadAlunosSitDiv();">Alunos em situações diversas</a-->
                     </div>
                 </nav>
             
@@ -296,5 +296,49 @@ function ListagemTurmas(dataButton){
         }
     });
 }
+
+/* CARREGA TAB de alunos em situações diversas */
+
+function loadAlunosSitDiv(){
+    
+    $.ajax({
+        type:'GET',
+        url: '/gaviao/ajax/load-alunos-gaviao-situacoes-diversas',
+        beforeSend: function(){
+            $('div#response2').html('<div id="temp" style="text-align: center;"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+        },
+        success: function(data){
+            $('div#temp').remove();
+            $('div#response2').html(data);
+        },
+        error: function(jqxhr){
+            $('div#temp').remove();
+            $('div#response2').html('<div style="text-align: center; color: #DF0101">ERRO INTERNO</div>');    
+        }
+    }); 
+}
         
+function dialogEditarCadastroAlunoSitDivNovo(id){
+    $.ajax({
+        type:'GET',
+        dataType: 'json',
+        url: '/ajax/admin/alunoSitDiversas/' + id,
+        beforeSend: function(){
+            loadingModalDinamica('show', 'sm');
+        },
+        success: function(data){
+            $('#modalDinamica div.modal-content').empty();
+
+            $(data).each(function(key,value){
+                $('div#modalDinamica div.modal-content').append(value);
+            });
+        },
+        error: function(jqxhr){
+            setTimeout(function(){
+                $('div#modalDinamica').modal('hide');
+                alert('ERRO INTERNO/Violação de acesso!/CARACTERE NÃO PERMITIDO PARA ESTA OPERAÇÃO');
+            }, 1000);
+        }                    
+    });             
+}
 </script>

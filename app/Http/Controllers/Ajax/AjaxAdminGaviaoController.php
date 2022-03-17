@@ -15,6 +15,7 @@ use App\Models\OperadoresTipo;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\Alunos;
 use App\Models\AlunosSitDiv;
+use App\Models\AlunosSitDivHistorico;
 use App\Models\AnoFormacao;
 use App\Models\Areas;
 use App\Models\Imagens;
@@ -346,5 +347,17 @@ class AjaxAdminGaviaoController extends Controller
         }
 
         return response()->json($data);
+    }
+
+    public function LoadAlunosSitDiv(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
+    {
+
+        if ($ownauthcontroller->PerfilCheck([9004, 9999])) {
+            $alunos = AlunosSitDiv::whereNotNull('qms_id')->orderBy('data_matricula', 'desc')->orderBy('qms_id', 'desc')->get();
+        } else {
+            $alunos = AlunosSitDiv::whereNotNull('qms_id')->orderBy('data_matricula', 'desc')->where('qms_id', session()->get('login.qmsID.0.id'))->get();
+        }
+
+        return view('ajax.view-listagem-aluno-sit-diversas', compact('ownauthcontroller', 'alunos'));
     }
 }
