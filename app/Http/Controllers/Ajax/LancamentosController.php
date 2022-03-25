@@ -449,20 +449,15 @@ class LancamentosController extends Controller
         $lancamentoFATD = LancamentoFo::whereHas('aluno', function ($query) use ($request) {
             $anoFormacao = AnoFormacao::find($request->ano_formacao);
 
-            //$where = array('data_matricula' => $anoFormacao->id);
             $where = array();
 
             if(isset($request->omctID)){
                 if (($request->omctID <> 'todas_omct')) {
                     $where['omcts_id'] = $request->omctID;
-    
-                    //(isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
                 }
             }else{
                 if (($request->qmsID <> 'todas_qmss')) {
                     $where['qms_id'] = $request->qmsID;
-    
-                    //(isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
                 }
             }
 
@@ -724,7 +719,7 @@ class LancamentosController extends Controller
     private function LancarProvidencia(Request $request, $id)
     {
 
-        if($this->_ownauthcontroller->PerfilCheck([2,9001])){
+        if($this->_ownauthcontroller->PerfilCheck([1,2,9001,9999])){
             $providencia = $request->textAreaProvidencias;
             $fatd = ((isset($request->btnPunir) && $request->btnPunir == 'Fatd') ? 'S' : 'N');
             $frad = ((isset($request->btnPunir) && $request->btnPunir == 'Frad') ? 'S' : 'N');
@@ -751,7 +746,7 @@ class LancamentosController extends Controller
             WHERE qms.id = ' . $lancamentoFo->aluno->qms_id;
         }else{
             $where = 'INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
-            WHERE omcts.id = ' . $lancamentoFo->aluno->omcts_id;
+            WHERE omcts.id = ' . $lancamentoFo->aluno->omcts_id. ' AND alunos.data_matricula = '.$lancamentoFo->aluno->data_matricula;
         }
         //Verificar o último processo da uete
         $processo = DB::select('SELECT fatd.nr_processo, fatd.ano, lancamento_fo.id, lancamento_fo.fatd FROM lancamento_fo

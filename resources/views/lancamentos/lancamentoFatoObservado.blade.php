@@ -100,7 +100,7 @@
         </div>
 
         <!--Só libera se for Cmt de Cia-->
-        <div id="divProvidencia" style="margin-bottom: 15px; display: {{ ($ownauthcontroller->PerfilCheck([2,9001]) || (isset($lancamentoFo) && isset($lancamentoFo->providencia))) ? 'block': 'none'}} ;">
+        <div id="divProvidencia" style="margin-bottom: 15px; display: {{ ($ownauthcontroller->PerfilCheck([1,2,9001,9999]) || (isset($lancamentoFo) && isset($lancamentoFo->providencia))) ? 'block': 'none'}} ;">
             <div>
                 <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
                     <font style="color:rgb(255, 255, 255);">Providências</font>
