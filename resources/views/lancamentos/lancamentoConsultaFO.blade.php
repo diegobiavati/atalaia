@@ -2,8 +2,11 @@
 
     <div style="width: 50%; margin: 22px auto; text-align: left; border-bottom: 1px solid #ccc;">
         <h4 style="text-align: center; margin-bottom: 12px;">Consulta de Fatos Observados</h4>
+        <div id="errors-lancamento-fo" style="margin-top:24px;"></div>
 
         @include('ajax.componenteSelectUeteCurso')
+
+        <div id="container-cia" style="margin-top:24px;display:none;"></div>
         
         <select name="opcaoRel" class="custom-select" style="margin-top: 32px;">
             <option value="0" disabled selected hidden>Selecione uma Opção</option>
@@ -28,6 +31,7 @@
     <div style="margin-top:24px;">
         <button id="btnConsultaFO" type="button" class="btn btn-primary" >Consultar Fato Observado</button>
     </div>
+    
     <div id="container-temp" style="margin-top:24px;"></div>
     <script>
         $(document).ready(function() {
@@ -64,6 +68,34 @@
                 });
             });
 
-            
+            $('select[name="qmsID"]').change(function(evt){
+                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+                $.ajax({
+                     url: '{{$rotaConsultaCia}}/'+evt.target.value,
+                    type: 'GET',
+              beforeSend: function() {
+                        $('div#container-cia').empty();
+                        $('div#container-cia').slideDown();
+                        $('div#container-cia').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+                    },
+                    success: function(data) {
+
+                        $('div#container-cia').empty();
+                        if(data == 'failure'){
+                            $('div#container-cia').slideUp(200, function(){
+                                $(this).empty();    
+                            });
+                        }else{
+                            $('div#container-cia').empty();
+                            $('div#container-cia').html(data);
+                        }
+                    },
+                    error: function(jqxhr) {
+                        $('div.errors-lancamento-fo').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                    }
+                });
+                
+            });
         });
     </script>

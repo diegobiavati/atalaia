@@ -283,6 +283,7 @@ class LancamentosController extends Controller
                 case 'viewConsultarFO':
 
                     $rotaConsulta = '/ajax/listaFatosObservados';
+                    $rotaConsultaCia = '/gaviao/ajax/carregaSelectCurso';
 
                     if(count($explode) == 1){
                         return view('lancamentos.lancamentoConsultaFOSelecaoAno');
@@ -291,10 +292,10 @@ class LancamentosController extends Controller
                     if(session()->has('login.qmsID')){
                         $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
                         
-                        return view('lancamentos.lancamentoConsultaFO', compact('cursos', 'rotaConsulta'))->with('ownauthcontroller', $this->_ownauthcontroller);
+                        return view('lancamentos.lancamentoConsultaFO', compact('cursos', 'rotaConsulta', 'rotaConsultaCia'))->with('ownauthcontroller', $this->_ownauthcontroller);
                     }
 
-                    return view('lancamentos.lancamentoConsultaFO', compact('uetes', 'rotaConsulta'))->with('ownauthcontroller', $this->_ownauthcontroller);
+                    return view('lancamentos.lancamentoConsultaFO', compact('uetes', 'rotaConsulta', 'rotaConsultaCia'))->with('ownauthcontroller', $this->_ownauthcontroller);
                 case 'viewConsultarFATD':
                     if(count($explode) == 1){
                         return view('lancamentos.lancamentoConsultaFATDSelecaoAno');
@@ -392,6 +393,14 @@ class LancamentosController extends Controller
             $whereUeteCurso = ((isset($request->omctID) && $request->omctID <> 'todas_omct') ? " AND alunos.omcts_id = $request->omctID AND lancamento_fo.data_obs BETWEEN '$anoFormacao->data_matricula' AND '$dataFim'" : null);
         }else{
             $whereUeteCurso = ((isset($request->qmsID) && $request->qmsID <> 'todas_qmss') ? " AND alunos.qms_id = $request->qmsID" : null);
+
+            if(isset($request->cia)){
+                if($request->cia == 1){
+                    $whereUeteCurso .= ' AND alunos.turma_esa_id IN (1,2,3)';//Turma I1, I2, I3
+                }else if($request->cia == 2){
+                    $whereUeteCurso .= ' AND alunos.turma_esa_id IN (4,5,15)';//Turma I4, I5, I6
+                }
+            }
         }
 
         $whereNumeroAluno = (isset($request->numero_aluno) ? " AND alunos.numero = $request->numero_aluno" : null);
@@ -418,6 +427,8 @@ class LancamentosController extends Controller
             }
         }
 
+        
+
         $lancamentoFO = DB::select("SELECT lancamento_fo.id, lancamento_fo.data_obs, lancamento_fo.tipo, lancamento_fo.observacao, alunos.numero, alunos.nome_guerra, omcts.omct as uete, qms.qms AS curso
                                         , lancamento_fo.providencia, lancamento_fo.fatd, lancamento_fo.cancelado
                                         FROM lancamento_fo
@@ -426,7 +437,7 @@ class LancamentosController extends Controller
                                         LEFT JOIN qms ON (qms.id = alunos.qms_id)
                                         WHERE (alunos.data_matricula = $anoFormacao->id OR alunos.ano_formacao_reintegr_id = $anoFormacao->id)" . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
                                         . 'ORDER BY lancamento_fo.data_obs DESC');
-
+        
         return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'));
     }
 

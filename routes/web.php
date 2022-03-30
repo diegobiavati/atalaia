@@ -439,6 +439,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
     
     //Lançamentos FATD, FO
     Route::get('viewLancamentos', ['as' => 'lancamentos', 'uses' => 'Ajax\AjaxAdminController@ViewLancamentos'])->middleware('checkauth');
+    Route::get('carregaSelectCurso/{qmsID}', 'Ajax\AjaxRelatoriosGaviaoController@CarregaSelectCiaCurso')->middleware('checkauth');
 
     Route::get('carrega-opcoes-relatorio/{item}', 'Ajax\AjaxRelatoriosGaviaoController@OpcoesRelatoriosDefault');
 
