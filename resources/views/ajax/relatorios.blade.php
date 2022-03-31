@@ -109,11 +109,11 @@
         $('select.required_to_show_button').each(function(index, element){
             if($(element).val()==0){
                 $('button#submit-relatorio').slideUp(100);
-                $('button#submit-relatorio-excel').slideUp(100);
+                $('button#export-relatorio').slideUp(100);
                 return false;
             }
             $('button#submit-relatorio').slideDown(100);
-            $('button#submit-relatorio-excel').slideDown(100);
+            $('button#export-relatorio').slideDown(100);
         });
     });
 

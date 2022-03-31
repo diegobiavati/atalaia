@@ -78,13 +78,12 @@ class AnalisesNotasController extends Controller
         if($alunosIDs){
             
             // CONTANDO ALUNOS QUE FALTARAM ESTA AVALIAÇÃO
-    
             $avaliacao_data['faltas'] = AvaliacoesProntoFaltas::whereIn('aluno_id', $alunosIDs)->where('avaliacao_id', $request->avaliacaoID)->count();
 
             $mencoes = Mencoes::get();
             $avaiacoes_notas = AvaliacoesNotas::whereIn('alunos_id', $alunosIDs)->where('avaliacao_id', $request->avaliacaoID)->get();
 
-            $avaliacoes_notas_novo = FuncoesController::recalculaNotaAluno( $avaiacoes_notas );
+            $avaliacoes_notas_novo = FuncoesController::recalculaNotaAluno($avaiacoes_notas);
 
             foreach($avaliacoes_notas_novo as $key => $aval_nota){
                 if($key != 'alunosID'){
@@ -221,22 +220,26 @@ class AnalisesNotasController extends Controller
         $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
         $ano_selecionado = (isset($ano_formacao->formacao))? $ano_formacao->formacao:'---';
 
+        // SELECIONANDO ALUNOS
+
+        if($request->omctID=='todas_omct'){
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->get();
+            $omct = 'TODAS';
+        } else {
+            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', $request->omctID)->get();
+            $omct = OMCT::find($request->omctID);
+            $omct = $omct->sigla_omct;
+        }
+
+        
+
         /*     
         ano_formacao_id: "1",
         omctID: "2",
         disciplinaID: "2"
         */
 
-        // SELECIONANDO ALUNOS
-
-        if($request->omctID=='todas_omct'){
-            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
-            $omct = 'TODAS';
-        } else {
-            $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', $request->omctID)->get(['id']);
-            $omct = OMCT::find($request->omctID);
-            $omct = $omct->sigla_omct;
-        }
+        
 
         // SEPARANDO O RELATÓRIO CASO NÃO SEJA PARA O TFM
 
@@ -259,13 +262,32 @@ class AnalisesNotasController extends Controller
                 foreach($alunosIDs as $alunoID){
                     $disciplina_resultados[] = $disciplinas->getNotasAluno($alunoID);
                 }
-
                 
+                $retorno_excel = null;
                 foreach($disciplina_resultados as $item){
                     if($item['ND']!=null){
                         $array_nds[] = $item['ND'];
                     }
+
+                    if($request->relacao == 'excel'){
+                        $alunoID = $item['alunoID'];
+
+                    
+                        $item['aluno'] = $alunos->first(function($value, $key) use($alunoID){
+                            return $value->id == $alunoID;
+                        });
+
+                        $retorno_excel[$alunoID] = $item;
+                    }
                 }
+
+                if($request->relacao == 'excel'){
+                    $relacao = $request->relacao;
+                    return view('ajax.relatorios.analise-parcial-notas-disciplinas', compact('relacao', 'alunos', 'retorno_excel'))
+                    ->with('anoFormacao', $ano_formacao)
+                    ->with('uete', OMCT::find($request->omctID));
+                }
+//dd(array_sum($array_nds), $disciplina_resultados, $array_nds);
 
                 if($array_nds){
                     $disciplina_data['nome'] = $disciplinas->nome_disciplina;
@@ -367,6 +389,9 @@ class AnalisesNotasController extends Controller
                 'width' => 480,
                 'height' => 300
             ]);
+
+
+            
 
             if(!isset($array_nds)){
                 return '<div style="text-align: center; margin-top: 24px;">NÃO É POSSÍVEL ANALISAR OS RESULTADOS À PARTIR DAS INFORMAÇÕES RECUPERADAS</div>';

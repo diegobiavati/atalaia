@@ -1,6 +1,6 @@
 @extends('relatorios.template-relatorios')
 
-@section('title', 'Atalaia :: Relatório::Análise Parcial de Resultados')
+@section('title', 'Atalaia :: Relatório:: Análise Parcial de Resultados')
 
 {{-- @section('titulo-relatorio', 'ESCOLHA DE QMS - CFS - FORMAÇÃO '. $ano_selecionado) --}}
 
@@ -11,7 +11,7 @@
     <h3 style="text-align: center; margin-top: -28px">ANÁLISE PARCIAL DO RESULTADO DA NOTA DA DISCIPLINA (ND)</h3>
     <table style="border: 1px solid #000; border-collapse: collapse; margin: 32px auto; width: 100%;">
         <tr style="background-color: #E6E6E6;">
-            <td style="border: 1px solid #000; /padding: 6px; text-align: center;"><b>UETE</b></td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>UETE</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Período</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Disciplina</b></td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>Efetivo</b></td>
@@ -20,7 +20,7 @@
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$omct}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$disciplina_data['periodo']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">
-                {{$disciplina_data['nome']}}<br >
+                {{$disciplina_data['nome']}}<br>
                 @foreach ($avaliacoes as $avaliacao)
                     <span style="font-size: 10px">
                         {{ $avaliacao->nome_completo }}

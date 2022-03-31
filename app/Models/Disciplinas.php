@@ -79,6 +79,7 @@ class Disciplinas extends Model
         }
 
         $data = array(
+            "alunoID" => $aluno_id,
             "disciplinaID" => $this->id,
             "disciplinaNome" => $this->nome_disciplina,
             "disciplinaNomeAbrev" => $this->nome_disciplina_abrev,

@@ -341,59 +341,16 @@ class AjaxRelatoriosController extends Controller
     public function AnaliseParcialDisciplinas(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
 
         /* FAZENDO A VERIFICAÇÃO DE PERMISSAO DO USUÁRIO */
-        
+                
         if($ownauthcontroller->PermissaoCheck(1)) {
-            $omcts = OMCT::get();            
+            $uetes = OMCT::get();            
         } else {
-            $omcts = OMCT::where('id', session()->get('login.omctID'))->get();            
-        }        
-
-
-        $data[] = '<form id="submit-relatorio" action="'.route('relatorios.analise_parcial_disciplinas').'" method="get" target="_blank">';
-
-        $data[] = '<input type="hidden" name="ano_formacao_id" value="'.$request->id_ano_formacao.'">';
-
-        $data[] = '<div style="margin-top: 24px;">';
-                                                                   
-        $data[] = '<select name="omctID" class="custom-select required_to_show_button">';
-        $data[] = '<option value="0" selected>Selecione uma UETE</option>';
-                                                                   
-        //if($ownauthcontroller->PermissaoCheck(1)){
-            $data[] = '<option value="todas_omct">TODAS AS UETE</option>';
-        //}
-
-        foreach($omcts as $omct){
-        
-            if($omct->id!=1){
-                $data[] = '<option value="'.$omct->id.'">'.$omct->omct.'</option>' ;
-            }
-        
-        }
-                                                                           
-        $data[] = '</select>';
-        $data[] = '</div>';        
+            $uetes = OMCT::where('id', session()->get('login.omctID'))->get();            
+        } 
 
         $disciplinas = Disciplinas::where('ano_formacao_id', $request->id_ano_formacao)->get();
 
-        $data[] = '<div style="margin-top: 24px;">';
-        $data[] = '<select name="disciplinaID" class="custom-select required_to_show_button">';
-        $data[] = '<option value="0" selected>Selecione uma disciplina</option>';
-        foreach($disciplinas as $disciplina){
-            $data[] = '<option value="'.$disciplina->id.'">'.$disciplina->nome_disciplina.'</option>' ;
-        }
-        
-        $data[] = '<option value="taf">TESTE DE APTIDÃO FÍSICA</option>' ;
-        
-        $data[] = '</select>';
-        $data[] = '</div>';
-
-
-        $data[] = ' <div style="margin-top: 24px;">
-                        <button id="submit-relatorio" type="button" class="btn btn-primary" style="display: none;" onclick="$(\'form#submit-relatorio\').submit();">Visualizar relação</button>
-                    </div>';        
-        $data[] = '</form>';
-        
-        return implode('', $data);
+        return view('ajax.view-analise-parcial-disciplinas', compact('ownauthcontroller', 'uetes', 'disciplinas'))->with('ano_formacao_id', $request->id_ano_formacao);
 
     }
 
