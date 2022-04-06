@@ -1647,7 +1647,9 @@ class AjaxAdminController extends Controller
 
         $checked = ($ano_formacao->per_ativo_qualificacao == 'S') ? 'checked' : '';
 
-        $data['header'] = '<i class="ion-ios-calendar-outline" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar ano de formação';
+        return view('ajax.cadastro.view-ano-formacao', compact('checked', 'ano_formacao'));
+
+        /*$data['header'] = '<i class="ion-ios-calendar-outline" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar ano de formação';
         $data['body'] = '   <form id="atualizar_ano_formacao">
                                         <input type="hidden" name="_token" value="' . csrf_token() . '">                                     
                                         <div style="margin: 14px auto; width: 70%; max-width: 380px;">
@@ -1659,12 +1661,13 @@ class AjaxAdminController extends Controller
                                                 <input class="no-style" style="width: 100%;" name="data_matricula" type="text" value="' . strftime('%d/%m/%Y', strtotime($ano_formacao->data_matricula)) . '" maxlength="10" autocomplete="off" placeholder="Data de matrícula (DD/MM/AAAA)." />
                                             </div>
                                             <div class="clear"></div>
-                                            <div style="margin: 14px auto; width: 80%; max-width: 380px;">
-                                                <div class="custom-control custom-checkbox" style="margin-top: 20px;">
-                                                    <input id="customCheck1" name="per_ativo_qualificacao" type="checkbox" value="0" class="custom-control-input" ' . $checked . ' />
-                                                    <label class="custom-control-label" for="customCheck1">Período Ativo (Qualificação)</label>
-                                                </div>
-                                            </div>
+                                            '. (session()->get('login.qmsID') ? '<div style="margin: 14px auto; width: 80%; max-width: 380px;">
+                                                                                    <div class="custom-control custom-checkbox" style="margin-top: 20px;">
+                                                                                        <input id="customCheck1" name="per_ativo_qualificacao" type="checkbox" value="0" class="custom-control-input" ' . $checked . ' />
+                                                                                        <label class="custom-control-label" for="customCheck1">Período Ativo (Qualificação)</label>
+                                                                                    </div>
+                                                                                </div>' : null
+                                            ).'
                                             <div class="clear"></div>                                            
                                         </div>                                        
                                     </form>';
@@ -1678,7 +1681,7 @@ class AjaxAdminController extends Controller
                             <script>
                                 $(\'input[name="data_matricula"]\').mask(\'00/00/0000\');
                             </script>';
-        return $data;
+        return $data;*/
     }
 
     public function DialogAdicionarAvaliacao()

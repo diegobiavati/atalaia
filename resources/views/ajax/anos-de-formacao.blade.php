@@ -65,15 +65,13 @@
         function dialogEditarAnoFormacao(id){
              $.ajax({
             	type:'GET',
-                dataType: 'json',
                 url: '/ajax/dialog-editar-ano-formacao/' + id,
                 beforeSend: function(){
                     loadingModalDinamica('show', 'sm');
+                    $('div#modalDinamica div.modal-content').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
                 },
                 success: function(data){
-                    $('div#modalDinamica div.modal-header h5').html(data.header);
-                    $('div#modalDinamica div.modal-body').html(data.body);
-                    $('div#modalDinamica div.modal-footer').html(data.footer);
+                    $('div#modalDinamica div.modal-content').html(data);
                     setTimeout(function(){
                         $('input[name="data_matricula"]').select();
                     }, 600);
