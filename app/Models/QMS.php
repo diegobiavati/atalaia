@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class QMS extends Model
 {
     protected $table = 'qms';
+    protected $fillable = ['comandante_operador_id'];
+
     public $timestamps = false;
 
     public function escolhaQms(){

@@ -1,11 +1,14 @@
 @extends('headers')
 @section('js-includes')
+
 <script src="/js/jquery.mask.min.js"></script>
 @stop
 @section('css-includes')
+
 <link href="/css/ionicons.css" rel="stylesheet" type="text/css" />
 <link href="/css/menu_style_gaviao.css" rel="stylesheet" type="text/css" />
 <link href="/css/style.css" rel="stylesheet" type="text/css" />
+
 <?php
     $backgroundColor = session()->get('backgroundColor');
     $backgroundVisaoGeral = session()->get('backgroundVisaoGeral');

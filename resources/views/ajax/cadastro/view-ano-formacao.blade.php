@@ -13,7 +13,7 @@ $backgroundColor = session()->get('backgroundColor');
 
     <form id="atualizar_ano_formacao">
         <input type="hidden" name="_token" value="{{csrf_token()}}">                                     
-        <div style="margin: 14px auto; width: 70%; max-width: 380px;">
+        <div style="margin: 14px auto; width: 80%; max-width: 380px;">
             <p>Informe a nova data de matrícula</p>
             <div style="float: left;">
                 <i class="ion-calendar" style="font-size: 24px; color: #696969;"></i>
@@ -22,13 +22,33 @@ $backgroundColor = session()->get('backgroundColor');
                 <input class="no-style" style="width: 100%;" name="data_matricula" type="text" value="{{ strftime('%d/%m/%Y', strtotime($ano_formacao->data_matricula)) }}" maxlength="10" autocomplete="off" placeholder="Data de matrícula (DD/MM/AAAA)." />
             </div>
             <div class="clear"></div>
-            @if(session()->get('login.qmsID'))
+            @if(session()->has('login.qmsID') && isset($comandantesCurso))
                 <div style="margin: 14px auto; width: 80%; max-width: 380px;">
                     <div class="custom-control custom-checkbox" style="margin-top: 20px;">
                         <input id="customCheck1" name="per_ativo_qualificacao" type="checkbox" value="0" class="custom-control-input" {{$checked}} />
                         <label class="custom-control-label" for="customCheck1">Período Ativo (Qualificação)</label>
                     </div>
                 </div>
+
+                <p style="font-style: italic;font-weight: bold;border-bottom: 1px solid #ccc;">Instrutores Chefes</p>
+
+                @foreach($qmss as $qms)
+
+                    <div class="form-group row">
+                        <label for="instrutorID" class="col-sm-4 col-form-label" style="font-style: italic;font-weight: bold;color:red">{{$qms->qms}}</label>
+                        <div class="col-sm-8">
+                            <select id="instrutorID" name="instrutorID" class="form-control" >
+                                <option selected style="font-style: italic;font-weight: bold;">{{$qms->comandanteCurso->posto->postograd_abrev.' '.$qms->comandanteCurso->nome_guerra}}</option>
+                                @foreach($comandantesCurso as $comandantes)
+                                    @if($comandantes->qms_matriz_id == $qms->qms_matriz_id)
+                                        <option value="{{$qms->id}}_{{$comandantes->id}}">{{$comandantes->posto->postograd_abrev.' '.$comandantes->nome_guerra}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                @endforeach
             @endif
             <div class="clear"></div>                                            
         </div>                                        
@@ -48,4 +68,43 @@ $backgroundColor = session()->get('backgroundColor');
     $('div.info-ano-formacao').slideUp().empty().removeClass('alert-success').removeClass('alert-danger');
 
     $('input[name="data_matricula"]').mask('00/00/0000');
+
+        $('select[name="instrutorID"]').change(function(evt){
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+            var dataForm = '_token={{csrf_token()}}&instrutorID='+evt.target.value;
+           
+            $.ajax({
+                 url: '{{$rotaGravarInstrutor}}',
+            dataType: 'json',
+                data: dataForm,
+                type: 'POST',
+            beforeSend: function() {
+                    $('div.info-ano-formacao').slideUp().empty().removeClass('alert-success').removeClass('alert-danger');
+                    $('div.info-ano-formacao').empty();
+                    $('div.info-ano-formacao').slideDown();
+                    $('div.info-ano-formacao').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
+                },
+                success: function(data) {
+
+                    $('div.info-ano-formacao').html(data.message);
+
+                    if(data.response == false){
+                        $('div.info-ano-formacao').addClass('alert-danger');
+                    }else{
+                        $('div.info-ano-formacao').addClass('alert-success');
+                    }
+                    
+                    $('div.info-ano-formacao').slideUp(2000, function(){
+                        $(this).empty();
+                    });
+                },
+                error: function(jqxhr) {
+                    $('div.info-ano-formacao').addClass('alert-danger');
+                    $('div.info-ano-formacao').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                }
+            });
+            
+        });
+
 </script>

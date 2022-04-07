@@ -402,6 +402,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.'], function () {
 
     Route::get('show-checkbox-anoformacao-qms/{id}', 'Ajax\AjaxAdminGaviaoController@ShowChkBoxAnoFormacaoQms')->middleware('checkauth');
     Route::get('anos-de-formacao', ['as' => 'anos-de-formacao', 'uses' => 'Ajax\AjaxAdminController@AnosDeFormacao']);
+    Route::post('gravar-intrutor-chefe', ['as' => 'gravar-intrutor-chefe', 'uses' => 'Ajax\AjaxAdminController@GravarInstrutorChefeCurso']);
     Route::get('visao-geral-gaviao', ['as' => 'visao-geral-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@VisaoGeralGaviao']);
     Route::get('gerenciar-operadores-gaviao', ['as' => 'gerenciar-operadores-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@GerenciarOperadoresGaviao'])->middleware('checkauth');
     Route::get('dialog-editar-operador-gaviao/{id}', 'Ajax\AjaxAdminGaviaoController@DialogEditarOperadorGaviao')->middleware('checkauth');

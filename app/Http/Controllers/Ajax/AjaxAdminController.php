@@ -1641,13 +1641,51 @@ class AjaxAdminController extends Controller
         return $data;
     }
 
+    public function GravarInstrutorChefeCurso(Request $request){
+
+        $dados = explode('_', $request->instrutorID);
+
+        $retorno['response'] = false;
+        $retorno['message'] = '!!!Algo de Errado Aconteceu!!!';
+
+        if(Qms::find($dados[0])->update(['comandante_operador_id' => $dados[1]])){
+            $retorno['response'] = true;
+            $retorno['message'] = 'Alterado Com Sucesso!!!';
+        }
+     
+        return response()->json($retorno);
+    }
+
+
     public function DialogEditarAnoFormacao(Request $request)
     {
         $ano_formacao = AnoFormacao::find($request->id);
 
         $checked = ($ano_formacao->per_ativo_qualificacao == 'S') ? 'checked' : '';
 
-        return view('ajax.cadastro.view-ano-formacao', compact('checked', 'ano_formacao'));
+        $qmss = null;
+        $comandantesCurso = null;
+
+        $rotaGravarInstrutor = '/gaviao/ajax/gravar-intrutor-chefe';
+
+        if(session()->has('login.qmsID')){
+            $qmss = QMS::whereIn('qms_matriz_id', array(1,2,3,4,5))
+            ->whereHas('escolhaQms', function($q) use ($ano_formacao){
+                $q->where('ano_formacao_id', $ano_formacao->id);
+            })->get();
+            
+            $operadoresAtivos = Operadores::whereIn('qms_matriz_id', array(1,2,3,4,5))->where('ativo', 'S')->get();
+    
+            foreach($operadoresAtivos as $operador){
+                $funcaoOperador = explode(',', $operador->id_funcao_operador);
+    
+                if(in_array(9001, $funcaoOperador)){
+                    $comandantesCurso[] = $operador;
+                }
+            }
+        }
+                
+        return view('ajax.cadastro.view-ano-formacao', compact('checked', 'ano_formacao', 'qmss', 'comandantesCurso', 'rotaGravarInstrutor'));
 
         /*$data['header'] = '<i class="ion-ios-calendar-outline" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar ano de formação';
         $data['body'] = '   <form id="atualizar_ano_formacao">
