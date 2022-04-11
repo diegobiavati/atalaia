@@ -16,7 +16,7 @@ body {
 
 #atalia_top{
     padding: 38px;
-    background: linear-gradient(#EC2125 47%, #E0B22E 50%,#0094D3 53%);
+    /*background: linear-gradient(#EC2125 47%, #E0B22E 50%,#0094D3 53%);*/
     height: 145px;
     text-align: center;
     color: #fff;
@@ -38,10 +38,10 @@ body {
     margin-left: -220px;
     width: 440px;
     height: 496px;
-    background-color: #ffffff;
+    /*background-color: #0606064f;
     border-radius: 5px 5px 180px 180px;
     border: 3px solid #E0B22E;
-    box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);*/
 }
 
 .form-group {
@@ -61,6 +61,7 @@ body {
   transition: font-size 150ms ease-out, -webkit-transform 150ms ease-out;
   transition: transform 150ms ease-out, font-size 150ms ease-out;
   transition: transform 150ms ease-out, font-size 150ms ease-out, -webkit-transform 150ms ease-out;
+  border-radius: 5px;
 }
 
 .focused .form-label {
@@ -77,6 +78,7 @@ body {
   border: 0;
   box-shadow: 0 1px 0 0 #e5e5e5;
   transition: box-shadow 150ms ease-out;
+  border-radius: 15px;
 }
 .form-input:focus {
   box-shadow: 0 1px 0 0 #0B6138;
@@ -98,6 +100,10 @@ a.no-style{
 a.no-style:hover{
     text-decoration: none;
     color: #363636;
+}
+
+h4{
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
 </style>
@@ -126,12 +132,12 @@ a.no-style:hover{
                       <input id="last" name="senha" class="form-input" type="password" />
                     </div>
                     <div style="text-align: center; margin-top: 38px">
-                          <button type="button" id="buttonSubmitLogin" class="btn btn-success" style="background-color: #00A64F; border: none; padding: 8px 22px;">
+                          <button type="button" id="buttonSubmitLogin" class="btn btn-success" style="background-color: #00A64F; border: none; border-radius: 15px ;padding: 8px 22px;">
                             Entrar
                           </button>
                     </div>
                     <div style="text-align: center; margin-top: 28px">
-                        <a class="no-style" href="#carouselDialogLogin" role="button" data-slide="next"><font style="color: #0189C8;">Primeiro acesso | Esqueci a senha</font></a>
+                       <!-- <a class="no-style" href="#carouselDialogLogin" role="button" data-slide="next"><font style= "color: #FFFFFF;" class="button">Primeiro acesso | Esqueci a senha</font></a>-->
                     </div>
                   </div>
                 </form>
@@ -177,7 +183,7 @@ a.no-style:hover{
         </form>        
       @endif
     </div>
-    <div style="text-align: center; margin-right:10px; font-size:small;">{{ date('d/m/Y H:i') }}</div>
+    <div style=" color: #FFFFFF;text-align: center; margin-right:10px; font-size:small;">{{ date('d/m/Y H:i') }}</div>
 </div>
 <script>
 
