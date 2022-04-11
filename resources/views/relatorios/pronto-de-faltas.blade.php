@@ -10,6 +10,7 @@
 
         @if($omct->id!=1)
 
+        
             <div style="text-align: center;">
                 <h4>{{$omct->omct}}</h4>
             </div>

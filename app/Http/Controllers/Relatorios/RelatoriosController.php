@@ -354,17 +354,10 @@ class RelatoriosController extends Controller
 
 
             }
-
-
             //$qms = $escolhaQMS->getQMS();
-
             //dd($escolhaQMS->getClassificacao());
-
             //dd($escolhaQMS->getAlunosOpcoes([12, 21]));
-
             //dd($escolhaQMS->getVagasQMSAviacao('M'));
-
-
         }
 
     }
