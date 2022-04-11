@@ -41,7 +41,7 @@
                             Ex Oficio
                         </label>
                     </div>
-                    <div class="btn-group btn-group-toggle" data-toggle="buttons" style="left: 41%;">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons" style="left: 21%;">
                         <label class="btn btn-outline-info {{ (isset($aluno->adido) && $aluno->adido == 'S')  ? 'active': ''}}" onclick="">
                             <input type="radio" name="adido" value="S">
                             Adido
@@ -49,6 +49,10 @@
                         <label class="btn btn-outline-info {{ (isset($aluno->adido) && $aluno->adido == 'N')  ? 'active': ''}}" onclick="">
                             <input type="radio" name="adido" value="N">
                             Não Adido
+                        </label>
+                        <label class="btn btn-outline-info {{ (isset($aluno->adido) && $aluno->adido == 'E')  ? 'active': ''}}" onclick="">
+                            <input type="radio" name="adido" value="E">
+                            Encostado
                         </label>
                     </div>
 
