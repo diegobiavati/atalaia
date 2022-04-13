@@ -575,7 +575,7 @@ class LancamentosController extends Controller
         $pdf->WriteHTML('Processo Nr <b>' . str_pad($fatd->nr_processo, 3, 0, STR_PAD_LEFT) . '-' . $fatd->ano . '</b>');
 
         $pdf->SetXY(155, 45);
-        $pdf->WriteHTML('<b>Data:</b>' . strftime('%e %b %y', strtotime($fatd->lancamentoFo->data_obs)));
+        $pdf->WriteHTML('<b>Data:</b>____/_______/______');// . strftime('%e %b %y', strtotime($fatd->lancamentoFo->data_obs)));
         $pdf->Line(10, 51, 200, 51);
 
         $pdf->SetFont('Times', 'B', 12);
