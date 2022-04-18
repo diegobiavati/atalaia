@@ -97,7 +97,7 @@
         <div class="lateral-profile-top-content">
             <h4>SISTEMA GAVIÃO
                 <small class="text-muted" style="font-size: 14px;">
-                    <br />GESTÃO ACADÊMICA MILITAR
+                    <br />GESTÃO ESCOLAR MILITAR
                 </small>
             </h4>
             @if($ownauthcontroller->PermissaoCheck(30))
