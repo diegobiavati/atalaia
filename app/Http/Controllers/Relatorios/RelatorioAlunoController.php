@@ -326,6 +326,20 @@ class RelatorioAlunoController extends Controller
             ->where('cancelado', 'N')
             ->whereNull('providencia');
 
+            switch($request->relacao){
+                case '0'://Negativo
+                    $lancamentoFo->where('tipo', 0);
+                    break;
+                case '1'://Neutro
+                    $lancamentoFo->where('tipo', 1);
+                    break;
+                case '2'://Positivos
+                    $lancamentoFo->where('tipo', 2);
+                    break;
+                default:
+                    break;
+            }
+
             if ($request->qmsID != 'todas_qmss') {
                 $parametros['qms'] = QMS::find($request->qmsID);
                 $parametros['cia'] = $request->cia;

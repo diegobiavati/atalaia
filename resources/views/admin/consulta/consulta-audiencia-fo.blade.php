@@ -13,7 +13,7 @@
     </div>
     
 
-    <div style="width: 90%; margin: 22px auto; text-align: left; border-bottom: 1px solid #ccc;">
+    <div style="width: 90%; margin: 22px auto; text-align: left;">
         <h4 style="text-align: center; margin-bottom: 12px;">Consulta de Audiência de Fato Observado</h4>
 
         <div style="float: right; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; text-align: center;">
@@ -24,6 +24,29 @@
         </div>
         
         <div class="clear"></div>
+    </div>
+
+    <div style="width: 90%; margin: 22px auto; text-align: center; border-bottom: 1px solid #ccc;">
+        <h4 style="text-align: center; margin-bottom: 12px;">Tipos de FO</h4>
+        <div class="custom-control custom-radio" style="display: inline-block; margin: 0 10px 12px 0;">
+            <input type="radio" class="custom-control-input" id="todos" name="relacao" value="todos" checked />
+            <label class="custom-control-label" for="todos">Todos</label>
+        </div>
+
+        <div class="custom-control custom-radio" style="display: inline-block; margin: 0 10px 12px 0;">
+            <input type="radio" class="custom-control-input" id="negativos" name="relacao" value="0"/>
+            <label class="custom-control-label" for="negativos">Negativos</label>
+        </div>
+
+        <div class="custom-control custom-radio" style="display: inline-block; margin: 0 10px 12px 0;">
+            <input type="radio" class="custom-control-input" id="neutros" name="relacao" value="1"/>
+            <label class="custom-control-label" for="neutros">Neutros</label>
+        </div>
+
+        <div class="custom-control custom-radio" style="display: inline-block; margin: 0 10px 12px 0;">
+            <input type="radio" class="custom-control-input" id="positivos" name="relacao" value="2"/>
+            <label class="custom-control-label" for="positivos">Positivos</label>
+        </div>
     </div>
 
     <div style="margin-top: 24px;">
