@@ -318,8 +318,6 @@ class RelatorioAlunoController extends Controller
 
         if(session()->has('login.qmsID')){
             
-            
-
             $lancamentoFo = LancamentoFo::whereHas('aluno', function($query) use($anoFormacao){
                 $query->where('data_matricula', $anoFormacao->id)->orWhere('ano_formacao_reintegr_id', $anoFormacao->id);
             })->whereBetween('data_obs', array(FuncoesController::formatDateBrtoEn($request->data_inicial), FuncoesController::formatDateBrtoEn($request->data_final)))
@@ -1052,9 +1050,9 @@ class RelatorioAlunoController extends Controller
             $pdf->SetFont('Times', '', 10);
             $pdf->Cell(120, 6, utf8_decode($aluno->doc_idt_militar), 1, 1, 'L', true);
             $pdf->SetFont('Times', 'B', 10);
-            $pdf->Cell(40, 6, utf8_decode('Prec-CP'), 1, 0, 'L', true);
+            /*$pdf->Cell(40, 6, utf8_decode('Prec-CP'), 1, 0, 'L', true);
             $pdf->SetFont('Times', '', 10);
-            $pdf->Cell(120, 6, utf8_decode($aluno->doc_preccp), 1, 1, 'L', true);
+            $pdf->Cell(120, 6, utf8_decode($aluno->doc_preccp), 1, 1, 'L', true);*/
 
             $pdf->ln(10);
 

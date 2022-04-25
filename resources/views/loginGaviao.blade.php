@@ -183,7 +183,7 @@ h4{
         </form>        
       @endif
     </div>
-    <div style=" color: #FFFFFF;text-align: center; margin-right:10px; font-size:small;">{{ date('d/m/Y H:i') }}</div>
+    <div style=" color: #ffffff;text-align: center; margin-right:10px; font-size:small;">{{ date('d/m/Y H:i') }}</div>
 </div>
 <script>
 

@@ -1792,20 +1792,20 @@ class AjaxRelatoriosController extends Controller
                                         $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
                                         $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
                                     }
-                                    
+
                                 } else if($k[$alunoID][$key]['tfm'] == 'N'){
                                     $mf_tmp = number_format($z['media'], '3', '.','');
                                     $mf[] = $mf_tmp;
                                 }
 
-                                if($k[$alunoID][$key]['tfm'] == 'N' && $mf_tmp<5){
+                                if($k[$alunoID][$key]['tfm'] == 'N' && (!isset($mf_tmp) || $mf_tmp < 5)){
                                     $reprovado[] = 1;
                                     $disciplinas_reprovado_array[] = $k[$alunoID][$key]['disciplina_id'];
                                 }else {
                                     $reprovado[] = 0;
                                     $disciplinas_reprovado_array[] = 0;
                                 }
-
+                                
                             }else if(!is_numeric($key)){
 
                                 try{

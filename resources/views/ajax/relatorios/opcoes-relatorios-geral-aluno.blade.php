@@ -11,7 +11,7 @@
             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('view-relacao-punidos');">Relação de Aluno(a)s Punidos</a></li>
             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('view-frad-aluno');">Ficha Registro para Acompanhamento do Discente <b>(FRAD)</b></a></li>
             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('view-rod-aluno');">Relatório de Observação do Discente <b>(ROD)</b></a></li>
-            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('view-ficha-disciplinar');">Ficha Disciplinar do Aluno(a)s <b>(FATD)</b></a></li>
+            <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('view-ficha-disciplinar');">Ficha Disciplinar Individual do Aluno(a)s <b>(FDI)</b></a></li>
             <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('view-audiencia-fo');">Audiência de Fato Observado <b>(Audiência de FO)</b></a></li>
         </ul>
         <div id="relatorios-content" style="margin-top: 24px;"></div>

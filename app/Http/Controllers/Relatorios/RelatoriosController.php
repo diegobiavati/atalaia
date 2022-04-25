@@ -990,7 +990,6 @@ class RelatoriosController extends Controller
                 $q->orderBy('numero', 'asc');
             })->get();
 
-            //dd(unserialize($alunos_classif[0]->data_demonstrativo));
             $mencoes = Mencoes::get();
             $this->classLog->RegistrarLog('Acessou demonstrativo de notas', auth()->user()->email);
             return view('relatorios.demonstrativo-notas')->with('alunos_classif', $alunos_classif)

@@ -2265,7 +2265,7 @@ class AjaxAdminController extends Controller
                                 <i class="ion-ios-flask" style="font-size: 24px; color: #696969;"></i>
                             </div>
                             <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                                <input class="no-style" style="width: 100%;" name="peso" type="text" value="' . ((isset($request->peso)) ? $avaliacoes->peso : '') . '" maxlength="5" autocomplete="off" placeholder="Peso" />
+                                <input class="no-style" style="width: 100%;" name="peso" type="text" value="' . ((isset($avaliacoes->peso)) ? $avaliacoes->peso : '') . '" maxlength="5" autocomplete="off" placeholder="Peso" />
                             </div>
                             <div class="clear"></div>
                         </div>';
