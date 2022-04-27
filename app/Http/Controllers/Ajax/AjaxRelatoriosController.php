@@ -1791,9 +1791,15 @@ class AjaxRelatoriosController extends Controller
                                     if(is_numeric($k[$alunoID][$key]['media'])){
                                         $mf[] = number_format($k[$alunoID][$key]['media'], '4', '.', '');
                                         $mf_tmp = number_format($k[$alunoID][$key]['media'], '4', '.', '');
+                                    }else{//TESTE -- Verificar Depois
+                                        $mf[] = number_format(0, '4', '.', '');
+                                        $mf_tmp = number_format(0, '4', '.', '');
                                     }
-
+                                    /*if($alunoID == 4386){
+                                        dd('veio', $z['media'], $k[$alunoID][$key]);
+                                    }*/
                                 } else if($k[$alunoID][$key]['tfm'] == 'N'){
+                                    
                                     $mf_tmp = number_format($z['media'], '3', '.','');
                                     $mf[] = $mf_tmp;
                                 }
@@ -2026,15 +2032,20 @@ class AjaxRelatoriosController extends Controller
    
                         if(!is_null($alunoID)){
 
-                            $class = new AlunosClassificacao;
-                            $class->aluno_id = $alunoID;
-                            $class->nota_final = $k[$alunoID]['media_final'];
-                            $class->nota_final_arredondada = number_format($k[$alunoID]['media_final'], '3', '.', '');
-                            $class->data_demonstrativo = serialize($k[$alunoID]);
-                            $class->reprovado = $k[$alunoID]['reprovado'];
-                            $class->disciplinas_reprovado = $disciplinas_reprovado;
-                            $class->ano_formacao_id = $id_ano_corrente;
-                            $class->save();
+                            try{
+                                $class = new AlunosClassificacao;
+                                $class->aluno_id = $alunoID;
+                                $class->nota_final = $k[$alunoID]['media_final'];
+                                $class->nota_final_arredondada = number_format($k[$alunoID]['media_final'], '3', '.', '');
+                                $class->data_demonstrativo = serialize($k[$alunoID]);
+                                $class->reprovado = $k[$alunoID]['reprovado'];
+                                $class->disciplinas_reprovado = $disciplinas_reprovado;
+                                $class->ano_formacao_id = $id_ano_corrente;
+                                $class->save();
+                            }catch(Exception $ex){
+                                //Parei aqui...
+                                dd($ex, $k[$alunoID], $alunoID);
+                            }
                         }                        
                     
                         unset($k[$alunoID]);                    

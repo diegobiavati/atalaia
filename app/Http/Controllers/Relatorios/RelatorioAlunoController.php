@@ -17,6 +17,7 @@ use App\Models\Areas;
 use App\Models\ConteudoAtitudinal;
 use App\Models\Disciplinas;
 use App\Models\Fatd;
+use App\Models\ImagemAluno;
 use App\Models\LancamentoFo;
 use App\Models\Mencoes;
 use App\Models\OMCT;
@@ -26,6 +27,7 @@ use App\Models\SituacaoMatricula;
 use App\Models\SituacoesDiversas;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RelatorioAlunoController extends Controller
 {
@@ -951,9 +953,18 @@ class RelatorioAlunoController extends Controller
             ->with('ownauthcontroller', $this->ownauthcontroller);
     }
 
+    public function ViewAlunoSemFoto(Request $request)
+    {
+        
+        $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
+
+        $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id)->doesntHave('imagem_aluno')->get()->sortBy('qms_id');
+        
+        return view('admin.consulta.view-alunos-sem-foto', compact('anoFormacao', 'alunos'));
+    }
+
     public function RelatorioFichaDisciplinarAlunos(Request $request)
     {
-
         if (!is_null(FuncoesController::validaSessao())) {
             return;
         }
@@ -983,137 +994,145 @@ class RelatorioAlunoController extends Controller
             array_push($alunos, (object) array('id' => $request->aluno));
         }
 
-        $pdf = new PDF('L');
-        $pdf->SetAutoPageBreak(true);
+        if($request->relacao == 'excel'){
 
-        foreach ($alunos as $key) {
+            return view('relatorios.relacao-ficha-disciplinar-individual', compact('alunos'));
 
-            //$aluno = Alunos::find($key->id);
-
-            $fatds = Fatd::whereHas('lancamentoFo', function ($query) use ($key) {
-                $query->where(['aluno_id' => $key->id]);
-            })->with('lancamentoFo')->get();
-
-            $aluno = $fatds[0]->lancamentoFo->aluno;
-
-            $pdf->AddPage();
-
-            $pdf->SetFont('Times', 'B', 10);
-
-            $pdf->SetXY(10, 11);
-            $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
-            $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
-            $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
-            $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
-            $pdf->SetFont('Times', 'B', 8);
-
-            $pdf->Rect(229.6, 56.9, 36.0, 40.5);
-
-            if(is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))){
-                $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 230, 57, 35, 40);    
-            }else{
-                $pdf->Image(public_path() . '/storage/imagens_aluno/no-image.jpg', 230, 57, 35, 40);
+        }else{
+            $pdf = new PDF('L');
+            $pdf->SetAutoPageBreak(true);
+    
+            foreach ($alunos as $key) {
+    
+                //$aluno = Alunos::find($key->id);
+    
+                $fatds = Fatd::whereHas('lancamentoFo', function ($query) use ($key) {
+                    $query->where(['aluno_id' => $key->id]);
+                })->with('lancamentoFo')->get();
+    
+                $aluno = $fatds[0]->lancamentoFo->aluno;
+    
+                $pdf->AddPage();
+    
+                $pdf->SetFont('Times', 'B', 10);
+    
+                $pdf->SetXY(10, 11);
+                $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
+                $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
+                $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
+                $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
+                $pdf->SetFont('Times', 'B', 8);
+    
+                $pdf->Rect(229.6, 56.9, 36.0, 40.5);
+    
+                if(is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))){
+                    $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 230, 57, 35, 40);    
+                }else{
+                    $pdf->Image(public_path() . '/storage/imagens_aluno/no-image.jpg', 230, 57, 35, 40);
+                }
+                
+    
+                $pdf->Cell(0, 4, utf8_decode( ((session()->has('login.qmsID')) ? null: $aluno->omct->omct)  ), 0, 1, 'C', false);
+    
+                $pdf->SetFont('Times', 'B', 12);
+                $pdf->ln(5);
+                $pdf->Cell(0, 4, utf8_decode('FICHA DISCIPLINAR INDIVIDUAL'), 0, 1, 'C', false);
+    
+                $pdf->SetFont('Times', 'B', 10);
+    
+                $pdf->ln(10);
+    
+                $pdf->Cell(0, 4, utf8_decode('1. IDENTIFICAÇÃO DO MILITAR'), 0, 1, 'L', false);
+    
+                $pdf->ln(5);
+                $pdf->SetFillColor(230, 230, 230);
+                $pdf->Cell(40, 6, utf8_decode('Número do Aluno'), 1, 0, 'L', true);
+                $pdf->SetFont('Times', '', 10);
+                $pdf->Cell(120, 6, utf8_decode($aluno->numero), 1, 1, 'L', true);
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->Cell(40, 6, utf8_decode('Nome Completo'), 1, 0, 'L', true);
+                $pdf->SetFont('Times', '', 10);
+                $pdf->Cell(120, 6, utf8_decode($aluno->nome_completo), 1, 1, 'L', true);
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->Cell(40, 6, utf8_decode('Nome do Pai'), 1, 0, 'L', true);
+                $pdf->SetFont('Times', '', 10);
+                $pdf->Cell(120, 6, utf8_decode($aluno->nome_pai), 1, 1, 'L', true);
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->Cell(40, 6, utf8_decode('Nome da Mãe'), 1, 0, 'L', true);
+                $pdf->SetFont('Times', '', 10);
+                $pdf->Cell(120, 6, utf8_decode($aluno->nome_mae), 1, 1, 'L', true);
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->Cell(40, 6, utf8_decode('Nº Identidade Militar'), 1, 0, 'L', true);
+                $pdf->SetFont('Times', '', 10);
+                $pdf->Cell(120, 6, utf8_decode($aluno->doc_idt_militar), 1, 1, 'L', true);
+                $pdf->SetFont('Times', 'B', 10);
+                /*$pdf->Cell(40, 6, utf8_decode('Prec-CP'), 1, 0, 'L', true);
+                $pdf->SetFont('Times', '', 10);
+                $pdf->Cell(120, 6, utf8_decode($aluno->doc_preccp), 1, 1, 'L', true);*/
+    
+                $pdf->ln(10);
+    
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->Cell(0, 4, utf8_decode('2. PUNIÇÕES DISCIPLINARES'), 0, 1, 'L', false);
+    
+                $pdf->SetFont('Times', 'B', 8);
+                $pdf->ln(5);
+                $pdf->Cell(14, 7, utf8_decode('Nr Punição'), 1, 0, 'C');
+                $pdf->Cell(13, 7, utf8_decode('Data'), 1, 0, 'C');
+                $pdf->Cell(40, 7, utf8_decode('Punição (art.24 do RDE)'), 1, 0, 'C');
+                $pdf->Cell(10, 7, utf8_decode('Nr Dias'), 1, 0, 'C');
+                $pdf->Cell(100, 7, utf8_decode('Enquadramento (Anexo I do RDE)'), 1, 0, 'C');
+                $pdf->Cell(70, 7, utf8_decode('BI e OM'), 1, 0, 'C');
+                $pdf->Cell(25, 7, utf8_decode('Comportamento'), 1, 1, 'C');
+    
+                $pdf->SetFont('Times', '', 6);
+    
+                $pdf->SetWidths(array(14, 13, 40, 10, 100, 70, 25));
+                $pdf->SetAligns(array('C', 'L', 'C', 'C', 'L', 'L', 'C'));
+    
+                foreach ($fatds as $fatd) {
+    
+                    $justificado = (($fatd->justificado == 'N') ? 'Não' : (($fatd->justificado == 'S') ? 'Sim' : null));
+    
+                    $pdf->Row(array(
+                        $fatd->nr_processo, FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs), utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)), utf8_decode((isset($fatd->nr_dias) ? $fatd->nr_dias : 0)), utf8_decode($fatd->enquadramento), utf8_decode($fatd->bi_desc . ' do ' . $aluno->omct->sigla_omct), utf8_decode((isset($fatd->comportamento) ? $fatd->comportamento->comportamento : null))
+                    ));
+                }
+    
+                $pdf->ln(10);
+    
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->Cell(0, 4, utf8_decode('3. ANULAÇÃO OU CANCELAMENTO DE PUNIÇÕES DISCIPLINARES'), 0, 1, 'L', false);
+                $pdf->SetFont('Times', '', 10);
+                $pdf->ln(3);
+                $pdf->Cell(0, 4, utf8_decode((isset($aluno->anulacaoCancelamento) ? $aluno->anulacaoCancelamento : 'Sem alterações ou cancelamentos de punições disciplinares')), 1, 1, 'L', false);
+                $pdf->SetFont('Times', 'B', 8);
+    
+    
+                $pdf->ln(10);
+    
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->Cell(0, 4, utf8_decode('4. RECURSOS DISCIPLINARES'), 0, 1, 'L', false);
+                $pdf->SetFont('Times', '', 10);
+                $pdf->ln(3);
+                $pdf->Cell(0, 4, utf8_decode((isset($aluno->recursosDisciplinares) ? $aluno->recursosDisciplinares : 'Sem recursos disciplinares')), 1, 1, 'L', false);
+                $pdf->SetFont('Times', 'B', 8);
+    
+                $pdf->ln(10);
+    
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->Cell(0, 4, utf8_decode('5. RECOMPENSAS'), 0, 1, 'L', false);
+                $pdf->SetFont('Times', '', 10);
+                $pdf->ln(3);
+                $pdf->Cell(0, 4, utf8_decode((isset($aluno->recompensas) ? $aluno->recompensas : 'Sem recompensas')), 1, 1, 'L', false);
+                $pdf->SetFont('Times', 'B', 8);
             }
-            
-
-            $pdf->Cell(0, 4, utf8_decode($aluno->omct->omct), 0, 1, 'C', false);
-
-            $pdf->SetFont('Times', 'B', 12);
-            $pdf->ln(5);
-            $pdf->Cell(0, 4, utf8_decode('FICHA DISCIPLINAR INDIVIDUAL'), 0, 1, 'C', false);
-
-            $pdf->SetFont('Times', 'B', 10);
-
-            $pdf->ln(10);
-
-            $pdf->Cell(0, 4, utf8_decode('1. IDENTIFICAÇÃO DO MILITAR'), 0, 1, 'L', false);
-
-            $pdf->ln(5);
-            $pdf->SetFillColor(230, 230, 230);
-            $pdf->Cell(40, 6, utf8_decode('Número do Aluno'), 1, 0, 'L', true);
-            $pdf->SetFont('Times', '', 10);
-            $pdf->Cell(120, 6, utf8_decode($aluno->numero), 1, 1, 'L', true);
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->Cell(40, 6, utf8_decode('Nome Completo'), 1, 0, 'L', true);
-            $pdf->SetFont('Times', '', 10);
-            $pdf->Cell(120, 6, utf8_decode($aluno->nome_completo), 1, 1, 'L', true);
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->Cell(40, 6, utf8_decode('Nome do Pai'), 1, 0, 'L', true);
-            $pdf->SetFont('Times', '', 10);
-            $pdf->Cell(120, 6, utf8_decode($aluno->nome_pai), 1, 1, 'L', true);
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->Cell(40, 6, utf8_decode('Nome da Mãe'), 1, 0, 'L', true);
-            $pdf->SetFont('Times', '', 10);
-            $pdf->Cell(120, 6, utf8_decode($aluno->nome_mae), 1, 1, 'L', true);
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->Cell(40, 6, utf8_decode('Nº Identidade Militar'), 1, 0, 'L', true);
-            $pdf->SetFont('Times', '', 10);
-            $pdf->Cell(120, 6, utf8_decode($aluno->doc_idt_militar), 1, 1, 'L', true);
-            $pdf->SetFont('Times', 'B', 10);
-            /*$pdf->Cell(40, 6, utf8_decode('Prec-CP'), 1, 0, 'L', true);
-            $pdf->SetFont('Times', '', 10);
-            $pdf->Cell(120, 6, utf8_decode($aluno->doc_preccp), 1, 1, 'L', true);*/
-
-            $pdf->ln(10);
-
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->Cell(0, 4, utf8_decode('2. PUNIÇÕES DISCIPLINARES'), 0, 1, 'L', false);
-
-            $pdf->SetFont('Times', 'B', 8);
-            $pdf->ln(5);
-            $pdf->Cell(14, 7, utf8_decode('Nr Punição'), 1, 0, 'C');
-            $pdf->Cell(13, 7, utf8_decode('Data'), 1, 0, 'C');
-            $pdf->Cell(40, 7, utf8_decode('Punição (art.24 do RDE)'), 1, 0, 'C');
-            $pdf->Cell(10, 7, utf8_decode('Nr Dias'), 1, 0, 'C');
-            $pdf->Cell(100, 7, utf8_decode('Enquadramento (Anexo I do RDE)'), 1, 0, 'C');
-            $pdf->Cell(70, 7, utf8_decode('BI e OM'), 1, 0, 'C');
-            $pdf->Cell(25, 7, utf8_decode('Comportamento'), 1, 1, 'C');
-
-            $pdf->SetFont('Times', '', 6);
-
-            $pdf->SetWidths(array(14, 13, 40, 10, 100, 70, 25));
-            $pdf->SetAligns(array('C', 'L', 'C', 'C', 'L', 'L', 'C'));
-
-            foreach ($fatds as $fatd) {
-
-                $justificado = (($fatd->justificado == 'N') ? 'Não' : (($fatd->justificado == 'S') ? 'Sim' : null));
-
-                $pdf->Row(array(
-                    $fatd->nr_processo, FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs), utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)), utf8_decode((isset($fatd->nr_dias) ? $fatd->nr_dias : 0)), utf8_decode($fatd->enquadramento), utf8_decode($fatd->bi_desc . ' do ' . $aluno->omct->sigla_omct), utf8_decode((isset($fatd->comportamento) ? $fatd->comportamento->comportamento : null))
-                ));
-            }
-
-            $pdf->ln(10);
-
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->Cell(0, 4, utf8_decode('3. ANULAÇÃO OU CANCELAMENTO DE PUNIÇÕES DISCIPLINARES'), 0, 1, 'L', false);
-            $pdf->SetFont('Times', '', 10);
-            $pdf->ln(3);
-            $pdf->Cell(0, 4, utf8_decode((isset($aluno->anulacaoCancelamento) ? $aluno->anulacaoCancelamento : 'Sem alterações ou cancelamentos de punições disciplinares')), 1, 1, 'L', false);
-            $pdf->SetFont('Times', 'B', 8);
-
-
-            $pdf->ln(10);
-
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->Cell(0, 4, utf8_decode('4. RECURSOS DISCIPLINARES'), 0, 1, 'L', false);
-            $pdf->SetFont('Times', '', 10);
-            $pdf->ln(3);
-            $pdf->Cell(0, 4, utf8_decode((isset($aluno->recursosDisciplinares) ? $aluno->recursosDisciplinares : 'Sem recursos disciplinares')), 1, 1, 'L', false);
-            $pdf->SetFont('Times', 'B', 8);
-
-            $pdf->ln(10);
-
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->Cell(0, 4, utf8_decode('5. RECOMPENSAS'), 0, 1, 'L', false);
-            $pdf->SetFont('Times', '', 10);
-            $pdf->ln(3);
-            $pdf->Cell(0, 4, utf8_decode((isset($aluno->recompensas) ? $aluno->recompensas : 'Sem recompensas')), 1, 1, 'L', false);
-            $pdf->SetFont('Times', 'B', 8);
+    
+            $pdf->Output('I', 'Ficha_Disciplinar.pdf');
+    
+            exit();
         }
 
-        $pdf->Output('I', 'Ficha_Disciplinar.pdf');
-        exit();
     }
 
     private function selectAlunosFichaDisciplinar($idAnoFormacao, $where, $alunos=null)
@@ -1135,6 +1154,12 @@ class RelatorioAlunoController extends Controller
                                     ORDER BY alunos.numero");
         }
     }
+
+    /*public function ViewRelacaoAlunosSemFoto(){
+
+
+        return view('relatorios/relacao-alunos-sem-foto');
+    }*/
 
     public function ViewRelacaoAlunoUetePunido(Request $request)
     {

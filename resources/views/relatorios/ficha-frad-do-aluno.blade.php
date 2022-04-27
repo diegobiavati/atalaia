@@ -25,6 +25,9 @@
             </tbody>
         </table>
     </div>
+
+    
+
     <div style="margin-top: 24px;">
         <button id="btn-frad-geral" type="button" class="btn btn-primary" onclick="abrirFradGeral('{{route($rotaGeral)}}', '{{$idUeteCurso}}', '{{$anoFormacao->id}}');">Visualizar FRAD (Geral)</button>
     </div>

@@ -25,6 +25,9 @@
             </tbody>
         </table>
     </div>
+
+    @include('ajax.relatorios.tipo-visualizacao')
+
     <div style="margin-top: 24px;">
         <button id="btn-frad-geral" type="button" class="btn btn-primary" onclick="abrirDisciplinarGeral('{{route($rotaGeral)}}', '{{$idUeteCurso}}', '{{$anoFormacao->id}}');">Visualizar FRAD (Geral)</button>
     </div>
@@ -35,6 +38,8 @@
     }
 
     function abrirDisciplinarGeral(rota, idUeteCurso, idAnoFormacao) {
-        window.open(rota + '?UeteCurso=' + idUeteCurso +'&idAnoFormacao=' + idAnoFormacao);
+
+        var relacao = $('.custom-radio input[name="relacao"]:checked').val()
+        window.open(rota + '?UeteCurso=' + idUeteCurso +'&idAnoFormacao=' + idAnoFormacao + '&relacao=' + relacao);
     }
 </script>

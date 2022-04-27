@@ -438,6 +438,10 @@
             });
         }
 
+        function openWindow(url, titulo){
+            window.open(url, titulo);
+        }
+
         /* MOSTRA DIALOGO EDITAR MEU PERFIL */
 
         function dialogEditarMeuPerfil(){
