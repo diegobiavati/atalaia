@@ -592,13 +592,15 @@ class RelatorioAlunoController extends Controller
             return;
         }
 
+        $anoFormacao = AnoFormacao::find($request->idAnoFormacao);
+
         $alunos = array();
         if (isset($request->UeteCurso)) {
             $ueteCursos = array('todas_omct','todas_qmss');
             $where = '';
 
             if(session()->has('login.qmsID')){
-                $alunos = Alunos::retornaAlunosComQmsESAGeral($request->idAnoFormacao);
+                $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id);
                 
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $alunos = $alunos->where('qms_id', $request->UeteCurso);
@@ -609,7 +611,7 @@ class RelatorioAlunoController extends Controller
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $where .= ' AND alunos.omcts_id = ' . $request->UeteCurso;
                 }
-                $alunos = $this->selectAlunosFrad($request->idAnoFormacao, $where);
+                $alunos = $this->selectAlunosFrad($anoFormacao->id, $where);
             }
 
         } else {
@@ -618,103 +620,108 @@ class RelatorioAlunoController extends Controller
 
         $conteudoAtitudinal = ConteudoAtitudinal::all();
 
-        $pdf = new PDF('L');
-        $pdf->SetAutoPageBreak(false);
+        if($request->relacao == 'excel'){
 
-        foreach ($alunos as $key) {
+            return view('relatorios.relacao-ficha-registro-acompanhamento-discente', compact('alunos', 'anoFormacao', 'conteudoAtitudinal'))->with('relacao', $request->relacao);
+        }else{
+            $pdf = new PDF('L');
+            $pdf->SetAutoPageBreak(false);
 
-            $aluno = Alunos::find($key->id);
+            foreach ($alunos as $key) {
 
-            //Carrega os Lancamentos de FO
-            $aluno->load('lancamento_fo');
+                $aluno = Alunos::find($key->id);
 
-            $pdf->AddPage();
+                //Carrega os Lancamentos de FO
+                $aluno->load('lancamento_fo');
 
-            $pdf->SetFont('Times', 'B', 10);
+                $pdf->AddPage();
 
-            $pdf->SetXY(10, 11);
-            $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
-            $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
-            $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
-            $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
-            $pdf->SetFont('Times', 'B', 8);
+                $pdf->SetFont('Times', 'B', 10);
 
-            $pdf->Rect(250, 5, 25.2, 30.2);
+                $pdf->SetXY(10, 11);
+                $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
+                $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
+                $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
+                $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
+                $pdf->SetFont('Times', 'B', 8);
 
-            if(is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))){
-                $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 250, 5, 25, 30);
-            }else{
-                $pdf->Image(public_path() . '/storage/imagens_aluno/no-image.jpg', 250, 5, 25, 30);
-            }
-                
+                $pdf->Rect(250, 5, 25.2, 30.2);
 
-            //Cria a Borda
-            $pdf->Rect(10, 41, 278, 23);
+                if(is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))){
+                    $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 250, 5, 25, 30);
+                }else{
+                    $pdf->Image(public_path() . '/storage/imagens_aluno/no-image.jpg', 250, 5, 25, 30);
+                }
+                    
 
-            $pdf->Cell(0, 4, utf8_decode($aluno->omct->omct), 0, 1, 'C', false);
+                //Cria a Borda
+                $pdf->Rect(10, 41, 278, 23);
 
-            $pdf->SetFont('Times', 'B', 12);
-            $pdf->ln(5);
-            $pdf->Cell(0, 4, utf8_decode('FICHA REGISTRO PARA ACOMPANHAMENTO DO DISCENTE'), 0, 1, 'C', false);
+                $pdf->Cell(0, 4, utf8_decode( ((session()->has('login.qmsID')) ? null: $aluno->omct->omct)  ), 0, 1, 'C', false);
 
-            $pdf->SetFont('Times', '', 10);
-            //$pdf->Line(10, 41, 288, 41);
-            $pdf->ln(2);
-            $pdf->Cell(0, 4, utf8_decode('DADOS PESSOAIS DO DISCENTE'), 0, 1, 'L', false);
-            $pdf->Cell(148, 8, utf8_decode('Nome: ' . $aluno->nome_completo), 'B', 1, 'L', false);
-            $pdf->SetXY(160, 46);
-            $pdf->Cell(48, 8, utf8_decode('Número: ' . $aluno->numero), 'B', 1, 'L', false);
-            $pdf->SetXY(210, 46);
-            $pdf->Cell(78, 8, utf8_decode('Curso: '. $aluno->qms->qms), 'B', 1, 'L', false);
+                $pdf->SetFont('Times', 'B', 12);
+                $pdf->ln(5);
+                $pdf->Cell(0, 4, utf8_decode('FICHA REGISTRO PARA ACOMPANHAMENTO DO DISCENTE'), 0, 1, 'C', false);
 
-            $pdf->Cell(78, 8, utf8_decode('Pel/Turma: ' . $aluno->turma->turma), 'B', 1, 'L', false);
+                $pdf->SetFont('Times', '', 10);
+                //$pdf->Line(10, 41, 288, 41);
+                $pdf->ln(2);
+                $pdf->Cell(0, 4, utf8_decode('DADOS PESSOAIS DO DISCENTE'), 0, 1, 'L', false);
+                $pdf->Cell(148, 8, utf8_decode('Nome: ' . $aluno->nome_completo), 'B', 1, 'L', false);
+                $pdf->SetXY(160, 46);
+                $pdf->Cell(48, 8, utf8_decode('Número: ' . $aluno->numero), 'B', 1, 'L', false);
+                $pdf->SetXY(210, 46);
+                $pdf->Cell(78, 8, utf8_decode('Curso: '. $aluno->qms->qms), 'B', 1, 'L', false);
 
-            //$pdf->Line(10, 65, 288, 65);
+                $pdf->Cell(78, 8, utf8_decode('Pel/Turma: ' . ( session()->has('login.qmsID') ? $aluno->turmaEsa->turma : $aluno->turma->turma )), 'B', 1, 'L', false);
 
-            $pdf->SetFont('Times', 'B', 10);
-            $pdf->ln(5);
-            $pdf->Cell(23, 7, 'Data', 1, 0, 'C');
-            $pdf->Cell(80, 7, utf8_decode('Observações'), 1, 0, 'C');
-            $pdf->Cell(40, 7, utf8_decode('Conteúdo Atitudinal'), 1, 0, 'C');
-            $pdf->Cell(70, 7, utf8_decode('Providências e Orientações'), 1, 0, 'C');
-            $pdf->Cell(25, 7, 'FO', 1, 0, 'C');
-            $pdf->Cell(40, 7, utf8_decode('Observador/Orientador'), 1, 1, 'C');
+                //$pdf->Line(10, 65, 288, 65);
 
-            $pdf->SetFont('Times', '', 8);
+                $pdf->SetFont('Times', 'B', 10);
+                $pdf->ln(5);
+                $pdf->Cell(23, 7, 'Data', 1, 0, 'C');
+                $pdf->Cell(80, 7, utf8_decode('Observações'), 1, 0, 'C');
+                $pdf->Cell(40, 7, utf8_decode('Conteúdo Atitudinal'), 1, 0, 'C');
+                $pdf->Cell(70, 7, utf8_decode('Providências e Orientações'), 1, 0, 'C');
+                $pdf->Cell(25, 7, 'FO', 1, 0, 'C');
+                $pdf->Cell(40, 7, utf8_decode('Observador/Orientador'), 1, 1, 'C');
 
-            $pdf->SetWidths(array(23, 80, 40, 70, 25, 40));
-            $pdf->SetAligns(array('C', 'L', 'L', 'L', 'C', 'C'));
-            foreach ($aluno->lancamento_fo as $frad) {
-                $fo = (($frad->tipo == 0) ? 'Negativo' : (($frad->tipo == 1) ? 'Neutro' : 'Positivo'));
+                $pdf->SetFont('Times', '', 8);
 
-                $conteudo_atitudinal = '';
-                foreach (json_decode($frad->conteudo_atitudinal) as $atitudinal) {
-                    foreach ($conteudoAtitudinal as $conteudo) {
-                        if ($atitudinal == $conteudo->id) {
-                            $conteudo_atitudinal .= $conteudo->descricao . ', ';
+                $pdf->SetWidths(array(23, 80, 40, 70, 25, 40));
+                $pdf->SetAligns(array('C', 'L', 'L', 'L', 'C', 'C'));
+                foreach ($aluno->lancamento_fo as $frad) {
+                    $fo = (($frad->tipo == 0) ? 'Negativo' : (($frad->tipo == 1) ? 'Neutro' : 'Positivo'));
+
+                    $conteudo_atitudinal = '';
+                    foreach (json_decode($frad->conteudo_atitudinal) as $atitudinal) {
+                        foreach ($conteudoAtitudinal as $conteudo) {
+                            if ($atitudinal == $conteudo->id) {
+                                $conteudo_atitudinal .= $conteudo->descricao . ', ';
+                            }
                         }
                     }
-                }
 
-                $conteudo_atitudinal = substr($conteudo_atitudinal, 0, (strlen($conteudo_atitudinal) - 2));
-                if($frad->cancelado == 'S'){
-                    $pdf->SetTextColor(255, 165, 0);
-                }elseif (isset($frad->fatdLancada)) {
-                    $pdf->SetTextColor(255, 0, 0);
-                }
+                    $conteudo_atitudinal = substr($conteudo_atitudinal, 0, (strlen($conteudo_atitudinal) - 2));
+                    if($frad->cancelado == 'S'){
+                        $pdf->SetTextColor(255, 165, 0);
+                    }elseif (isset($frad->fatdLancada)) {
+                        $pdf->SetTextColor(255, 0, 0);
+                    }
 
-                if($frad->cancelado == 'S'){
-                    $pdf->Row(array(FuncoesController::formatDateEntoBr($frad->data_obs), utf8_decode($frad->cancelado_motivo), 'Cancelado', 'Cancelado', 'Cancelado', utf8_decode($frad->operadorCancelado->postograd->postograd_abrev . ' ' . $frad->operadorCancelado->nome_guerra)));
-                }else{
-                    $pdf->Row(array(FuncoesController::formatDateEntoBr($frad->data_obs), utf8_decode($frad->observacao), utf8_decode($conteudo_atitudinal), utf8_decode($frad->providencia), $fo, utf8_decode($frad->operador->postograd->postograd_abrev . ' ' . $frad->operador->nome_guerra)));
+                    if($frad->cancelado == 'S'){
+                        $pdf->Row(array(FuncoesController::formatDateEntoBr($frad->data_obs), utf8_decode($frad->cancelado_motivo), 'Cancelado', 'Cancelado', 'Cancelado', utf8_decode($frad->operadorCancelado->postograd->postograd_abrev . ' ' . $frad->operadorCancelado->nome_guerra)));
+                    }else{
+                        $pdf->Row(array(FuncoesController::formatDateEntoBr($frad->data_obs), utf8_decode($frad->observacao), utf8_decode($conteudo_atitudinal), utf8_decode($frad->providencia), $fo, utf8_decode($frad->operador->postograd->postograd_abrev . ' ' . $frad->operador->nome_guerra)));
+                    }
+                    
+                    $pdf->SetTextColor(0, 0, 0);
                 }
-                
-                $pdf->SetTextColor(0, 0, 0);
             }
-        }
 
-        $pdf->Output('I', 'Ficha_FRAD.pdf');
-        exit();
+            $pdf->Output('I', 'Ficha_FRAD.pdf');
+            exit();
+        }
     }
 
     public function RelatorioRODAlunos(Request $request)
@@ -795,7 +802,7 @@ class RelatorioAlunoController extends Controller
 
             $pdf->Rect(250, 5, 25.2, 30.2);
 
-            $pdf->Cell(0, 4, utf8_decode($aluno->omct->omct), 0, 1, 'C');
+            $pdf->Cell(0, 4, utf8_decode( ((session()->has('login.qmsID')) ? null: $aluno->omct->omct)  ), 0, 1, 'C');
             $pdf->SetFont('Times', 'B', 12);
             $pdf->ln(5);
             $pdf->Cell(0, 4, utf8_decode('RELATÓRIO DE OBSERVAÇÃO DO DISCENTE'), 0, 1, 'C');
@@ -971,12 +978,13 @@ class RelatorioAlunoController extends Controller
 
         $alunos = array();
 
+        $anoFormacao = AnoFormacao::find($request->idAnoFormacao);
         if (isset($request->UeteCurso)) {
             $ueteCursos = array('todas_omct','todas_qmss');
             $where = '';
        
             if(session()->has('login.qmsID')){
-                $alunos = Alunos::retornaAlunosComQmsESAGeral($request->idAnoFormacao);
+                $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id);
                 
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $alunos = $alunos->where('qms_id', $request->UeteCurso);
@@ -987,7 +995,7 @@ class RelatorioAlunoController extends Controller
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $where .= ' AND alunos.omcts_id = ' . $request->UeteCurso;
                 }
-                $alunos = $this->selectAlunosFichaDisciplinar($request->idAnoFormacao, $where);
+                $alunos = $this->selectAlunosFichaDisciplinar($anoFormacao->id, $where);
             }
 
         }else{
@@ -996,7 +1004,15 @@ class RelatorioAlunoController extends Controller
 
         if($request->relacao == 'excel'){
 
-            return view('relatorios.relacao-ficha-disciplinar-individual', compact('alunos'));
+            foreach ($alunos as $key) {
+                $fatds = Fatd::whereHas('lancamentoFo', function ($query) use ($key) {
+                    $query->where(['aluno_id' => $key->id]);
+                })->with('lancamentoFo')->get();
+
+                $key->fatds = $fatds;
+            }
+
+            return view('relatorios.relacao-ficha-disciplinar-individual', compact('alunos', 'anoFormacao'))->with('relacao', $request->relacao);
 
         }else{
             $pdf = new PDF('L');
