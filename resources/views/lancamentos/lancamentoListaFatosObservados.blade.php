@@ -49,9 +49,24 @@
             </tbody>
         </table>
     </div>
+
+    
 </form>
 <script>
     function abrirFichaIndividual(lancamento) {
         carregaOpcaoAjaxContent('lancamentos', lancamento + '/edit', 'Modal');
     }
 </script>
+
+@if(isset($relacao) && $relacao == 'excel')
+
+{{ $fileName = bcrypt(date('Y-m-d H:i:s')).'.ods' }}
+
+{{header("Content-Description: PHP Generated Data")}}
+{{header("Content-Type: application/x-msexcel")}}
+{{header("Content-Disposition: attachment; filename=\"{$fileName}\"")}}
+{{header("Expires: 0")}}
+{{header("Cache-Control: must-revalidate, post-check=0, pre-check=0")}}
+{{header("Pragma: no-cache")}}
+
+@endif

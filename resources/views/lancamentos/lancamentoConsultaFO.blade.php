@@ -30,8 +30,9 @@
 
     <div style="margin-top:24px;">
         <button id="btnConsultaFO" type="button" class="btn btn-primary" >Consultar Fato Observado</button>
+        <button id="btnConsultaFOExcel" type="button" class="btn btn-info">Exportar Planilha de Fato Observado</button>
     </div>
-    
+
     <div id="container-temp" style="margin-top:24px;"></div>
     <script>
         $(document).ready(function() {
@@ -66,6 +67,18 @@
                         $('div.errors-lancamento-fo').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
                     }
                 });
+            });
+
+            $('#btnConsultaFOExcel.btn.btn-info').click(function(evt) {
+                evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+                $('div#container-temp').empty();
+                $('form#consultaFatoObservado').attr('target', '_blank');
+                $('form#consultaFatoObservado').attr('action', '/ajax/listaFatosObservados');
+                $('div#container-temp').html('<input type="hidden" name="relacao" value="excel" />');
+                $('form#consultaFatoObservado').attr('method', 'POST');
+                $('form#consultaFatoObservado').submit();
+
             });
 
             $('select[name="qmsID"]').change(function(evt){
