@@ -438,7 +438,7 @@ class LancamentosController extends Controller
                                         WHERE (alunos.data_matricula = $anoFormacao->id OR alunos.ano_formacao_reintegr_id = $anoFormacao->id)" . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
                                         . 'ORDER BY lancamento_fo.data_obs DESC');
         
-        return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'));
+        return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'))->with('relacao', $request->relacao);
     }
 
     public function ViewListaFATD(Request $request)
@@ -501,7 +501,7 @@ class LancamentosController extends Controller
         $fatd = Fatd::where([['lancamento_fo_id', '=', $id]])->first();
 
         $comportamentos = Comportamento::all();
-        $enquadramentos = Enquadramentos::all();
+        $enquadramentos = Enquadramentos::orderBy('ordem')->get();
 
         //Registra o Observador na Sessão
         $operadores = Operadores::find(session()->get('login.operadorID'));
