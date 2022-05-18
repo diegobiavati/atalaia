@@ -38,6 +38,16 @@
             </a>
         </div>
         @endif
+        @if($ownauthcontroller->PermissaoCheck(27))
+        <div class="box-option-menu-docs-rels">
+            <a href="javascript: void(0);" class="no-style" onclick="carregaOpcoesRelatorio('avaliacoes');">
+                <div style="border-radius: 36px; width: 84px; height: 84px; background-color: {{$backgroundVisaoGeral}} margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
+                    <i class="ion-ios-compose" style="font-size: 44px;"></i> 
+                </div>
+                <span>Avaliações <b>(SSAA)</b></span>
+            </a>
+        </div>
+        @endif
 
 </div>
 

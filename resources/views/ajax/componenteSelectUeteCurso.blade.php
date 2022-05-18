@@ -2,7 +2,7 @@
     <select name="qmsID" class="custom-select required_to_show_button">
         <option value="0" disabled selected hidden>Selecione um Curso</option>
         @if($ownauthcontroller->PermissaoCheck(1))
-        <option value="todas_qmss">TODAS OS CURSOS</option>
+        <option value="todas_qmss">TODOS OS CURSOS</option>
         @endif
         @foreach ($cursos as $curso)
         <option value={{$curso->id}}>{{ $curso->qms }}</option>

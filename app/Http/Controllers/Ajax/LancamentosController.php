@@ -18,6 +18,7 @@ use App\Http\FPDF\PDF;
 use App\Models\Alunos;
 use App\Models\Comportamento;
 use App\Models\Enquadramentos;
+use App\Models\Napd;
 use App\Models\QMS;
 use App\Models\TurmasEsa;
 use Illuminate\Support\Facades\Validator;
@@ -70,6 +71,7 @@ class LancamentosController extends Controller
         $ano_formacao = $lancamentoFo->aluno->data_matricula;
 
         $conteudoAtitudinal = ConteudoAtitudinal::all();
+        $napds = Napd::all();
         $turmas = $lancamentoFo->aluno->turma;
 
         $rotaTurma = '/ajax/lancamentosTurma';
@@ -84,7 +86,7 @@ class LancamentosController extends Controller
 
             $turmas = array($lancamentoFo->aluno->turma);
 
-            return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly'))
+            return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly', 'napds'))
             ->with('ownauthcontroller', $this->_ownauthcontroller);
         }else{
             $cursos = array($lancamentoFo->aluno->qms);
@@ -92,7 +94,7 @@ class LancamentosController extends Controller
             $turmas = array($lancamentoFo->aluno->turmaEsa);
 
             if(isset($lancamentoFo->aluno->turmaEsa)){
-                return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly'))
+                return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly', 'napds'))
                 ->with('ownauthcontroller', $this->_ownauthcontroller);
             }else{
                 $mensagem = 'Selecione a Turma do Aluno no Período ESA';
@@ -122,6 +124,12 @@ class LancamentosController extends Controller
             return response()->json($retorno);
         }*/
         //$lancamentoFo = LancamentoFo::find($id);
+
+        if(isset($request->napd)){
+            $lancamentoFo = LancamentoFo::find($id);
+
+            $lancamentoFo->update(['napd_id' => $request->napd]);
+        }
 
         //Se for cancelamento de FO
         if(isset($request->textAreaCancelamento)){
@@ -211,6 +219,7 @@ class LancamentosController extends Controller
             }
 
             $lancamentoFo->data_obs = $dataFO;
+            $lancamentoFo->napd_id = $request->napd;
 
             $lancamentoFo->conteudo_atitudinal = json_encode($listaAtitudinal);
 
@@ -265,6 +274,7 @@ class LancamentosController extends Controller
                     }
 
                     $conteudoAtitudinal = ConteudoAtitudinal::all();
+                    $napds = Napd::all();
 
                     $rotaTurma = '/ajax/lancamentosTurma';
 
@@ -272,9 +282,13 @@ class LancamentosController extends Controller
                     $funcaoOperador = explode(',', $operadores->id_funcao_operador);
 
                     if(session()->has('login.qmsID')){
-                        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
+                        //$cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
+                        $qmsMatriz = array(1, 2, 3, 4, 5);
+                        $cursos = QMS::whereIn('qms_matriz_id', $qmsMatriz)->whereHas('escolhaQms', function ($q) use ($explode) {
+                            $q->where('ano_formacao_id', AnoFormacao::find($explode[1])->id);
+                        })->get();
 
-                        return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'funcaoOperador', 'readOnly'))
+                        return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'funcaoOperador', 'readOnly', 'napds'))
                             ->with('ownauthcontroller', $this->_ownauthcontroller);
                     }
 

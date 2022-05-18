@@ -1,3 +1,7 @@
+<script src="/js/bootstrap-datepicker.min.js"></script>
+<script src="/js/bootstrap-datepicker.pt-BR.min.js"></script>
+<link href="/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
+
 <form id="lancamentoFatoObservado">
 
     <input type="hidden" name="rotaTurma" value="{{$rotaTurma}}" />
@@ -15,7 +19,7 @@
             <select name="qmsID" class="custom-select required_to_show_button" {{ $readOnly }}>
                 <option value="0" disabled selected hidden>Selecione um Curso</option>
                 @if($ownauthcontroller->PermissaoCheck(1))
-                <option value="todas_qmss">TODAS OS CURSOS</option>
+                <option value="todas_qmss">TODOS OS CURSOS</option>
                 @endif
                 @foreach ($cursos as $curso)
                 <option value={{$curso->id}} {{ (isset($lancamentoFo->aluno) && $curso->id == $lancamentoFo->aluno->qms_id)  ? 'selected': ''}}>{{ $curso->qms }}</option>
@@ -122,6 +126,20 @@
             </div>
         </div>
 
+        <!--Só libera se for período ESA-->
+        <!--<div id="divEnquadramento" style="margin-bottom: 15px;">
+            <div>
+                <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
+                    <font style="color:rgb(255, 255, 255);">Enquadramento</font>
+                </label>
+            </div>-->
+            @if(isset($cursos))
+            
+                @include('lancamentos.componenteSelectNASE')
+
+            @endif
+        <!--</div>-->
+
         <div style="margin-bottom: 15px;">
             <div>
                 <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
@@ -166,7 +184,7 @@
 
 <script>
     $(document).ready(function() {
-
+        
         $('div.errors-lancamento-fo').empty().hide();
         $('div.success-lancamento-fo').empty().hide();
 

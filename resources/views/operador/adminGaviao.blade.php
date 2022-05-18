@@ -81,13 +81,13 @@
 
 @section('content')
 
-<audio id="notification_online" controls preload="none" style="display: none;"> 
+<!--<audio id="notification_online" controls preload="none" style="display: none;"> 
     <source src="/sounds/notification/light.mp3" type="audio/mpeg">
 </audio>
 
 <audio id="notification_finish" controls preload="none" style="display: none;"> 
     <source src="/sounds/notification/quiet-knock.mp3" type="audio/mpeg">
-</audio>
+</audio>-->
 
 <div id="menu-lateral">
     <div id="lateral-top">
@@ -194,7 +194,7 @@
                 <li class="list-group-item justify-content-between align-items-center menu-list-01">
                     <a id="view-relatorios" href="javascript: void(0);">                
                         <i class="ion-ios-pie"></i>
-                        Documentação e relatórios
+                        Documentação e Relatórios
                         <span class="badge badge-primary badge-pill"></span>
                     </a>
                 </li>

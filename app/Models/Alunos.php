@@ -387,6 +387,7 @@ class Alunos extends Model
         }else if(!in_array('9999', session()->get('login.perfil'))
                 && !in_array('9003', session()->get('login.perfil'))
                 && !in_array('9004', session()->get('login.perfil'))
+                && !in_array('9005', session()->get('login.perfil'))
         ){
             $aluno->where('qms_id', session()->get('login.qmsID.0.id') );
         }                

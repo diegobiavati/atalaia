@@ -8,7 +8,7 @@ class LancamentoFo extends Model
 {
     protected $table = 'lancamento_fo';
 
-    protected $fillable = ['providencia', 'fatd', 'frad', 'cancelado', 'cancelado_motivo', 'cancelado_operador_id'];
+    protected $fillable = ['providencia', 'fatd', 'frad', 'cancelado', 'cancelado_motivo', 'cancelado_operador_id', 'napd_id'];
 
     public function aluno()
     {

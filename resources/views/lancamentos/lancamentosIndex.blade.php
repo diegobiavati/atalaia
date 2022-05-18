@@ -1,6 +1,3 @@
-<script src="/js/bootstrap-datepicker.min.js"></script>
-<script src="/js/bootstrap-datepicker.pt-BR.min.js"></script>
-<link href="/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css" />
 
 <?php
     $backgroundVisaoGeral = (session()->has('backgroundVisaoGeral') ? session()->get('backgroundVisaoGeral') : '#0A2A1B;');
@@ -77,6 +74,7 @@
 
 <script>
     $(document).ready(function() {
+        
         $('#lancarFO').click(function(evt) {
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
             carregaOpcaoAjaxContent('lancamentos', 'lancarFO', 'Modal');

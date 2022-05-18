@@ -19,6 +19,16 @@
     </div>
 
   @break
+
+  @case('avaliacoes'):
+
+    <div style="margin: 46px auto; text-align: center; width: 780px;">
+        <ul class="list-group list-group-flush" style="margin-top: 44px;">
+          <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('demonstrativo-notas');">Demonstrativo de notas</a></li>
+        </ul>
+        <div id="relatorios-content" style="margin-top: 24px;"></div>
+    </div>
+  @break
 @endswitch
 
 <script>

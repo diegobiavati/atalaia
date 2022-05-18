@@ -5,7 +5,7 @@
     </style>
     <?php
         $url_editar = ( (session()->get('login.omctID')) ? '/ajax/dialog-editar-operador/' : '/gaviao/ajax/dialog-editar-operador-gaviao/');
-        $url_adicionar = ( (session()->get('login.omctID')) ? '/ajax/dialog-adicionar-operador/' : '/gaviao/ajax/dialog-adicionar-operador-gaviao/');
+        $url_adicionar = ( (session()->get('login.omctID')) ? '/ajax/dialog-adicionar-operador/' : '/gaviao/ajax/dialog-adicionar-operador-gaviao');
     ?>
     <div class="card bg-light mb-3">
             <div class="card-header">

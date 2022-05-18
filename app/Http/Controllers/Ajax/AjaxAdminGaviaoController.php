@@ -167,12 +167,15 @@ class AjaxAdminGaviaoController extends Controller
 
     public function DialogAdicionarOperadorGaviao(Request $request)
     {
-        if(in_array('9999', session()->get('login.perfil'))){
+        if(in_array('9999', session()->get('login.perfil'))){//Administrador
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get();
-        }else if(in_array('9004', session()->get('login.perfil'))){
+        }else if(in_array('9004', session()->get('login.perfil'))){//Operador CA
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002,9003,9004])->get();
+        }else if(in_array('9005', session()->get('login.perfil'))){//Operador SSAA
+            $qmsMatriz = array(1,2,3,4,5,9999);
+            $operadores_tipo = OperadoresTipo::whereIn('id', [9005])->get();
         }else{
             $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002])->get();
