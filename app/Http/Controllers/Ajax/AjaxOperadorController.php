@@ -407,6 +407,8 @@ class AjaxOperadorController extends Controller
 
                 $alunos_faltosos = ($alunos_faltosos) ?? array();
 
+                $alunos_faltosos = array_diff($alunos_faltosos, $faltas);
+
                 $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->where('data_matricula', $id_ano_corrente)->whereIn('id', $alunos_faltosos)->orderBy('numero', 'asc')->orderBy('sexo', 'desc')->get();
             }
 
