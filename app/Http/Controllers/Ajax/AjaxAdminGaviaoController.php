@@ -20,6 +20,7 @@ use App\Models\AnoFormacao;
 use App\Models\Areas;
 use App\Models\Imagens;
 use App\Models\LancamentoFo;
+use App\Models\Mencoes;
 use App\Models\OMCT;
 use App\Models\PostoGrad;
 use App\Models\QMS;
@@ -362,5 +363,35 @@ class AjaxAdminGaviaoController extends Controller
         }
 
         return view('ajax.view-listagem-aluno-sit-diversas', compact('ownauthcontroller', 'alunos'));
+    }
+
+    public function DemonstrativoNotasGaviao(OwnAuthController $ownauthcontroller, Request $request){
+       
+        if(!$ownauthcontroller->PermissaoCheck([1,27]) && $request->curso_id!=session()->get('login.qmsID.0.id')){
+
+            return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
+
+        } else {
+
+            /*if(isset($request->alunos_ids) && $request->omctID!=1){
+                $alunosID = Alunos::whereIn('id', $request->alunos_ids)->where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->get(['id']);
+            } else if(isset($request->alunos_ids) && $request->omctID==1){
+                $alunosID = Alunos::whereIn('id', $request->alunos_ids)->where('data_matricula', $request->ano_formacao_id)->get(['id']);    
+            } else if(!isset($request->alunos_ids) && $request->omctID==1){
+                $alunosID = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
+            } else {
+                $alunosID = Alunos::where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->get(['id']);
+            }
+
+            $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)
+            ->whereHas('aluno', function($q) use ($request) {
+                $q->orderBy('numero', 'asc');
+            })->get();*/
+
+            $alunos = Alunos::retornaAlunosComQmsEspecifica($request->id_ano_formacao, [$request->curso_id])->get();
+
+            $mencoes = Mencoes::get();
+            return view('ajax.relatorios.demonstrativo-notas-gaviao', compact('mencoes', 'alunos'));
+        }
     }
 }

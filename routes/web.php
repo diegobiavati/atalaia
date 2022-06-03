@@ -367,6 +367,10 @@ Route::get('pdfTeste', function(){
     exit();
 });
 
+Route::get('testy', function(\App\Http\Controllers\OwnAuthController $ownauthcontroller){
+
+    return view('testy', compact('ownauthcontroller'));
+});
 //Reintegrar Aluno Situacao Diversas
 //Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
 
@@ -452,8 +456,15 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
 
     Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
         Route::get('download-pdf/{arquivo}', 'Relatorios\RelatorioAlunoController@Download');
+
+
+        //SSAA
+        Route::get('demonstrativo-notas/{id_ano_formacao}/{curso_id}', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
     });
 
+
+    //SSAA
+    Route::get('demonstrativo-notas/{id_ano_formacao}', 'Ajax\AjaxRelatoriosGaviaoController@DemonstrativoNotas');
 
 
 

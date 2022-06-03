@@ -51,7 +51,7 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'strict' => false,
-            'engine' => null,
+            'engine' => null
         ],
 
         'pgsql' => [
@@ -64,7 +64,7 @@ return [
             'charset' => 'utf8',
             'prefix' => '',
             'schema' => 'public',
-            'sslmode' => 'prefer',
+            'sslmode' => 'prefer'
         ],
 
         'sqlsrv' => [
