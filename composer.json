@@ -9,6 +9,7 @@
         "barryvdh/laravel-cors": "^0.11.3",
         "barryvdh/laravel-ide-helper": "^2.6",
         "codedge/laravel-fpdf": "^1.5",
+        "doctrine/dbal": "^2.13",
         "fideloper/proxy": "~4.0",
         "khill/lavacharts": "3.0.*",
         "laravel/framework": "5.6.*",
@@ -16,7 +17,8 @@
         "maatwebsite/excel": "^3.1",
         "phpoffice/phpspreadsheet": "^1.9",
         "rafwell/laravel-simplegrid": "^1.15",
-        "twbs/bootstrap": "5.1.3"
+        "twbs/bootstrap": "5.1.3",
+        "zoilomora/laravel-msaccess": "^1.0@beta"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
