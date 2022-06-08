@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Ajax;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Utilitarios\FuncoesController;
+use App\Http\OwnClasses\ClassLog;
 use App\Models\Alunos;
 use App\Models\AlunosCurso;
 
@@ -153,5 +154,15 @@ class ImportacaoController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public static function ImportaMSAccessCapitaniMysql(){
+        $sql = "SELECT * FROM vw_SSAA_2anocfgs;";
+        $output = null;
+
+        exec('java -jar '.app_path('Imports/').'SQLMSAccess.jar "'.$sql.'"', $output);
+        
+        $classLog = new ClassLog();
+        $classLog->RegistrarLog('Fez Importação de Dados Capitani '.$output[0], 'Sistema');
     }
 }
