@@ -29,9 +29,9 @@ class Kernel extends ConsoleKernel
         //          ->hourly();
         $schedule->call(function () {
             ImportacaoController::ImportaMSAccessCapitaniMysql();
-        })->weekdays()->hourly()->between('7:00', '18:00')
+        })->weekdays()->hourly()->between('7:00', '18:00');
         //})->weekdays()->everyMinute()->between('7:00', '18:00')
-        ->emailOutputTo('jvgs_o.o@live.com');
+        //->emailOutputTo('jvgs_o.o@live.com');
     }
 
     /**
