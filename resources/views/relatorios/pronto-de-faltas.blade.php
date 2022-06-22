@@ -31,7 +31,7 @@
                                     <tr>
                                         <td style="border: 1px solid #000; padding: 6px;">{{$loop->index +1}}</td>
                                         <td style="border: 1px solid #000; padding: 6px;">
-                                            AL <b>{{$prontos->aluno->nome_guerra}}</b><br />
+                                            AL {{$prontos->aluno->numero}} <b>{{$prontos->aluno->nome_guerra}}</b><br />
                                             <span style="color: #363636;"><i>{{$prontos->aluno->nome_completo}}</i></span>
                                         </td>
                                     </tr>
