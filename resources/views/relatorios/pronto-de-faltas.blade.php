@@ -46,7 +46,7 @@
             @if(isset($pronto_enviado))
                 @unset($pronto_enviado)
             @else
-                @if($avaliacao->chamada==2)
+                @if($avaliacao->chamada==2 && !isset($status_pronto_faltas))
 
                     @foreach($status_pronto_faltas_av_ref as $status)
                         @if($status->omcts_id==$omct->id && $status->status==1)
