@@ -1642,6 +1642,7 @@ class AjaxRelatoriosController extends Controller
             // LIMPANDO TODOS DADOS DA TABELA alunos_classificacao
 
             $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
+            //$ano_corrente = AnoFormacao::where('id', 4)->orderBy('formacao', 'desc')->first();
             $id_ano_corrente = ($ano_corrente->id)??0;
 
             AlunosClassificacao::whereHas('aluno', function($q) use ($id_ano_corrente) {
@@ -1680,7 +1681,9 @@ class AjaxRelatoriosController extends Controller
 
             */
 
-            
+            //Forçar avaliações...Deletar depois
+            //$request->avaliacoesID = array(113,115,131,145,147,118,120,123,125,127,137,140,142,134,150,151,163,154,161,153,159,152);
+
             if($request->avaliacoesID){
                 $avaliacoes_2_chamada = Avaliacoes::whereIn('chamada_refer_id', $request->avaliacoesID)->where('chamada', '<>', 1)->get(['id']);
                 foreach($avaliacoes_2_chamada as $ava_2_chamada){

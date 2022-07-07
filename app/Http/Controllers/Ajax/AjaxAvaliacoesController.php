@@ -192,4 +192,5 @@ class AjaxAvaliacoesController extends Controller
         $retorno['retornoStyle'] = 'green';
         return response()->json($retorno);
     }
+
 }

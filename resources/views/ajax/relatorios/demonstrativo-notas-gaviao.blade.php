@@ -8,14 +8,56 @@
 
 @foreach ($alunos as $class)
 
-<div style="width: 940px; margin: 12px auto 56px auto; page-break-after: always;">
-    <div style="border: 1px solid #000000; padding: 6px;">
-        <b>ALUNO(A):</b> {{$class->numero}} <b>{{$class->nome_guerra}}</b> ({{$class->nome_completo}})<br />
-        <b>CURSO:</b> {{$class->qms->qms}}<br />
-        <b>TURMA:</b> {{$class->turmaESA->turma or 'NÃO INFORMADA'}}
-        <div style="float: right; margin-top: -38px;">
-            <b>AREA:</b> {{$class->area->area}}
+<div style="width: 940px; margin:12px auto 56px auto; page-break-after: always;">
+    <div style="border: 3px solid #000000; padding: 6px;">
+        
+
+        <div class="container" style="border: 0px solid #000000;">
+            <div class="row" style="border: 1px solid #000000;">
+                <div class="col-md-10" style="border: 1px solid #000000;">
+                    <div style="font-size:12px;"><b>(SSAA/SCP)</b></div>
+                    <div style="font-size:12px;float: right; margin-top: -20px;">
+                        {{date('d/m/Y')}}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-2" style="border: 1px solid #000000;">Logo DE/ESA</div>
+                        <div class="col-md-10" style="border: 1px solid #000000;">
+                            <div class="form-row">
+                                <div class="form-group col-md-6" style="margin-bottom: 0px;">
+                                    <div>Aluno</div>
+                                    <div>{{$class->aluno->numero}} <b>{{$class->aluno->nome_guerra}}</b> ({{$class->aluno->nome_completo}})</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2" style="border: 1px solid #000000;">LOGO CURSO</div>
+            </div>
         </div>
+
+
+        <!--<div class="col" style="border: 1px solid #000000;">
+                    <div style="font-size:12px;"><b>(SSAA/SCP)</b></div>
+
+                    <div style="font-size:12px;float: right; margin-top: -20px; margin-right: 80px;">
+                        {{date('d/m/Y')}}
+                    </div>
+                </div>
+
+                <div class="row" style="border: 1px solid #000000;">
+                    <div class="col">IMAGEM DE/ESA</div>
+                    <div class="col" style="border: 1px solid #000000;">
+                        <div class="col-sm" style="width: 80%;border: 1px solid #000000; padding: 4px;">
+                            <b>ALUNO(A):</b> {{$class->aluno->numero}} <b>{{$class->aluno->nome_guerra}}</b> ({{$class->aluno->nome_completo}})<br />
+                            <b>CURSO:</b> {{$class->aluno->qms->qms}}<br />
+                            <b>TURMA:</b> {{$class->aluno->turmaESA->turma or 'NÃO INFORMADA'}}
+                        </div>
+                    </div>
+                </div>
+                <div class="col">IMAGEM CURSO</div>-->
+
         <div style="clear: both;"></div>
     </div>
 
@@ -29,13 +71,15 @@
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;"><b>CLASSIFICAÇÃO GERAL</b></td>
             </tr>
             <tr>
-                <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format(0, '3', '.', '')}}</td>
+                <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{number_format($class->nota_final, '3', '.', '')}}</td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;">
-                    
-                        {{$mencao_aluno or 'Não calculada'}}
+                    @php
+                    $mencao = json_decode($class->data_demonstrativo)->qualfi_mencao;
+                    @endphp
+                    {{ $mencao or 'Não calculada'}}
                 </td>
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;">
-                    
+                    {{ $class->classificacao }}
                 </td>
             </tr>
         </table>

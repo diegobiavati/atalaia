@@ -624,6 +624,31 @@
             }
         });*/
 
+        function downloadPDF(urlVisualizacao, dados){
+
+            $.ajax({
+                type: 'POST',
+                url: urlVisualizacao,
+                data: dados,
+                beforeSend: function() {
+                    $('div#parametros-content').empty();
+                    $('div#parametros-content').html('<div id=\"temp\"><img src=\"/images/loadings/loading_01.svg\" style=\"width: 24px; margin-right: 8px;\" /> Aguarde, carregando...</div>');
+                },
+                success: function(data) {
+                    $('div#temp').fadeOut(300, function() {
+                        $(this).remove();
+                        
+                        window.open(data.rota+'/'+data.arquivo);
+                    });
+                },
+                error: function(jqxhr) {
+                    setTimeout(function() {
+                        $('div#parametros-content').empty();
+                        alert('ERRO INTERNO/Violação de acesso!/CARACTERE NÃO PERMITIDO PARA ESTA OPERAÇÃO');
+                    }, 1000);
+                }
+            });
+        }
     
 </script>
 

@@ -35,7 +35,7 @@ class AjaxRelatoriosGaviaoController extends Controller
         if(isset($qms) && $qms->qms_matriz_id == 1){//Infantaria
             return view('ajax.componenteSelectCiaInfantaria');
         }else{
-            $retorno = 'failure';    
+            $retorno = 'failure';
         }
 
         return response()->json($retorno);

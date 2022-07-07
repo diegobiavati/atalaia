@@ -6,7 +6,10 @@ namespace App\Http\Controllers\Ajax;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
+use App\Http\Controllers\Relatorios\RelatoriosSSAA;
 use App\Http\Controllers\Utilitarios\FuncoesController;
+use App\Http\Controllers\Utilitarios\ImportadorController;
+use App\Http\FPDF\PDF_DEM_NOTAS;
 /* MODELS */
 
 use App\Models\Operadores;
@@ -18,9 +21,12 @@ use App\Models\AlunosSitDiv;
 use App\Models\AlunosSitDivHistorico;
 use App\Models\AnoFormacao;
 use App\Models\Areas;
+use App\Models\CapitaniMSAccess;
+use App\Models\EscolhaQMS;
 use App\Models\Imagens;
 use App\Models\LancamentoFo;
 use App\Models\Mencoes;
+use App\Models\ModeloNotasCapitani;
 use App\Models\OMCT;
 use App\Models\PostoGrad;
 use App\Models\QMS;
@@ -28,8 +34,6 @@ use App\Models\QMSMatriz;
 use App\Models\TurmasEsa;
 use App\User;
 use Exception;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 
 setlocale(LC_ALL, "pt_BR.utf8");
 //date_default_timezone_set('America/Sao_Paulo');
@@ -373,25 +377,9 @@ class AjaxAdminGaviaoController extends Controller
 
         } else {
 
-            /*if(isset($request->alunos_ids) && $request->omctID!=1){
-                $alunosID = Alunos::whereIn('id', $request->alunos_ids)->where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->get(['id']);
-            } else if(isset($request->alunos_ids) && $request->omctID==1){
-                $alunosID = Alunos::whereIn('id', $request->alunos_ids)->where('data_matricula', $request->ano_formacao_id)->get(['id']);    
-            } else if(!isset($request->alunos_ids) && $request->omctID==1){
-                $alunosID = Alunos::where('data_matricula', $request->ano_formacao_id)->get(['id']);
-            } else {
-                $alunosID = Alunos::where('omcts_id', $request->omctID)->where('data_matricula', $request->ano_formacao_id)->get(['id']);
-            }
+            $relatorioSSAA = new RelatoriosSSAA();
+            return $relatorioSSAA->DemonstrativoNotasGaviao($request->id_ano_formacao, $request->curso_id);
 
-            $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)
-            ->whereHas('aluno', function($q) use ($request) {
-                $q->orderBy('numero', 'asc');
-            })->get();*/
-
-            $alunos = Alunos::retornaAlunosComQmsEspecifica($request->id_ano_formacao, [$request->curso_id])->get();
-
-            $mencoes = Mencoes::get();
-            return view('ajax.relatorios.demonstrativo-notas-gaviao', compact('mencoes', 'alunos'));
         }
     }
 }

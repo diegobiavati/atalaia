@@ -459,7 +459,8 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
 
 
         //SSAA
-        Route::get('demonstrativo-notas/{id_ano_formacao}/{curso_id}', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
+        //Route::get('demonstrativo-notas/{id_ano_formacao}/{curso_id}/', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
+        Route::post('demonstrativo-notas/{id_ano_formacao}/{curso_id}/', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
     });
 
 

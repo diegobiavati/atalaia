@@ -157,11 +157,12 @@ class ImportacaoController extends Controller
     }
 
     public static function ImportaMSAccessCapitaniMysql(){
-        $sql = "SELECT * FROM vw_SSAA_2anocfgs;";
+        $sql = "SELECT AnoQ, Nr_Alu, GUERRA, Grupo, Disciplina, [AA/AA1] as AA_A1, AA2, AA3, AA4, AC_AI, AC2, AR, AF1, AF2, AD, NFC, Bonus, NDC, NPBARRED, NQ, NACP, NAA, NFC, mencao, QR, ClasF, NFC_DIZ FROM 2anocfgs;";
+        
         $output = null;
 
         exec('java -jar '.app_path('Imports/').'SQLMSAccess.jar "'.$sql.'"', $output);
-        
+
         $classLog = new ClassLog();
         $classLog->RegistrarLog('Fez Importação de Dados Capitani '.$output[0], 'Sistema');
     }

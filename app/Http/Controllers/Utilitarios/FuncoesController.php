@@ -200,8 +200,8 @@ class FuncoesController
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['tfm'] = $nota->avaliacao->disciplinas->tfm;
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['tfm_abdominal'] = $nota->avaliacao->tfm_abdominal;
 
-                /*if($nota->alunos_id == 3156){
-                    dd($aluno_notas[$nota->avaliacao->disciplinas_id][3156]);
+                /*if($nota->alunos_id == 3565){
+                    dd($aluno_notas[$nota->avaliacao->disciplinas_id][3565]);
                 }*/
             }
         }
@@ -268,7 +268,7 @@ class FuncoesController
             $aluno_notas = array();
         }
 
-        //dd($aluno_notas[24][2188]);
+        //dd($aluno_notas[25][3565]);
         return $aluno_notas;
     }
 

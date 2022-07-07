@@ -47,6 +47,7 @@ class PDF extends FPDF
 
     function OpenTag($tag, $prop)
     {
+        
         //Opening tag
         if ($tag == 'B' || $tag == 'I' || $tag == 'U')
             $this->SetStyle($tag, true);

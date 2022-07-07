@@ -255,8 +255,16 @@ class Alunos extends Model
         ]);
     }
 
+    public function conselhoEscolar(){
+        return $this->hasMany('App\Models\AlunosConselhoEscolar', 'aluno_id', 'id');
+    }
+
     public function lancamento_fo(){
         return $this->hasMany('App\Models\LancamentoFo', 'aluno_id', 'id');
+    }
+    
+    public function capitaniNotas(){
+        return $this->hasMany('App\Models\CapitaniMSAccess', 'aluno_id', 'id');
     }
 
     public function nascimento()
@@ -269,6 +277,14 @@ class Alunos extends Model
         }
 
         return $data_nascimento;
+    }
+
+    public function formacao(){
+        if(isset($this->ano_formacao_reintegr_id)){
+            return $this->ano_formacao_rematr;
+        }else{
+            return $this->ano_formacao;
+        }
     }
 
     public function PrimeiraDataPraca()
@@ -349,7 +365,7 @@ class Alunos extends Model
     }
 
     private static function retornaAlunosComQms($anoFormacaoID=0){
-
+        
         $aluno = Alunos::whereNotNull('qms_id')->orderBy('numero');
 
         /*if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
