@@ -13,16 +13,7 @@
             <div style="text-align: center;">
                 <h4>{{$omct->omct}}</h4>
             </div>
-
-            @php
-                $validaAlunos = false;
-            @endphp
             
-            @foreach($pronto_faltas as $pronto_falta)
-                @if($pronto_falta->omcts_id == $omct->id)
-                    @php
-                        $validaAlunos = true;
-                    @endphp
                     @foreach($status_pronto_faltas as $status_pronto)
 
                         @if($status_pronto->omcts_id==$omct->id)
@@ -36,15 +27,19 @@
                             @else               
                                 <table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 600px;">
                                     @foreach($pronto_faltas as $prontos)
-                                        @if($prontos->omcts_id==$omct->id && $prontos->avaliacao_id==$status_pronto->avaliacao_id)
-                                            <tr>
-                                                <td style="border: 1px solid #000; padding: 6px;">{{$loop->index +1}}</td>
-                                                <td style="border: 1px solid #000; padding: 6px;">
-                                                    AL {{$prontos->aluno->numero}} <b>{{$prontos->aluno->nome_guerra}}</b><br />
-                                                    <span style="color: #363636;"><i>{{$prontos->aluno->nome_completo}}</i></span>
-                                                </td>
-                                            </tr>
+                                        @if($prontos->omcts_id == $omct->id)
+                                            
+                                            @if($prontos->avaliacao_id==$status_pronto->avaliacao_id)
+                                                <tr>
+                                                    <td style="border: 1px solid #000; padding: 6px;">{{$loop->index +1}}</td>
+                                                    <td style="border: 1px solid #000; padding: 6px;">
+                                                        AL {{$prontos->aluno->numero}} <b>{{$prontos->aluno->nome_guerra}}</b><br />
+                                                        <span style="color: #363636;"><i>{{$prontos->aluno->nome_completo}}</i></span>
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @endif
+                                        
                                     @endforeach
                                 </table>
                             @endif
@@ -55,29 +50,61 @@
                     @if(isset($pronto_enviado))
                         @unset($pronto_enviado)
                     @else
-                    @if($avaliacao->chamada==2 && !isset($status_pronto_faltas))
+                        
+                        @if($avaliacao->chamada==2)
 
-                        @foreach($status_pronto_faltas_av_ref as $status)
-                            @if($status->omcts_id==$omct->id && $status->status==1)
-                                <div style="text-align: center; color: #0104DF;">UETE SEM ALUNOS NESSE UNIVERSO</div>
-                            @elseif($status->omcts_id==$omct->id && $status->status==0)
-                                <div style="text-align: center; color: #0104DF;">UETE SEM ALUNOS NESSE UNIVERSO</div>
-                            @endif
-                        @endforeach
-
-                    @else
-                        <div style="text-align: center; color: #DF0101;">PRONTO NÃO ENVIADO</div>
-                    @endif
-
-                    @endif
-
-
-                @endif
-            @endforeach
-
-            @if(!$validaAlunos)
-                <div style="text-align: center; color: #0104DF;">UETE SEM ALUNOS NESSE UNIVERSO</div>
+                        @php
+                            $valida = false;
+                        @endphp
+                            @foreach($status_pronto_faltas as $status)
+                                @if($status->omcts_id==$omct->id)
+                                    @php
+                                        $valida = true;
+                                    @endphp
+                                    @if($status->status==1)
+                                        <div style="text-align: center; color: #0104DF;">SEM REGISTRO DE FALTAS</div>
+                                    @elseif($status->status==0)
+                                        <div style="text-align: center; color: #DF0101;">COM FALTAS - PRONTO NÃO ENVIADO</div>
+                                    @endif
+                                @endif
+                                
+                            @endforeach
+                            @if(!$valida)
+                                
+                            
+    @php
+        $valida_aluno = false;
+    @endphp
+                            
+    <table style="border: 1px solid #000; border-collapse: collapse; margin: 0 auto; width: 600px;">
+        @foreach($pronto_faltas_av_ref as $prontos)
+            @if($prontos->omcts_id == $omct->id)
+                    @php
+                        $valida = true;
+                    @endphp
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 6px;">{{$loop->index +1}}</td>
+                        <td style="border: 1px solid #000; padding: 6px;">
+                            AL {{$prontos->aluno->numero}} <b>{{$prontos->aluno->nome_guerra}}</b><br />
+                            <span style="color: #363636;"><i>{{$prontos->aluno->nome_completo}}</i></span>
+                        </td>
+                    </tr>
             @endif
+            
+        @endforeach
+    </table>
+
+                                @if(!$valida)
+                                    <div style="text-align: center; color: #0104DF;">UETE SEM ALUNOS NESSE UNIVERSO</div>   
+                                @endif
+                                
+                            @endif
+                        @else
+                            <div style="text-align: center; color: #DF0101;">PRONTO NÃO ENVIADO</div>
+                        @endif
+
+                    @endif
+
         @endif
 
     @endforeach

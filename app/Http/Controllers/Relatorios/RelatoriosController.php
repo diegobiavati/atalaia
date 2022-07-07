@@ -365,7 +365,6 @@ class RelatoriosController extends Controller
     public function ProntoDeFaltas(Request $request) {
         
         /* SELECIONANDO UETEs */
-
         $omcts = OMCT::get();
         $status_pronto_faltas = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $request->avaliacaoID)->get(); 
         $pronto_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->avaliacaoID)->get(); 
@@ -374,22 +373,24 @@ class RelatoriosController extends Controller
         /**
          *  Verifico se é avaliação de 2 chamada.
          *  Caso seja avaliação de segunda chamada, vefifico a avaliação de referencia
-         *  
          */
 
         if($avaliacao->chamada==2){
             // AVALIAÇAO DE REFERENCIA
             $ava_ref = Avaliacoes::find($avaliacao->chamada_refer_id);
-            $status_pronto_faltas_av_ref = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $ava_ref->id)->get();
+            $status_pronto_faltas_av_ref = AvaliacoesProntoFaltasStatus::whereNotIn('omcts_id', $status_pronto_faltas->pluck('omcts_id')->toArray())->where(['avaliacao_id' => $ava_ref->id, 'status' => 0])->get();
+            $pronto_faltas_av_ref = AvaliacoesProntoFaltas::whereIn('omcts_id', $status_pronto_faltas_av_ref->pluck('omcts_id')->toArray())->where(['avaliacao_id' => $avaliacao->chamada_refer_id])->get();
         }
 
         $status_pronto_faltas_av_ref = ($status_pronto_faltas_av_ref)??[];
+        $pronto_faltas_av_ref = ($pronto_faltas_av_ref)??[];
 
         $this->classLog->RegistrarLog('Acessou relatório do pronto de faltas', auth()->user()->email);
         return view('relatorios.pronto-de-faltas')->with('omcts', $omcts)
                                                   ->with('status_pronto_faltas', $status_pronto_faltas)
                                                   ->with('avaliacao', $avaliacao)
                                                   ->with('status_pronto_faltas_av_ref', $status_pronto_faltas_av_ref)
+                                                  ->with('pronto_faltas_av_ref', $pronto_faltas_av_ref)
                                                   ->with('pronto_faltas', $pronto_faltas);    
     }
 
