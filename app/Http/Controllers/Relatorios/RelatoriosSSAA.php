@@ -21,9 +21,7 @@ class RelatoriosSSAA extends Controller {
         $alunos = Alunos::retornaAlunosComQmsEspecifica($anoFormacao->id, [$cursoId])->get();
 
         //$alunos_id = Alunos::retornaAlunosComQmsEspecifica($anoFormacao->id, [$cursoId])->pluck('id')->toArray();
-
         //$capitaniMSAccess = CapitaniMSAccess::whereIn('aluno_id', $alunos_id)->get();
-            
         /*$alunosNotas = Collection::make();
         
         foreach($alunos_id as $id){
@@ -74,9 +72,9 @@ class RelatoriosSSAA extends Controller {
             $pdf->SetX(114);
             //$pdf->Cell(97, 5, utf8_decode($aluno->numero.' - '.$aluno->nome_guerra.' - '.$aluno->nome_completo), 0, 0, 'L', false);
             $pdf->Cell(15, 5, FuncoesController::formatDateEntoBr($aluno->data_nascimento), 0, 0, 'C', false);
-            $pdf->Cell(5, 5, $aluno->turmaEsa->turma, 0, 0, 'C', false);
+            $pdf->Cell(5, 5, (isset($aluno->turmaEsa->turma) ? $aluno->turmaEsa->turma : null), 0, 0, 'C', false);
             $pdf->SetFont('Arial', 'B', 6);
-            $pdf->Cell(42, 5, utf8_decode($aluno->situacao_anterior->situacao_anterior), 0, 0, 'C', false);
+            $pdf->Cell(42, 5, (isset($aluno->situacao_anterior->situacao_anterior) ? utf8_decode($aluno->situacao_anterior->situacao_anterior) : null), 0, 0, 'C', false);
             $pdf->Cell(11, 5, FuncoesController::formatDateEntoBr($aluno->primeira_data_praca), 0, 1, 'C', false);
 
             $pdf->SetY(29);
@@ -84,7 +82,7 @@ class RelatoriosSSAA extends Controller {
             $pdf->SetFont('Arial', '', 9);
             
             $pdf->Cell(45, 5, utf8_decode('1º Ano do CFGS'), 0, 0, 'L', false);
-            $pdf->WriteHTML(utf8_decode('<b>UETE 1º Ano:</b> '.$aluno->omct->sigla_omct));
+            $pdf->WriteHTML(utf8_decode('<b>UETE 1º Ano:</b> '.(isset($aluno->omct->sigla_omct) ? $aluno->omct->sigla_omct : null)));
             $pdf->Cell(45, 5, '', 0, 0, 'L', false);
             $pdf->WriteHTML('<b>CFGS:</b> '.$aluno->formacao()->formacao.'  '.$aluno->formacao()->ano_cfs);
             $pdf->SetXY(175, 29);
@@ -109,7 +107,7 @@ class RelatoriosSSAA extends Controller {
             $pdf->Cell(14, 5, 'PATR', 0, 0, 'C', false);
             $pdf->Cell(14, 5, 'GLO', 0, 1, 'C', false);
 
-            $info_1Ano = unserialize($aluno->classificacao->data_demonstrativo);
+            $info_1Ano = unserialize($aluno->classificacao->data_demonstrativo)??[];
 
             //Caso seja Aluno de Períodos Anteriores
             if(!key_exists('avaliacoes_tfm', $info_1Ano)){
@@ -195,7 +193,7 @@ class RelatoriosSSAA extends Controller {
             $pdf->SetFillColor(170, 170, 170);
 
             $fill = false;
-
+            
             $notasFinais = null;
             foreach($aluno->capitaniNotas as $notas){
                 $demonstrativo = json_decode($notas->data_demonstrativo);
@@ -220,9 +218,9 @@ class RelatoriosSSAA extends Controller {
                 $notasFinais['NACP'] =  (isset($demonstrativo->NACP)     ? number_format($demonstrativo->NACP, 3, ',', '')        : null);
                 $notasFinais['NAA'] =   (isset($demonstrativo->NAA)      ? number_format($demonstrativo->NAA, 3, ',', '')         : null);
                 $notasFinais['NFC'] =   (isset($demonstrativo->NFC)      ? number_format($demonstrativo->NFC, 3, ',', '')         : null);
-                $notasFinais['MENCAO'] = $demonstrativo->mencao;
+                $notasFinais['MENCAO'] = (isset($demonstrativo->mencao)  ? $demonstrativo->mencao : '-');
                 $notasFinais['QR'] =    (isset($demonstrativo->QR)       ? number_format($demonstrativo->QR, 3, ',', '')          : null);
-                $notasFinais['CLASS'] = utf8_decode($demonstrativo->ClasF);
+                $notasFinais['CLASS'] = (isset($demonstrativo->ClasF)  ? utf8_decode($demonstrativo->ClasF) : '-');
 
                 $notasFinais['DIZCLASS'] = (isset($demonstrativo->NFC_Diz) ? number_format((double)str_replace(',', '.', $demonstrativo->NFC_Diz), 3, ',', '') : null);
                 $fill = !$fill;
