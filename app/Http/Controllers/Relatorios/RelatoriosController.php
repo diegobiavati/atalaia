@@ -581,18 +581,20 @@ class RelatoriosController extends Controller
                             $listaAlunos[$aluno->id]['qmsdesignda_nome_sigla'] = 'Avi';
                         }
 
-                        $aluno->data_demonstrativo = unserialize($aluno->classificacao->data_demonstrativo);
-
-                        $aluno->mencao = 'Não calculada';
-                        foreach($mencoes as $mencao){
-                            if($aluno->classificacao->nota_final_arredondada>=$mencao->inicio && $aluno->classificacao->nota_final_arredondada<=$mencao->fim){
-                                $aluno->mencao = $mencao;
-                                break;
+                        if(isset($aluno->classificacao)){
+                            $aluno->data_demonstrativo = unserialize($aluno->classificacao->data_demonstrativo);
+                            
+                            $aluno->mencao = 'Não calculada';
+                            foreach($mencoes as $mencao){
+                                if($aluno->classificacao->nota_final_arredondada>=$mencao->inicio && $aluno->classificacao->nota_final_arredondada<=$mencao->fim){
+                                    $aluno->mencao = $mencao;
+                                    break;
+                                }
                             }
-                        }
 
-                        $qmsNomeSigla[] = $listaAlunos[$aluno->id]['qmsdesignda_nome_sigla'];
-                        $listaAlunoQms[$listaAlunos[$aluno->id]['qmsdesignda_nome_sigla']][] = $aluno;
+                            $qmsNomeSigla[] = $listaAlunos[$aluno->id]['qmsdesignda_nome_sigla'];
+                            $listaAlunoQms[$listaAlunos[$aluno->id]['qmsdesignda_nome_sigla']][] = $aluno;
+                        }
                     }                
                    
                     $qmsNomeSigla = array_unique($qmsNomeSigla);
