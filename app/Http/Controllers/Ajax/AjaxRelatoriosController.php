@@ -1691,12 +1691,11 @@ class AjaxRelatoriosController extends Controller
                 }
                 $array_ava_2_chamada = ($array_ava_2_chamada)??array();
                 ConfDemonstrativos::where('id', 1)->update(['avaliacoes' => implode(',', $request->avaliacoesID)]);
-                $avaliacoesIDs = array_merge($request->avaliacoesID, $array_ava_2_chamada);
+                $avaliacoesIDs = array_merge(array_map('intval', $request->avaliacoesID), $array_ava_2_chamada);
             } else {
                 $avaliacoesIDs = array();
                 ConfDemonstrativos::where('id', 1)->update(['avaliacoes' => '']);
             }
-
             // SELECIONANDO TODAS AS AVALIAÇÕES CONFIGURADAS NA TABELA conf_demonstrativos para se obter a razão de cada disciplina, id e nome.
 
             $avaliacoes = Avaliacoes::whereIn('id', $avaliacoesIDs)->get();
@@ -1734,6 +1733,7 @@ class AjaxRelatoriosController extends Controller
 
             //2ºTen João Victor, Alteração no Cálculo da NOTA
             $alunoNota = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
+            
             //dd($alunoNota[33][3378]);
             $alunosID = $alunoNota['alunosID'];
             //Fim Alteração 2ºTen João Victor

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Ajax;
 use Illuminate\Http\Request;
 use App\User;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use Illuminate\Support\Facades\DB;
 
@@ -253,7 +254,7 @@ class AjaxOperadorController extends Controller
         return $data;
     }
 
-    public function EnviarProntoFaltas(Request $request)
+    public function EnviarProntoFaltas(Request $request, \App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
 
         if (AvaliacoesProntoFaltasStatus::where([
@@ -281,6 +282,12 @@ class AjaxOperadorController extends Controller
                     $avaliacoes_faltas->omcts_id = session()->get('login.omctID');
                     $avaliacoes_faltas->aluno_id = $falta;
                     $avaliacoes_faltas->save();
+
+                    $requestNotaZero = new Request;
+                    $requestNotaZero->merge(['id' => $falta]);
+                    $requestNotaZero->merge(['avaliacaoID' => $request->id]);
+                    
+                    $this->RegistraGrauZeroAluno($requestNotaZero, $ownauthcontroller);
                 }
             }
 
@@ -508,6 +515,34 @@ class AjaxOperadorController extends Controller
 
         $data['response'] = implode('', $resul);
         return $data;
+    }
+
+    public function RegistraGrauZeroAluno(Request $request, \App\Http\Controllers\OwnAuthController $ownauthcontroller){
+
+        $classLog = new ClassLog;
+            
+            $classLog->RegistrarLog('Registrou grau de aluno zerado', auth()->user()->email);
+            if ($ownauthcontroller->PermissaoCheck([1, 3])) {
+                /* VERIFICANDO SE A UETE DO ALUNO É A MESMA DO OPERADOR */
+
+                $aluno = Alunos::find($request->id);
+                $omct_id = session()->get('login.omctID');
+                
+                if ($aluno->omcts_id == $omct_id || $ownauthcontroller->PermissaoCheck(1)) {
+                        $avaliacoes_notas = new AvaliacoesNotas;
+                        $avaliacoes_notas->alunos_id = $request->id;
+                        $avaliacoes_notas->avaliacao_id = $request->avaliacaoID;
+                        $avaliacoes_notas->gbo = 0;
+
+                        //Se for 2ª Chamada deixa lançar 0
+                        if($avaliacoes_notas->avaliacao->chamada > 1){
+                            return $avaliacoes_notas->save();
+                        }
+                        
+                        return false;
+                }
+            }
+        
     }
 
     public function RegistrarGrauAluno(Request $request, \App\Http\Controllers\OwnAuthController $ownauthcontroller)

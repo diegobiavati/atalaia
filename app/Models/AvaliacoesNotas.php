@@ -40,9 +40,7 @@ class AvaliacoesNotas extends Model
         } else {
             $gbo = $this->gbo;
             $gbm = $this->avaliacao->gbm;
-            $nota = number_format($gbo * 10 / $gbm, 3, '.', '');
-
-            return $nota;
+            return ($gbo > 0) ? $nota = number_format($gbo * 10 / $gbm, 3, '.', '') : 0;
         }
     }
 }

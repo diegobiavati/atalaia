@@ -200,8 +200,8 @@ class FuncoesController
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['tfm'] = $nota->avaliacao->disciplinas->tfm;
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['tfm_abdominal'] = $nota->avaliacao->tfm_abdominal;
 
-                /*if($nota->alunos_id == 3565){
-                    dd($aluno_notas[$nota->avaliacao->disciplinas_id][3565]);
+                /*if($nota->alunos_id == 5045){
+                    dd($nota);
                 }*/
             }
         }
