@@ -372,9 +372,7 @@ class AjaxAdminGaviaoController extends Controller
     public function DemonstrativoNotasGaviao(OwnAuthController $ownauthcontroller, Request $request){
        
         if(!$ownauthcontroller->PermissaoCheck([1,27]) && $request->curso_id!=session()->get('login.qmsID.0.id')){
-
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
-
         } else {
 
             $relatorioSSAA = new RelatoriosSSAA();

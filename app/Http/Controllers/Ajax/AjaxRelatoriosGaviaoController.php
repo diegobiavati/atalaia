@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\AnoFormacao;
+use App\Models\CapitaniMSAccess;
 use App\Models\MSAccess;
 use App\Models\QMS;
 
@@ -43,10 +44,21 @@ class AjaxRelatoriosGaviaoController extends Controller
 
     public function DemonstrativoNotas(OwnAuthController $ownauthcontroller, Request $request){
        
-        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($request->id_ano_formacao));
-        
-        $urlVisualizacao = 'ajax/relatorios/demonstrativo-notas/'.$request->id_ano_formacao.'/';
+        $idAnoFormacao = $request->id_ano_formacao;
 
-        return view('ajax.avaliacao.view-demonstrativo-notas', compact('ownauthcontroller', 'cursos', 'urlVisualizacao'));
+        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($idAnoFormacao));
+        
+        $urlVisualizacao = 'ajax/relatorios/demonstrativo-notas/'.$idAnoFormacao.'/';
+    
+        $capitaniMSAccess = CapitaniMSAccess::whereHas('aluno', function($q) use ($idAnoFormacao) {
+            $q->where([['data_matricula', '=', $idAnoFormacao]])->orWhere([['ano_formacao_reintegr_id', '=', $idAnoFormacao]]);
+        })->get();
+
+        if(count($capitaniMSAccess) > 0){
+            return view('ajax.avaliacao.view-demonstrativo-notas', compact('ownauthcontroller', 'cursos', 'urlVisualizacao'));
+        }else{
+            return '<div>Sem Notas de Alunos Nesse Período</div>';
+        }
+        
     }
 }

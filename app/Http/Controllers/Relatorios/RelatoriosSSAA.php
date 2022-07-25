@@ -9,6 +9,7 @@ use App\Http\FPDF\PDF_DEM_NOTAS;
 use App\Models\Alunos;
 use App\Models\AnoFormacao;
 use App\Models\Disciplinas;
+use Exception;
 
 class RelatoriosSSAA extends Controller {
 
@@ -17,9 +18,9 @@ class RelatoriosSSAA extends Controller {
         //ImportacaoController::ImportaMSAccessCapitaniMysql();
 
         $anoFormacao = AnoFormacao::find($anoFormacaoId);
-          
+       
         $alunos = Alunos::retornaAlunosComQmsEspecifica($anoFormacao->id, [$cursoId])->get();
-
+       
         //$alunos_id = Alunos::retornaAlunosComQmsEspecifica($anoFormacao->id, [$cursoId])->pluck('id')->toArray();
         //$capitaniMSAccess = CapitaniMSAccess::whereIn('aluno_id', $alunos_id)->get();
         /*$alunosNotas = Collection::make();
@@ -37,8 +38,10 @@ class RelatoriosSSAA extends Controller {
         $pdf->SetAutoPageBreak(true, 10);
         $pdf->SetLeftMargin(5);
 
+        
         $disciplinas = Disciplinas::where('tfm', 'N')->get();
 
+        
         foreach($alunos as $aluno){
             
             $pdf->AddPage();
@@ -108,7 +111,7 @@ class RelatoriosSSAA extends Controller {
             $pdf->Cell(14, 5, 'GLO', 0, 1, 'C', false);
 
             $info_1Ano = unserialize($aluno->classificacao->data_demonstrativo)??[];
-
+        
             //Caso seja Aluno de Períodos Anteriores
             if(!key_exists('avaliacoes_tfm', $info_1Ano)){
                 $filtro = array_filter($info_1Ano, function($v, $k){
@@ -120,42 +123,46 @@ class RelatoriosSSAA extends Controller {
             
             $notas1Ano = [];
             foreach($info_1Ano as $k => $v){
-                if( is_numeric($k) && ( (!key_exists('tfm', $v) && $v['disciplina_id'] != 99999)  
-                                            || (key_exists('tfm', $v) && $v['tfm'] == 'N') ) ){
-
-                    $filtro = $disciplinas->search(function($item, $key) use ($v){
-                        return $v['disciplina_id'] == $item->id;
-                    });
-
-                    switch($disciplinas->get($filtro)->nome_disciplina_abrev){
-                        case 'ARMTO':
-                            $notas1Ano['ARMTO'] = $v['media'];
-                            break;
-                        case 'LID':
-                            $notas1Ano['LID'] = $v['media'];
-                            break;
-                        case 'ÉTICA':
-                            $notas1Ano['ÉTICA'] = $v['media'];
-                            break;
-                        case 'TEC MIL 1':
-                            $notas1Ano['TEC MIL I'] = $v['media'];
-                            break;
-                        case 'TEC MIL 2':
-                            $notas1Ano['TEC MIL II'] = $v['media'];
-                            break;
-                        case 'TEC MIL 3':
-                            $notas1Ano['TEC MIL III'] = $v['media'];
-                            break;
-                        case 'Hist Mil BR':
-                            $notas1Ano['Hist Mil BR'] = $v['media'];
-                            break;
-                        case 'HIST':
-                            $notas1Ano['Hist Mil BR'] = $v['media'];
-                            break;
+                try{ 
+                    if( is_numeric($k) && ( (!key_exists('tfm', $v) && ($v['disciplina_id'] != 99999 && $v['disciplina_id'] != 88888))  
+                                                || (key_exists('tfm', $v) && $v['tfm'] == 'N') ) ){
+                    
+                        $filtro = $disciplinas->search(function($item, $key) use ($v){
+                            return $v['disciplina_id'] == $item->id;
+                        });
+                    
+                        switch($disciplinas->get($filtro)->nome_disciplina_abrev){
+                            case 'ARMTO':
+                                $notas1Ano['ARMTO'] = $v['media'];
+                                break;
+                            case 'LID':
+                                $notas1Ano['LID'] = $v['media'];
+                                break;
+                            case 'ÉTICA':
+                                $notas1Ano['ÉTICA'] = $v['media'];
+                                break;
+                            case 'TEC MIL 1':
+                                $notas1Ano['TEC MIL I'] = $v['media'];
+                                break;
+                            case 'TEC MIL 2':
+                                $notas1Ano['TEC MIL II'] = $v['media'];
+                                break;
+                            case 'TEC MIL 3':
+                                $notas1Ano['TEC MIL III'] = $v['media'];
+                                break;
+                            case 'Hist Mil BR':
+                                $notas1Ano['Hist Mil BR'] = $v['media'];
+                                break;
+                            case 'HIST':
+                                $notas1Ano['Hist Mil BR'] = $v['media'];
+                                break;
+                        }
                     }
+                }catch(Exception $ex){
+                    dd($aluno, $v);
                 }
             }
-            
+        
             $pdf->SetY(40);
             $pdf->SetFont('Arial', '', 7);
         
@@ -225,7 +232,7 @@ class RelatoriosSSAA extends Controller {
                 $notasFinais['DIZCLASS'] = (isset($demonstrativo->NFC_Diz) ? number_format((double)str_replace(',', '.', $demonstrativo->NFC_Diz), 3, ',', '') : null);
                 $fill = !$fill;
             }
-
+        
             $posicaoY = ($pdf->getY() + 3);
 
                 $pdf->SetY(45);
@@ -351,6 +358,7 @@ class RelatoriosSSAA extends Controller {
 
 
         }
+        
         
         FuncoesController::LimpaPastaTemp();
         $nomeArquivo = 'Dem_Notas_'.uniqid().'.pdf';
