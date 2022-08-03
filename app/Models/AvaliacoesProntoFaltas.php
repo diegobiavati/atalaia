@@ -13,4 +13,8 @@ class AvaliacoesProntoFaltas extends Model
         return $this->hasOne('App\Models\Alunos', 'id', 'aluno_id'); 
     }
 
+    public function alunoSitDiv(){
+        return $this->hasOne('App\Models\AlunosSitDiv', 'id', 'aluno_id'); 
+    }
+
 }
