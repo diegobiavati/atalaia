@@ -344,8 +344,9 @@ class AlunoSitDiversasController extends Controller
 
                         $avaliacaoTaf->save();
                     }
+                    
                 
-                if($alunoSitDiv->delete()){
+                if($alunoSitDiv->delete() && $alunoSitDivHistorico->delete()){
                     $retorno['status'] = 'ok';
                     $retorno['response'] = '<td colspan="7" style="text-align: center; background-color: #BCF5A9; color: #696969;"><b>' . $aluno->nome_completo . ' agora está reintegrado no ' . $aluno->omct->sigla_omct . '.</b></td>';
         

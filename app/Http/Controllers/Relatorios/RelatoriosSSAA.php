@@ -110,7 +110,12 @@ class RelatoriosSSAA extends Controller {
             $pdf->Cell(14, 5, 'PATR', 0, 0, 'C', false);
             $pdf->Cell(14, 5, 'GLO', 0, 1, 'C', false);
 
-            $info_1Ano = unserialize($aluno->classificacao->data_demonstrativo)??[];
+            try{
+                $info_1Ano = unserialize($aluno->classificacao->data_demonstrativo)??[];
+            }catch(Exception $ex){
+                dd($aluno->classificacao, $aluno);
+            }
+            
         
             //Caso seja Aluno de Períodos Anteriores
             if(!key_exists('avaliacoes_tfm', $info_1Ano)){

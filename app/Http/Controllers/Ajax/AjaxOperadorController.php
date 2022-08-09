@@ -25,6 +25,7 @@ use App\Models\LancamentoFo;
 
 
 use App\Http\OwnClasses\ClassLog;
+use App\Models\AlunosSitDiv;
 use App\Models\AlunosVoluntAv;
 use App\Models\AvaliacoesMostra;
 use App\Models\AvaliacoesMostrasRespostas;

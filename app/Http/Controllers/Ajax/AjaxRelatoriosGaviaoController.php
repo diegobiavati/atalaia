@@ -59,6 +59,5 @@ class AjaxRelatoriosGaviaoController extends Controller
         }else{
             return '<div>Sem Notas de Alunos Nesse Período</div>';
         }
-        
     }
 }

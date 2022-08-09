@@ -369,7 +369,7 @@ class RelatoriosController extends Controller
         $status_pronto_faltas = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $request->avaliacaoID)->get(); 
         $pronto_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->avaliacaoID)->get(); 
         $avaliacao = Avaliacoes::find($request->avaliacaoID);
-
+              
         /**
          *  Verifico se é avaliação de 2 chamada.
          *  Caso seja avaliação de segunda chamada, vefifico a avaliação de referencia
