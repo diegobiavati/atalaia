@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\AlunosSitDivHistorico;
+
 Route::group(['middleware' => 'auth', 'prefix' => 'operador', 'as' => 'operador.'], function () {
     Route::get('/', ['as' => 'admin', 'uses' => 'Operador\AdminOpController@ShowHome']);
 });
@@ -369,10 +371,23 @@ Route::get('pdfTeste', function(){
 
 Route::get('testy', function(\App\Http\Controllers\OwnAuthController $ownauthcontroller){
 
-    return view('testy', compact('ownauthcontroller'));
+    //Aluno Lucas CENG
+    $alunoSitDiv = AlunosSitDivHistorico::where('aluno_id', 3585)->get();
+
+    $dataAvaliacoes = unserialize($alunoSitDiv->get(0)->data)['avaliacoes'];
+
+    foreach($dataAvaliacoes as $key => $avaliacoes){
+        if(is_numeric($key)){
+
+            
+        }
+    }
+
+    
 });
+
 //Reintegrar Aluno Situacao Diversas
-//Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
+Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
 
 //Gerar Notas Aluno Capitani
 Route::get('modelo-pb-capitani/{id_ano_formacao}', 'Aluno\AlunoApiController@modeloPBCapitani')->middleware('checkauth');
