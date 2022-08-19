@@ -32,6 +32,7 @@ class ROD_PDF extends PDF
             $numero = $this->aluno->numero;
         }
         
+        $this->SetTextColor(0, 0, 0);
         $this->Rect($this->getX(), ($this->getY() - 1), 278, 25);
         $this->Cell(0, 8, utf8_decode('DADOS PESSOAIS DO DISCENTE'), 0, 1, 'L');
         $this->Cell(148, 7, utf8_decode('Nome: ' . $this->aluno->nome_completo), 'B', 0, 'L');

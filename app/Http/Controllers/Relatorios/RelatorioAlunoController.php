@@ -831,22 +831,31 @@ class RelatorioAlunoController extends Controller
                 $pdf->SetFont('Times', 'B', 8);
                 
                 $pdf->Cell(23, 7, 'Data', 1, 0, 'C');
-                $pdf->Cell(210, 7, utf8_decode('Situação a Ser Relatada/Observação Relevante'), 1, 0, 'C');
+                $pdf->Cell(23, 7, 'FO', 1, 0, 'C');
+                $pdf->Cell(187, 7, utf8_decode('Situação a Ser Relatada/Observação Relevante'), 1, 0, 'C');
                 $pdf->Cell(45, 7, utf8_decode('Visto do Discente'), 1, 1, 'C');
 
                 $pdf->SetFont('Times', '', 8);
 
-                $pdf->SetWidths(array(23, 210, 45));
+                $pdf->SetWidths(array(23, 23, 187, 45));
                 $pdf->SetAligns(array('C', 'C', 'C'));
 
                 foreach ($aluno->lancamento_fo as $lancamento) {
                     if(in_array($conteudo->id, json_decode($lancamento->conteudo_atitudinal))){
+
                         if($pdf->getY() > 180){
                             $pdf->AddPage();
                         }
-                        $pdf->Row(array(FuncoesController::formatDateEntoBr($lancamento->data_obs), utf8_decode($lancamento->observacao), null), 8);
+
+                        $pdf->SetTextColor(0, 0, 0);
+                        if($lancamento->tipo == 0){
+                            $pdf->SetTextColor(255, 0, 0);
+                        }
+
+                        $pdf->Row(array(FuncoesController::formatDateEntoBr($lancamento->data_obs), ($lancamento->tipo == 0 ? 'NEGATIVO' : (($lancamento->tipo == 1) ? 'NEUTRO': 'POSITIVO')), utf8_decode($lancamento->observacao), null), 8);
                     }
                 }
+                $pdf->SetTextColor(0, 0, 0);
             }
 
             if((190 - $pdf->getY()) < 88){// se o final da folha menos a posição atual vertical seja menor que 88 adiciona página...
