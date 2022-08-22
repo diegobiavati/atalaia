@@ -273,7 +273,7 @@ class LancamentosController extends Controller
                         return view('lancamentos.lancamentoSelecaoAno');
                     }
 
-                    $conteudoAtitudinal = ConteudoAtitudinal::all();
+                    $conteudoAtitudinal = ConteudoAtitudinal::orderBy('descricao', 'ASC')->get();
                     $napds = Napd::all();
 
                     $rotaTurma = '/ajax/lancamentosTurma';
