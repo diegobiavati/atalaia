@@ -375,27 +375,6 @@ foreach ($uetes as $uete) {
     $('.collapse').collapse('hide');
     $.ajax({
       type: 'GET',
-      url: '/ajax/dialog-adicionar-avaliacao',
-      beforeSend: function() {
-        loadingModalDinamica('show', 'lg');
-        $('div#modalDinamica div.modal-body').html('<div id="temp"><img src="/images/loadings/loading_01.svg" style="width: 24px; margin-right: 8px;" /> Aguarde, carregando...</div>');
-      },
-      success: function(data) {
-        $('div#modalDinamica div.modal-content').html(data);
-        loadingModalDinamica('hide', 'lg');
-        $('.carousel').carousel({
-          interval: false
-        });
-      }
-    });
-
-  }
-
-  function dialogAdicionarAvaliacaoRec() {
-    $('div.errors-adicionar-avaliacoes2').slideUp();
-    $('.collapse').collapse('hide');
-    $.ajax({
-      type: 'GET',
       url: '/ajax/dialog-adicionar-avaliacao-recuperacao',
       beforeSend: function() {
         loadingModalDinamica('show', 'lg');

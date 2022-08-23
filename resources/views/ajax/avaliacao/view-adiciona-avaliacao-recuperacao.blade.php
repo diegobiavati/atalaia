@@ -72,6 +72,9 @@
             </div>
             <div class="clear"></div>
         </div>
+
+        <div class="input_mostra"></div>
+
         <div style="margin: 14px auto; width: 70%; max-width: 380px;">
             <div style="float: left; margin-top: 6px;">
                 <i class="ion-chatbubble-working" style="font-size: 24px; color: #696969;"></i>
@@ -130,9 +133,10 @@
                     $('.box-dialog-chamadas').html('<div style="text-align: center;"><img src="/images/loadings/loading_01.svg" style="width: 20px;"> Carregando opções...</div>');
                 },
                 success: function(data){
-                    $('.box-dialog-chamadas').html(data.result);
+                    //$('.box-dialog-chamadas').html(data.result);
                     $('div.input_gbm').html(data.gbm);
                     $('div.input_abdominal').html(data.abdominal);
+                    $('div.input_mostra').html(data.mostra);
                 }
             });                        
         }

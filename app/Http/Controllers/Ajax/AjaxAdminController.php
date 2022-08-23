@@ -1733,7 +1733,6 @@ class AjaxAdminController extends Controller
     public function DialogAdicionarAvaliacaoRec()
     {
 
-
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
         $disciplinas = Disciplinas::orderBy('id', 'desc')->where('ano_formacao_id', '=', $ano_corrente->id)->get();
 
@@ -1908,6 +1907,9 @@ class AjaxAdminController extends Controller
         $avaliacao->chamada = 0;
         $avaliacao->avaliacao_recuperacao = 1;
         $avaliacao->disciplinas_id = $disciplina->id;
+
+        $avaliacao->data_mostra = FuncoesController::formatDateBrtoEn($request->data_mostra);
+        $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
 
         if ($disciplina->tfm == 'S') {
 
