@@ -265,13 +265,17 @@ class AjaxOperadorController extends Controller
 
             //if(AvaliacoesProntoFaltasStatus::where('avaliacao_id', $request->id)->where('omcts_id', session()->get('login.omctID'))->count()>0){
 
-            $data['response'] = '<span class="badge badge-secondary">Pronto de faltas JÁ enviado</span>';
+            $data['response'] = '<span class="badge badge-secondary">Pronto de faltas já enviado</span>';
             $this->classLog->RegistrarLog('Enviou pronto de faltas pela segunda vez', auth()->user()->email);
             return $data;
         } else {
             $avaliacoes_status = new AvaliacoesProntoFaltasStatus;
             $avaliacoes_status->avaliacao_id = $request->id;
             $avaliacoes_status->omcts_id = session()->get('login.omctID');
+
+            foreach ($request->alunos_faltas as $falta) {
+
+            }
 
             $avaliacoes_status->status = ($request->alunos_faltas) ? 0 : 1;
             $avaliacoes_status->save();
@@ -535,8 +539,8 @@ class AjaxOperadorController extends Controller
                         $avaliacoes_notas->avaliacao_id = $request->avaliacaoID;
                         $avaliacoes_notas->gbo = 0;
 
-                        //Se for 2ª Chamada deixa lançar 0
-                        if($avaliacoes_notas->avaliacao->chamada > 1){
+                        //Se for 2ª Chamada deixa lançar 0 OU se for Recuperação
+                        if($avaliacoes_notas->avaliacao->chamada > 1 || $avaliacoes_notas->avaliacao->avaliacao_recuperacao == 1){
                             return $avaliacoes_notas->save();
                         }
                         
