@@ -154,6 +154,8 @@ class FuncoesController
             $qmsMatriz = array(1, 2, 3, 4, 5);
         } else if (session()->has('qms_selecionada')) {
             $qmsMatriz = array(session()->get('qms_selecionada'));
+        }else if(session()->has('login.omctID')){
+            $qmsMatriz = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 100, 101);
         } else {
             $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
         }

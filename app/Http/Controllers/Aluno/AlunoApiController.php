@@ -121,9 +121,11 @@ class AlunoApiController extends Controller
     {
         $compact = $this->loadDependencia();
 
+        $qms = array();
         // Repassando para a view
         return view('admin.aluno.index', $compact)
-            ->with('ownauthcontroller', $this->ownauthcontroller);
+            ->with('ownauthcontroller', $this->ownauthcontroller)
+            ->with('qms', $qms);
     }
 
     /**
@@ -245,6 +247,7 @@ class AlunoApiController extends Controller
 
         $aluno = Alunos::with('ano_formacao')->with('dependentes')->with('imagem_aluno')->find($id);
 
+        $qms = array();
         if (!isset($aluno)) {
             $alunoSitDiv = AlunosSitDiv::with('situacaoDivHistorico')->find($id);
 
@@ -280,6 +283,14 @@ class AlunoApiController extends Controller
             $compact['situacaoAtuals'] = SituacoesDiversas::find($alunoSitDiv->situacoes_diversas_id)->situacao;
         } else {
             $compact['situacaoAtuals'] = SituacaoMatricula::find($aluno->id_situacao_matricula)->situacao_matricula;
+
+            $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::orderBy('formacao', 'desc')->first());
+
+            if($aluno->sexo == 'M'){
+                $qms = $cursos->where('segmento', 'M');
+            }else{
+                $qms = $cursos->where('segmento', 'F');
+            }
         }
 
         $aluno->importaImagemAluno();
@@ -288,7 +299,8 @@ class AlunoApiController extends Controller
         if (isset($aluno)) {
             return view('admin.aluno.index', $compact)
                 ->with('ownauthcontroller', $this->ownauthcontroller)
-                ->with('aluno', $aluno);
+                ->with('aluno', $aluno)
+                ->with('qms', $qms);
         } else {
             return view('aluno.aluno-erro');
         }
@@ -330,6 +342,8 @@ class AlunoApiController extends Controller
 
         $dados['cpf_pai'] = preg_replace('/[^0-9]/', '', $dados['cpf_pai']);
         $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
+
+        $dados['qms_id'] = (isset($dados['id_qms']) ? $dados['id_qms'] : null);
 
         $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
 

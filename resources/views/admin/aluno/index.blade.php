@@ -176,6 +176,16 @@
                         </select>
                     </div>
 
+                    <div class="divImplantarAluno" style="margin-left:20px; border-bottom:none; width: 20%;">
+                        <label class="labelDescricao" style="color:red;">QMS</label>
+                        <select class="custom-select" id="id_qms" name="id_qms" style="margin-top:5px;" {{ ($ownauthcontroller->PermissaoCheck(35) ? '': 'disabled') }}>
+                            <option value="0" disabled selected hidden>Selecione a QMS</option>
+                            @foreach ($qms as $qm)
+                            <option value={{$qm->id}} {{ (isset($aluno) && $qm->id == $aluno->qms_id) ? 'selected' : ''}}>{{ $qm->qms }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
                 </div>
 
                 <div class="tab-pane fade" id="nav-implantar-aluno2" role="tabpanel" aria-labelledby="nav-home-tab" style="padding: 20px;">
