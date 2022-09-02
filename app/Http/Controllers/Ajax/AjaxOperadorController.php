@@ -273,10 +273,6 @@ class AjaxOperadorController extends Controller
             $avaliacoes_status->avaliacao_id = $request->id;
             $avaliacoes_status->omcts_id = session()->get('login.omctID');
 
-            foreach ($request->alunos_faltas as $falta) {
-
-            }
-
             $avaliacoes_status->status = ($request->alunos_faltas) ? 0 : 1;
             $avaliacoes_status->save();
 
@@ -337,16 +333,13 @@ class AjaxOperadorController extends Controller
                 $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))
                     ->where('data_matricula', $id_ano_corrente)
                     ->whereNotIn('id', $faltas)->orderBy('numero', 'asc')->orderBy('sexo', 'desc')->get();
-            } else if ($avaliacao->chamada == 0 && $avaliacao->avaliacao_recuperacao == 1) {
-
+            } else if ($avaliacao->chamada == 0
+                        && $avaliacao->avaliacao_recuperacao == 1) {
                 // VERIFICO OS ALUNOS QUE FICARAM COM MÉDIA < 5,00 NA DISCIPLINA
-
                 // ID DA DISCIPLINAS
-
                 $disciplina_id = $avaliacao->disciplinas_id;
 
                 // SELECIONANDO TODAS AVALIAÇÕES DA DISCIPLINA ($disciplina_id) EXCETO A DE RECUPERAÇÃO
-
                 $avaliacoes2 = Avaliacoes::where('disciplinas_id', $disciplina_id)->where('avaliacao_recuperacao', '<>', 1)->get(['id', 'chamada']);
 
                 foreach ($avaliacoes2 as $avaliacao2) {
