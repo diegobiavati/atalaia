@@ -42,6 +42,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\EscolhaQMS;
+use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -489,12 +490,7 @@ class RelatoriosController extends Controller
         $avaliacoes = Avaliacoes::where('disciplinas_id', $request->disciplina_id)->where('avaliacao_recuperacao', 0)->get();
 
         foreach($avaliacoes as $avaliacao){
-            /*if($avaliacao->chamada==1){
-                $disciplina_razao[] = 1; 
-            }*/
-
             $avaliacoesIDs[] = $avaliacao->id;
-
         }
 
         $avaliacoesIDs = (isset($avaliacoesIDs))?array_unique($avaliacoesIDs):array(0);
@@ -509,8 +505,10 @@ class RelatoriosController extends Controller
             $alunos = Alunos::where('data_matricula', $request->ano_formacao_id)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
         }
 
+        //dd($aluno_notas[48][4406]);
         foreach($alunos as $aluno){
             foreach($aluno_notas as $notas){
+                
                 if(isset($notas[$aluno->id]) && ($notas[$aluno->id]['disciplina_razao'] > 0)){
                     /*$media = (array_sum($alunos[$aluno->id]['notas'])/$alunos[$aluno->id]['disciplina_razao']);
     
@@ -518,10 +516,28 @@ class RelatoriosController extends Controller
                         $nd_aluno[$aluno->id] = number_format($media, 3, ',', ''); 
                         $alunos_em_recuperacao[] = $aluno->id;
                     }*/
-                    $media = $notas[$aluno->id]['media'];
-                    if($media<5){
-                        $nd_aluno[$aluno->id] = number_format($media, 3, ',', ''); 
-                        $alunos_em_recuperacao[] = $aluno->id;
+                    
+                    try{
+                        if($notas[$aluno->id]['tfm'] == 'S' 
+                            && $notas[$aluno->id]['tfm_abdominal'] == 'S'){
+                                if(isset($notas[$aluno->id]['media_tfm_abdominal'])){
+                                    if($notas[$aluno->id]['media_tfm_abdominal'] == 'NS'){
+                                        $nd_aluno[$aluno->id] = $notas[$aluno->id]['media_tfm_abdominal'];
+                                        $alunos_em_recuperacao[] = $aluno->id;
+                                    }
+                                }else{
+                                    $nd_aluno[$aluno->id] = 'Sem Lançamento de AC';
+                                    $alunos_em_recuperacao[] = $aluno->id;
+                                }
+                        }else{
+                            $media = $notas[$aluno->id]['media'];
+                            if($media<5){
+                                $nd_aluno[$aluno->id] = number_format($media, 3, ',', ''); 
+                                $alunos_em_recuperacao[] = $aluno->id;
+                            }
+                        }
+                    }catch (Exception $ex){
+                        dd($notas[$aluno->id]);
                     }
                 }    
             }

@@ -9,6 +9,7 @@ use App\Models\AvaliacoesNotas;
 use App\Models\OMCT;
 use App\Models\QMS;
 use DateTime;
+use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder;
@@ -202,6 +203,13 @@ class FuncoesController
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['tfm'] = $nota->avaliacao->disciplinas->tfm;
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['tfm_abdominal'] = $nota->avaliacao->tfm_abdominal;
 
+                //Correção do alunos em recuperação por disciplinas TFM Abdominal
+                if($nota->avaliacao->disciplinas->tfm == 'S'
+                    && $nota->avaliacao->tfm_abdominal == 'S'
+                    && in_array($avaliacao->nome_abrev, array('AC'))){
+
+                    $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['media_tfm_abdominal'] = $getNota;
+                }
                 /*if($nota->alunos_id == 5045){
                     dd($nota);
                 }*/
@@ -236,6 +244,7 @@ class FuncoesController
                             $aluno['avaliacoes'][$key]->indice_notas = null;
                         }
                     }
+
                     $aluno_notas[$disciplina_id][$aluno_id]['disciplina_razao'] = $quantidadeAvaliacao;
                     if ($quantidadeAvaliacao > 0) {
                         $aluno_notas[$disciplina_id][$aluno_id]['media'] = array_sum($aluno_notas[$disciplina_id][$aluno_id]['notas']) / $quantidadeAvaliacao;
