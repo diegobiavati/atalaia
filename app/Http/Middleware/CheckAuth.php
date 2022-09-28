@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Support\Facades\URL;
 
 class CheckAuth
 {
@@ -15,6 +16,11 @@ class CheckAuth
      */
     public function handle($request, Closure $next)
     {
+        if(session()->get('url_atual')) {
+            session()->put('url_anterior', session()->get('url_atual'));
+        } 
+        session()->put('url_atual', URL::current());
+
         if (!auth()->check()) {
             
             if(preg_match('{gaviao}', $request->path())){

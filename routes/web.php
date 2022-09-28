@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\AlunosSitDivHistorico;
+use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth', 'prefix' => 'operador', 'as' => 'operador.'], function () {
     Route::get('/', ['as' => 'admin', 'uses' => 'Operador\AdminOpController@ShowHome']);
@@ -371,23 +371,14 @@ Route::get('pdfTeste', function(){
 
 Route::get('testy', function(\App\Http\Controllers\OwnAuthController $ownauthcontroller){
 
-    //Aluno Lucas CENG
-    $alunoSitDiv = AlunosSitDivHistorico::where('aluno_id', 3585)->get();
-
-    $dataAvaliacoes = unserialize($alunoSitDiv->get(0)->data)['avaliacoes'];
-
-    foreach($dataAvaliacoes as $key => $avaliacoes){
-        if(is_numeric($key)){
-
-            
-        }
-    }
-
+    
     
 });
 
+
+
 //Reintegrar Aluno Situacao Diversas
-Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
+//Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
 
 //Gerar Notas Aluno Capitani
 Route::get('modelo-pb-capitani/{id_ano_formacao}', 'Aluno\AlunoApiController@modeloPBCapitani')->middleware('checkauth');
@@ -420,7 +411,7 @@ Route::get('/gaviao/sair', function () {
 
 Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' => ['checkauth']], function () {
 
-    Route::get('show-checkbox-anoformacao-qms/{id}', 'Ajax\AjaxAdminGaviaoController@ShowChkBoxAnoFormacaoQms');
+    Route::get('show-checkbox-anoformacao-qms/{id}', 'Ajax\AjaxAdminGaviaoController@ShowChkBoxAnoFormacaoQms');//Utilizado no Gerenciadomento de Alunos
     Route::get('anos-de-formacao', ['as' => 'anos-de-formacao', 'uses' => 'Ajax\AjaxAdminController@AnosDeFormacao']);
     Route::post('gravar-intrutor-chefe', ['as' => 'gravar-intrutor-chefe', 'uses' => 'Ajax\AjaxAdminController@GravarInstrutorChefeCurso']);
     Route::get('visao-geral-gaviao', ['as' => 'visao-geral-gaviao', 'uses' => 'Ajax\AjaxAdminGaviaoController@VisaoGeralGaviao']);
@@ -472,9 +463,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
     Route::group(['prefix' => 'relatorios', 'as' => 'relatorios.'], function () {
         Route::get('download-pdf/{arquivo}', 'Relatorios\RelatorioAlunoController@Download');
 
-
         //SSAA
-        //Route::get('demonstrativo-notas/{id_ano_formacao}/{curso_id}/', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
         Route::post('demonstrativo-notas/{id_ano_formacao}/{curso_id}/', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
     });
 
@@ -482,7 +471,34 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
     //SSAA
     Route::get('demonstrativo-notas/{id_ano_formacao}', 'Ajax\AjaxRelatoriosGaviaoController@DemonstrativoNotas');
 
+    Route::get('view-ssaa', 'Ajax\AjaxAdminGaviaoController@ViewOpcoesSSAA');
 
+        /*Gerenciador de Disciplinas SSAA*/
+        Route::get('gerenciar-disciplinas/index/{id_ano_formacao?}', 'SSAA\ControllerDisciplinas@index');
+        Route::get('gerenciar-disciplinas/load/{id_ano_formacao}/{id_curso}', 'SSAA\ControllerDisciplinas@load');
+        Route::get('gerenciar-disciplinas/form/{id_curso}', 'SSAA\ControllerDisciplinas@form');
+        Route::resource('gerenciar-disciplinas', 'SSAA\ControllerDisciplinas');
+
+        /*Calendário SSAA*/
+        Route::get('calendario/index/{id_ano_formacao?}', 'SSAA\Calendario\ControllerCalendario@index');
+        Route::get('calendario/mes/{id_ano_formacao}/{mes}', 'SSAA\Calendario\ControllerCalendario@index_mes');
+        Route::get('calendario/detalhes/{id}','SSAA\ControllerAvaliacao@consultaCadastroAvaliacao');
+
+        Route::get('calendario/formulario/{id_ano_formacao}','SSAA\ControllerAvaliacao@form');
+        /*
+        Route::get('Calendar/event/{mes}', 'Calendar\ControllerCalendar@index_month');
+        Route::get('Calendar/event', 'Calendar\ControllerCalendar@index');
+
+        Route::get('Evento/form','Calendar\ControllerEvent@form');
+        Route::post('Evento/create','Calendar\ControllerEvent@create');
+        Route::get('Evento/details/{id}','Calendar\ControllerEvent@details');
+        Route::get('Evento/index','Calendar\ControllerEvent@index');
+        Route::get('Evento/index/{month}','Calendar\ControllerEvent@index_month');
+        Route::post('Evento/calendario','Calendar\ControllerEvent@calendario');
+        */
+        /*Fim Calendario*/
+
+    //Fim SSAA
 
 
 
@@ -501,5 +517,6 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('exportaAluno', ['as' => 'exportaAluno', 'uses' => 'Ajax\Diploma\DiplomaController@exportAlunos'])->middleware('checkauth');
     });
 
+    
     //Route::get('correcao-comandanteCurso', 'Ajax\LancamentosController@CorrecaoComandante');
 });

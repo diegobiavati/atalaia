@@ -380,4 +380,8 @@ class AjaxAdminGaviaoController extends Controller
 
         }
     }
+
+    public function ViewOpcoesSSAA(OwnAuthController $ownauthcontroller){
+        return view('ssaa.index')->with('ownauthcontroller', $ownauthcontroller);
+    }
 }

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Operador;
 
 use App\Http\Controllers\Ajax\AjaxAdminGaviaoController;
 use App\Http\Controllers\Controller;
-
+use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\Imagens;
 use App\Models\Operadores;
 use App\Models\OperadoresTipo;
@@ -57,32 +57,32 @@ class AdminOpController extends Controller
 
             switch(session()->get('login.qmsID')[0]['qms_matriz_id']){
                 case 1://Infantaria
-                    $backgroundColor = 'rgb(0,168,89);';
+                    $backgroundColor = FuncoesController::getQmsColor(1)->backgroundColor;
                     $backgroundVisaoGeral = $backgroundColor;
                     $backgroundMenuLateral = 'linear-gradient(135deg, rgb(0, 168, 89), rgb(45, 72, 59));';
                 break;
                 case 2://Cavalaria
-                    $backgroundColor = 'rgb(237,50,55);';
+                    $backgroundColor = FuncoesController::getQmsColor(2)->backgroundColor;
                     $backgroundVisaoGeral = $backgroundColor;
                     $backgroundMenuLateral = 'linear-gradient(135deg, rgb(237, 50, 55), rgb(98, 25, 27));';
                 break;
                 case 3://Artilharia
-                    $backgroundColor = 'rgb(0,100,166);';
+                    $backgroundColor = FuncoesController::getQmsColor(3)->backgroundColor;
                     $backgroundVisaoGeral = $backgroundColor;
                     $backgroundMenuLateral = 'linear-gradient(135deg, rgb(0, 100, 166), rgb(0, 47, 79));';
                 break;
                 case 4://Engenharia
-                    $backgroundColor = 'rgb(145,216,247);';
+                    $backgroundColor = FuncoesController::getQmsColor(4)->backgroundColor;
                     $backgroundVisaoGeral = $backgroundColor;
                     $backgroundMenuLateral = 'linear-gradient(135deg, rgb(145, 216, 247), rgb(48, 68, 77))';
                 break;
                 case 5://Comunicações
-                    $backgroundColor = 'rgb(0,152,218);';
+                    $backgroundColor = FuncoesController::getQmsColor(5)->backgroundColor;
                     $backgroundVisaoGeral = $backgroundColor;
                     $backgroundMenuLateral = 'linear-gradient(135deg, rgb(0, 152, 218), rgb(0, 41, 60))';
                 break;
                 case 9999://ESA
-                    $backgroundColor = 'linear-gradient(#EC2125 47%, #E0B22E 50%,#0094D3 53%);';
+                    $backgroundColor = FuncoesController::getQmsColor(9999)->backgroundColor;
                     $backgroundVisaoGeral = '#0094D3;';
                     $backgroundMenuLateral = 'linear-gradient(135deg, rgb(40, 139, 179), rgb(19, 92, 115));';
 

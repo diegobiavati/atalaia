@@ -198,6 +198,15 @@
                         <span class="badge badge-primary badge-pill"></span>
                     </a>
                 </li>
+                @if($ownauthcontroller->PermissaoCheck(27))
+                <li class="list-group-item justify-content-between align-items-center menu-list-01">
+                    <a id="view-ssaa" href="javascript: void(0);">                
+                        <i class="ion-android-clipboard"></i>
+                        SSAA
+                        <span class="badge badge-primary badge-pill"></span>
+                    </a>
+                </li>
+                @endif
             @endif
         </ul>    
     </div> 
@@ -290,6 +299,13 @@
 
 
 <script>
+        //Corrige o bug de perda do controle de modal sobre modal quando fecha
+        $(document).on('hidden.bs.modal', function(event){
+            if($('.modal:visible').length){
+                $('body').addClass('modal-open');
+            }
+        });
+
         function b64EncodeUnicode(str) {
             // first we use encodeURIComponent to get percent-encoded UTF-8,
             // then we convert the percent encodings into raw bytes which

@@ -318,4 +318,30 @@ class FuncoesController
         dd($sql);
     }
 
+    public static function getQmsColor($id_qms){
+
+        $return = (object)['backgroundColor' => null];
+        switch($id_qms){
+            case 1://Infantaria
+                $return->backgroundColor = 'rgb(0,168,89);';
+            break;
+            case 2://Cavalaria
+                $return->backgroundColor = 'rgb(237,50,55);';
+            break;
+            case 3://Artilharia
+                $return->backgroundColor = 'rgb(0,100,166);';
+            break;
+            case 4://Engenharia
+                $return->backgroundColor = 'rgb(145,216,247);';
+            break;
+            case 5://Comunicações
+                $return->backgroundColor = 'rgb(0,152,218);';
+            break;
+            case 9999://ESA
+                $return->backgroundColor = 'linear-gradient(#EC2125 47%, #E0B22E 50%,#0094D3 53%);';
+            break;
+        }
+
+        return $return;
+    }
 }

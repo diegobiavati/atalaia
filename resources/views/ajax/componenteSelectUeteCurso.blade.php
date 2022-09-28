@@ -1,11 +1,12 @@
 @if(isset($cursos))
-    <select name="qmsID" class="custom-select required_to_show_button">
+    <select name="qmsID" class="selectpicker custom-select required_to_show_button">
         <option value="0" disabled selected hidden>Selecione um Curso</option>
         @if($ownauthcontroller->PermissaoCheck(1))
         <option value="todas_qmss">TODOS OS CURSOS</option>
         @endif
         @foreach ($cursos as $curso)
-        <option value={{$curso->id}}>{{ $curso->qms }}</option>
+        <option {{ ((isset($cursoSelecionado) && $curso->id == $cursoSelecionado->id) ? 'selected' : '') }}
+                         value={{$curso->id}}>{{ $curso->qms }}</option>
         @endforeach
     </select>
 @else
