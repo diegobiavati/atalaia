@@ -40,7 +40,7 @@
         <div class="alert alertas-gerenciador-disciplinas" role="alert"></div>
         <h5 class="card-title" style="text-align: center; margin: 18px 0 44px 0;">
             @if(count($cursos)>0)
-            RELAÇÃO DE DISCIPLINAS CADASTRADAS NO ANO DE FORMAÇÃO <span style="font-size: 24px;"><b>{{$anoFormacao->formacao}}</b></span>
+            RELAÇÃO DE DISCIPLINAS CADASTRADAS NO ANO DE FORMAÇÃO <span style="font-size: 24px;"><b>{{$cursoSelecionado->escolhaQms->anoFormacao->formacao}}</b></span>
             @endif
         </h5>
         <p class="card-text">
@@ -72,7 +72,7 @@
 
         <div class="box-registro-not-found">
             <i class="ion-social-snapchat-outline" style="font-size: 32px"></i><br />
-            <span style="color: brown">Não há disciplinas configuradas para o ano de {{$anoFormacao->formacao}}</span>
+            <span style="color: brown">Não há disciplinas configuradas para o ano de {{$cursoSelecionado->escolhaQms->anoFormacao->formacao}}</span>
         </div>
 
         @endforelse
@@ -126,7 +126,7 @@
         };
     })(jQuery);
 
-    function dialogAdicionaDisciplina(cursoId, anoFormacaoId) {
+    function dialogAdicionaDisciplina(cursoId) {
 
         $.ajax({
             type: 'GET',

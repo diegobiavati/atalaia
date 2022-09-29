@@ -48,9 +48,9 @@ class ControllerDisciplinas extends Controller
 
         $load = true;
 
-        $disciplinas = EsaDisciplinas::where(['id_ano_formacao' => $anoFormacao->id, 'id_qms' => $cursoSelecionado->id])->get();
+        $disciplinas = EsaDisciplinas::where(['id_qms' => $cursoSelecionado->id])->get();
 
-        return view("ssaa.disciplina.disciplinas", compact('cursos', 'cursoSelecionado', 'anoFormacao', 'load', 'disciplinas'))->with('ownauthcontroller', $this->_ownauthcontroller);
+        return view("ssaa.disciplina.disciplinas", compact('cursos', 'cursoSelecionado', 'load', 'disciplinas'))->with('ownauthcontroller', $this->_ownauthcontroller);
     }
 
     public function form()
@@ -78,7 +78,7 @@ class ControllerDisciplinas extends Controller
         } else {
 
             EsaDisciplinas::create([
-                'id_qms' => $this->_request->qmsID, 'id_ano_formacao' => $this->_request->ano_formacao, 'nome_disciplina' => $this->_request->nome_disciplina, 'nome_disciplina_abrev' => $this->_request->nome_disciplina_abrev, 'tipo_disciplina' => $this->_request->tipo_disciplina, 'carga_horaria' => $this->_request->carga_horaria, 'tfm' => ($this->_request->has('tfm') ? 'S' : 'N')
+                'id_qms' => $this->_request->qmsID, 'nome_disciplina' => $this->_request->nome_disciplina, 'nome_disciplina_abrev' => $this->_request->nome_disciplina_abrev, 'tipo_disciplina' => $this->_request->tipo_disciplina, 'carga_horaria' => $this->_request->carga_horaria, 'tfm' => ($this->_request->has('tfm') ? 'S' : 'N')
             ]);
 
             $retorno['status'] = 'success';
@@ -165,7 +165,6 @@ class ControllerDisciplinas extends Controller
             $this->_request->all(),
             [
                 'qmsID' => 'required|numeric|exists:qms,id',
-                'ano_formacao' => 'required|numeric|exists:ano_formacao,id',
                 'nome_disciplina' => ['required', new Uppercase],
                 'nome_disciplina_abrev' => ['required', new Uppercase],
                 'carga_horaria' => 'required|numeric',
@@ -173,7 +172,6 @@ class ControllerDisciplinas extends Controller
             ],
             [
                 'qmsID.exists' => '<b>Curso não cadastrado.</b>',
-                'ano_formacao.exists' => '<b>Ano de formação</b> não cadastrado.',
                 'nome_disciplina.required' => 'O <b>nome completo da disciplina</b> é obrigatório.',
                 'nome_disciplina_abrev.required' => 'O <b>nome abreviado da disciplina</b> é obrigatório.',
                 'carga_horaria.required' => 'A <b>carga horária</b> é obrigatória.',

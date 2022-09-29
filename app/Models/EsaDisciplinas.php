@@ -8,11 +8,7 @@ class EsaDisciplinas extends Model
 {
     protected $table = 'esa_disciplinas';
 
-    protected $fillable = ['id_qms', 'id_ano_formacao', 'nome_disciplina', 'nome_disciplina_abrev', 'carga_horaria', 'tipo_disciplina', 'tfm'];
-
-    public function anoFormacao(){
-        return $this->belongsTo('App\Models\AnoFormacao', 'id_ano_formacao', 'id');
-    }
+    protected $fillable = ['id_qms', 'nome_disciplina', 'nome_disciplina_abrev', 'carga_horaria', 'tipo_disciplina', 'tfm'];
 
     public function qms(){
         return $this->belongsTo('App\Models\QMS', 'id_qms', 'id');
