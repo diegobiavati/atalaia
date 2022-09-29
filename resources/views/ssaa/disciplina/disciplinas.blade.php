@@ -126,22 +126,6 @@
         };
     })(jQuery);
 
-    function carregaContainer(url) {
-        $.ajax({
-            url: url,
-            type: 'GET',
-            beforeSend: function() {
-                $('div.container_disciplinas').empty();
-            },
-            success: function(data) {
-                $('div.container_disciplinas').html(data);
-            },
-            error: function(jqxhr) {
-                $('div.container_disciplinas').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
-            }
-        });
-    }
-
     function dialogAdicionaDisciplina(cursoId, anoFormacaoId) {
 
         $.ajax({
@@ -239,44 +223,4 @@
 
     });
 
-    /* MOSTRA DIALOGO EDITAR DISCIPLINAS */
-    /*
-
-    function AtualizarDisciplina(id) {
-        var style_bg_inicial = $('tr#operador_' + id).css('background-color');
-        var dataForm = $('form#editar_disciplina').serialize();
-        $.ajax({
-            type: 'POST',
-            dataType: 'json',
-            data: dataForm,
-            url: '/ajax/atualizar-disciplina/' + id,
-            beforeSend: function() {
-                $('div.alertas-gerenciador-disciplinas ul').remove().parent().hide();
-            },
-            success: function(data) {
-                if (data.status == 'ok') {
-                    $('div#modalDinamica').modal('hide');
-                    $('a#gerenciar-disciplinas').trigger('click');
-                } else {
-                    $('div#modalDinamica').modal('hide');
-                    $('div.alertas-gerenciador-disciplinas2').html('<strong>ATENÇÃO: </strong> Houve um erro ao tentar inserir uma disciplina').slideDown();
-                }
-            },
-            error: function(jqxhr) {
-                if (jqxhr.status == 500) {
-                    $('div#modalDinamica').modal('hide');
-                    $('div.alertas-gerenciador-disciplinas2').html('<strong>ATENÇÃO: </strong> Houve um erro interno ao tentar inserir uma nova disciplina. Por favor, verifique se a <i>Disciplina</i> já está cadastrada.').slideDown();
-                } else if (jqxhr.status == 422) {
-                    $('div.alertas-gerenciador-disciplinas').slideDown(100);
-                    var errors = $.parseJSON(jqxhr.responseText);
-                    $('div.alertas-gerenciador-disciplinas').prepend('<ul style="margin: 0 6px;"></ul>');
-                    $.each(errors.errors, function(index, value) {
-                        $('div.alertas-gerenciador-disciplinas ul').append('<li>' + value + '</li>');
-                    });
-                }
-            }
-        });
-    }
-
-    */
 </script>

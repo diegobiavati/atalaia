@@ -1,9 +1,6 @@
-
-
 <form id="lancamentoFatoObservado">
 
     <input type="hidden" name="_token" value="{{csrf_token()}}" />
-
     {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao((isset($ano_formacao) ? $ano_formacao : null)) !!}
 
     <div id="container">
@@ -25,8 +22,6 @@
                     }
                 });
             }
-
-            
 
             $(document).ready(function() {
                 $('form#lancamentoFatoObservado .btn.btn-secondary input[name="ano_formacao"]').change(function(evt) {
