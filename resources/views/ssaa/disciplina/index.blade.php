@@ -1,6 +1,5 @@
 <div id="disciplinas_ssaa">
     {!! App\Http\Controllers\Utilitarios\FuncoesController::retornaBotaoAnoFormacao((isset($ano_formacao) ? $ano_formacao : null)) !!}
-
     <div class="container_disciplinas"></div> <!-- /container -->
 </div>
 <script>
