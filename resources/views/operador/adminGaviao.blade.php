@@ -8,6 +8,7 @@
 <link href="/css/ionicons.css" rel="stylesheet" type="text/css" />
 <link href="/css/menu_style_gaviao.css" rel="stylesheet" type="text/css" />
 <link href="/css/style.css" rel="stylesheet" type="text/css" />
+<link href="/css/font-exo.css" rel="stylesheet" type="text/css" />
 
 <?php
     $backgroundColor = session()->get('backgroundColor');
@@ -16,6 +17,10 @@
 ?>
 
 <style type="text/css">
+    body {
+      font-family: 'Exo', sans-serif;
+    }
+
     #top{
         background: {{ $backgroundColor }}
     }
