@@ -49,7 +49,7 @@
             <div style="margin: 14px auto; width: 70%; max-width: 380px;">
                 <div style="float: left;"> <i class="ion-ios-compose" style="font-size: 24px; color: #696969;"></i> </div>
                 <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                    <input class="form-control text-uppercase" style="width: 100%;" name="nome_disciplina" type="text" value="{{$esaDisciplinas->nome_disciplina or old('nome_disciplina')}}" maxlength="100" autocomplete="off" placeholder="Nome completo da disciplina" />
+                    <input class="form-control text-uppercase" onkeyup="this.value = this.value.toUpperCase();" style="width: 100%;" name="nome_disciplina" type="text" value="{{$esaDisciplinas->nome_disciplina or old('nome_disciplina')}}" maxlength="100" autocomplete="off" placeholder="Nome completo da disciplina" />
                 </div>
                 <div class="clear"></div>
             </div>
@@ -57,7 +57,7 @@
             <div style="margin: 14px auto; width: 70%; max-width: 380px;">
                 <div style="float: left;"> <i class="ion-ios-compose-outline" style="font-size: 24px; color: #696969;"></i> </div>
                 <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                    <input class="form-control text-uppercase" style="width: 100%;" name="nome_disciplina_abrev" type="text" value="{{$esaDisciplinas->nome_disciplina_abrev or old('nome_disciplina_abrev')}}" maxlength="50" autocomplete="off" placeholder="Nome abreviado" />
+                    <input class="form-control text-uppercase" onkeyup="this.value = this.value.toUpperCase();" style="width: 100%;" name="nome_disciplina_abrev" type="text" value="{{$esaDisciplinas->nome_disciplina_abrev or old('nome_disciplina_abrev')}}" maxlength="50" autocomplete="off" placeholder="Nome abreviado" />
                 </div>
                 <div class="clear"></div>
             </div>
@@ -107,6 +107,10 @@
     });
 
     $('#form_esa_disciplina .selectpicker').attr("readonly", "readonly");
+
+    $('div#esa_adiciona_disciplinas button.btn.btn-danger').click(function(evt){
+        $('div.container_disciplinas').fadeIn(1000);
+    });
 
     $('.btn.btn-primary.salvar-disciplina').click(function(evt) {
         //evt.stopImmediatePropagation(); //Não deixa duplicar os eventos

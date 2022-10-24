@@ -76,9 +76,14 @@ class ControllerDisciplinas extends Controller
                 $retorno['response'] = $validador->errors()->all();
             } else {
 
-                EsaDisciplinas::create([
-                    'id_qms' => $this->_request->qmsID, 'nome_disciplina' => $this->_request->nome_disciplina, 'nome_disciplina_abrev' => $this->_request->nome_disciplina_abrev, 'tipo_disciplina' => $this->_request->tipo_disciplina, 'carga_horaria' => $this->_request->carga_horaria, 'tfm' => ($this->_request->has('tfm') ? 'S' : 'N')
-                ]);
+                $esaDisciplinas = new EsaDisciplinas;
+                $esaDisciplinas->fill(
+                    [
+                        'id_qms' => $this->_request->qmsID, 'nome_disciplina' => $this->_request->nome_disciplina, 'nome_disciplina_abrev' => $this->_request->nome_disciplina_abrev, 'tipo_disciplina' => $this->_request->tipo_disciplina, 'carga_horaria' => $this->_request->carga_horaria, 'tfm' => ($this->_request->has('tfm') ? 'S' : 'N')
+                    ]
+                );
+
+                $esaDisciplinas->save();
 
                 $retorno['status'] = 'success';
                 $retorno['response'] = 'Registrado com sucesso.';

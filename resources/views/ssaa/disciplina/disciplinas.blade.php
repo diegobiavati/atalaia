@@ -134,11 +134,10 @@
             beforeSend: function() {
                 $('div.alertas-gerenciador-disciplinas').slideUp();
                 loadingModalDinamica('show', 'lg');
-                
             },
             success: function(data) {
+                $('div.container_disciplinas').fadeOut();
                 $('div#modalDinamica div.modal-content').html(data);
-                loadingModalDinamica('hide', 'lg');
             }
         });
     }
@@ -161,7 +160,7 @@
                     $('div.alertas-gerenciador-disciplinas').removeClass('alert-danger').empty();
                 },
                 success: function(data) {
-                    if (data.status == 'ok') {
+                    if (data.status == 'success') {
                         //Ativa o gatilho da caixa de seleção para carregar o gerenciador de disciplinas...
                         $('div.container_disciplinas select.custom-select[name="qmsID"]').change();
                     } else {
