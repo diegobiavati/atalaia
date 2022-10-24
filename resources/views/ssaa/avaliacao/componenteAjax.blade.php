@@ -1,0 +1,210 @@
+@php
+$color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoSelecionado->qms_matriz_id)->backgroundColor;
+@endphp
+<div class="fomr-group" style="width: 410px;">
+    <label>Disciplina</label>
+    <select name="disciplinaID" class="selectpicker custom-select required_to_show_button">
+        <option value="0" disabled selected hidden>Selecione uma Disciplina</option>
+        @foreach ($disciplinas as $disciplina)
+        <option {{ ((isset($esaAvaliacoes) && $disciplina->id == $esaAvaliacoes->id_esa_disciplinas) ? 'selected' : '') }} value={{$disciplina->id}}>{{ $disciplina->nome_disciplina }}</option>
+        @endforeach
+    </select>
+</div>
+
+<div class="fomr-group" style="width: 210px;">
+    <label>Avaliação</label>
+    <select name="nome_avaliacao" class="selectpicker custom-select">
+        <option value="0" disabled selected hidden>Selecione uma avaliação</option>
+        @foreach ($nomeAvaliacoes as $avaliacao)
+        <option {{ ((isset($esaAvaliacoes) && $avaliacao->id == $esaAvaliacoes->nome_avaliacao) ? 'selected' : '') }} value={{$avaliacao->id}}>{{ $avaliacao->descricao }}</option>
+        @endforeach
+    </select>
+</div>
+<div class="fomr-group" style="width: 183px;">
+    <label>Tipo Avaliação</label>
+    <select name="tipo_avaliacao" class="selectpicker custom-select">
+        <option value="0" disabled selected hidden>Selecione um Tipo</option>
+        @foreach ($tipoAvaliacao as $tipo)
+        <option {{ ((isset($esaAvaliacoes) && $tipo->id == $esaAvaliacoes->tipo_avaliacao) ? 'selected' : '') }} value={{$tipo->id}}>{{ $tipo->descricao }}</option>
+        @endforeach
+    </select>
+</div>
+<div class="fomr-group" style="width: 140px;">
+    <label>Chamada</label>
+    <select name="chamada" class="selectpicker custom-select">
+        <option value="0" disabled selected hidden>Selecione</option>
+        @foreach ($chamadas as $chamada)
+        <option {{ ((isset($esaAvaliacoes) && $chamada->id == $esaAvaliacoes->chamada) ? 'selected' : '') }} value={{$chamada->id}}>{{ $chamada->descricao }}</option>
+        @endforeach
+    </select>
+</div>
+<div class="fomr-group" style="width: 80px;" data-toggle="tooltip" data-placement="right" data-html="true" title="Informe o peso que está avaliação utilizará para o cálculo.">
+    <label>Peso</label>
+    <input type="number" value="{{ $esaAvaliacoes->peso or 0 }}" class="form-control" min="0" max="2" name="peso">
+</div>
+<div class="fomr-group" style="width: 150px;">
+    <label>Proposta</label>
+    <input type="date" class="form-control" value="{{ $esaAvaliacoes->proposta or old('proposta') }}" name="proposta" min="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required>
+</div>
+<div class="fomr-group" style="width: 150px;">
+    <label>Realização</label>
+    <input type="date" class="form-control" value="{{ $esaAvaliacoes->realizacao or old('realizacao') }}" name="realizacao" min="{{$cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required>
+</div>
+@isset($esaAvaliacoes)
+<div class="fomr-group" style="width: 150px;">
+    <label>Devolução</label>
+    <input type="date" class="form-control" value="{{ $esaAvaliacoes->devolucao or old('devolucao') }}" name="devolucao" readonly>
+</div>
+<br>
+@endisset
+<div style="margin-top: 24px;">
+    <button type="button" class="btn btn btn-success" onclick="javascript:void(0);">{{ isset($esaAvaliacoes) ? 'Modificar' : 'Salvar' }}</button>
+    <button type="button" class="btn btn-warning" onclick="javascript:void(0);">Cancelar</button>
+    @isset($esaAvaliacoes)
+    <button type="button" class="btn btn-danger float-right" onclick="javascript:void(0);">Excluir</button>
+    @endisset
+</div>
+
+<!-- MODALS confirmAcao DINAMICA-->
+
+<div class="modal fade bd-example-modal-sm" id="modalConfirmAcao" style="background-color: rgb(119, 119, 119);" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 0; padding: 10px;min-height: 15vh;">
+            <div style="border-bottom: 1px solid #ccc;"><i class="ion-android-hand" style="font-size: 22px; vertical-align: middle;"></i><span style="margin-left: 10px;"><b>ATENÇÃO!</b></span></div>
+            <div class="content-confirmAcao" style="margin: 6px 0;"></div>
+            <div style="text-align: right;">
+                <div style="display: inline-block;">
+                    <a id="confirm-buttom" class="no-style" href="javascript: void(0);"><span style="color: #363636;"><strong>SIM</strong></span></a>
+                </div>
+                <div style="display: inline-block; margin-left: 8px;">
+                    <a class="no-style" href="javascript: void(0);" onclick="$('#modalConfirmAcao').modal('hide');"><span style="color: #2E64FE;"><strong>NÃO</strong></span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FINAL MODAL confirmAcao DINAMICA-->
+
+<script>
+    $(function() {
+        $('[data-toggle="tooltip"]').tooltip()
+    });
+
+    (function($) {
+        $.fn.confirmAcao = function(content, callback) {
+            return this.each(function() {
+                $('div.content-confirmAcao').html(content);
+                $('#modalConfirmAcao').modal('show');
+                $('#confirm-buttom').click(function() {
+                    callback();
+                    $('#modalConfirmAcao').modal('hide');
+                    // DESASSOCIA EVENTOS DE CLIQUE ANTERIORES
+                    $(this).off();
+                })
+            });
+        };
+    })(jQuery);
+
+    $('form#form-avaliacoes select.selectpicker.custom-select').change(function() {
+        $('form#form-avaliacoes select.selectpicker.custom-select :selected').each(function(i) {
+            if ($(this).val() != 0) {
+                $(this).parent().css('color', '{{$color}}');
+                $(this).parent().find('option').css('font-weight', 'normal')
+                $(this).parent().find('option').css('color', 'black');
+            }
+        });
+    });
+
+    $('form#form-avaliacoes button.btn.btn-danger.float-right').click(function(evt) {
+        $(document).confirmAcao('Para remover este item certifique-se que a avaliação não está vinculada com nenhum <strong>lançamento</strong>.<p>Deseja realmente excluir esta <i>Avaliação</i>?</p>', function() {
+            $.ajax({
+                type: 'DELETE',
+                dataType: 'json',
+                url: "{{asset('/gaviao/ajax/gerenciar-avaliacao').(isset($esaAvaliacoes) ? '/'.$esaAvaliacoes->id : null)}}",
+                data: {
+                    '_token': '{{ csrf_token() }}'
+                },
+                beforeSend: function() {
+                    $('div.alert.alertas-avaliacoes').empty().hide();
+                    $('div.alert.alertas-avaliacoes').removeClass('alert-success').empty();
+                    $('div.alert.alertas-avaliacoes').removeClass('alert-danger').empty();
+                },
+                success: function(data) {
+                    if (data.status == 'ok') {
+                        $('div.alert.alertas-avaliacoes').addClass('alert-success').empty().slideDown();
+                        setTimeout(function() {
+                            $('div.alert.alertas-avaliacoes').slideUp(200, function() {
+                                $('#form-avaliacao .btn.btn-warning').click();
+
+                                //Ativa o gatilho para o carregamento do calendário...
+                                carregaContainerCalendario("{{ asset('gaviao/ajax/calendario/index/'.$cursoSelecionado->escolhaQms->anoFormacao->id) }}");
+                            });
+                        }, 2000);
+                    } else {
+                        $('div.alert.alertas-avaliacoes').html('<strong>ATENÇÃO:</strong><br />').slideDown();
+                    }
+                },
+                error: function(jqxhr) {
+                    $('div.alert.alertas-avaliacoes').addClass('alert-danger').empty();
+                    $('div.alert.alertas-avaliacoes').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                }
+            });
+        });
+    });
+
+    $('form#form-avaliacoes button.btn.btn.btn-success').click(function(evt) {
+        evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+        $(this).hide();
+
+        var formData = $('form#form-avaliacoes').serialize();
+
+        $.ajax({
+            dataType: 'json',
+            url: "{{asset('/gaviao/ajax/gerenciar-avaliacao').(isset($esaAvaliacoes) ? '/'.$esaAvaliacoes->id : null)}}",
+            type: (evt.target.textContent == 'Salvar') ? 'POST' : 'PUT',
+            data: formData,
+            beforeSend: function() {
+                $('div.alert.alertas-avaliacoes').empty().hide();
+                $('div.alert.alertas-avaliacoes').removeClass('alert-success').empty();
+                $('div.alert.alertas-avaliacoes').removeClass('alert-danger').empty();
+            },
+            success: function(data) {
+
+                if (data.status == 'success') {
+                    $('div.alert.alertas-avaliacoes').addClass('alert-success').empty().slideDown();
+                    $('div.alert.alertas-avaliacoes').append('<li>' + data.response + '</li>');
+
+                    setTimeout(function() {
+                        $('div.alert.alertas-avaliacoes').slideUp(200, function() {
+                            $('#form-avaliacao .btn.btn-warning').click();
+
+                            //Ativa o gatilho para o carregamento do calendário...
+                            carregaContainerCalendario("{{ asset('gaviao/ajax/calendario/index/'.$cursoSelecionado->escolhaQms->anoFormacao->id) }}");
+                        });
+                    }, 2000);
+                } else {
+                    $('div.alert.alertas-avaliacoes').html('<strong>ATENÇÃO:</strong><br />').slideDown();
+                    $('div.alert.alertas-avaliacoes').addClass('alert-danger').empty();
+                    $.each(data.response, function(key, value) {
+                        $('div.alert.alertas-avaliacoes').append('<li>' + value + '</li>');
+                    });
+
+                    $('form#form-avaliacoes button.btn.btn btn-success').show();
+                }
+
+            },
+            error: function(jqxhr) {
+                $('div.alert.alertas-avaliacoes').addClass('alert-danger').empty();
+                $('div.alert.alertas-avaliacoes').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+            }
+        });
+    });
+
+    $('#form-avaliacao .btn.btn-warning').click(function(evt) {
+        evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+        //Ativa o gatilho para o carregamento do calendário...
+        carregaContainerCalendario("{{ asset('gaviao/ajax/calendario/index/'.$cursoSelecionado->escolhaQms->anoFormacao->id) }}");
+    });
+</script>

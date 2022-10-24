@@ -17,14 +17,11 @@ class ControllerDisciplinas extends Controller
 
     private $_ownauthcontroller = null;
     private $_request = null;
-    private $_tipo_disciplina = null;
 
     public function __construct(Request $request, OwnAuthController $ownauthcontroller)
     {
         $this->_ownauthcontroller = $ownauthcontroller;
         $this->_request = $request;
-
-        $this->_tipo_disciplina = (object)[(object)['id' => 'C', 'descricao' => 'Comum'], (object)['id' => 'E', 'descricao' => 'Específicas']];
     }
 
     public function index()
@@ -59,30 +56,33 @@ class ControllerDisciplinas extends Controller
         $cursoSelecionado = QMS::find($this->_request->id_curso);
 
         $cursos = array($cursoSelecionado);
+        $esaDisciplinas = new EsaDisciplinas();
 
         return view('ssaa.disciplina.form', compact('cursos', 'cursoSelecionado'))
             ->with('ownauthcontroller', $this->_ownauthcontroller)
-            ->with('tipo_disciplina', $this->_tipo_disciplina);
+            ->with('tipo_disciplina', $esaDisciplinas->getTodosTiposDisciplinas());
     }
 
     public function store()
     {
 
-        $retorno['status'] = 'err';
-        $retorno['response'] = [];
+        if ($this->_ownauthcontroller->PermissaoCheck([34])) {
+            $retorno['status'] = 'err';
+            $retorno['response'] = [];
 
-        $validador = $this->validaRequest();
+            $validador = $this->validaRequest();
 
-        if ($validador->fails()) {
-            $retorno['response'] = $validador->errors()->all();
-        } else {
+            if ($validador->fails()) {
+                $retorno['response'] = $validador->errors()->all();
+            } else {
 
-            EsaDisciplinas::create([
-                'id_qms' => $this->_request->qmsID, 'nome_disciplina' => $this->_request->nome_disciplina, 'nome_disciplina_abrev' => $this->_request->nome_disciplina_abrev, 'tipo_disciplina' => $this->_request->tipo_disciplina, 'carga_horaria' => $this->_request->carga_horaria, 'tfm' => ($this->_request->has('tfm') ? 'S' : 'N')
-            ]);
+                EsaDisciplinas::create([
+                    'id_qms' => $this->_request->qmsID, 'nome_disciplina' => $this->_request->nome_disciplina, 'nome_disciplina_abrev' => $this->_request->nome_disciplina_abrev, 'tipo_disciplina' => $this->_request->tipo_disciplina, 'carga_horaria' => $this->_request->carga_horaria, 'tfm' => ($this->_request->has('tfm') ? 'S' : 'N')
+                ]);
 
-            $retorno['status'] = 'success';
-            $retorno['response'] = 'Registrado com sucesso.';
+                $retorno['status'] = 'success';
+                $retorno['response'] = 'Registrado com sucesso.';
+            }
         }
 
         return response()->json($retorno);
@@ -123,7 +123,7 @@ class ControllerDisciplinas extends Controller
 
             return view('ssaa.disciplina.form', compact('cursos', 'cursoSelecionado', 'esaDisciplinas'))
                 ->with('ownauthcontroller', $this->_ownauthcontroller)
-                ->with('tipo_disciplina', $this->_tipo_disciplina);
+                ->with('tipo_disciplina', $esaDisciplinas->getTodosTiposDisciplinas());
         }
     }
 

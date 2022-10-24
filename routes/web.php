@@ -482,9 +482,9 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         /*Calendário SSAA*/
         Route::get('calendario/index/{id_ano_formacao?}', 'SSAA\Calendario\ControllerCalendario@index');
         Route::get('calendario/mes/{id_ano_formacao}/{mes}', 'SSAA\Calendario\ControllerCalendario@index_mes');
-        Route::get('calendario/detalhes/{id}','SSAA\ControllerAvaliacao@consultaCadastroAvaliacao');
+        Route::get('gerenciar-avaliacao/get-components/{id_curso}', 'SSAA\Calendario\ControllerAvaliacao@getComponentAjax');
+        Route::resource('gerenciar-avaliacao','SSAA\Calendario\ControllerAvaliacao');
 
-        Route::get('calendario/formulario/{id_ano_formacao}','SSAA\ControllerAvaliacao@form');
         /*
         Route::get('Calendar/event/{mes}', 'Calendar\ControllerCalendar@index_month');
         Route::get('Calendar/event', 'Calendar\ControllerCalendar@index');

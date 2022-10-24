@@ -206,7 +206,7 @@
 
             $('div.container_disciplinas').empty();
             //Carrega a combo com Uetes ou Cursos
-            carregaContainer(url);
+            carregaContainerDisciplinas(url);
         });
 
         $("[data-toggle=popover]").popover({

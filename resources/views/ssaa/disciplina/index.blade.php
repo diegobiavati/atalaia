@@ -4,7 +4,7 @@
 </div>
 <script>
     
-    function carregaContainer(url) {
+    function carregaContainerDisciplinas(url) {
         $.ajax({
             url: url,
             type: 'GET',
@@ -29,10 +29,10 @@
             $('div.container_disciplinas').empty();
 
             //Carrega a combo com Uetes ou Cursos
-            carregaContainer(url);
+            carregaContainerDisciplinas(url);
         });
 
         //carrega o container com data selecionada padrão
-        carregaContainer('/gaviao/ajax/gerenciar-disciplinas/index/' + $('div#disciplinas_ssaa .btn.btn-secondary.active input[name="ano_formacao"]').val());
+        carregaContainerDisciplinas('/gaviao/ajax/gerenciar-disciplinas/index/' + $('div#disciplinas_ssaa .btn.btn-secondary.active input[name="ano_formacao"]').val());
     });
 </script>

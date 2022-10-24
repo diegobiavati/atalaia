@@ -117,7 +117,7 @@ class AdminOpController extends Controller
                 }
             }
 
-            session()->put('backgroundColor', $backgroundColor);
+            session()->put('backgroundColor', $backgroundColor.';');
             session()->put('backgroundVisaoGeral', $backgroundVisaoGeral);
             session()->put('backgroundMenuLateral', $backgroundMenuLateral);            
             

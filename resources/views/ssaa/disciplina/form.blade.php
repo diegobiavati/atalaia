@@ -65,7 +65,7 @@
             <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" data-html="true" title="Informe o prazo em <b>horas</b> da carga horária da disciplina.">
                 <div style="float: left;"><i class="ion-clock" style="font-size: 24px; color: #696969;"></i></div>
                 <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                    <input class="form-control" style="width: 100%;" name="carga_horaria" type="number" step="1" min="0" max="200" autocomplete="off" value="{{$esaDisciplinas->carga_horaria or old('carga_horaria')}}" placeholder="Carga horária" required data-required-error="Preencha este campo ou o celular."/>
+                    <input class="form-control" style="width: 100%;" name="carga_horaria" type="number" step="1" min="0" max="200" autocomplete="off" value="{{$esaDisciplinas->carga_horaria or old('carga_horaria')}}" placeholder="Carga horária" required data-required-error="Preencha este campo."/>
                 </div>
                 <div class="clear"></div>
             </div>
@@ -95,7 +95,7 @@
     </div>
 
     <div class="card-footer" style="text-align: right;">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
         <button type="button" class="btn btn-primary salvar-disciplina">{{ isset($esaDisciplinas) ? 'Modificar' : 'Salvar' }}</button>
     </div>
 </div>
@@ -133,7 +133,7 @@
 
                     setTimeout(function() {
                         $('div.alertas-disciplinas').slideUp(200, function() {
-                            $('#esa_adiciona_disciplinas .btn.btn-secondary').click();
+                            $('#esa_adiciona_disciplinas .btn.btn-danger').click();
 
                             //Ativa o gatilho da caixa de seleção para carregar o gerenciador de disciplinas...
                             $('div.container_disciplinas select.custom-select[name="qmsID"]').change()
