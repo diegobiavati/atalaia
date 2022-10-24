@@ -12,16 +12,16 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
 </div>
 
 <div class="fomr-group" style="width: 210px;">
-    <label>Avaliação</label>
+    <label>Nome da avaliação</label>
     <select name="nome_avaliacao" class="selectpicker custom-select">
         <option value="0" disabled selected hidden>Selecione uma avaliação</option>
         @foreach ($nomeAvaliacoes as $avaliacao)
-        <option {{ ((isset($esaAvaliacoes) && $avaliacao->id == $esaAvaliacoes->nome_avaliacao) ? 'selected' : '') }} value={{$avaliacao->id}}>{{ $avaliacao->descricao }}</option>
+        <option {{ ((isset($esaAvaliacoes) && $avaliacao->id == $esaAvaliacoes->nome_avaliacao) ? 'selected' : '') }} value={{$avaliacao->id}}>{{ $avaliacao->id.' - '.$avaliacao->descricao }}</option>
         @endforeach
     </select>
 </div>
 <div class="fomr-group" style="width: 183px;">
-    <label>Tipo Avaliação</label>
+    <label>Tipo de avaliação</label>
     <select name="tipo_avaliacao" class="selectpicker custom-select">
         <option value="0" disabled selected hidden>Selecione um Tipo</option>
         @foreach ($tipoAvaliacao as $tipo)
@@ -50,13 +50,13 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
     <label>Realização</label>
     <input type="date" class="form-control" value="{{ $esaAvaliacoes->realizacao or old('realizacao') }}" name="realizacao" min="{{$cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required>
 </div>
-@isset($esaAvaliacoes)
+
 <div class="fomr-group" style="width: 150px;">
     <label>Devolução</label>
-    <input type="date" class="form-control" value="{{ $esaAvaliacoes->devolucao or old('devolucao') }}" name="devolucao" readonly>
+    <input type="date" class="form-control" value="{{ $esaAvaliacoes->devolucao or old('devolucao') }}" name="devolucao" min="{{$cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required>
 </div>
 <br>
-@endisset
+
 <div style="margin-top: 24px;">
     <button type="button" class="btn btn btn-success" onclick="javascript:void(0);">{{ isset($esaAvaliacoes) ? 'Modificar' : 'Salvar' }}</button>
     <button type="button" class="btn btn-warning" onclick="javascript:void(0);">Cancelar</button>

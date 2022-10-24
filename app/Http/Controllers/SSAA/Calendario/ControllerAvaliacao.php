@@ -79,7 +79,7 @@ class ControllerAvaliacao extends Controller
                 $esaAvaliacoes = new EsaAvaliacoes;
                 $esaAvaliacoes->fill(
                     [
-                        'id_esa_disciplinas' => $this->_request->disciplinaID, 'nome_avaliacao' => $this->_request->nome_avaliacao, 'tipo_avaliacao' => $this->_request->tipo_avaliacao, 'chamada' => $this->_request->chamada, 'peso' => $this->_request->peso, 'proposta' => $this->_request->proposta, 'realizacao' => $this->_request->realizacao
+                        'id_esa_disciplinas' => $this->_request->disciplinaID, 'nome_avaliacao' => $this->_request->nome_avaliacao, 'tipo_avaliacao' => $this->_request->tipo_avaliacao, 'chamada' => $this->_request->chamada, 'peso' => $this->_request->peso, 'proposta' => $this->_request->proposta, 'realizacao' => $this->_request->realizacao, 'devolucao' => $this->_request->devolucao
                     ]
                 );
 
@@ -139,6 +139,7 @@ class ControllerAvaliacao extends Controller
                 $esaAvaliacoes->peso = $this->_request->peso;
                 $esaAvaliacoes->proposta = $this->_request->proposta;
                 $esaAvaliacoes->realizacao = $this->_request->realizacao;
+                $esaAvaliacoes->devolucao = $this->_request->devolucao;
 
                 if ($esaAvaliacoes->save()) {
                     $retorno['status'] = 'success';
@@ -187,7 +188,8 @@ class ControllerAvaliacao extends Controller
                 'chamada' => 'required|integer',
                 'peso' => 'required|integer',
                 'proposta' => 'required|date',
-                'realizacao' => 'required|date'
+                'realizacao' => 'required|date',
+                'devolucao' => 'required|date'
             ],
             [
                 'disciplinaID.exists' => '<b>Disciplina não cadastrada.</b>',
@@ -197,7 +199,8 @@ class ControllerAvaliacao extends Controller
                 'chamada.required' => 'O campo <b>chamada</b> é obrigatória.',
                 'peso.required' => 'O campo <b>peso</b> é obrigatório e deve ser um número.',
                 'proposta.required' => 'O campo <b>data de proposta</b> é obrigatória.',
-                'realizacao.required' => 'O campo <b>data de realização</b> é obrigatória.'
+                'realizacao.required' => 'O campo <b>data de realização</b> é obrigatória.',
+                'devolucao.required' => 'O campo <b>data de devolução</b> é obrigatória.'
             ]
         );
     }

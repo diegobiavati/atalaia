@@ -22,6 +22,7 @@ class EsaAvaliacoes extends Model
             , (object)['id' => 'AF', 'descricao' => 'Formativa']
             , (object)['id' => 'AC', 'descricao' => 'Controle']
             , (object)['id' => 'AR', 'descricao' => 'Recuperação']
+            , (object)['id' => 'AI', 'descricao' => 'Interdisciplinar']
         ]);
     }
 
