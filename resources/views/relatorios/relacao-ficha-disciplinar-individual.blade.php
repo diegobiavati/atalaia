@@ -55,7 +55,7 @@
             <td style="text-align: center;">{{ (isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null) }}</td>
             <td style="text-align: center;">{{ (isset($fatd->nr_dias) ? $fatd->nr_dias : 0) }}</td>
             <td>{{ $fatd->enquadramento }}</td>
-            <td>{{ $fatd->bi_desc . ' do ' . $aluno->omct->sigla_omct }}</td>
+            <td>{{ $fatd->bi_desc }}</td>
             <td style="text-align: center;">{{ (isset($fatd->comportamento) ? $fatd->comportamento->comportamento : null) }}</td>
         </tr>    
         @endforeach

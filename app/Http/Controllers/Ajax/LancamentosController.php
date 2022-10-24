@@ -831,7 +831,7 @@ class LancamentosController extends Controller
             if ($fatd->justificado == 'N') {
                 $fatd->enquadramento_id = $request->enquadramento_id;
                 $fatd->enquadramento = $request->enquadramento;
-                $fatd->bi_desc = $request->bi_desc;
+                $fatd->bi_desc = $request->bi_desc . ' do ' . $aluno->omct->sigla_omct;
                 $fatd->dt_bi = FuncoesController::formatDateBrtoEn($request->dt_bi);
                 $fatd->nr_dias = $request->nr_dias;
                 $fatd->comportamento_id = $request->comportamento_id;

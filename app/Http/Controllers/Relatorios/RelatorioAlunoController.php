@@ -1120,7 +1120,7 @@ class RelatorioAlunoController extends Controller
                     $justificado = (($fatd->justificado == 'N') ? 'Não' : (($fatd->justificado == 'S') ? 'Sim' : null));
     
                     $pdf->Row(array(
-                        $fatd->nr_processo, FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs), utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)), utf8_decode((isset($fatd->nr_dias) ? $fatd->nr_dias : 0)), utf8_decode($fatd->enquadramento), utf8_decode($fatd->bi_desc . ' do ' . $aluno->omct->sigla_omct), utf8_decode((isset($fatd->comportamento) ? $fatd->comportamento->comportamento : null))
+                        $fatd->nr_processo, FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs), utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)), utf8_decode((isset($fatd->nr_dias) ? $fatd->nr_dias : 0)), utf8_decode($fatd->enquadramento), utf8_decode($fatd->bi_desc), utf8_decode((isset($fatd->comportamento) ? $fatd->comportamento->comportamento : null))
                     ));
                 }
     
@@ -1381,7 +1381,6 @@ class RelatorioAlunoController extends Controller
             $aluno = $fatds[0]->lancamentoFo->aluno;
             
             foreach ($fatds as $fatd) {
-
                 if(isset($request->idCurso)){
                     $pdf->Row(array(
                         FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs), $aluno->qms->qms, utf8_decode($aluno->omct->sigla_omct), $aluno->numero, utf8_decode($aluno->nome_guerra), utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)), null, $fatd->nr_dias, utf8_decode($fatd->enquadramento), utf8_decode($fatd->bi_desc), utf8_decode((isset($fatd->comportamento_id) ? $fatd->comportamento->comportamento : null))
@@ -1391,7 +1390,6 @@ class RelatorioAlunoController extends Controller
                         FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs), utf8_decode($aluno->omct->sigla_omct), $aluno->numero, utf8_decode($aluno->nome_guerra), utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)), null, $fatd->nr_dias, utf8_decode($fatd->enquadramento), utf8_decode($fatd->bi_desc), utf8_decode((isset($fatd->comportamento_id) ? $fatd->comportamento->comportamento : null))
                     ));
                 }
-                
             }
         }
 
