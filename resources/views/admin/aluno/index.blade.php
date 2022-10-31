@@ -176,7 +176,7 @@
                         </select>
                     </div>
 
-                    <div class="divImplantarAluno" style="margin-left:20px; border-bottom:none; width: 20%;">
+                    <!--<div class="divImplantarAluno" style="margin-left:20px; border-bottom:none; width: 20%;">
                         <label class="labelDescricao" style="color:red;">QMS</label>
                         <select class="custom-select" id="id_qms" name="id_qms" style="margin-top:5px;" {{ ($ownauthcontroller->PermissaoCheck(35) ? '': 'disabled') }}>
                             <option value="0" disabled selected hidden>Selecione a QMS</option>
@@ -184,7 +184,7 @@
                             <option value={{$qm->id}} {{ (isset($aluno) && $qm->id == $aluno->qms_id) ? 'selected' : ''}}>{{ $qm->qms }}</option>
                             @endforeach
                         </select>
-                    </div>
+                    </div>-->
 
                 </div>
 
@@ -242,12 +242,14 @@
                     <div class="divImplantarAluno" style="border-bottom:none;">
                         <i class="ion-ios-football" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">Atleta Marexaer</label>
-                        <select {{ ($ownauthcontroller->PermissaoCheck(1)) ? '' : 'disabled' }} class="custom-select" name="atleta_marexaer" style="margin-top:5px;" onchange="if($(this).val()=='S'){ $('input#modalidade').prop('disabled', false); $('input#habilidades').prop('disabled', false); } else { $('input#modalidade').prop('disabled', true); $('input#habilidades').prop('disabled', true); $('input#modalidade option[value=0]').prop('selected', true); $('input#habilidades').prop('value', null); $('input#modalidade').prop('value', null);}">
+                        <select {{ ($ownauthcontroller->PermissaoCheck(1)) ? '' : 'disabled' }} class="custom-select" name="atleta_marexaer" style="margin-top:5px;">
                             <option value="0" disabled selected hidden>Atleta</option>
-                            <option value="S" {{ (isset($aluno) && $aluno->atleta_marexaer) == 'S' ? 'selected' : ''}}>Sim</option>
-                            <option value="N" {{ (isset($aluno) && $aluno->atleta_marexaer) == 'N' ? 'selected' : ''}}>Não</option>
+                            @foreach(array('S' => 'Sim', 'N' => 'Não') as $key => $value)
+                                <option value="{{$key}}" {{ (isset($aluno) && $aluno->atleta_marexaer == $key) ? 'selected' : ''}} >{{$value}}</option>
+                            @endforeach
                         </select>
                     </div>
+                    
                     <div class="divImplantarAluno" style="width: 22%; margin-left:20px;">
                         <i class="ion-radio-waves" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">Modalidade</label>
@@ -257,6 +259,20 @@
                         <i class="ion-radio-waves" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
                         <label class="labelDescricao">Habilidades</label>
                         <input disabled class="no-style" name="habilidades" value="{{$aluno->habilidades or old('habilidades') }}" id="habilidades" type="text" maxlength="100" autocomplete="off" placeholder="" style="width: 100%;margin-top:10px;" />
+                    </div>
+
+                    <div class="clear"></div>
+                    <div class="divImplantarAluno bonificacao" style="border-bottom:none; display:none;">
+                        <i class="ion-ios-football" style="font-size: 15px; color: #696969; margin-right:5px;"></i>
+                        <label class="labelDescricao">Tipo Bonificação</label>
+                        <select {{ ($ownauthcontroller->PermissaoCheck(1)) ? '' : 'disabled' }} class="custom-select" name="bonificacao_atleta" style="margin-top:5px;">
+                            <option value="0" disabled selected hidden>Selecione o Tipo</option>
+                            @foreach(array('AA' => 'AA', 'AC' => 'AC', 'AAAC' => 'AA e AC') as $key => $value)
+                                <option value="{{$key}}" {{ (isset($aluno) && $aluno->bonificacao_atleta == $key) ? 'selected' : ''}} >{{$value}}</option>
+                            @endforeach
+                        </select>
+
+                        
                     </div>
 
                 </div>
@@ -759,6 +775,26 @@
             $('.data_mask').mask('00/00/0000');
         });
 
+        $('select.custom-select[name="atleta_marexaer"]').change(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+            
+            if(evt.currentTarget.value == 'S'){
+                $('.divImplantarAluno.bonificacao').css('display', 'block');
+                $('input#modalidade').prop('disabled', false); 
+                $('input#habilidades').prop('disabled', false); 
+            
+            }else{
+                $('.divImplantarAluno.bonificacao').css('display', 'none');
+                $('select.custom-select[name="bonificacao_atleta"]').val(0);
+
+                $('input#modalidade').prop('disabled', true); 
+                $('input#habilidades').prop('disabled', true); 
+                $('input#modalidade option[value=0]').prop('selected', true); 
+                $('input#habilidades').prop('value', null); 
+                $('input#modalidade').prop('value', null);
+            }
+        });
+
         $('.btn.btn-secondary').click(function() {
             //Reseta os Campos
             loadAdminAjaxContent('admin/aluno');
@@ -767,6 +803,10 @@
         //Desabilita edição dos campos se não tiver permissão
         @if(isset($aluno) && !$ownauthcontroller->PermissaoCheck(10))
         $('#implantar_aluno input, select').prop('disabled', true);
+        @endif
+        
+        @if(isset($aluno))
+            $('select.custom-select[name="atleta_marexaer"]').change();
         @endif
 
         $('a.open_file').click(function(){
