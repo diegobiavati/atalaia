@@ -34,6 +34,10 @@ class AvaliacoesNotas extends Model
                 $nota = $this->suficiencia_abdominal;
                 return $nota;
             } else {
+                if($this->aluno->atleta_marexaer == 'S'){
+
+                }
+                dd($this->aluno->atleta_marexaer);
                 $nota = number_format($this->nota_tfm, 3, '.', '');
                 return $nota;
             }

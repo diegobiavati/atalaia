@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class QMS extends Model
 {
+    protected $connection = 'mysql';
     protected $table = 'qms';
     protected $fillable = ['comandante_operador_id'];
 

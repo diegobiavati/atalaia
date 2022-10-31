@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EsaDisciplinas extends Model
 {
+    protected $connection = 'mysql_ssaa';
     protected $table = 'esa_disciplinas';
     protected $fillable = ['id_qms', 'nome_disciplina', 'nome_disciplina_abrev', 'carga_horaria', 'tipo_disciplina', 'tfm'];
     

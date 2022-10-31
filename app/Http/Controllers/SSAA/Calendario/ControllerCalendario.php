@@ -7,7 +7,6 @@ use App\Http\Controllers\OwnAuthController;
 use App\Models\AnoFormacao;
 use App\Models\EsaAvaliacoes;
 use Illuminate\Http\Request;
-use \Illuminate\Support\Facades\Crypt;
 
 class ControllerCalendario extends Controller
 {

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EsaAvaliacoes extends Model
 {
+    protected $connection = 'mysql_ssaa';
     protected $table = 'esa_avaliacoes';
     protected $fillable = ['id_esa_disciplinas', 'nome_avaliacao', 'tipo_avaliacao', 'chamada', 'peso', 'proposta', 'realizacao', 'devolucao'];
 
@@ -28,7 +29,7 @@ class EsaAvaliacoes extends Model
 
     public function esadisciplinas(){
         return $this->belongsTo('App\Models\EsaDisciplinas', 'id_esa_disciplinas', 'id');
-    }     
+    } 
 
     public function getTodosTiposAvaliacoes(){
         return $this->_tipo_avaliacoes;

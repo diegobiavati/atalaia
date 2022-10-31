@@ -182,7 +182,7 @@ class ControllerAvaliacao extends Controller
         return Validator::make(
             $this->_request->all(),
             [
-                'disciplinaID' => 'required|numeric|exists:esa_disciplinas,id',
+                'disciplinaID' => 'required|numeric|exists:mysql_ssaa.esa_disciplinas,id',
                 'nome_avaliacao' => ['required', new ESANomeAvaliacoes],
                 'tipo_avaliacao' => ['required', new TipoAvaliacoes],
                 'chamada' => 'required|integer',
