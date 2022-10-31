@@ -148,7 +148,6 @@ class AlunoApiController extends Controller
         $retorno['status'] = 'err';
         $retorno['response'] = 'Houve um Erro';
 
-
         $dados = $request->all();
         $dados['data_nascimento'] = FuncoesController::formatDateBrtoEn($dados['data_nascimento']);
         $dados['primeira_data_praca'] = FuncoesController::formatDateBrtoEn($dados['primeira_data_praca']);
@@ -182,6 +181,7 @@ class AlunoApiController extends Controller
 
             $dados['nome_guerra'] = strtoupper($dados['nome_guerra']);
             $dados['nome_completo'] = strtoupper($dados['nome_completo']);
+            $dados['bonificacao_atleta'] = ($dados['atleta_marexaer'] == 'S' ? $dados['bonificacao_atleta'] : null);
             $insert = $this->aluno->create($dados);
 
             // Verifica se inseriu com sucesso
@@ -325,6 +325,7 @@ class AlunoApiController extends Controller
      */
     public function update(Request $request, $id)
     {
+        
         $retorno['status'] = 'err';
         $retorno['response'] = ['Nada foi encontrado.', 'Aluno pode se encontrar em situações diversas, por isso não receberá atualizações por essa rotina.'];
 
@@ -366,6 +367,8 @@ class AlunoApiController extends Controller
         }
 
         if ($validador->passes()) {
+
+            $dados['bonificacao_atleta'] = ($dados['atleta_marexaer'] == 'S' ? $dados['bonificacao_atleta'] : null);
 
             if(trim($aluno->email) <> trim($dados['email'])){
                 Users::where(['email' => $aluno->email])->update(['email' => $dados['email']]);

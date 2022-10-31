@@ -32,6 +32,7 @@ class Alunos extends Model
         'instrumento_id',
         'nasc_pais',
         'atleta_marexaer',
+        'bonificacao_atleta',
         'modalidade',
         'habilidades',
         'sexo',
