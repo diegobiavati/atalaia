@@ -28,6 +28,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 setlocale(LC_ALL, "pt_BR.utf8");
@@ -1586,10 +1587,10 @@ class AjaxRelatoriosController extends Controller
 
             //ConfDemonstrativos
 
-            $disciplinas_marcadas = ConfDemonstrativos::first();
+            $confDemonstrativos = ConfDemonstrativos::first();
 
-            if($disciplinas_marcadas->avaliacoes){
-                $disciplinas_marcadas = explode(',', $disciplinas_marcadas->avaliacoes);
+            if($confDemonstrativos->avaliacoes){
+                $disciplinas_marcadas = explode(',', $confDemonstrativos->avaliacoes);
             } else {
                 $disciplinas_marcadas = array(); 
             }
@@ -1610,10 +1611,13 @@ class AjaxRelatoriosController extends Controller
             $data['header'] = '<i class="ion-ios-gear" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Configurações de relatórios';     
             $data['body'] = '   <form id="configuracoes_relatorios">
                                     <div class="custom-control custom-checkbox" style="margin: 12px;">
+                                        <input type="checkbox" class="custom-control-input" id="bonus_atleta_'.$confDemonstrativos->id.'" name="bonus_atleta_'.$confDemonstrativos->id.'" '.(($confDemonstrativos->bonus_atleta=='N') ? '' : 'checked').' />
+                                        <label class="custom-control-label" for="bonus_atleta_'.$confDemonstrativos->id.'">Permitir o cálculo do bônus atleta.</label>
+                                    </div>  
+                                    <div class="custom-control custom-checkbox" style="margin: 12px;">
                                         <input type="hidden" name="_token" value="'.csrf_token().'">
-                                        <input type="checkbox" class="custom-control-input" id="conf_id_'.$rel_conf->id.'" name="conf_id_'.$rel_conf->id.'" value="1" - '.$status_checked_input.' />
+                                        <input type="checkbox" class="custom-control-input" id="conf_id_'.$rel_conf->id.'" name="conf_id_'.$rel_conf->id.'" '.$status_checked_input.' />
                                         <label class="custom-control-label" for="conf_id_'.$rel_conf->id.'">Permitir que as OMCT acessem o demonstrativo de notas</label>
-                                        <br />
                                         '.implode('<br />', $avaliacao_array).'
                                     </div>                                       
                                 </form>';
@@ -1626,7 +1630,6 @@ class AjaxRelatoriosController extends Controller
                                 </button>';
         
             $data['status'] = 'ok';
-
         } else {
             $data['status'] = 'err';
         }
@@ -1668,6 +1671,7 @@ class AjaxRelatoriosController extends Controller
                 RelatoriosConfiguracoes::where('id', 1)->update(['valor' => 0]);                
             }
 
+            $bonus_atleta = (isset($request->bonus_atleta_1)) ? true : false; 
 
             /*
             
@@ -1690,11 +1694,11 @@ class AjaxRelatoriosController extends Controller
                     $array_ava_2_chamada[] = $ava_2_chamada->id;
                 }
                 $array_ava_2_chamada = ($array_ava_2_chamada)??array();
-                ConfDemonstrativos::where('id', 1)->update(['avaliacoes' => implode(',', $request->avaliacoesID)]);
+                ConfDemonstrativos::where('id', 1)->update(['avaliacoes' => implode(',', $request->avaliacoesID), 'bonus_atleta' => ($bonus_atleta ? 'S': 'N')]);
                 $avaliacoesIDs = array_merge(array_map('intval', $request->avaliacoesID), $array_ava_2_chamada);
             } else {
                 $avaliacoesIDs = array();
-                ConfDemonstrativos::where('id', 1)->update(['avaliacoes' => '']);
+                ConfDemonstrativos::where('id', 1)->update(['avaliacoes' => '', 'bonus_atleta' => ($bonus_atleta ? 'S': 'N')]);
             }
             // SELECIONANDO TODAS AS AVALIAÇÕES CONFIGURADAS NA TABELA conf_demonstrativos para se obter a razão de cada disciplina, id e nome.
 
@@ -1733,6 +1737,9 @@ class AjaxRelatoriosController extends Controller
 
             //2ºTen João Victor, Alteração no Cálculo da NOTA
             $alunoNota = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
+
+            $alunosAtleta = ($bonus_atleta) ? Alunos::where(['data_matricula' => $ano_corrente->id, 'atleta_marexaer' => 'S'])
+                                    ->whereNull('qms_id')->get() : null;
             
             //dd($alunoNota[33][3378]);
             $alunosID = $alunoNota['alunosID'];
@@ -1832,6 +1839,52 @@ class AjaxRelatoriosController extends Controller
                                         $k[$alunoID]['avaliacoes_tfm']['notas_AR'] = null;
                                         $k[$alunoID]['avaliacoes_tfm']['notas_sem_grau_minimo'] = null;
 
+                                        /*
+                                        * 2022 - Cálculo de TFM modificado
+                                        */
+                                        //Verifica se o Aluno é Atleta
+                                        $alunosAtletaIds = $alunosAtleta->pluck('id');
+                                        if($bonus_atleta && $alunosAtletaIds->contains($alunoID)){
+                                            $nd = FuncoesController::calculaNDSemRecuperacao($k[$alunoID][$key]);
+
+                                            $bonus = 0.000;
+                                            switch($nd){
+                                                case (($nd >= 5) && ($nd < 7)):
+                                                    //Conceder 1,000 de bônus
+                                                    $bonus = 1.000;
+                                                    break;
+                                                case ($nd >= 7):
+                                                    //Conceder 2,000 de bônus
+                                                    $bonus = 2.000;
+                                                    break;
+                                            }
+
+                                            $atleta = $alunosAtleta->find($alunoID);
+
+                                            foreach($k[$alunoID][$key] as $keys => $itens){
+                                                if(is_numeric($keys) && $itens['tfm_abdominal'] == 'N'){
+                                                    foreach($itens['avaliacoes'] as $avaliacoes){
+                                                        if(in_array($avaliacoes->nome_abrev, ['AA', 'AC'])){
+                                                            if($avaliacoes->nome_abrev == $atleta->bonificacao_atleta
+                                                                || $atleta->bonificacao_atleta == 'AAAC'){
+                                                                //Insere o bônus na avaliação
+                                                                $avaliacoes->bonusAtleta = $bonus;
+                                                                $avaliacoes->nota = ($avaliacoes->nota + $avaliacoes->bonusAtleta);
+
+                                                                $avaliacoes->nota = ($avaliacoes->nota <= 10) ? $avaliacoes->nota : 10.000; 
+                                                                $k[$alunoID][$key][$keys]['notas'][$avaliacoes->indice_notas] = ($avaliacoes->nota * $avaliacoes->peso);
+                                                            }
+                                                        }
+                                                    }
+                                                    //Média deverá receber o novo valor...
+                                                    $k[$alunoID][$key][$keys]['media'] = (array_sum($k[$alunoID][$key][$keys]['notas']) / number_format($k[$alunoID][$key][$keys]['disciplina_razao'], '3', '.', ''));
+                                                }
+                                            }                                            
+                                        }
+                                        /*
+                                        * 2022 - Fim TFM
+                                        */
+                                        
                                         foreach($k[$alunoID][$key] as $key_aval => $avaliacao){
 
                                             //Valida se é os arrays com as avaliações e não o valor final de média

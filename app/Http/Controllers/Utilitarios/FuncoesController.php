@@ -13,6 +13,7 @@ use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Event;
 
 class FuncoesController
@@ -176,6 +177,22 @@ class FuncoesController
         })->first();
     }
 
+    public static function calculaNDSemRecuperacao($array){
+        $array = new SupportCollection($array);
+
+        $soma = 0.000;
+        $quantidade = 0;
+        
+        foreach($array as $key => $avaliacao){
+            if(is_numeric($key) && $avaliacao['media'] >= 5 && !isset($avaliacao['avaliacoes']['CE'])){
+                $soma += $avaliacao['media'];
+                $quantidade++;
+            }
+        }
+
+        return number_format(($soma / $quantidade), '3', '.', '');
+    }
+
     public static function recalculaNotaAluno(Collection $avaliacoesNotas)
     {
 
@@ -186,7 +203,7 @@ class FuncoesController
                 $alunosID[] = $nota->alunos_id;
 
                 $getNota = $nota->getNota();
-                
+
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['notas'][] = $getNota;
 
                 $indice_avaliacao = $nota->avaliacao->nome_abrev . ' - ' . $nota->avaliacao->chamada . 'ª chamada';
@@ -279,7 +296,7 @@ class FuncoesController
             $aluno_notas = array();
         }
 
-        //dd($aluno_notas[25][3565]);
+        //dd($aluno_notas[46][4456]);
         return $aluno_notas;
     }
 
