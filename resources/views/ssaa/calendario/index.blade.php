@@ -19,6 +19,7 @@
     .box-day {
       border: 1px solid #E3E9E5;
       height: 150px;
+      overflow: auto;
     }
 
     .box-dayoff {
