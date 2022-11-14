@@ -22,36 +22,36 @@
     }
 
     #top{
-        background: {{ $backgroundColor }}
+        background: {{ $backgroundColor }};
     }
 
     #lateral-top {
-        background: {{ $backgroundColor }}
+        background: {{ $backgroundColor }};
     }
 
     div#back_to_top{
-        background: {{ $backgroundColor }}
+        background: {{ $backgroundColor }};
     }
 
     #menu-lateral {
-        background-image: {{$backgroundMenuLateral}}
+        background-image: {{$backgroundMenuLateral}};
     }
 
     li.menu-list-01:hover {
-        background-color: {{$backgroundVisaoGeral}}
+        background-color: {{$backgroundVisaoGeral}};
     }
 
     li.menu-list-01-active {
-        background-color: {{$backgroundVisaoGeral}}
+        background-color: {{$backgroundVisaoGeral}};
     }
 
     #menu-lateral {
-        background-color: {{ $backgroundVisaoGeral }}
+        background-color: {{ $backgroundVisaoGeral }};
     }
 
     .modal-header {
         font-weight: bold;
-        background-color: {{$backgroundVisaoGeral}}
+        background-color: {{$backgroundVisaoGeral}};
     }
 
 </style>

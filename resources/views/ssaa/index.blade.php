@@ -1,5 +1,5 @@
 <?php
-    $backgroundVisaoGeral = (session()->has('backgroundVisaoGeral') ? session()->get('backgroundVisaoGeral') : '#0A2A1B;');
+    $backgroundVisaoGeral = (session()->has('backgroundVisaoGeral') ? session()->get('backgroundVisaoGeral') : '#0A2A1B').';';
 ?>
 <style>
     .modal-full {

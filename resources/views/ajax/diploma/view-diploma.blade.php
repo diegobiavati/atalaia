@@ -1,5 +1,5 @@
 <?php
-$backgroundVisaoGeral = session()->get('backgroundVisaoGeral');
+$backgroundVisaoGeral = session()->get('backgroundVisaoGeral').';';
 ?>
 
 <div class="card bg-light mb-3">

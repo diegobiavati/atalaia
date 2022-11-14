@@ -1,5 +1,5 @@
 <?php
-    $backgroundVisaoGeral = session()->get('backgroundVisaoGeral');
+    $backgroundVisaoGeral = session()->get('backgroundVisaoGeral').';';
 ?>
 <style>
     div.link_rapido_menu{
@@ -14,11 +14,11 @@
     <h4>VISÃO GERAL DO SISTEMA</h4>
 </div>
 <div class="card-deck">
-    <div class="card">
-      <div style="background-color: {{$backgroundVisaoGeral}}; border-radius: 3px 3px 0 0;">
+    <div class="card" style="height: fit-content;">
+      <div style="background-color: {{$backgroundVisaoGeral}} border-radius: 3px 3px 0 0;">
         <div style="text-align: center; color: #fff; padding: 10px;">
             <i class="ion-ios-calendar-outline" style="font-size: 44px;"></i><br />
-            <h5>ANO DE FORMAÇÃO</h5>
+            <h5>Ano de formação</h5>
           </div>          
         </div>
         <div class="card-body">
@@ -27,10 +27,10 @@
                     <a href="javascript: void:(0);" class="no-style" style="font-size: 24px;" onclick="$('a#anos-de-formacao').click();"><i class="ion-edit"></i></a>
                 </div>          
             @endif
-        <h5 class="card-title"><b>Ano de formação corrente</b></h5>
-        @if(isset($ano_corrente->formacao))
+        
+        @if(isset($ano_corrente->formacao))<br>
         <p class="card-text" style="text-align: center; font-size: 44px; line-height: 22px;">
-            {{$ano_corrente->formacao}}<br /> <span style="font-size: 16px;">com data de matrícula em: 
+            {{$ano_corrente->formacao}}<br /> <span style="font-size: 16px;">data de matrícula em: 
                 <br /><b>{{strftime('%d-%m-%Y', strtotime($ano_corrente->data_matricula))}}</b>
             </span>
         </p>
@@ -42,11 +42,11 @@
       </div>
     </div>
     @if($ownauthcontroller->PermissaoCheck(9999))
-    <div class="card">
-        <div style="background-color: {{$backgroundVisaoGeral}}; border-radius: 3px 3px 0 0;">
+    <div class="card" style="height: fit-content;">
+        <div style="background-color: {{$backgroundVisaoGeral}} border-radius: 3px 3px 0 0;">
             <div style="text-align: center; color: #fff; padding: 10px;">
               <i class="ion-ios-people" style="font-size: 44px;"></i><br />
-              <h5>OPERADORES</h5>
+              <h5>Operadores</h5>
             </div>
         </div>
         <div class="card-body">
@@ -60,11 +60,11 @@
         </div>
     </div>
     @endif
-    <div class="card">
-        <div style="background-color: {{$backgroundVisaoGeral}}; border-radius: 3px 3px 0 0;">
+    <div class="card" style="height: fit-content;">
+        <div style="background-color: {{$backgroundVisaoGeral}} border-radius: 3px 3px 0 0;">
           <div style="text-align: center; color: #fff; padding: 10px;">
               <i class="ion-android-contacts" style="font-size: 44px;"></i><br />
-              <h5>ALUNOS</h5>
+              <h5>Alunos</h5>
             </div>          
         </div>
         <div class="card-body">
@@ -82,11 +82,11 @@
 
     @if($ownauthcontroller->PerfilCheck(9001))
     <!--Só libera se for Cmt de Cia-->
-    <div class="card">
-        <div style="background-color: {{$backgroundVisaoGeral}}; border-radius: 3px 3px 0 0;">
+    <div class="card" style="height: fit-content;">
+        <div style="background-color: {{$backgroundVisaoGeral}} border-radius: 3px 3px 0 0;">
             <div style="text-align: center; color: #fff; padding: 10px;">
                 <i class="ion-android-warning" style="font-size: 44px;"></i><br />
-                <h5>FATOS OBSERVADOS</h5>
+                <h5>Fatos observados</h5>
             </div>
         </div>
         <div class="card-body">
@@ -104,8 +104,8 @@
 
     @if($ownauthcontroller->PerfilCheck(9002))
     <!--Só libera se for Sargenteante da UETE-->
-    <div class="card">
-        <div style="background-color: {{$backgroundVisaoGeral}}; border-radius: 3px 3px 0 0;">
+    <div class="card" style="height: fit-content;">
+        <div style="background-color: {{$backgroundVisaoGeral}} border-radius: 3px 3px 0 0;">
             <div style="text-align: center; color: #fff; padding: 10px;">
                 <i class="ion-android-warning" style="font-size: 44px;"></i><br />
                 <h5>FATD</h5>
@@ -122,7 +122,36 @@
             </div>
         </div>
     </div>
-    @endif        
+    @endif   
+    
+    @if($ownauthcontroller->PerfilCheck([9005, 9006]))
+    <!--Só libera se for Operador da SSAA e Coordenador de Provas SSAA-->
+    <div class="card">
+        <div style="background-color: {{$backgroundVisaoGeral}} border-radius: 3px 3px 0 0;">
+            <div style="text-align: center; color: #fff; padding: 10px;">
+                <i class="ion-ios-pulse-strong" style="font-size: 44px;"></i><br />
+                <h5>Devolução de Provas</h5>
+            </div>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title"><b>Próximas Devoluções <h6>limitação de 30 dias</h6></b></h5>
+            <p class="card-text">
+                @if(count($avaliacoes)>0)
+                @foreach($avaliacoes as $avaliacao)
+                <hr>
+                <li style="color: {{App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($avaliacao->esadisciplinas->qms->qms_matriz_id)->backgroundColor}}"><b>Avaliação de {{$avaliacao->getDescricao()}} </b><span style="color: {{App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($avaliacao->esadisciplinas->qms->qms_matriz_id)->backgroundColor}}"> de <i>{{$avaliacao->esadisciplinas->nome_disciplina_abrev}}</i>
+                    <br></span> ({{strftime('%A, %d de %B de %Y', strtotime($avaliacao->realizacao))}})</li>
+                        <ul>
+                            <li style="color: #FF4000;">Prazo para a devolução ({{strftime('%A, %d de %B de %Y', strtotime($avaliacao->devolucao))}})</li>
+                        </ul>
+                @endforeach
+                @else
+                Sem avaliações nos próximos dias
+                @endif
+            </p>
+        </div>
+    </div>
+    @endif
   </div>
 
     <script>

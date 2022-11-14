@@ -1,5 +1,5 @@
 <?php
-    $backgroundVisaoGeral = session()->get('backgroundVisaoGeral');
+    $backgroundVisaoGeral = session()->get('backgroundVisaoGeral').';';
 ?>
 <style>
 
