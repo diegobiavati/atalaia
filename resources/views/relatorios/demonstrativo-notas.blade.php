@@ -91,6 +91,9 @@ $data_array = unserialize($class->data_demonstrativo);
         @php
         $valida_col_tfm = false;
         $rowspan = 0;
+        $colspan_geral = $data_array['avaliacoes_tfm']['colspan_demonstrativo'] - 1;
+        $colspan = 0;
+
         @endphp
         @isset($data_array['avaliacoes_tfm'])
         <div style="margin: 8px;">
@@ -101,28 +104,52 @@ $data_array = unserialize($class->data_demonstrativo);
             @foreach($data_array['avaliacoes_tfm'] as $key_aval => $data)
             @if(is_numeric($key_aval))
                 <tr>
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;" colspan="{{$data_array['avaliacoes_tfm']['colspan_demonstrativo']}}"><b>{{ $data['disciplina_nome'] }}</b></td>
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;" colspan="{{ $colspan_geral }}"><b>{{ $data['disciplina_nome'] }}</b></td>
                     @if(!$valida_col_tfm)
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #dfdfdf;"><b>ND TFM</b></td>
                     @endif
                 </tr>
                 @if(isset($data['avaliacoes']))
+
+
+                @php
+                    $colspan = ($colspan_geral - count($data['avaliacoes']));
+
+                    $keys_bonificacao = [];
+                    foreach($data['avaliacoes'] as $key => $avaliacoes){
+                        if(isset($avaliacoes->bonusAtleta)){
+                            $keys_bonificacao[$data['disciplina_id']][] = $key;
+                        }
+                    }
+                    
+                    if(count($keys_bonificacao) > 0){
+
+                        foreach($data['avaliacoes'] as $key => $avaliacoes){
+                            if(isset($avaliacoes->bonusAtleta)){
+                                $avaliacoes->colpan_demonstrativo = 2;
+                                array_splice($keys_bonificacao[$data['disciplina_id']], 0, 1);
+                            }
+                        }
+                    }
+ 
+                @endphp
+
+
                 <tr>
                     @php
                     $valida_colspan = false;
+                    
+
                     @endphp
-
                     @foreach($data['avaliacoes'] as $key => $avaliacoes)
-
-                        @if($valida_colspan)
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee;"><b>{{$key}}</b></td>
-                        @else
-                        <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee;" colspan='{{ ($data_array['avaliacoes_tfm']['colspan_demonstrativo'] - count($data['avaliacoes'])) }}'><b>{{$key}}</b></td>
-                        @endif
+                        
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee;" {{ (isset($avaliacoes->colpan_demonstrativo) ? "colspan=$avaliacoes->colpan_demonstrativo" : ((isset($keys_bonificacao[$data['disciplina_id']])) ? null : "colspan=$colspan") ) }} >
+                            <b>{{$key}}</b>
+                        </td>
 
                         @php
-                        $valida_colspan = true;
-                        $rowspan++;
+                            $valida_colspan = true;
+                            $rowspan++;
                         @endphp
                     @endforeach
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #eee;"><b>NA</b></td>
@@ -137,31 +164,40 @@ $data_array = unserialize($class->data_demonstrativo);
                 <tr>
                     @php
                     $valida_colspan = false;
+                    
                     @endphp
                     
                     @foreach($data['avaliacoes'] as $key => $avaliacoes)
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;" {{ ((isset($keys_bonificacao[$data['disciplina_id']])) ? null : "colspan=$colspan") }}>
 
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;" {{ (($valida_colspan) ? '' : 'colspan='.($data_array['avaliacoes_tfm']['colspan_demonstrativo'] - count($data['avaliacoes'])).'') }}>
                         @if((isset($avaliacoes->nota) && is_numeric($avaliacoes->nota)))
-                        {{ number_format($avaliacoes->nota, '3', ',', '') }}
+                            @if(isset($avaliacoes->nota_sem_bonus))
+                                {{ number_format($avaliacoes->nota_sem_bonus, '3', ',', '') }}
+                            @else
+                                {{ number_format($avaliacoes->nota, '3', ',', '') }}
+                            @endif
                         @elseif($key == 'CE')
-                        {{ $avaliacoes }}
+                            {{ $avaliacoes }}
                         @elseif($key == 'ACR')
-                        @if($data['tfm'] == 'S' && $data['tfm_abdominal'] == 'S')
-                        @php
-                        $abdominal = ($avaliacoes == 'S') ? 'SUFICIENTE': 'NÃO SUFICIENTE' ;
-                        @endphp
-                        {{ $abdominal }}
+                            @if($data['tfm'] == 'S' && $data['tfm_abdominal'] == 'S')
+                                @php
+                                    $abdominal = ($avaliacoes == 'S') ? 'SUFICIENTE': 'NÃO SUFICIENTE' ;
+                                @endphp
+                                {{ $abdominal }}
+                            @else
+                                {{ $avaliacoes}}
+                            @endif
                         @else
-                            {{ $avaliacoes}}
+                            @php
+                                $abdominal = (isset($avaliacoes->nota) && $avaliacoes->nota == 'S') ? 'SUFICIENTE': 'NÃO SUFICIENTE' ;
+                            @endphp
+                            {{ $abdominal }}
                         @endif
-                        @else
-                        @php
-                        $abdominal = (isset($avaliacoes->nota) && $avaliacoes->nota == 'S') ? 'SUFICIENTE': 'NÃO SUFICIENTE' ;
-                        @endphp
-                        {{ $abdominal }}
-                        @endif
+                        
                     </td>
+                    @isset($avaliacoes->bonusAtleta)
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center;">bônus atleta de <b>{{number_format($avaliacoes->bonusAtleta, '3', ',', '')}}</b></td>
+                    @endisset
 
                     @php
                     $valida_colspan = true;

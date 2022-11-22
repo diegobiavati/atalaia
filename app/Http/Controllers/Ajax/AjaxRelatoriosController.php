@@ -1641,7 +1641,7 @@ class AjaxRelatoriosController extends Controller
     public function ConfigurarRelatorio(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
 
         if($ownauthcontroller->permissaoCheck(1)){
-
+            ini_set('memory_limit','512M');
             // LIMPANDO TODOS DADOS DA TABELA alunos_classificacao
 
             $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
@@ -1830,7 +1830,9 @@ class AjaxRelatoriosController extends Controller
                                               
                                         $soma = null;
                                         $soma_avaliacoes = 0;
-                                        $colspan_demonstrativo = 1;
+                                        $colspan_demonstrativo = 0;
+                                        $colspan_atleta = 0;
+                                        
 
                                         $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = 0;
                                         $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = 0;
@@ -1838,12 +1840,13 @@ class AjaxRelatoriosController extends Controller
                                         $k[$alunoID]['avaliacoes_tfm']['AR_tfm_abdominal'] = false;
                                         $k[$alunoID]['avaliacoes_tfm']['notas_AR'] = null;
                                         $k[$alunoID]['avaliacoes_tfm']['notas_sem_grau_minimo'] = null;
+                                        $k[$alunoID]['avaliacoes_tfm']['atleta'] = false;
 
                                         /*
                                         * 2022 - Cálculo de TFM modificado
                                         */
                                         //Verifica se o Aluno é Atleta
-                                        $alunosAtletaIds = $alunosAtleta->pluck('id');
+                                        $alunosAtletaIds = (isset($alunosAtleta)) ? $alunosAtleta->pluck('id') : null;
                                         if($bonus_atleta && $alunosAtletaIds->contains($alunoID)){
                                             $nd = FuncoesController::calculaNDSemRecuperacao($k[$alunoID][$key]);
 
@@ -1869,10 +1872,24 @@ class AjaxRelatoriosController extends Controller
                                                                 || $atleta->bonificacao_atleta == 'AAAC'){
                                                                 //Insere o bônus na avaliação
                                                                 $avaliacoes->bonusAtleta = $bonus;
+                                                                $avaliacoes->nota_sem_bonus = $avaliacoes->nota;
                                                                 $avaliacoes->nota = ($avaliacoes->nota + $avaliacoes->bonusAtleta);
 
                                                                 $avaliacoes->nota = ($avaliacoes->nota <= 10) ? $avaliacoes->nota : 10.000; 
                                                                 $k[$alunoID][$key][$keys]['notas'][$avaliacoes->indice_notas] = ($avaliacoes->nota * $avaliacoes->peso);
+                                                                $k[$alunoID]['avaliacoes_tfm']['atleta'] = true;
+                                                                
+                                                                switch($atleta->bonificacao_atleta){
+                                                                    case 'AA': 
+                                                                        $colspan_atleta = 1;
+                                                                        break;
+                                                                    case 'AC': 
+                                                                        $colspan_atleta = 1;
+                                                                        break;
+                                                                    case 'AAAC': 
+                                                                        $colspan_atleta = 2;
+                                                                        break;
+                                                                }
                                                             }
                                                         }
                                                     }
@@ -1898,7 +1915,7 @@ class AjaxRelatoriosController extends Controller
                                                 $avaliacao_rec_nota = null;
                                                 $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $avaliacao['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
 
-                                                $colspan_demonstrativo++;
+                                                
 
                                                 if($avaliacao_rec_id){
                                                     $avaliacao_rec_nota = AvaliacoesNotas::where('alunos_id', $alunoID)->where('avaliacao_id', $avaliacao_rec_id->id)->first();
@@ -1954,6 +1971,7 @@ class AjaxRelatoriosController extends Controller
                                                     }
                                                 }
 
+                                                $colspan_demonstrativo++;
                                                 
                                                 if(count($avaliacao['avaliacoes']) > $colspan_demonstrativo){
                                                     $colspan_demonstrativo = count($avaliacao['avaliacoes']);
@@ -1967,7 +1985,11 @@ class AjaxRelatoriosController extends Controller
                                             //ND TFM
                                             $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format($soma / $soma_avaliacoes, '3', '.', '');
                                             $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '3', '.', '');
-                                            $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = ($colspan_demonstrativo + 1);
+                                            $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = $colspan_demonstrativo;
+
+                                            if($k[$alunoID]['avaliacoes_tfm']['atleta']){
+                                                $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] += $colspan_atleta;
+                                            }
                                         }
 
                                         /********************************************************
@@ -2022,7 +2044,7 @@ class AjaxRelatoriosController extends Controller
                                                 }
                                             }
 
-                                            $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format((array_sum($notas_ar) / count($notas_ar)), '3', '.', '');
+                                            $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format( (count($notas_ar) > 0) ? (array_sum($notas_ar) / count($notas_ar)) : 0 , '3', '.', '');
                                             
                                             array_pop($mf);//Remove a última Média Lançada
                                             $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '3', '.', '');
