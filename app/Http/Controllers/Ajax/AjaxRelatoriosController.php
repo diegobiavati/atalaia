@@ -1832,8 +1832,8 @@ class AjaxRelatoriosController extends Controller
                                         $soma_avaliacoes = 0;
                                         $colspan_demonstrativo = 0;
                                         $colspan_atleta = 0;
+                                        $colspan_recuperacao = false;
                                         
-
                                         $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = 0;
                                         $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = 0;
                                         $k[$alunoID]['avaliacoes_tfm']['media_tfm_abdominal'] = 'NS';
@@ -1921,7 +1921,8 @@ class AjaxRelatoriosController extends Controller
                                                     $avaliacao_rec_nota = AvaliacoesNotas::where('alunos_id', $alunoID)->where('avaliacao_id', $avaliacao_rec_id->id)->first();
 
                                                     if(isset($avaliacao_rec_nota)){
-                                                        $colspan_demonstrativo++;
+                                                        //$colspan_demonstrativo++;
+                                                        $colspan_recuperacao = true;
                                                         $k[$alunoID][$key][$key_aval]['AR'] = $avaliacao_rec_nota->getNota();
                                                         $k[$alunoID][$key][$key_aval]['avaliacoes']['ACR'] = $k[$alunoID][$key][$key_aval]['AR'];                                   
                                                         
@@ -1990,6 +1991,10 @@ class AjaxRelatoriosController extends Controller
                                             if($k[$alunoID]['avaliacoes_tfm']['atleta']){
                                                 $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] += $colspan_atleta;
                                             }
+
+                                            if($colspan_recuperacao){
+                                                $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] += 1;
+                                            }
                                         }
 
                                         /********************************************************
@@ -2054,7 +2059,7 @@ class AjaxRelatoriosController extends Controller
                                         ***********       Fim de AR de TFM      **************
                                         *********************************************************/
                                         
-                                        /*if($alunoID == 3678){//Aluno 1050 KARINA CARDOSO
+                                        /*if($alunoID == 5362){//Aluno 1050 KARINA CARDOSO
                                             dd($k[$alunoID][$key], $soma, $soma_avaliacoes);
                                         }*/
                                         /*if($alunoID == 3290){//Aluno BUROCK 3646 
