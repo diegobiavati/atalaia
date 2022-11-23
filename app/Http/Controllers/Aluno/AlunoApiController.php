@@ -284,7 +284,7 @@ class AlunoApiController extends Controller
         } else {
             $compact['situacaoAtuals'] = SituacaoMatricula::find($aluno->id_situacao_matricula)->situacao_matricula;
 
-            $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::orderBy('formacao', 'desc')->first());
+            $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($aluno->data_matricula));
 
             if($aluno->sexo == 'M'){
                 $qms = $cursos->where('segmento', 'M');
