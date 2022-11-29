@@ -6,6 +6,7 @@ use App\Http\Controllers\OwnAuthController;
 use App\Models\Alunos;
 use App\Models\AnoFormacao;
 use App\Models\AvaliacoesNotas;
+use App\Models\EscolhaQMS;
 use App\Models\OMCT;
 use App\Models\QMS;
 use DateTime;
@@ -309,6 +310,13 @@ class FuncoesController
             }
         }
         return $Zoo;
+    }
+
+    public static function retornaQMSPerfil($anoFormacaoID){
+        return QMS::where([
+            ['escolha_qms_id', '=', EscolhaQMS::where('ano_formacao_id', $anoFormacaoID)->first()->id],
+            ['qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id')]
+            ])->first();
     }
 
     public static function retornaAnoFormacaoAtivoQualificacao()

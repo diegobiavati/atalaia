@@ -305,7 +305,7 @@ class AjaxAdminGaviaoController extends Controller
         } else if ($ownauthcontroller->PermissaoCheck([1, 10])) {
             $qmss = $request->qmss;
         } else {
-            $qmss = array(session()->get('login.qmsID.0.id'));
+            $qmss = array(FuncoesController::retornaQMSPerfil($id_ano_formacao)->id);
         }
 
         if (!isset($request->segmento)) {
@@ -326,7 +326,7 @@ class AjaxAdminGaviaoController extends Controller
             ->whereIn('sexo', $segmento)
             ->orderBy('sexo', 'asc')
             ->orderBy('numero', 'asc')->get();
-
+            
             $qmss = QMS::whereIn('id', $qmss)->get();
 
             $sexo['M'] = 'Masculino';
@@ -367,11 +367,18 @@ class AjaxAdminGaviaoController extends Controller
 
     public function LoadAlunosSitDiv(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
-
+        //get('login.qmsID.0.id')
         if ($ownauthcontroller->PerfilCheck([9004, 9999])) {
             $alunos = AlunosSitDiv::whereNotNull('qms_id')->orderBy('data_matricula', 'desc')->orderBy('qms_id', 'desc')->get();
         } else {
-            $alunos = AlunosSitDiv::whereNotNull('qms_id')->orderBy('data_matricula', 'desc')->where('qms_id', session()->get('login.qmsID.0.id'))->get();
+            $ano_corrente_data = FuncoesController::retornaAnoFormacaoAtivoQualificacao();
+            
+            $alunos = AlunosSitDiv::whereNotNull('qms_id')->orderBy('data_matricula', 'desc')
+                ->where('qms_id', QMS::where([
+                ['escolha_qms_id', '=', EscolhaQMS::where('ano_formacao_id', $ano_corrente_data->id)->first()->id],
+                ['qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id')]
+                ])->first()->id)
+                ->get();
         }
 
         return view('ajax.view-listagem-aluno-sit-diversas', compact('ownauthcontroller', 'alunos'));
@@ -379,7 +386,7 @@ class AjaxAdminGaviaoController extends Controller
 
     public function DemonstrativoNotasGaviao(OwnAuthController $ownauthcontroller, Request $request){
        
-        if(!$ownauthcontroller->PermissaoCheck([1,27]) && $request->curso_id!=session()->get('login.qmsID.0.id')){
+        if(!$ownauthcontroller->PermissaoCheck([1,27]) && $request->curso_id!=FuncoesController::retornaQMSPerfil($request->id_ano_formacao)->id){
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
         } else {
 
