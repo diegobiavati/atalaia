@@ -345,6 +345,7 @@ class AlunoApiController extends Controller
         $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
 
         $dados['qms_id'] = (isset($dados['id_qms']) ? $dados['id_qms'] : null);
+        $dados['periodo_cfs'] = (isset($dados['id_qms']) ? 'PQ' : 'PB');
 
         $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
 
