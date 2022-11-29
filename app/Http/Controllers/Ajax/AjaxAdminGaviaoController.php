@@ -22,6 +22,7 @@ use App\Models\AlunosSitDivHistorico;
 use App\Models\AnoFormacao;
 use App\Models\Areas;
 use App\Models\CapitaniMSAccess;
+use App\Models\EsaAvaliacoes;
 use App\Models\EscolhaQMS;
 use App\Models\Imagens;
 use App\Models\LancamentoFo;
@@ -98,23 +99,30 @@ class AjaxAdminGaviaoController extends Controller
 
         $anoFormacaoID = ($anoFormacao->id) ?? 0;
         
+        $alunosCurso = Alunos::retornaAlunosComQmsESA($anoFormacaoID);
         $alunos['total'] = Alunos::retornaAlunosComQmsESAGeral($anoFormacaoID)->count();
-        $alunos['total_curso'] = Alunos::retornaAlunosComQmsESA($anoFormacaoID)->count();
+        $alunos['total_curso'] = $alunosCurso->count();
         $alunos['porcentagem_alunos'] = ( ($alunos['total'] > 0) ? floor(($alunos['total_curso'] * 100) / $alunos['total']) : 0);
 
-        $param = $anoFormacaoID;
+        $param['anoFormacao'] = $anoFormacaoID;
+        $param['alunosId'] = $alunosCurso->pluck('id')->toArray();
         
         $lancamentoFo = LancamentoFo::whereHas('aluno', function ($query) use ($param) {
-            $query->where(['data_matricula' => $param, 'qms_id' => session()->get('login.qmsID.0.id')]);
+            $query->where(['data_matricula' => $param['anoFormacao']])
+            ->whereIn('aluno_id', $param['alunosId']);
         })->get();
 
         $fatd = LancamentoFo::whereHas('aluno', function ($query) use ($param) {
-            $query->where(['data_matricula' => $param, 'qms_id' => session()->get('login.qmsID.0.id')]);
+            $query->where(['data_matricula' => $param])
+            ->whereIn('aluno_id', $param['alunosId']);
         })->whereHas('fatdLancada', function ($query) {
             $query->where(['justificado' => null]);
         })->get();
 
-        return  view('ajax.visao-geral-gaviao')->with('total_operadores', Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])->count())
+        //Avaliações sem devolução dos próximos 30 dias
+        $avaliacoes = EsaAvaliacoes::whereNull('id_operador_devolucao')->where('realizacao', '<=', 'ADDDATE(CURRENT_TIMESTAMP(), INTERVAL 1 MONTH)')->get();
+
+        return  view('ajax.visao-geral-gaviao', compact('avaliacoes'))->with('total_operadores', Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])->count())
                     ->with('ano_corrente', $anoFormacao)
                     ->with('alunos', $alunos)
                     ->with('fatd', $fatd)
