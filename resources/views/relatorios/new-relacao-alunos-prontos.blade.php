@@ -145,6 +145,8 @@
 
                     @if(App\Http\Controllers\Utilitarios\FuncoesController::validDate($aluno->{$coluna->field}))
                     {{ App\Http\Controllers\Utilitarios\FuncoesController::formatDateEntoBr($aluno->{$coluna->field}) }}
+                    @elseif($coluna->field == 'qms_id')
+                    {{ $aluno->qms->qms }}
                     @elseif($coluna->field == 'data_matricula')
                     {{ $aluno->ano_formacao->formacao }}
                     @elseif($coluna->field == 'primeira_data_praca')

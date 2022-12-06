@@ -369,16 +369,6 @@ class Alunos extends Model
         
         $aluno = Alunos::whereNotNull('qms_id')->orderBy('numero');
 
-        /*if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
-
-            $aluno->whereHas('qms', function($q){
-                $q->where('qms_matriz_id', '=', session()->get('qms_selecionada'));
-            });
-            
-        }else if(!in_array('9999', session()->get('login.perfil'))){
-            $aluno->where('qms_id', session()->get('login.qmsID.0.id') );
-        }*/
-        
         if($anoFormacaoID > 0){
             //return $aluno->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
             //Passa a Pegar os alunos que foram integrados
@@ -406,7 +396,6 @@ class Alunos extends Model
                 && !in_array('9004', session()->get('login.perfil'))
                 && !in_array('9005', session()->get('login.perfil'))
         ){
-            //$aluno->where('qms_id', session()->get('login.qmsID.0.id') );
             if($anoFormacaoID > 0){
                 $aluno->where('qms_id', QMS::where([
                     ['escolha_qms_id', '=', EscolhaQMS::where('ano_formacao_id', $anoFormacaoID)->first()->id],
@@ -552,6 +541,7 @@ class Alunos extends Model
 
         return [
             'numero' => 'Número',
+            'qms_id' => 'QMS',
             'nome_completo' => 'Nome Completo',
             'nome_guerra' => 'Nome de Guerra',
             'data_nascimento' => 'Data de Nascimento',
@@ -566,6 +556,7 @@ class Alunos extends Model
             'habilidades' => 'Habilidades',
             'sexo' => 'Segmento',
             'email' => ' E-mail',
+            
             //'precedencia' => '(Definir)',
             'data_cadastro' => 'Data de Cadastro',
             'al_inscricao' => 'Número Inscrição',
