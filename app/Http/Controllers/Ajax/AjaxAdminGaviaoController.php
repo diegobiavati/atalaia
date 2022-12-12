@@ -119,10 +119,40 @@ class AjaxAdminGaviaoController extends Controller
             $query->where(['justificado' => null]);
         })->get();
 
-        //Avaliações sem devolução dos próximos 30 dias
-        $avaliacoes = EsaAvaliacoes::whereNull('id_operador_devolucao')->where('realizacao', '<=', 'ADDDATE(CURRENT_TIMESTAMP(), INTERVAL 1 MONTH)')->get();
+        /*if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
 
-        return  view('ajax.visao-geral-gaviao', compact('avaliacoes'))->with('total_operadores', Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])->count())
+            $aluno->whereHas('qms', function($q){
+                $q->where('qms_matriz_id', '=', session()->get('qms_selecionada'));
+            });
+            
+        }else if(!in_array('9999', session()->get('login.perfil'))
+                && !in_array('9003', session()->get('login.perfil'))
+                && !in_array('9004', session()->get('login.perfil'))
+                && !in_array('9005', session()->get('login.perfil'))
+        ){
+            if($anoFormacaoID > 0){
+                $aluno->where('qms_id', QMS::where([
+                    ['escolha_qms_id', '=', EscolhaQMS::where('ano_formacao_id', $anoFormacaoID)->first()->id],
+                    ['qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id')]
+                ])->first()->id );
+            }
+        } */
+
+        //Avaliações sem devolução dos próximos 30 dias
+        $avaliacoes = EsaAvaliacoes::whereNull('id_operador_devolucao')->where('realizacao', '<=', 'ADDDATE(CURRENT_TIMESTAMP(), INTERVAL 1 MONTH)');
+
+        if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
+            $avaliacoes->join('esa_disciplinas', 'esa_avaliacoes.id_esa_disciplinas', '=', 'esa_disciplinas.id')
+            ->join('atalaia.qms', 'esa_disciplinas.id_qms', '=', 'atalaia.qms.id')
+            ->where('atalaia.qms.qms_matriz_id', '=', session()->get('qms_selecionada'));
+        }else if(!$this->ownauthcontroller->PerfilCheck(['9999', '9005', '9004', '9003'])){
+            $avaliacoes->join('esa_disciplinas', 'esa_avaliacoes.id_esa_disciplinas', '=', 'esa_disciplinas.id')
+            ->join('atalaia.qms', 'esa_disciplinas.id_qms', '=', 'atalaia.qms.id')
+            ->where('atalaia.qms.qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id'));
+        }
+
+        return  view('ajax.visao-geral-gaviao')->with('total_operadores', Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])->count())
+                    ->with('avaliacoes', $avaliacoes->get())
                     ->with('ano_corrente', $anoFormacao)
                     ->with('alunos', $alunos)
                     ->with('fatd', $fatd)
@@ -282,7 +312,8 @@ class AjaxAdminGaviaoController extends Controller
         $curso = FuncoesController::retornaCursoAnoFormacao($anoFormacao, $request->curso);
 
         $alunos = Alunos::retornaAlunosComQmsEspecifica($anoFormacao->id, [$curso->id])->get();
-        $turmas = TurmasEsa::where('qms_matriz_id', $curso->qms_matriz_id)->get();
+        
+        $turmas = TurmasEsa::where('qms_id', $curso->id)->get();
 
         return view('ajax.view-listagem-turma', compact('alunos', 'turmas'));
     }
@@ -367,7 +398,6 @@ class AjaxAdminGaviaoController extends Controller
 
     public function LoadAlunosSitDiv(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
-        //get('login.qmsID.0.id')
         if ($ownauthcontroller->PerfilCheck([9004, 9999])) {
             $alunos = AlunosSitDiv::whereNotNull('qms_id')->orderBy('data_matricula', 'desc')->orderBy('qms_id', 'desc')->get();
         } else {
