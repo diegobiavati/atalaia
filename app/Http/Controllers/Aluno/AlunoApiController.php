@@ -35,6 +35,7 @@ use App\Models\Mencoes;
 use App\Models\ModeloNotasCapitani;
 use App\Models\OMCT;
 use App\Models\SituacoesDiversas;
+use App\Models\TurmasEsa;
 use App\Models\Users;
 use Illuminate\Support\Facades\Validator;
 
@@ -369,7 +370,7 @@ class AlunoApiController extends Controller
 
         if ($validador->passes()) {
 
-            $dados['bonificacao_atleta'] = ($dados['atleta_marexaer'] == 'S' ? $dados['bonificacao_atleta'] : null);
+            $dados['bonificacao_atleta'] = ((isset($dados['atleta_marexaer']) && $dados['atleta_marexaer'] == 'S') ? $dados['bonificacao_atleta'] : null);
 
             if(trim($aluno->email) <> trim($dados['email'])){
                 Users::where(['email' => $aluno->email])->update(['email' => $dados['email']]);
@@ -440,6 +441,20 @@ class AlunoApiController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public static function viewListagemTurma(Request $request)
+    {
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+
+        $turmaESA = TurmasEsa::find($request->id_turma);
+        
+        $turmaAlunos = Alunos::retornaAlunosComQmsEspecifica($turmaESA->qms->escolhaQms->anoFormacao->id, [$turmaESA->qms_id])
+                ->where('turma_esa_id', $turmaESA->id)->get();
+
+        return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos'));
     }
 
     public function modeloPBCapitani(Request $request){

@@ -9,7 +9,7 @@
 
 body {
 
-  background: #f5f5f5 url('/images/{{rand(1,13)}}.jpeg') no-repeat;
+  background: #f5f5f5 url('/images/{{rand(1,30)}}.jpeg') no-repeat;
   background-size: cover;
 
 }

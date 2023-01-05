@@ -29,7 +29,7 @@
     </div>
     @endif
 
-    @if($ownauthcontroller->PermissaoCheck(33))
+    @if($ownauthcontroller->PermissaoCheck([32,33]))
     <div class="box-option-menu-docs-rels">
         <a href="javascript: void(0);" class="no-style" id="calendario-ssaa">
             <div style="border-radius: 36px; width: 84px; height: 84px; background-color: {{$backgroundVisaoGeral}} margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">

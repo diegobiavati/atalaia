@@ -358,10 +358,7 @@ class LancamentosController extends Controller
         }
 
         if($request->qmsID != 'undefined'){
-            /*$alunosTurma = Alunos::join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
-            ->where([['alunos.data_matricula', '=', $request->anoFormacaoID], ['alunos.qms_id', '=', $request->qmsID], ['alunos.turma_esa_id', '=', $request->turmaID]])
-            ->select(['alunos.id', 'alunos.numero', 'alunos.nome_guerra', 'turmas_esa.id as turmas_id', 'turmas_esa.turma'])
-            ->get();*/
+            
             $anoFormacaoID = $request->anoFormacaoID;
             $alunosTurma = Alunos::join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
             ->where(function($query) use ($anoFormacaoID){

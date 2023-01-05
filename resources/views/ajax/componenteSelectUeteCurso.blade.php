@@ -1,5 +1,5 @@
 @if(isset($cursos))
-    <select name="qmsID" class="selectpicker custom-select required_to_show_button">
+    <select name="qmsID" class="selectpicker custom-select required_to_show_button" {{ (isset($readOnly)) ? $readOnly : null }}>
         <option value="0" disabled selected hidden>Selecione um Curso</option>
         @if($ownauthcontroller->PermissaoCheck(1))
         <option value="todas_qmss">TODOS OS CURSOS</option>
@@ -10,7 +10,7 @@
         @endforeach
     </select>
 @else
-    <select name="omctID" class="custom-select required_to_show_button">
+    <select name="omctID" class="custom-select required_to_show_button" {{ (isset($readOnly)) ? $readOnly : null }}>
         <option value="0" disabled selected hidden>Selecione uma UETE</option>
         @if($ownauthcontroller->PermissaoCheck(1))
         <option value="todas_omct">TODAS AS UETE</option>

@@ -3,7 +3,7 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
 @endphp
 <div class="fomr-group" style="width: 410px;">
     <label>Disciplina</label>
-    <select name="disciplinaID" class="selectpicker custom-select required_to_show_button">
+    <select name="disciplinaID" class="selectpicker custom-select required_to_show_button" {{ $readOnly }}>
         <option value="0" disabled selected hidden>Selecione uma Disciplina</option>
         @foreach ($disciplinas as $disciplina)
         <option {{ ((isset($esaAvaliacoes) && $disciplina->id == $esaAvaliacoes->id_esa_disciplinas) ? 'selected' : '') }} value={{$disciplina->id}}>{{ $disciplina->nome_disciplina }}</option>
@@ -13,7 +13,7 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
 
 <div class="fomr-group" style="width: 210px;">
     <label>Nome da avaliação</label>
-    <select name="nome_avaliacao" class="selectpicker custom-select">
+    <select name="nome_avaliacao" class="selectpicker custom-select" {{ $readOnly }}>
         <option value="0" disabled selected hidden>Selecione uma avaliação</option>
         @foreach ($nomeAvaliacoes as $avaliacao)
         <option {{ ((isset($esaAvaliacoes) && $avaliacao->id == $esaAvaliacoes->nome_avaliacao) ? 'selected' : '') }} value={{$avaliacao->id}}>{{ $avaliacao->id.' - '.$avaliacao->descricao }}</option>
@@ -22,7 +22,7 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
 </div>
 <div class="fomr-group" style="width: 183px;">
     <label>Tipo de avaliação</label>
-    <select name="tipo_avaliacao" class="selectpicker custom-select">
+    <select name="tipo_avaliacao" class="selectpicker custom-select" {{ $readOnly }}>
         <option value="0" disabled selected hidden>Selecione um Tipo</option>
         @foreach ($tipoAvaliacao as $tipo)
         <option {{ ((isset($esaAvaliacoes) && $tipo->id == $esaAvaliacoes->tipo_avaliacao) ? 'selected' : '') }} value={{$tipo->id}}>{{ $tipo->descricao }}</option>
@@ -31,7 +31,7 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
 </div>
 <div class="fomr-group" style="width: 140px;">
     <label>Chamada</label>
-    <select name="chamada" class="selectpicker custom-select">
+    <select name="chamada" class="selectpicker custom-select" {{ $readOnly }}>
         <option value="0" disabled selected hidden>Selecione</option>
         @foreach ($chamadas as $chamada)
         <option {{ ((isset($esaAvaliacoes) && $chamada->id == $esaAvaliacoes->chamada) ? 'selected' : '') }} value={{$chamada->id}}>{{ $chamada->descricao }}</option>
@@ -40,31 +40,38 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
 </div>
 <div class="fomr-group" style="width: 80px;" data-toggle="tooltip" data-placement="right" data-html="true" title="Informe o peso que está avaliação utilizará para o cálculo.">
     <label>Peso</label>
-    <input type="number" value="{{ $esaAvaliacoes->peso or 0 }}" class="form-control" min="0" max="2" name="peso">
+    <input type="number" value="{{ $esaAvaliacoes->peso or 0 }}" class="form-control" min="0" max="2" name="peso" {{ $readOnly }}>
 </div>
 <div class="fomr-group" style="width: 150px;">
     <label>Proposta</label>
-    <input type="date" class="form-control" value="{{ $esaAvaliacoes->proposta or old('proposta') }}" name="proposta" min="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required>
+    <input type="date" class="form-control" value="{{ $esaAvaliacoes->proposta or old('proposta') }}" name="proposta" min="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required {{ $readOnly }}>
 </div>
 <div class="fomr-group" style="width: 150px;">
     <label>Realização</label>
-    <input type="date" class="form-control" value="{{ $esaAvaliacoes->realizacao or old('realizacao') }}" name="realizacao" min="{{$cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required>
+    <input type="date" class="form-control" value="{{ $esaAvaliacoes->realizacao or old('realizacao') }}" name="realizacao" min="{{$cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required {{ $readOnly }}>
 </div>
 
 <div class="fomr-group" style="width: 150px;">
     <label>Devolução</label>
-    <input type="date" class="form-control" value="{{ $esaAvaliacoes->devolucao or old('devolucao') }}" name="devolucao" min="{{$cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required>
+    <input type="date" class="form-control" value="{{ $esaAvaliacoes->devolucao or old('devolucao') }}" name="devolucao" min="{{$cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required {{ $readOnly }}>
 </div>
 <br>
 
 <div style="margin-top: 24px;">
-    <button type="button" class="btn btn btn-success" onclick="javascript:void(0);">{{ isset($esaAvaliacoes) ? 'Modificar' : 'Salvar' }}</button>
-    <button type="button" class="btn btn-warning" onclick="javascript:void(0);">Cancelar</button>
-    @isset($esaAvaliacoes)
-    <button type="button" class="btn btn-danger float-right" onclick="javascript:void(0);">Excluir</button>
-    @endisset
-</div>
+    @if(!isset($readOnly))
+         <button type="button" class="btn btn btn-success" onclick="javascript:void(0);">{{ isset($esaAvaliacoes) ? 'Modificar' : 'Salvar' }}</button>
+    @endif
+    
+    @if($ownauthcontroller->PerfilCheck([9006]) && count($turmasRapPendente) > 0)
+    <!-- Libera Lançar a RAP -->
+        <button type="button" class="btn btn btn-primary" onclick="javascript:void(0);">Lançar o RAP</button>
+    @endif
 
+    <button type="button" class="btn btn-warning" onclick="javascript:void(0);">Cancelar</button>
+    @if(isset($esaAvaliacoes) && (!isset($readOnly)))
+    <button type="button" class="btn btn-danger float-right" onclick="javascript:void(0);">Excluir</button>
+    @endif
+</div>
 <!-- MODALS confirmAcao DINAMICA-->
 
 <div class="modal fade bd-example-modal-sm" id="modalConfirmAcao" style="background-color: rgb(119, 119, 119);" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
@@ -207,4 +214,30 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
         //Ativa o gatilho para o carregamento do calendário...
         carregaContainerCalendario("{{ asset('gaviao/ajax/calendario/index/'.$cursoSelecionado->escolhaQms->anoFormacao->id) }}");
     });
+
+    $('#form-avaliacao .btn.btn-primary').click(function(evt){
+        evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+        
+        $('div#modalDinamica div.modal-content').fadeIn(1000);
+
+            $.ajax({
+                type:'GET',
+                url: "{{ asset('/gaviao/ajax/gerenciar-avaliacao/rap/').'/'.$esaAvaliacoes->id }}",
+                beforeSend: function(){
+                    $('div.alert.alertas-avaliacoes').slideUp().empty().removeClass('alert-success').removeClass('alert-danger');
+                    loadingModalDinamica('show', 'lg');
+                },
+                success: function(data){
+                    $('#form-avaliacao').fadeOut();
+                    $('div#modalDinamica div.modal-content').html(data);
+                    
+                    $('.carousel').carousel({
+                        interval: false
+                    });
+                    
+                    loadingModalDinamica('hide', 'lg');
+                }
+            });
+    });
+
 </script>

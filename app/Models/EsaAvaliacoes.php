@@ -8,7 +8,7 @@ class EsaAvaliacoes extends Model
 {
     protected $connection = 'mysql_ssaa';
     protected $table = 'esa_avaliacoes';
-    protected $fillable = ['id_esa_disciplinas', 'nome_avaliacao', 'tipo_avaliacao', 'chamada', 'peso', 'proposta', 'realizacao', 'devolucao'];
+    protected $fillable = ['id_esa_disciplinas', 'nome_avaliacao', 'tipo_avaliacao', 'local_aplicacao', 'chamada', 'peso', 'proposta', 'realizacao', 'devolucao'];
 
     private $_tipo_avaliacoes = null;
     private $_chamadas = null;
@@ -23,13 +23,17 @@ class EsaAvaliacoes extends Model
             , (object)['id' => 'AF', 'descricao' => 'Formativa']
             , (object)['id' => 'AC', 'descricao' => 'Controle']
             , (object)['id' => 'AR', 'descricao' => 'Recuperação']
-            , (object)['id' => 'AI', 'descricao' => 'Interdisciplinar']
+            //, (object)['id' => 'AI', 'descricao' => 'Interdisciplinar']
         ]);
     }
 
     public function esadisciplinas(){
         return $this->belongsTo('App\Models\EsaDisciplinas', 'id_esa_disciplinas', 'id');
     } 
+
+    public function esaAvaliacoesRap(){
+        return $this->hasMany('App\Models\EsaAvaliacoesRap', 'id_esa_avaliacoes', 'id');
+    }
 
     public function getTodosTiposAvaliacoes(){
         return $this->_tipo_avaliacoes;
@@ -41,5 +45,11 @@ class EsaAvaliacoes extends Model
 
     public function getTodasAvaliacoes(){
         return $this->_avaliacoes;
+    }
+
+    public function getDescricao(){
+        return $this->getTodasAvaliacoes()->first(function ($value, $key) {
+            return $value->id == $this->nome_avaliacao;
+        })->descricao;
     }
 }

@@ -69,6 +69,7 @@ class ControllerCalendario extends Controller
 
     public static function calendar_month($month)
     {
+        //dd(session('login.qmsID.0.qms_matriz_id'));
         //$mes = date("Y-m");
         $mes = $month;
         //sacar el ultimo de dia del mes
@@ -99,6 +100,11 @@ class ControllerCalendario extends Controller
         $datafecha = $dateini;
         $calendario = array();
         $iweek = 0;
+
+        $events = EsaAvaliacoes::whereBetween('realizacao', [$fecha, $daylast])->get();//(session('login.qmsID.0.qms_matriz_id') != 9999) ? : null;
+
+        $param['qms_matriz'] = session('login.qmsID.0.qms_matriz_id');
+
         while ($iweek < $semana) :
             $iweek++;
             //echo "Semana $iweek <br>";
@@ -111,7 +117,18 @@ class ControllerCalendario extends Controller
                 $datanew['dia'] = date("d", strtotime($datafecha));
                 $datanew['realizacao'] = $datafecha;
                 //AGREGAR CONSULTAS EVENTO
-                $datanew['evento'] = EsaAvaliacoes::where("realizacao", $datafecha)->get();
+                //$datanew['evento'] = EsaAvaliacoes::where("realizacao", $datafecha)->get();
+
+                $param['datafecha'] = $datafecha;
+                
+                    $datanew['evento'] = $events->filter(function($avaliacao) use($param){
+                        if($avaliacao->esadisciplinas->qms->qms_matriz_id == $param['qms_matriz']
+                                && $avaliacao->realizacao == $param['datafecha']){
+                            return $avaliacao;
+                        }else if($param['qms_matriz'] == 9999 && $avaliacao->realizacao == $param['datafecha']){
+                            return $avaliacao;
+                        }
+                    });
 
                 array_push($weekdata, $datanew);
             }

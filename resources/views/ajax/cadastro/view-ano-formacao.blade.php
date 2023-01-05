@@ -33,12 +33,12 @@ $backgroundColor = session()->get('backgroundColor');
                 <p style="font-style: italic;font-weight: bold;border-bottom: 1px solid #ccc;">Instrutores Chefes</p>
 
                 @foreach($qmss as $qms)
-
+                    
                     <div class="form-group row">
                         <label for="instrutorID" class="col-sm-4 col-form-label" style="font-style: italic;font-weight: bold;color:red">{{$qms->qms}}</label>
                         <div class="col-sm-8">
                             <select id="instrutorID" name="instrutorID" class="form-control" >
-                                <option selected style="font-style: italic;font-weight: bold;">{{$qms->comandanteCurso->posto->postograd_abrev.' '.$qms->comandanteCurso->nome_guerra}}</option>
+                                <option selected style="font-style: italic;font-weight: bold;">{{ (isset($qms->comandanteCurso) ? $qms->comandanteCurso->posto->postograd_abrev.' '.$qms->comandanteCurso->nome_guerra : 'Selecione um Instrutor Chefe') }}</option>
                                 @foreach($comandantesCurso as $comandantes)
                                     @if($comandantes->qms_matriz_id == $qms->qms_matriz_id)
                                         <option value="{{$qms->id}}_{{$comandantes->id}}">{{$comandantes->posto->postograd_abrev.' '.$comandantes->nome_guerra}}</option>

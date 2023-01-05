@@ -20,4 +20,13 @@ class QMS extends Model
     {
         return $this->belongsTo('App\Models\Operadores', 'comandante_operador_id', 'id');
     }
+
+    public function consultaTurmas(){
+        return TurmasEsa::whereHas('alunos', function ($query) {
+            $anoFormacao = $this->escolhaQms->anoFormacao;
+            $query->where(['qms_id' => $this->id])->where(function($query) use ($anoFormacao){
+                return $query->where([['data_matricula', '=', $anoFormacao->id]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacao->id]]);
+            });
+        })->get();
+    }
 }

@@ -136,12 +136,13 @@
         <div class="card-body">
             <h5 class="card-title"><b>Próximas Devoluções <h6>limitação de 30 dias</h6></b></h5>
             <p class="card-text">
-                @if(count($avaliacoes)>0)
-                @foreach($avaliacoes as $avaliacao)
+                @if(count($rapPendentes)>0)
+                @foreach($rapPendentes as $avaliacao)
                 <hr>
                 <li style="color: {{App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($avaliacao->esadisciplinas->qms->qms_matriz_id)->backgroundColor}}"><b>Avaliação de {{$avaliacao->getDescricao()}} </b><span style="color: {{App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($avaliacao->esadisciplinas->qms->qms_matriz_id)->backgroundColor}}"> de <i>{{$avaliacao->esadisciplinas->nome_disciplina_abrev}}</i>
                     <br></span> ({{strftime('%A, %d de %B de %Y', strtotime($avaliacao->realizacao))}})</li>
                         <ul>
+                            Pendência de RAP ({{ $avaliacao->rapLancadas }} / {{ $avaliacao->rapTotal }})
                             <li style="color: #FF4000;">Prazo para a devolução ({{strftime('%A, %d de %B de %Y', strtotime($avaliacao->devolucao))}})</li>
                         </ul>
                 @endforeach

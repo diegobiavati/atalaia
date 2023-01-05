@@ -483,19 +483,10 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('calendario/index/{id_ano_formacao?}', 'SSAA\Calendario\ControllerCalendario@index');
         Route::get('calendario/mes/{id_ano_formacao}/{mes}', 'SSAA\Calendario\ControllerCalendario@index_mes');
         Route::get('gerenciar-avaliacao/get-components/{id_curso}', 'SSAA\Calendario\ControllerAvaliacao@getComponentAjax');
+        Route::get('gerenciar-avaliacao/rap/{id_avaliacao}', 'SSAA\Calendario\ControllerAvaliacao@viewRelatorioAplicacaoProva');
+        Route::get('gerenciar-avaliacao/turma/{id_turma}', 'SSAA\Calendario\ControllerAvaliacao@viewListagemTurma');
+        Route::post('gerenciar-avaliacao/rap/', 'SSAA\Calendario\ControllerAvaliacao@salvaRap');
         Route::resource('gerenciar-avaliacao','SSAA\Calendario\ControllerAvaliacao');
-
-        /*
-        Route::get('Calendar/event/{mes}', 'Calendar\ControllerCalendar@index_month');
-        Route::get('Calendar/event', 'Calendar\ControllerCalendar@index');
-
-        Route::get('Evento/form','Calendar\ControllerEvent@form');
-        Route::post('Evento/create','Calendar\ControllerEvent@create');
-        Route::get('Evento/details/{id}','Calendar\ControllerEvent@details');
-        Route::get('Evento/index','Calendar\ControllerEvent@index');
-        Route::get('Evento/index/{month}','Calendar\ControllerEvent@index_month');
-        Route::post('Evento/calendario','Calendar\ControllerEvent@calendario');
-        */
         /*Fim Calendario*/
 
     //Fim SSAA

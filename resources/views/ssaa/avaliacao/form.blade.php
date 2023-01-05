@@ -11,6 +11,10 @@
   form#form-avaliacoes select.selectpicker.custom-select {
     font-weight: bold;
   }
+
+  .nav-link h4{
+    color: rgba(255, 0, 0, 0.9);
+  }
 </style>
 <div class="container" id="form-avaliacao">
   <div style="height:50px"></div>
@@ -19,6 +23,20 @@
 
   <hr>
   <div class="alert alertas-avaliacoes" role="alert" style="margin:10px;width:100%;"></div>
+  @isset($rapLancadas)
+  <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
+    <a class="navbar-brand text-muted" href="#">Turma(s) com lançamento do RAP: </a>
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav mr-auto">
+        @foreach($rapLancadas as $rap)
+        <li class="nav-item active">
+          <a class="nav-link h4" href="#">{{ $rap->esaTurma->turma }}</a>
+        </li>
+        @endforeach
+      </ul>
+    </div>
+  </nav>
+  @endisset
 
   <div class="col-md-6" style="max-width: 100%;">
     <form id="form-avaliacoes">
@@ -32,7 +50,7 @@
 
       <div class="fomr-group components">
         @isset($esaAvaliacoes)
-          @include('ssaa.avaliacao.componenteAjax')
+        @include('ssaa.avaliacao.componenteAjax')
         @endisset
       </div>
 

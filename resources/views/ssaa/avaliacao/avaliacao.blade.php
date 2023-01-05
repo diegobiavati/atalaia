@@ -9,8 +9,6 @@
   <a class="btn btn-default" href="{{ asset('/gaviao/ajax/Evento/index') }}">Atras</a>
   <hr>
 
-
-
   <div class="col-md-6">
     <form action="{{ asset('/gaviao/ajax/Evento/create/') }}" method="post">
       <div class="fomr-group">
