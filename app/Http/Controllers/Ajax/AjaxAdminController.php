@@ -4546,7 +4546,11 @@ class AjaxAdminController extends Controller
         }
 
         if($this->ownauthcontroller->PerfilCheck([9999])){
-            $operador_tipo = [9000];
+            if(session()->get('login.qmsID') !== null){
+                $operador_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get()->pluck('id')->toArray();
+            }else{
+                $operador_tipo = OperadoresTipo::where([['id', '<=', 8999]])->get()->pluck('id')->toArray();
+            }
         }else if($this->ownauthcontroller->PerfilCheck([9004])){
             $operador_tipo = [9000,9001,9002,9003,9004];
         }else if($this->ownauthcontroller->PerfilCheck([9005])){
@@ -4567,7 +4571,6 @@ class AjaxAdminController extends Controller
 
         $operador->id_funcao_operador = implode(',', $permissao);
         
-        //dd($operador->id_funcao_operador);
         /*if ($request->tipo_operador_check) {
             $operador->id_funcao_operador = implode(',', $request->tipo_operador_check);
         } else {
