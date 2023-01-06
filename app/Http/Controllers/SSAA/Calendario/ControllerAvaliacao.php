@@ -58,7 +58,8 @@ class ControllerAvaliacao extends Controller
         return view('ssaa.avaliacao.componenteAjax', compact('disciplinas', 'cursoSelecionado', 'readOnly'))
             ->with('tipoAvaliacao', $esaAvaliacoes->getTodosTiposAvaliacoes())
             ->with('chamadas', $esaAvaliacoes->getTodasChamadas())
-            ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes());
+            ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes())
+            ->with('ownauthcontroller', $this->_ownauthcontroller);
     }
 
     public function viewListagemTurma()

@@ -215,6 +215,7 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
         carregaContainerCalendario("{{ asset('gaviao/ajax/calendario/index/'.$cursoSelecionado->escolhaQms->anoFormacao->id) }}");
     });
 
+    @isset($esaAvaliacoes)
     $('#form-avaliacao .btn.btn-primary').click(function(evt){
         evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
         
@@ -239,5 +240,6 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
                 }
             });
     });
+    @endisset
 
 </script>
