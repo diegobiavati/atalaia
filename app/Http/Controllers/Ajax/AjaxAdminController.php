@@ -4557,13 +4557,6 @@ class AjaxAdminController extends Controller
 
         $operador_request = (is_array($request->tipo_operador_check) ? $request->tipo_operador_check : []);
         $operador_gravado = ((isset($operador->id_funcao_operador) && (trim($operador->id_funcao_operador) != '')) ? explode(',', $operador->id_funcao_operador) : []);
-          
-        /*foreach($operador_request as $tipo_request){
-            //Se tem permissão de adicionar o tipo de operador...
-            if($operadores_tipo->contains($tipo_request)){
-                $operador->id_funcao_operador = implode(',', array_values(array_unique(array_merge($operador_request, $operador_gravado), SORT_NUMERIC)));
-            }
-        }*/
         
         $nao_selecionado = array_diff($operador_tipo, $operador_request);
         $selecionado = array_intersect($operador_tipo, $operador_request);
@@ -4574,6 +4567,7 @@ class AjaxAdminController extends Controller
 
         $operador->id_funcao_operador = implode(',', $permissao);
         
+        //dd($operador->id_funcao_operador);
         /*if ($request->tipo_operador_check) {
             $operador->id_funcao_operador = implode(',', $request->tipo_operador_check);
         } else {
