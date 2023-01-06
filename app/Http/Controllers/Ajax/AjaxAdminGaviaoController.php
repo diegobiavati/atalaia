@@ -54,12 +54,14 @@ class AjaxAdminGaviaoController extends Controller
 
     public function GerenciarOperadoresGaviao(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
-        if(in_array('9999', session()->get('login.perfil'))){//Caso seja o Administrador
+        //if(in_array('9999', session()->get('login.perfil'))){//Caso seja o Administrador
+        if($ownauthcontroller->PerfilCheck([9999])){//Caso seja o Administrador
             $operadores = Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])
             ->orderBy('qms_matriz_id', 'asc')
             ->orderBy('postograd_id', 'asc')->get();
-        }else if(in_array('9004', session()->get('login.perfil'))){//Caso seja Operador do CA
-
+        //}else if(in_array('9004', session()->get('login.perfil'))){//Caso seja Operador do CA
+        }else if($ownauthcontroller->PerfilCheck([9004,9005])){//Caso seja Operador do CA ou SSAA
+            
             $operadorNaoPermitido = [9999];
             
             $operadores = Operadores::whereNotNull('qms_matriz_id')
@@ -168,13 +170,16 @@ class AjaxAdminGaviaoController extends Controller
         foreach (explode(',', $operador->id_funcao_operador) as $funcao) {
             $funcao_operador[] = $funcao;
         }
-
-        if(in_array('9999', session()->get('login.perfil'))){
+        
+        if($this->ownauthcontroller->PerfilCheck([9999])){
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get();
-        }else if(in_array('9004', session()->get('login.perfil'))){
+        }else if($this->ownauthcontroller->PerfilCheck([9004])){
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002,9003,9004])->get();
+        }else if($this->ownauthcontroller->PerfilCheck([9005])){
+            $qmsMatriz = array(1,2,3,4,5);
+            $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002,9005,9006])->get();
         }else{
             $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002])->get();
@@ -206,14 +211,14 @@ class AjaxAdminGaviaoController extends Controller
 
     public function DialogAdicionarOperadorGaviao(Request $request)
     {
-        if(in_array('9999', session()->get('login.perfil'))){//Administrador
+        if($this->ownauthcontroller->PerfilCheck([9999])){//Administrador
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get();
-        }else if(in_array('9004', session()->get('login.perfil'))){//Operador CA
+        }else if($this->ownauthcontroller->PerfilCheck([9004])){//Operador CA
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002,9003,9004])->get();
-        }else if(in_array('9005', session()->get('login.perfil'))){//Operador SSAA
-            $qmsMatriz = array(1,2,3,4,5,9999);
+        }else if($this->ownauthcontroller->PerfilCheck([9005])){//Operador SSAA
+            $qmsMatriz = array(9999);
             $operadores_tipo = OperadoresTipo::whereIn('id', [9005])->get();
         }else{
             $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));

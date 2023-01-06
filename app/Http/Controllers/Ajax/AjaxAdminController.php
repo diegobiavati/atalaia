@@ -4545,11 +4545,40 @@ class AjaxAdminController extends Controller
             }
         }
 
-        if ($request->tipo_operador_check) {
+        if($this->ownauthcontroller->PerfilCheck([9999])){
+            $operador_tipo = [9000];
+        }else if($this->ownauthcontroller->PerfilCheck([9004])){
+            $operador_tipo = [9000,9001,9002,9003,9004];
+        }else if($this->ownauthcontroller->PerfilCheck([9005])){
+            $operador_tipo = [9000,9001,9002,9005,9006];
+        }else{
+            $operador_tipo = [9000,9001,9002];
+        }
+
+        $operador_request = (is_array($request->tipo_operador_check) ? $request->tipo_operador_check : []);
+        $operador_gravado = ((isset($operador->id_funcao_operador) && (trim($operador->id_funcao_operador) != '')) ? explode(',', $operador->id_funcao_operador) : []);
+          
+        /*foreach($operador_request as $tipo_request){
+            //Se tem permissão de adicionar o tipo de operador...
+            if($operadores_tipo->contains($tipo_request)){
+                $operador->id_funcao_operador = implode(',', array_values(array_unique(array_merge($operador_request, $operador_gravado), SORT_NUMERIC)));
+            }
+        }*/
+        
+        $nao_selecionado = array_diff($operador_tipo, $operador_request);
+        $selecionado = array_intersect($operador_tipo, $operador_request);
+        //$operador->id_funcao_operador = implode(',', array_values(array_unique(array_merge($diferenca, $operador_gravado), SORT_NUMERIC)));
+        
+        $permissao = array_unique(array_merge(array_diff($operador_gravado, $nao_selecionado), $selecionado), SORT_NUMERIC);
+        sort($permissao);
+
+        $operador->id_funcao_operador = implode(',', $permissao);
+        
+        /*if ($request->tipo_operador_check) {
             $operador->id_funcao_operador = implode(',', $request->tipo_operador_check);
         } else {
             $operador->id_funcao_operador = '';
-        }
+        }*/
 
         if ($operador->save() && $email != $request->email) {
             User::where('email', '=', $email)->update(['email' => $request->email]);
