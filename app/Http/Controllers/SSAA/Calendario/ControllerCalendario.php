@@ -52,25 +52,27 @@ class ControllerCalendario extends Controller
     {
         $anoFormacao = AnoFormacao::find($id_ano_formacao);
 
-        $data = $this->calendar_month($mes);
-        $mes = $data['month'];
+        if($anoFormacao->formacao == explode('-', $mes)[0]){
+            $data = $this->calendar_month($mes);
+            $mes = $data['month'];
 
-        $mesportuguese = $this->portuguese_month($mes);
-        $mes = $data['month'];
+            $mesportuguese = $this->portuguese_month($mes);
+            $mes = $data['month'];
 
-        return view("ssaa.calendario.calendario", [
-            'data' => $data,
-            'mes' => $mes,
-            'anoFormacao' => $anoFormacao,
-            'ownauthcontroller' => $ownauthcontroller,
-            'mesportuguese' => $mesportuguese
-        ]);
+            return view("ssaa.calendario.calendario", [
+                'data' => $data,
+                'mes' => $mes,
+                'anoFormacao' => $anoFormacao,
+                'ownauthcontroller' => $ownauthcontroller,
+                'mesportuguese' => $mesportuguese
+            ]);
+        }else{
+            return redirect(session('url_anterior'));
+        }
     }
 
     public static function calendar_month($month)
     {
-        //dd(session('login.qmsID.0.qms_matriz_id'));
-        //$mes = date("Y-m");
         $mes = $month;
         //sacar el ultimo de dia del mes
         $daylast =  date("Y-m-d", strtotime("last day of " . $mes));
@@ -101,7 +103,7 @@ class ControllerCalendario extends Controller
         $calendario = array();
         $iweek = 0;
 
-        $events = EsaAvaliacoes::whereBetween('realizacao', [$fecha, $daylast])->get();//(session('login.qmsID.0.qms_matriz_id') != 9999) ? : null;
+        $events = EsaAvaliacoes::whereBetween('realizacao', [$fecha, $daylast])->get();
 
         $param['qms_matriz'] = session('login.qmsID.0.qms_matriz_id');
 
