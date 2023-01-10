@@ -38,10 +38,10 @@ class ControllerDisciplinas extends Controller
 
     public function load()
     {
-        $anoFormacao = AnoFormacao::find($this->_request->id_ano_formacao);
-        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao($anoFormacao);
-
-        $cursoSelecionado = $cursos->find($this->_request->id_curso);
+        //$anoFormacao = AnoFormacao::find($this->_request->id_ano_formacao);
+        //$cursos = FuncoesController::retornaCursoPerfilAnoFormacao($anoFormacao);
+        $cursoSelecionado = QMS::find($this->_request->id_curso);
+        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao($cursoSelecionado->escolhaqms->anoformacao);
 
         $load = true;
 

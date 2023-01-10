@@ -40,7 +40,7 @@
         <div class="alert alertas-gerenciador-disciplinas" role="alert"></div>
         <h5 class="card-title" style="text-align: center; margin: 18px 0 44px 0;">
             @if(count($cursos)>0)
-            RELAÇÃO DE DISCIPLINAS CADASTRADAS NO ANO DE FORMAÇÃO <span style="font-size: 24px;"><b>{{$cursoSelecionado->escolhaQms->anoFormacao->formacao}}</b></span>
+            RELAÇÃO DE DISCIPLINAS CADASTRADAS NO ANO DE FORMAÇÃO <span style="font-size: 24px;"><b>{{$cursoSelecionado->escolhaqms->anoformacao->formacao}}</b></span>
             @endif
         </h5>
         <p class="card-text">
@@ -201,7 +201,8 @@
         $('div.container_disciplinas select.custom-select[name="qmsID"]').change(function(evt) {
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
-            url = '/gaviao/ajax/gerenciar-disciplinas/load/' + $('div#disciplinas_ssaa .btn.btn-secondary.active input[name="ano_formacao"]').val() + '/' + evt.target.value;
+            //url = '/gaviao/ajax/gerenciar-disciplinas/load/' + $('div#disciplinas_ssaa .btn.btn-secondary.active input[name="ano_formacao"]').val() + '/' + evt.target.value;
+            url = '/gaviao/ajax/gerenciar-disciplinas/load/' + evt.target.value;
 
             $('div.container_disciplinas').empty();
             //Carrega a combo com Uetes ou Cursos
