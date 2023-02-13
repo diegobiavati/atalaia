@@ -4530,7 +4530,8 @@ class AjaxAdminController extends Controller
         $operador->postograd_id = $request->postograd_id;
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;
         $operador->email = $request->email;
-
+        $request->tipo_operador_check = array_map('intval', $request->tipo_operador_check);
+        
         if (!in_array(1, session()->get('login.perfil'))) { //Valida se não é perfil ESA...
 
             if (in_array(4, explode(',', $operador->id_funcao_operador))) { //Verifica se o Operador é Sargenteante...
@@ -4545,7 +4546,7 @@ class AjaxAdminController extends Controller
             }
         }
 
-        if($this->ownauthcontroller->PerfilCheck([9999])){
+        if($this->ownauthcontroller->PerfilCheck([1, 4, 9999])){
             if(session()->get('login.qmsID') !== null){
                 $operador_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get()->pluck('id')->toArray();
             }else{

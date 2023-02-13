@@ -826,9 +826,10 @@ class LancamentosController extends Controller
             $fatd->justificado = isset($request->justificado) ? $request->justificado : $fatd->justificado;
 
             if ($fatd->justificado == 'N') {
+                
                 $fatd->enquadramento_id = $request->enquadramento_id;
                 $fatd->enquadramento = $request->enquadramento;
-                $fatd->bi_desc = $request->bi_desc . ' do ' . $aluno->omct->sigla_omct;
+                $fatd->bi_desc = $request->bi_desc . ' do ' . (session()->has('login.omctID') ? $fatd->lancamentoFo->aluno->omct->sigla_omct : 'Curso de '.$fatd->lancamentoFo->aluno->qms->qms) ;
                 $fatd->dt_bi = FuncoesController::formatDateBrtoEn($request->dt_bi);
                 $fatd->nr_dias = $request->nr_dias;
                 $fatd->comportamento_id = $request->comportamento_id;
