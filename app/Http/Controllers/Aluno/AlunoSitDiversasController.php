@@ -326,7 +326,13 @@ class AlunoSitDiversasController extends Controller
                     unset($aluno->atleta);
                     unset($aluno->voluntario_aviacao);
 
-                    $aluno->save();
+                    try{
+                        $aluno->update();
+                        
+                    }catch(Exception $ex){
+                        $aluno->save();
+                    }
+                    
 
                     \App\Models\AlunosNFEI::where('alunos_situacoes_diversas_id', $idAluno)->update(['alunos_id' => $idAluno]);
                     \App\Models\AlunosVoluntAv::where('alunos_situacoes_diversas_id', $idAluno)->update(['alunos_id' => $idAluno]);
