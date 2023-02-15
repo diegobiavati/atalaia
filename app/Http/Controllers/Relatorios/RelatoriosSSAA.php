@@ -8,10 +8,26 @@ use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\FPDF\PDF_DEM_NOTAS;
 use App\Models\Alunos;
 use App\Models\AnoFormacao;
+use App\Models\EsaAvaliacoesRap;
 use App\Models\Disciplinas;
+use Illuminate\Http\Request;
+use App\Http\Controllers\OwnAuthController;
+use App\Http\FPDF\PDF;
+use DateTime;
+use DateTimeInterface;
 use Exception;
 
 class RelatoriosSSAA extends Controller {
+
+    private $_ownauthcontroller = null;
+    private $_request = null;
+
+    public function __construct(Request $request, OwnAuthController $ownauthcontroller)
+    {
+        $this->_ownauthcontroller = $ownauthcontroller;
+        $this->_request = $request;
+        
+    }
 
     public function DemonstrativoNotasGaviao($anoFormacaoId, $cursoId){
 
@@ -376,5 +392,231 @@ class RelatoriosSSAA extends Controller {
         return response()->json($data);
         
         //exit();
+    }
+
+    public function relatorioAplicacaoProva(){
+
+        $explode = explode('-', decrypt($this->_request->hash_rap));
+        
+        $esaAvaliacoesRap = EsaAvaliacoesRap::where([['id_esa_avaliacoes', '=', $explode[1]], ['id_turmas_esa', '=', $explode[2]]])->first();
+        
+        $condicoesAplicacao = array('MB', 'B', 'R', 'I');
+        $pdf = new PDF('P');
+        
+        $pdf->AliasNbPages();
+        $pdf->SetAutoPageBreak(true, 10);
+
+        $pdf->AddPage();
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(0, 4, utf8_decode('RELATÓRIO DE APLICAÇÃO DE PROVA - RAP'), 0, 1, 'C');
+        $pdf->ln(3);
+
+        $pdf->Cell(95, 5, utf8_decode('ESCOLA DE SARGENTOS DAS ARMAS'), 1, 0, 'C');
+        $pdf->Cell(95, 5, utf8_decode('RELATÓRIO DE APLICAÇÃO DE PROVA'), 1, 1, 'C');
+        $pdf->ln(3);
+
+        $pdf->SetFont('Arial', '', 10);
+        if(strlen($esaAvaliacoesRap->esaAvaliacoes->esadisciplinas->nome_disciplina_abrev) > 20){
+            $pdf->SetFont('Arial', '', 6);
+        }
+        $pdf->Cell(47.5, 5, utf8_decode(substr($esaAvaliacoesRap->esaAvaliacoes->esadisciplinas->nome_disciplina_abrev, 0, 40)), 1, 0, 'C');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(47.5, 5, utf8_decode($esaAvaliacoesRap->esaAvaliacoes->nome_avaliacao.' - '.$esaAvaliacoesRap->esaAvaliacoes->chamada.'ª chamada'), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode('C '.$esaAvaliacoesRap->esaTurma->qms->qms_sigla.' / '.$esaAvaliacoesRap->esaTurma->turma), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode($esaAvaliacoesRap->local_aplicacao), 1, 1, 'C');
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(47.5, 5, utf8_decode('DISCIPLINA'), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode('PROVA'), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode('CURSO/TURMA'), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode('LOCAL'), 1, 1, 'C');
+        $pdf->ln(3);
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Cell(47.5, 5, FuncoesController::formatDateEntoBr($esaAvaliacoesRap->esaAvaliacoes->realizacao), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, date('H:i', strtotime($esaAvaliacoesRap->duracao)), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, date('H:i', strtotime($esaAvaliacoesRap->hora_inicio)), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, date('H:i', strtotime($esaAvaliacoesRap->hora_termino)), 1, 1, 'C');
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(47.5, 5, utf8_decode('DATA DA APLICAÇÃO'), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode('DURAÇÃO PREVISTA'), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode('HORA DE INÍCIO'), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode('HORA DE TÉRMINO'), 1, 1, 'C');
+        $pdf->ln(3);
+
+        $pdf->Cell(95, 5, utf8_decode('ERROS DE IMPRESSÃO'), 1, 0, 'C');
+        $pdf->Cell(95, 5, utf8_decode('ERROS DE INTERPRETAÇÃO'), 1, 1, 'C');
+        $pdf->Cell(95, 5, utf8_decode('QUESTÃO(ÕES) OU ITEM(NS)'), 1, 0, 'C');
+        $pdf->Cell(95, 5, utf8_decode('QUESTÃO(ÕES) OU ITEM(NS)'), 1, 1, 'C');
+        
+        $y = $pdf->getY();
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Rect($pdf->getX(), $pdf->getY(), 95, 35);
+        $pdf->MultiCell(95, 5, utf8_decode($esaAvaliacoesRap->erros_impressao), 0, "L", false, 8);
+        $pdf->setXY(105, $y);
+        $pdf->Rect(105, $pdf->getY(), 95, 35);
+        $pdf->MultiCell(95, 5, utf8_decode($esaAvaliacoesRap->erros_interpretacao), 0, "L", false, 8);
+
+        $pdf->setY(100);
+
+        $pdf->SetFont('Arial', 'B', 7);
+        $pdf->Cell(55, 5, utf8_decode('CONDIÇÕES DO LOCAL DE APLICAÇÃO'), 1, 0, 'C');
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(10, 5, "MB", 1, 0, 'C');
+        $pdf->Cell(10, 5, "B", 1, 0, 'C');
+        $pdf->Cell(10, 5, "R", 1, 0, 'C');
+        $pdf->Cell(10, 5, "I", 1, 0, 'C');
+
+        $pdf->setX(110);
+        $pdf->MultiCell(90, 5, utf8_decode("FATORES QUE INFLUENCIARAM NA APLICAÇÃO"), 1, 'C');
+
+        $y = $pdf->getY();
+        $pdf->Cell(55, 5, utf8_decode('ADEQUAÇÃO'), 1, 0, 'C');
+        $pdf->SetFont('Arial', '', 10);
+        foreach($condicoesAplicacao as $condicao){
+            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_adequacao == $condicao) ? "X" : null, 1, 0, 'C');    
+        }
+
+        $pdf->ln(5);
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(55, 5, utf8_decode('ARRUMAÇÃO'), 1, 0, 'C');
+        $pdf->SetFont('Arial', '', 10);
+        foreach($condicoesAplicacao as $condicao){
+            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_arrumacao == $condicao) ? "X" : null, 1, 0, 'C');    
+        }
+
+        $pdf->ln(5);
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(55, 5, utf8_decode('SILÊNCIO'), 1, 0, 'C');
+        $pdf->SetFont('Arial', '', 10);
+        foreach($condicoesAplicacao as $condicao){
+            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_silencio == $condicao) ? "X" : null, 1, 0, 'C');    
+        }
+
+        $pdf->ln(5);
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(55, 5, utf8_decode('ILUMINAÇÃO'), 1, 0, 'C');
+        $pdf->SetFont('Arial', '', 10);
+        foreach($condicoesAplicacao as $condicao){
+            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_iluminacao == $condicao) ? "X" : null, 1, 0, 'C');    
+        }
+        
+        $pdf->Rect(($pdf->getX() + 5), $y, 90, 20);
+        $pdf->setXY(110, $y);
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->MultiCell(90, 5, utf8_decode($esaAvaliacoesRap->fatores_influencia_aplicacao), 0, "L", false, 4);
+
+        $pdf->setY(130);
+        
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(140, 5, 'EFETIVO QUE REALIZOU A PROVA', 1, 0, 'R');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(50, 5, $esaAvaliacoesRap->efetivo_realizou, 1, 1, 'C');
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(140, 5, utf8_decode('EFETIVO NA SALA AO TÉRMINO DO TEMPO'), 1, 0, 'R');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(50, 5, $esaAvaliacoesRap->efetivo_termino, 1, 1, 'C');
+
+        $pdf->ln(5);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(90, 5, 'SEQUENCIA DE ENTREGA', 1, 0, 'C');
+        $pdf->Cell(30, 5, 'TEMPO', 1, 0, 'C');
+        $pdf->Cell(70, 5, 'DISCENTE', 1, 1, 'C');
+
+        $pdf->Cell(90, 5, 'PRIMEIRO DISCENTE', 1, 0, 'R');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(30, 5, $esaAvaliacoesRap->primeiro_discente['tempo'], 1, 0, 'C');
+        $pdf->Cell(70, 5, utf8_decode($esaAvaliacoesRap->primeiroDiscente->numero.' - '.$esaAvaliacoesRap->primeiroDiscente->nome_guerra), 1, 1, 'C');
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(90, 5, 'SEGUNDO DISCENTE', 1, 0, 'R');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(30, 5, $esaAvaliacoesRap->segundo_discente['tempo'], 1, 0, 'C');
+        $pdf->Cell(70, 5, utf8_decode($esaAvaliacoesRap->segundoDiscente->numero.' - '.$esaAvaliacoesRap->segundoDiscente->nome_guerra), 1, 1, 'C');
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(90, 5, 'TERCEIRO DISCENTE', 1, 0, 'R');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(30, 5, $esaAvaliacoesRap->terceiro_discente['tempo'], 1, 0, 'C');
+        $pdf->Cell(70, 5, utf8_decode($esaAvaliacoesRap->terceiroDiscente->numero.' - '.$esaAvaliacoesRap->terceiroDiscente->nome_guerra), 1, 1, 'C');
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(90, 5, 'MAIORIA (META DA TURMA + 1)', 1, 0, 'R');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(30, 5, date('H:i', strtotime($esaAvaliacoesRap->maioria_efetivo)), 1, 0, 'C');
+        $pdf->Cell(70, 5, '', 'R', 1, 'C');
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(90, 5, 'TODO EFETIVO', 1, 0, 'R');
+        $pdf->SetFont('Arial', '', 10);
+        $pdf->Cell(30, 5, date('H:i', strtotime($esaAvaliacoesRap->todo_efetivo)), 1, 0, 'C');
+        $pdf->Cell(70, 5, '', 'B,R', 1, 'C');
+
+        $pdf->ln(5);
+
+        $pdf->SetFont('Arial', 'B', 10);
+        $pdf->Cell(95, 5, utf8_decode('FALTAS'), 1, 0, 'C');
+        $pdf->Cell(95, 5, utf8_decode('MOTIVO'), 1, 1, 'C');
+        
+        $y = $pdf->getY();
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->Rect($pdf->getX(), $pdf->getY(), 95, 60);
+
+        $faltas = array(null, null);
+        $i = 0;
+        foreach($esaAvaliacoesRap->faltas->pluck('numero_nome_guerra')->toArray() as $aluno){
+            $i++;
+            if($i <= 12){
+                $faltas[0] .= $i.'. '.$aluno.chr(13).chr(10);
+            }else{
+                $faltas[1] .= $i.'. '.$aluno.chr(13).chr(10);
+            }
+        }
+        
+        if($i >= 12){
+            $pdf->MultiCell(47.5, 5, utf8_decode($faltas[0]), 0, 'L', false, 12);
+            $pdf->Rect(57.5, $y, 47.5, 60);
+            $pdf->SetXY(57.5, $y);
+            $pdf->MultiCell(47.5, 5, utf8_decode($faltas[1]), 0, 'L', false, 12);
+        }else{
+            $pdf->MultiCell(95, 5, utf8_decode($faltas[0]), 0, 'L', false, 12);
+        }
+
+        $pdf->setXY(105, $y);
+        $pdf->Rect(105, $pdf->getY(), 95, 60);
+
+        if(isset($esaAvaliacoesRap->alunos_faltas)){
+            $motivos = array(null, null);
+            $i = 0;
+            foreach($esaAvaliacoesRap->alunos_faltas as $alunofalta){
+                $i++;
+                if($i <= 12){
+                    $motivos[0] .= $i.'. '.$alunofalta['motivo'].chr(13).chr(10);
+                }else{
+                    $motivos[1] .= $i.'. '.$alunofalta['motivo'].chr(13).chr(10);
+                }
+            }
+
+            if($i >= 12){
+                $pdf->MultiCell(47.5, 5, utf8_decode($motivos[0]), 0, 'L', false, 12);
+                $pdf->Rect(152.5, $y, 47.5, 60);
+                $pdf->SetXY(152.5, $y);
+                $pdf->MultiCell(47.5, 5, utf8_decode($motivos[1]), 0, 'L', false, 12);
+            }else{
+                $pdf->MultiCell(95, 5, utf8_decode($motivos[0]), 0, 'L', false, 12);
+            }
+        }
+        
+        //$pdf->MultiCell(95, 5, $motivos, 0, "L", false, 12);
+
+        $pdf->setY(250);
+        $pdf->MultiCell(0, 5, utf8_decode('* Obs: no caso de faltas a 1ª Chm, o curso deverá informar ao Cmt CA, e este, à DE, até 2 dias após realização da prova, a justificativa ou não da(s) falta(s) à prova, conforme § 1º e 2º do Art 51 das NIAA/ESA.'), 0, "L");
+        $pdf->Ln(20);
+        $pdf->Cell(95, 5, '', 0, 0, 'C');
+        $pdf->Cell(0, 5, 'APLICADOR', 'T', 1, 'C');
+
+        $pdf->Output('I', utf8_decode('Relatório de Aplicação de Prova.pdf'));
+        exit();
     }
 }

@@ -11,6 +11,7 @@ use App\Models\OMCT;
 
 class Alunos extends Model
 {
+    protected $connection = 'mysql';
     protected $table = 'alunos';
     public $timestamps = true;
 
@@ -328,6 +329,12 @@ class Alunos extends Model
         return $this->belongsTo('App\Models\QMS', 'qms_id', 'id')->withDefault([
             'qms' => 'Não Informada'
         ]);
+    }
+
+    //para pegar esse método tem que buscar por 'numero_nome_guerra'
+    public function getNumeroNomeGuerraAttribute()
+    {
+        return $this->numero . ' - ' . $this->nome_guerra;
     }
 
     /* public function AvaliacaoTaf(){

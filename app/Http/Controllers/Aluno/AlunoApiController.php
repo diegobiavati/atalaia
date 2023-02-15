@@ -285,7 +285,7 @@ class AlunoApiController extends Controller
         } else {
             $compact['situacaoAtuals'] = SituacaoMatricula::find($aluno->id_situacao_matricula)->situacao_matricula;
 
-            $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($aluno->data_matricula));
+            $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find( (isset($aluno->ano_formacao_reintegr_id) ? $aluno->ano_formacao_reintegr_id : $aluno->data_matricula) ));
 
             if($aluno->sexo == 'M'){
                 $qms = $cursos->where('segmento', 'M');
@@ -345,9 +345,12 @@ class AlunoApiController extends Controller
         $dados['cpf_pai'] = preg_replace('/[^0-9]/', '', $dados['cpf_pai']);
         $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
 
-        $dados['qms_id'] = (isset($dados['id_qms']) ? $dados['id_qms'] : null);
-        $dados['periodo_cfs'] = (isset($dados['id_qms']) ? 'PQ' : 'PB');
 
+        if(session()->get('login.omctID')){
+            $dados['qms_id'] = (isset($dados['id_qms']) ? $dados['id_qms'] : null);
+            $dados['periodo_cfs'] = (isset($dados['id_qms']) ? 'PQ' : 'PB');
+        }
+        
         $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
 
         if (

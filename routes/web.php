@@ -378,7 +378,7 @@ Route::get('testy', function(\App\Http\Controllers\OwnAuthController $ownauthcon
 
 
 //Reintegrar Aluno Situacao Diversas
-//Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
+Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
 
 //Gerar Notas Aluno Capitani
 Route::get('modelo-pb-capitani/{id_ano_formacao}', 'Aluno\AlunoApiController@modeloPBCapitani')->middleware('checkauth');
@@ -473,13 +473,13 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
 
     Route::get('view-ssaa', 'Ajax\AjaxAdminGaviaoController@ViewOpcoesSSAA');
 
-        /*Gerenciador de Disciplinas SSAA*/
+        /* Gerenciador de Disciplinas SSAA */
         Route::get('gerenciar-disciplinas/index/{id_ano_formacao?}', 'SSAA\ControllerDisciplinas@index');
         Route::get('gerenciar-disciplinas/load/{id_curso}', 'SSAA\ControllerDisciplinas@load');
         Route::get('gerenciar-disciplinas/form/{id_curso}', 'SSAA\ControllerDisciplinas@form');
         Route::resource('gerenciar-disciplinas', 'SSAA\ControllerDisciplinas');
 
-        /*Calendário SSAA*/
+        /* Calendário SSAA */
         Route::get('calendario/index/{id_ano_formacao?}', 'SSAA\Calendario\ControllerCalendario@index');
         Route::get('calendario/mes/{id_ano_formacao}/{mes}', 'SSAA\Calendario\ControllerCalendario@index_mes');
         Route::get('gerenciar-avaliacao/get-components/{id_curso}', 'SSAA\Calendario\ControllerAvaliacao@getComponentAjax');
@@ -487,6 +487,9 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('gerenciar-avaliacao/turma/{id_turma}', 'SSAA\Calendario\ControllerAvaliacao@viewListagemTurma');
         Route::post('gerenciar-avaliacao/rap/', 'SSAA\Calendario\ControllerAvaliacao@salvaRap');
         Route::resource('gerenciar-avaliacao','SSAA\Calendario\ControllerAvaliacao');
+        
+        /* Relatórios */
+        Route::get('relatorio-rap/{hash_rap}', 'Relatorios\RelatoriosSSAA@relatorioAplicacaoProva');
         /*Fim Calendario*/
 
     //Fim SSAA

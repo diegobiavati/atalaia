@@ -17,6 +17,7 @@
         "maatwebsite/excel": "^3.1",
         "phpoffice/phpspreadsheet": "^1.9",
         "rafwell/laravel-simplegrid": "^1.15",
+        "staudenmeir/eloquent-json-relations": "^1.1",
         "twbs/bootstrap": "5.1.3",
         "zoilomora/laravel-msaccess": "^1.0@beta"
     },

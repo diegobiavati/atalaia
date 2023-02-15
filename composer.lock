@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5a1a88653147b165cf32075c81d8fc32",
+    "content-hash": "9898179f99698a6b5cfbd76d5ae838ff",
     "packages": [
         {
             "name": "asm89/stack-cors",
@@ -3574,6 +3574,52 @@
                 "phar"
             ],
             "time": "2021-12-10T11:20:11+00:00"
+        },
+        {
+            "name": "staudenmeir/eloquent-json-relations",
+            "version": "v1.1.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/staudenmeir/eloquent-json-relations.git",
+                "reference": "b3f34490c6f6439b75c32fab284f0efbb9ffa9d7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/staudenmeir/eloquent-json-relations/zipball/b3f34490c6f6439b75c32fab284f0efbb9ffa9d7",
+                "reference": "b3f34490c6f6439b75c32fab284f0efbb9ffa9d7",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "~5.5.29|5.6.*|5.7.*",
+                "illuminate/support": "^5.5.14",
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "laravel/homestead": "^7.18",
+                "phpunit/phpunit": "~6.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Staudenmeir\\EloquentJsonRelations\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jonas Staudenmeir",
+                    "email": "mail@jonas-staudenmeir.de"
+                }
+            ],
+            "description": "Laravel Eloquent relationships with JSON keys",
+            "support": {
+                "issues": "https://github.com/staudenmeir/eloquent-json-relations/issues",
+                "source": "https://github.com/staudenmeir/eloquent-json-relations/tree/v1.1.6"
+            },
+            "time": "2019-09-16T15:17:23+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",

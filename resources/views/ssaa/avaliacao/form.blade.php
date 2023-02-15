@@ -24,18 +24,21 @@
   <hr>
   <div class="alert alertas-avaliacoes" role="alert" style="margin:10px;width:100%;"></div>
   @isset($rapLancadas)
-  <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
-    <a class="navbar-brand text-muted" href="#">Turma(s) com lançamento do RAP: </a>
-    <div class="collapse navbar-collapse">
-      <ul class="navbar-nav mr-auto">
-        @foreach($rapLancadas as $rap)
-        <li class="nav-item active">
-          <a class="nav-link h4" href="#">{{ $rap->esaTurma->turma }}</a>
-        </li>
-        @endforeach
-      </ul>
-    </div>
-  </nav>
+  <div style="background-color: #e3f2fd;">
+      <nav class="navbar flex-row navbar-expand-lg navbar-light" style="padding: .5rem 1rem 0rem 1rem;">
+        <span class="navbar-brand text-muted" href="#">Turma(s) com lançamento do RAP: </span>
+        <!--<div class="collapse navbar-collapse">-->
+          <ul class="navbar-nav mr-auto">
+            @foreach($rapLancadas as $rap)
+            <li class="nav-item active">
+              <a class="nav-link h4" target="_blank" href="{{asset('gaviao/ajax/relatorio-rap/'.encrypt(session('_token').'-'.$rap->id_esa_avaliacoes.'-'.$rap->id_turmas_esa) )}}">{{ $rap->esaTurma->turma }}</a>
+            </li>
+            @endforeach
+          </ul>
+        <!--</div>-->
+      </nav>
+  </div>
+  <span class="badge badge-pill badge-info" style="padding: .5rem 1rem; color: #d2fd00;">* Clique na Turma para visualizar o RAP</span>
   @endisset
 
   <div class="col-md-6" style="max-width: 100%;">
