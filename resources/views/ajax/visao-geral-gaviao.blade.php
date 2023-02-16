@@ -142,6 +142,7 @@
                 <li style="color: {{App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($avaliacao->esadisciplinas->qms->qms_matriz_id)->backgroundColor}}"><b>Avaliação de {{$avaliacao->getDescricao()}} </b><span style="color: {{App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($avaliacao->esadisciplinas->qms->qms_matriz_id)->backgroundColor}}"> de <i>{{$avaliacao->esadisciplinas->nome_disciplina_abrev}}</i>
                     <br></span> ({{strftime('%A, %d de %B de %Y', strtotime($avaliacao->realizacao))}})</li>
                         <ul>
+                            <li style="color: #0094D3;">{{$avaliacao->chamada}}ª chamada</li>
                             Pendência de RAP ({{ $avaliacao->rapLancadas }} / {{ $avaliacao->rapTotal }})
                             <li style="color: #FF4000;">Prazo para a devolução ({{strftime('%A, %d de %B de %Y', strtotime($avaliacao->devolucao))}})</li>
                         </ul>

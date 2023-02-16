@@ -42,7 +42,7 @@
       <!-- evento -->
       @foreach ($dayweek['evento'] as $event)
       <a class="badge badge-primary" style="white-space:normal;background-color: {{App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($event->esadisciplinas->qms->qms_matriz_id)->backgroundColor}};" href="javascript:void(0);" data-id="{{$event->id}}">
-        {{ $event->nome_avaliacao.'-'.$event->esadisciplinas->nome_disciplina_abrev }}
+        {{ '('.$event->chamada.'ª chamada)'}}<br>{{$event->nome_avaliacao.'-'.$event->esadisciplinas->nome_disciplina_abrev }}
       </a>
       @endforeach
     </div>

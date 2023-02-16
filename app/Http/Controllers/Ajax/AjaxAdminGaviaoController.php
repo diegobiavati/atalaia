@@ -131,7 +131,7 @@ class AjaxAdminGaviaoController extends Controller
             $avaliacoes->where('atalaia.qms.qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id'));
         }
 
-        $avaliacoes = $avaliacoes->get(['esa_avaliacoes.id', 'esa_avaliacoes.id_esa_disciplinas', 'esa_avaliacoes.nome_avaliacao', 
+        $avaliacoes = $avaliacoes->get(['esa_avaliacoes.id', 'esa_avaliacoes.chamada', 'esa_avaliacoes.id_esa_disciplinas', 'esa_avaliacoes.nome_avaliacao', 
                                         'esa_avaliacoes.realizacao', 'esa_avaliacoes.devolucao', 'esa_disciplinas.id_qms', 'esa_disciplinas.nome_disciplina', 
                                         'esa_disciplinas.nome_disciplina_abrev']);
 
@@ -420,10 +420,8 @@ class AjaxAdminGaviaoController extends Controller
         if(!$ownauthcontroller->PermissaoCheck([1,27]) && $request->curso_id!=FuncoesController::retornaQMSPerfil($request->id_ano_formacao)->id){
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
         } else {
-
             $relatorioSSAA = new RelatoriosSSAA($request, $ownauthcontroller);
             return $relatorioSSAA->DemonstrativoNotasGaviao($request->id_ano_formacao, $request->curso_id);
-
         }
     }
 
