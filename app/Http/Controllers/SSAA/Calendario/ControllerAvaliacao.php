@@ -238,7 +238,7 @@ class ControllerAvaliacao extends Controller
                 'id_operador_devolucao' => session('login.operadorID'),
                 'id_esa_avaliacoes' => $esaAvaliacoes->id,
                 'id_turmas_esa' => (int)$this->_request->turmaID,
-                'alunos_faltas' => (isset($json_alunos) ? json_encode($json_alunos) : null),
+                'alunos_faltas' => (isset($json_alunos) ? $json_alunos : null),
                 'duracao' => $this->_request->duracao,
                 'hora_inicio' => $this->_request->hora_inicio,
                 'hora_termino' => $this->_request->hora_termino,
@@ -252,15 +252,15 @@ class ControllerAvaliacao extends Controller
                 'fatores_influencia_aplicacao' => $this->_request->fatores_influencia_aplicacao,
                 'efetivo_realizou' => $this->_request->efetivo_realizou,
                 'efetivo_termino' => $this->_request->efetivo_termino,
-                'primeiro_discente' => json_encode(array('id_aluno' => (int)$this->_request->primeiro_discente, 'tempo' => $this->_request->tempo_primeiro_discente)),
-                'segundo_discente' => json_encode(array('id_aluno' => (int)$this->_request->segundo_discente, 'tempo' => $this->_request->tempo_segundo_discente)),
-                'terceiro_discente' => json_encode(array('id_aluno' => (int)$this->_request->terceiro_discente, 'tempo' => $this->_request->tempo_terceiro_discente)),
+                'primeiro_discente' => array('id_aluno' => (int)$this->_request->primeiro_discente, 'tempo' => $this->_request->tempo_primeiro_discente),
+                'segundo_discente' => array('id_aluno' => (int)$this->_request->segundo_discente, 'tempo' => $this->_request->tempo_segundo_discente),
+                'terceiro_discente' => array('id_aluno' => (int)$this->_request->terceiro_discente, 'tempo' => $this->_request->tempo_terceiro_discente),
                 'maioria_efetivo' => $this->_request->tempo_maioria_efetivo,
                 'todo_efetivo' => $this->_request->tempo_todo_efetivo,
             ];
             
             $validador = $this->validaRapRequest($data);
-
+            
             if ($validador->fails()) {
                 $retorno['response'] = $validador->errors()->all();
             } else {
@@ -284,11 +284,11 @@ class ControllerAvaliacao extends Controller
 
     private function validaRapRequest($array_data){
 
-        $array_data = array_merge($array_data, array('alunos_faltas' => json_decode($array_data['alunos_faltas'], true)));
+        $array_data = array_merge($array_data, array('alunos_faltas' => $array_data['alunos_faltas']));
 
-        $array_data = array_merge($array_data, array('primeiro_discente' => json_decode($array_data['primeiro_discente'], true)));
-        $array_data = array_merge($array_data, array('segundo_discente' => json_decode($array_data['segundo_discente'], true)));
-        $array_data = array_merge($array_data, array('terceiro_discente' => json_decode($array_data['terceiro_discente'], true)));
+        $array_data = array_merge($array_data, array('primeiro_discente' => $array_data['primeiro_discente'], true));
+        $array_data = array_merge($array_data, array('segundo_discente' => $array_data['segundo_discente'], true));
+        $array_data = array_merge($array_data, array('terceiro_discente' => $array_data['terceiro_discente'], true));
 
         return Validator::make(
             $array_data,

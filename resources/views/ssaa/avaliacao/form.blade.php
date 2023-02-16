@@ -38,7 +38,7 @@
         <!--</div>-->
       </nav>
   </div>
-  <span class="badge badge-pill badge-info" style="padding: .5rem 1rem; color: #d2fd00;">* Clique na Turma para visualizar o RAP</span>
+  <span class="badge badge-pill badge-info" style="padding: .5rem 1rem; color: #d2fd00;">* Clique na turma para visualizar o RAP</span>
   @endisset
 
   <div class="col-md-6" style="max-width: 100%;">
