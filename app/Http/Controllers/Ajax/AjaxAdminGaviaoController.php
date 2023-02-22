@@ -121,26 +121,29 @@ class AjaxAdminGaviaoController extends Controller
             $query->where(['justificado' => null]);
         })->get();
 
-        $avaliacoes = EsaAvaliacoes::where('realizacao', '<=', 'ADDDATE(CURRENT_TIMESTAMP(), INTERVAL 1 MONTH)')
+        $avaliacoes = EsaAvaliacoes::whereDate('realizacao', '<=', date('Y-m-d', \strtotime('+2 month')))
                                 ->join('esa_disciplinas', 'esa_avaliacoes.id_esa_disciplinas', '=', 'esa_disciplinas.id')
                                 ->join('atalaia.qms', 'esa_disciplinas.id_qms', '=', 'atalaia.qms.id');
         
+                                
         if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
             $avaliacoes->where('atalaia.qms.qms_matriz_id', '=', session()->get('qms_selecionada'));
         }else if(!$this->ownauthcontroller->PerfilCheck(['9999', '9005', '9004', '9003'])){
             $avaliacoes->where('atalaia.qms.qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id'));
         }
 
+        $avaliacoes->orderBy('realizacao', 'ASC');
+        
         $avaliacoes = $avaliacoes->get(['esa_avaliacoes.id', 'esa_avaliacoes.chamada', 'esa_avaliacoes.id_esa_disciplinas', 'esa_avaliacoes.nome_avaliacao', 
                                         'esa_avaliacoes.realizacao', 'esa_avaliacoes.devolucao', 'esa_disciplinas.id_qms', 'esa_disciplinas.nome_disciplina', 
                                         'esa_disciplinas.nome_disciplina_abrev']);
 
         $rapPendentes = collect();
-
+       
         foreach($avaliacoes as $avaliacao){
             $turmas = $avaliacao->first()->esadisciplinas->qms->consultaTurmas();
-
-            if(count($avaliacao->esaAvaliacoesRap) <> count($turmas)){
+            $contador = count($avaliacao->esaAvaliacoesRap);
+            if($contador > 0 && $contador <> count($turmas)){
 
                 $avaliacao->rapLancadas = count($avaliacao->esaAvaliacoesRap);
                 $avaliacao->rapTotal = count($turmas);

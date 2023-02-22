@@ -134,7 +134,7 @@
             </div>
         </div>
         <div class="card-body">
-            <h5 class="card-title"><b>Próximas Devoluções <h6>limitação de 30 dias</h6></b></h5>
+            <h5 class="card-title"><b>Próximas Devoluções <h6>limitado a 2 meses</h6></b></h5>
             <p class="card-text">
                 @if(count($rapPendentes)>0)
                 @foreach($rapPendentes as $avaliacao)
