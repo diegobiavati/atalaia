@@ -346,13 +346,15 @@ class RelatorioAlunoController extends Controller
 
                 //Filtra somente do curso especificado
                 $lancamentoFo->whereHas('aluno', function($query) use($parametros){
-                    $query->where('qms_id', $parametros['qms']->id);
+                    $query->where('alunos.qms_id', $parametros['qms']->id);
 
                     if($parametros['qms']->qms_matriz_id == 1){//Infantaria
                         if($parametros['cia'] == 1){
-                            $query->whereIn('turma_esa_id', array(1,2,3));//Turma I1, I2, I3
+                            $query->join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
+                                    ->whereIn('turmas_esa.turma', array('I1', 'I2', 'I3'));//Turma I1, I2, I3
                         }else if($parametros['cia'] == 2){
-                            $query->whereIn('turma_esa_id', array(4,5,15));//Turma I4, I5, I6
+                            $query->join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
+                                    ->whereIn('turmas_esa.turma', array('I4', 'I5', 'I6'));//Turma I1, I2, I3
                         }   
                     }
                 });

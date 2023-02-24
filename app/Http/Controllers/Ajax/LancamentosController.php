@@ -407,9 +407,9 @@ class LancamentosController extends Controller
 
             if(isset($request->cia)){
                 if($request->cia == 1){
-                    $whereUeteCurso .= ' AND alunos.turma_esa_id IN (1,2,3)';//Turma I1, I2, I3
+                    $whereUeteCurso .= " AND turmas_esa.turma IN ('I1', 'I2', 'I3')";//Turma I1, I2, I3
                 }else if($request->cia == 2){
-                    $whereUeteCurso .= ' AND alunos.turma_esa_id IN (4,5,15)';//Turma I4, I5, I6
+                    $whereUeteCurso .= " AND turmas_esa.turma IN ('I4', 'I5', 'I6')";//Turma I4, I5, I6
                 }
             }
         }
@@ -446,6 +446,7 @@ class LancamentosController extends Controller
                                         INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
                                         INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
                                         LEFT JOIN qms ON (qms.id = alunos.qms_id)
+                                        LEFT JOIN turmas_esa ON (turmas_esa.id = alunos.turma_esa_id)
                                         WHERE (alunos.data_matricula = $anoFormacao->id OR alunos.ano_formacao_reintegr_id = $anoFormacao->id)" . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
                                         . 'ORDER BY lancamento_fo.data_obs DESC');
         
