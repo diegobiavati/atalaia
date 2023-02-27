@@ -367,7 +367,7 @@ class ControllerAvaliacao extends Controller
                 'nome_avaliacao' => ['required', new ESANomeAvaliacoes],
                 'tipo_avaliacao' => ['required', new TipoAvaliacoes],
                 'chamada' => 'required|integer',
-                'peso' => 'required|integer',
+                'peso' => 'required|numeric',
                 'proposta' => 'required|date',
                 'realizacao' => 'required|date',
                 'devolucao' => 'required|date'

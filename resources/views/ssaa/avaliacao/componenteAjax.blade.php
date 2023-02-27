@@ -40,7 +40,7 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
 </div>
 <div class="fomr-group" style="width: 80px;" data-toggle="tooltip" data-placement="right" data-html="true" title="Informe o peso que está avaliação utilizará para o cálculo.">
     <label>Peso</label>
-    <input type="number" value="{{ $esaAvaliacoes->peso or 0 }}" class="form-control" min="0" max="2" name="peso" {{ $readOnly }}>
+    <input type="number" value="{{ $esaAvaliacoes->peso or 0 }}" class="form-control" min="0" max="2" step="0.5" name="peso" {{ $readOnly }}>
 </div>
 <div class="fomr-group" style="width: 150px;">
     <label>Proposta</label>
