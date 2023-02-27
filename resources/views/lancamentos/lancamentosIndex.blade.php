@@ -14,7 +14,7 @@
 </style>
 
 <div style="text-align: center; margin-top: 22px; color:  #696969;">
-    <h4>Lançamentos</h4>
+    <h4>FO / FATD</h4>
 </div>
 <div class="alert documentacao-relatorios" role="alert" style="margin-top: 44px"></div>
 <div style="margin: 44px auto; width: 530px; text-align: center; margin-top: 84px;">
