@@ -130,7 +130,7 @@
         <div style="background-color: {{$backgroundVisaoGeral}} border-radius: 3px 3px 0 0;">
             <div style="text-align: center; color: #fff; padding: 10px;">
                 <i class="ion-ios-pulse-strong" style="font-size: 44px;"></i><br />
-                <h5>Devolução de Provas</h5>
+                <h5>Devolução do RAP</h5>
             </div>
         </div>
         <div class="card-body">

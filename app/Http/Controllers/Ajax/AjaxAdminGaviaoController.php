@@ -141,7 +141,8 @@ class AjaxAdminGaviaoController extends Controller
         $rapPendentes = collect();
        
         foreach($avaliacoes as $avaliacao){
-            $turmas = $avaliacao->first()->esadisciplinas->qms->consultaTurmas();
+            
+            $turmas = $avaliacao->esadisciplinas->qms->consultaTurmas();
             $contador = count($avaliacao->esaAvaliacoesRap);
             if($contador > 0 && $contador <> count($turmas)){
 
