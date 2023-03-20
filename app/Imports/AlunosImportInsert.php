@@ -53,39 +53,35 @@ class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, W
      */
     public function model(array $row)
     {
-        /*if($row['naturalidade_uf'] == 'XX'){
-dd($row);
-        }*/
-
+    
+        try{
             $aluno = Alunos::create([
-                //'data_matricula' => $this->anoFormacao[$row['ano']]->id,
                 'data_matricula' => $row['data_matricula'],
-                'al_inscricao' => $row['al_inscricao'],
+                'al_inscricao' => utf8_encode($row['al_inscricao']),
                 'nome_completo' => $row['nome_completo'],
                 'data_nascimento' => Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['data_nascimento'])),
                 'nasc_cidade' => $row['nasc_cidade'],
-                'nasc_id_uf' => $this->ufs[$row['nasc_uf']]->id,
+                'nasc_id_uf' => (array_key_exists($row['nasc_uf'], $this->ufs) ? $this->ufs[$row['nasc_uf']]->id : 28),
                 'nasc_pais' => $row['nasc_pais'],
                 'omcts_id' => OMCT::retornaOmctsConcurso()[$row['omcts_id']]['cod_no_atalaia'],
                 'area_id' => Areas::retornaAreasConcurso()[$row['area_id']]['cod_no_atalaia'],
-                //'data_incorporacao' => ((strtoupper($row['data_incorporacao']) != 'NULL') ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['data_incorporacao'])) : null),
-                //'id_situacao_anterior' => (($row['cod_sitanterior'] == 100) ? 1 : $row['cod_sitanterior']),//Falta Verificar
                 'id_situacao_anterior' => 1, //Falta Verificar
-                //'id_situacao_matricula' => $row['cod_sit2'],//Falta Verificar
                 'id_situacao_matricula' => 100, //Falta Verificar
-                'endereco' => $row['endereco'],
+                'endereco' => $row['endereco'].', '.$row['numero'].(isset($row['complemento']) ? ', compl '.$row['complemento'] : null),
                 'bairro' => $row['bairro'],
                 'cidade' => $row['cidade'],
                 'id_uf' => $this->ufs[$row['uf']]->id,
                 'cep' => $row['cep'],
-                'telefone' => $row['telefone'],
-                'celular1' => $row['celular1'],
+                'telefone' => isset($row['telefone']) ? $row['telefone'] : null,
+                'celular1' => $row['celular'],
                 'email' => $row['email'],
-                'cotista' => $row['vaga_cota'],
-                'doc_cpf' => $row['doc_cpf'],
-                'doc_idt_civil' => $row['doc_idt_civil'],
-                'doc_idt_civil_o_exp' => $row['doc_idt_civil_o_exp'],
-                'sexo' => $row['sexo']
+                'cotista' => $row['cota'],
+                'doc_cpf' => $row['cpf'],
+                'doc_idt_civil' => $row['identidade'],
+                'doc_idt_civil_o_exp' => $row['orgao_expedidor'],
+                'sexo' => $row['sexo'],
+                'nome_mae' => $row['mae'],
+                'nome_pai' => $row['pai']
             ]);
 
             if(isset($aluno)){
@@ -95,6 +91,10 @@ dd($row);
                     'nota_cacfs' => 0
                 ]);
             }
+        }catch(Exception $ex){
+            dd($row, $ex);
+        }
+            
             
     }
 
