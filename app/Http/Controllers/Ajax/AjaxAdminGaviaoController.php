@@ -336,9 +336,9 @@ class AjaxAdminGaviaoController extends Controller
             $id_ano_formacao = $request->anos_de_formacao;
         }
 
-        if ($ownauthcontroller->PermissaoCheck([1, 10]) && !isset($request->qmss)) {
+        if ($ownauthcontroller->PermissaoCheck([1, 10, 31]) && !isset($request->qmss)) {
             $error[] = 'Pelo menos uma QMS deve ser selecionada';
-        } else if ($ownauthcontroller->PermissaoCheck([1, 10])) {
+        } else if ($ownauthcontroller->PermissaoCheck([1, 10, 31])) {
             $qmss = $request->qmss;
         } else {
             $qmss = array(FuncoesController::retornaQMSPerfil($id_ano_formacao)->id);
@@ -403,7 +403,7 @@ class AjaxAdminGaviaoController extends Controller
 
     public function LoadAlunosSitDiv(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
-        if ($ownauthcontroller->PerfilCheck([9004, 9999])) {
+        if ($ownauthcontroller->PerfilCheck([9004, 9005, 9999])) {
             $alunos = AlunosSitDiv::whereNotNull('qms_id')->orderBy('data_matricula', 'desc')->orderBy('qms_id', 'desc')->get();
         } else {
             $ano_corrente_data = FuncoesController::retornaAnoFormacaoAtivoQualificacao();
