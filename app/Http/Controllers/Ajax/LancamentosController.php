@@ -203,40 +203,45 @@ class LancamentosController extends Controller
             }
         }
 
-        $invalidaOperacao = false;
-        foreach ($listaAlunos as $idAluno) {
-            $lancamentoFo = new LancamentoFo();
-            $lancamentoFo->aluno_id = $idAluno;
-            $lancamentoFo->operador_id = session()->get('login')['operadorID'];
-            $lancamentoFo->tipo = $request->radioTipoFO;
-            $lancamentoFo->observacao = $request->textAreaObservacaoFO;
-            $lancamentoFo->comandante_operador_id = $comandanteCurso->id;
-
-            //if($request->textAreaProvidencias != null && $this->_ownauthcontroller->PerfilCheck([2,9001])){
-            if($request->textAreaProvidencias != null){
-                $lancamentoFo->providencia = $request->textAreaProvidencias;
-                $lancamentoFo->frad = 'S';
+        if(!isset($comandanteCurso)){
+            $retorno['status'] = 'err';
+            $retorno['response'] = session()->get('login.qmsID') ? 'Cadastre o CMT de Curso no Sistema.' : 'Cadastre o CMT de UETE no Sistema.';
+        }else{
+            $invalidaOperacao = false;
+            foreach ($listaAlunos as $idAluno) {
+                $lancamentoFo = new LancamentoFo();
+                $lancamentoFo->aluno_id = $idAluno;
+                $lancamentoFo->operador_id = session()->get('login')['operadorID'];
+                $lancamentoFo->tipo = $request->radioTipoFO;
+                $lancamentoFo->observacao = $request->textAreaObservacaoFO;
+                $lancamentoFo->comandante_operador_id = $comandanteCurso->id;
+    
+                //if($request->textAreaProvidencias != null && $this->_ownauthcontroller->PerfilCheck([2,9001])){
+                if($request->textAreaProvidencias != null){
+                    $lancamentoFo->providencia = $request->textAreaProvidencias;
+                    $lancamentoFo->frad = 'S';
+                }
+    
+                $lancamentoFo->data_obs = $dataFO;
+                $lancamentoFo->napd_id = $request->napd;
+    
+                $lancamentoFo->conteudo_atitudinal = json_encode($listaAtitudinal);
+    
+                if (!$lancamentoFo->save()) {
+                    $invalidaOperacao = true;
+                } else {
+                    $this->LancarProvidencia($request, $lancamentoFo->id);
+                }
             }
-
-            $lancamentoFo->data_obs = $dataFO;
-            $lancamentoFo->napd_id = $request->napd;
-
-            $lancamentoFo->conteudo_atitudinal = json_encode($listaAtitudinal);
-
-            if (!$lancamentoFo->save()) {
-                $invalidaOperacao = true;
+    
+            if (!$invalidaOperacao) {
+                $retorno['status'] = 'success';
+                $retorno['response'] = 'Fato Observado Registrado.';
             } else {
-                $this->LancarProvidencia($request, $lancamentoFo->id);
+                $retorno['response'] = 'Ocorreu um Erro Ao Salvar o Registro!!';
             }
         }
-
-        if (!$invalidaOperacao) {
-            $retorno['status'] = 'success';
-            $retorno['response'] = 'Fato Observado Registrado.';
-        } else {
-            $retorno['response'] = 'Ocorreu um Erro Ao Salvar o Registro!!';
-        }
-
+        
         return response()->json($retorno);
     }
 
