@@ -9,18 +9,15 @@ use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\Alunos;
 use App\Models\AnoFormacao;
 use App\Models\EsaAvaliacoes;
-use App\Models\EsaAvaliacoesDetalhes;
-use App\Models\EsaAvaliacoesRap;
 use App\Models\EsaDisciplinas;
+use App\Models\EsaMotivosFaltas;
 use App\Models\QMS;
-use App\Models\TurmasEsa;
 use App\Rules\ESANomeAvaliacoes;
 use App\Rules\TipoAvaliacoes;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use PHPUnit\Util\Json;
 
 class ControllerAvaliacao extends Controller
 {
@@ -64,7 +61,14 @@ class ControllerAvaliacao extends Controller
 
     public function viewListagemTurma()
     {
+        $this->_request->criptografia = true;
         return AlunoApiController::viewListagemTurma($this->_request);
+    }
+
+    public function viewListagemCurso()
+    {
+        $this->_request->criptografia = true;
+        return AlunoApiController::viewListagemCurso($this->_request);
     }
 
     public function index()
@@ -95,7 +99,14 @@ class ControllerAvaliacao extends Controller
                 $esaAvaliacoes = new EsaAvaliacoes;
                 $esaAvaliacoes->fill(
                     [
-                        'id_esa_disciplinas' => $this->_request->disciplinaID, 'nome_avaliacao' => $this->_request->nome_avaliacao, 'tipo_avaliacao' => $this->_request->tipo_avaliacao, 'chamada' => $this->_request->chamada, 'peso' => $this->_request->peso, 'proposta' => $this->_request->proposta, 'realizacao' => $this->_request->realizacao, 'devolucao' => $this->_request->devolucao
+                        'id_esa_disciplinas' => $this->_request->disciplinaID,
+                        'nome_avaliacao' => $this->_request->nome_avaliacao,
+                        'tipo_avaliacao' => $this->_request->tipo_avaliacao,
+                        'chamada' => $this->_request->chamada,
+                        'peso' => $this->_request->peso,
+                        'proposta' => $this->_request->proposta,
+                        'realizacao' => $this->_request->realizacao,
+                        'devolucao' => $this->_request->devolucao
                     ]
                 );
 
@@ -111,6 +122,7 @@ class ControllerAvaliacao extends Controller
 
     public function show($id)
     {
+        //Verifica permissão de "Cadastra Avaliação no Calendário SSAA e Visualiza Avaliação SSAA"
         if ($this->_ownauthcontroller->PermissaoCheck([33, 35])) {
 
             $anoFormacao = $this->getAnoFormacao();
@@ -124,19 +136,32 @@ class ControllerAvaliacao extends Controller
             $esaAvaliacoes = EsaAvaliacoes::find($id);
             $cursoSelecionado = $esaAvaliacoes->esadisciplinas->qms;
             
-            $rapLancadas = $esaAvaliacoes->esaAvaliacoesRap;
-
-            $turmasRapPendente = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray());
+            $readOnly = ($this->_ownauthcontroller->PermissaoCheck([33])) ? null : 'readOnly';
 
             $disciplinas = EsaDisciplinas::where(['id_qms' => $cursoSelecionado->id])->get();
 
-            $readOnly = ($this->_ownauthcontroller->PermissaoCheck([33])) ? null : 'readOnly';
+            if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
+                $rapLancadas = $esaAvaliacoes->esaAvaliacoesRapTfm;
+                
+                $turmasRapPendente = $rapLancadas->isEmpty() ? collect(1) : collect();
 
-            return view('ssaa.avaliacao.form', compact('cursos', 'cursoSelecionado', 'rapLancadas', 'turmasRapPendente', 'disciplinas', 'esaAvaliacoes', 'readOnly'))
-                ->with('ownauthcontroller', $this->_ownauthcontroller)
-                ->with('tipoAvaliacao', $esaAvaliacoes->getTodosTiposAvaliacoes())
-                ->with('chamadas', $esaAvaliacoes->getTodasChamadas())
-                ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes());
+                return view('ssaa.avaliacao.form_tfm', compact('cursos', 'cursoSelecionado', 'rapLancadas', 'turmasRapPendente', 'disciplinas', 'esaAvaliacoes', 'readOnly'))
+                        ->with('ownauthcontroller', $this->_ownauthcontroller)
+                        ->with('tipoAvaliacao', $esaAvaliacoes->getTodosTiposAvaliacoes())
+                        ->with('chamadas', $esaAvaliacoes->getTodasChamadas())
+                        ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes());
+            }else{
+                $rapLancadas = $esaAvaliacoes->esaAvaliacoesRap;
+
+                $turmasRapPendente = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray());
+
+                return view('ssaa.avaliacao.form', compact('cursos', 'cursoSelecionado', 'rapLancadas', 'turmasRapPendente', 'disciplinas', 'esaAvaliacoes', 'readOnly'))
+                        ->with('ownauthcontroller', $this->_ownauthcontroller)
+                        ->with('tipoAvaliacao', $esaAvaliacoes->getTodosTiposAvaliacoes())
+                        ->with('chamadas', $esaAvaliacoes->getTodasChamadas())
+                        ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes());
+            }
+
         } else {
             return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Usuário sem Permissão');
         }
@@ -213,76 +238,143 @@ class ControllerAvaliacao extends Controller
         //Verifica se existe turmas já lançadas...
         $turmasLancadas = $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray();
         $turmas = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $turmasLancadas);
-        
-        return view('ssaa.avaliacao.rap.index', compact('cursos', 'cursoSelecionado', 'turmas', 'rotaViewListagemTurma', 'rotaSalvaRap'))
-            ->with('esaAvaliacoes', $esaAvaliacoes)
-            ->with('ownauthcontroller', $this->_ownauthcontroller);
+
+        if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
+            $rotaViewListagemCurso = '/gaviao/ajax/gerenciar-avaliacao/curso/';
+            return view('ssaa.avaliacao.rap.index_tfm', compact('cursos', 'cursoSelecionado', 'rotaViewListagemCurso', 'rotaSalvaRap'))
+                ->with('esaAvaliacoes', $esaAvaliacoes)
+                ->with('ownauthcontroller', $this->_ownauthcontroller);
+        }else{
+            return view('ssaa.avaliacao.rap.index', compact('cursos', 'cursoSelecionado', 'turmas', 'rotaViewListagemTurma', 'rotaSalvaRap'))
+                ->with('esaAvaliacoes', $esaAvaliacoes)
+                ->with('ownauthcontroller', $this->_ownauthcontroller);
+        }
     }
 
-    public function salvaRap(){
+    public function viewMotivoFalta()
+    {
+        $hash = explode('_', $this->_request->id_aluno)[1];
+        
+        $id_aluno = explode('_', FuncoesController::base64url_decode($hash))[1];
+
+        $aluno = Alunos::find($id_aluno);
+
+        $motivos = EsaMotivosFaltas::all();
+
+        return view('ajax.ssaa.componenteMotivosFaltas', compact('aluno', 'hash', 'motivos'));
+    }
+
+    public function salvaRap()
+    {
         $retorno['status'] = 'err';
         $retorno['response'] = [];
 
         $esaAvaliacoes = EsaAvaliacoes::find(explode("_", decrypt($this->_request->id_avaliacao))[0]);
 
-        if($esaAvaliacoes){
-            
+        if ($esaAvaliacoes) {
+
             $json_alunos = null;
-            if($this->_request->checkboxAlunos){
-                foreach($this->_request->checkboxAlunos as $aluno){
-                    $json_alunos[] = ['id_aluno' => (int)$aluno, 'motivo' => $this->_request->{'id_aluno_'.$aluno} ];
+            if ($this->_request->checkboxAlunos) {
+                foreach ($this->_request->checkboxAlunos as $aluno) {
+                    $id_aluno = explode('_', FuncoesController::base64url_decode($aluno))[1];
+                    
+                    $json_alunos[] = ['id_aluno' => (int) $id_aluno, 'id_motivo' => $this->_request->{'id_motivo_' . $aluno}, 'desc_motivo' => $this->_request->{'motivo_'. $aluno}];
                 }
             }
 
-            $data = [
-                'id_operador_devolucao' => session('login.operadorID'),
-                'id_esa_avaliacoes' => $esaAvaliacoes->id,
-                'id_turmas_esa' => (int)$this->_request->turmaID,
-                'alunos_faltas' => (isset($json_alunos) ? $json_alunos : null),
-                'duracao' => $this->_request->duracao,
-                'hora_inicio' => $this->_request->hora_inicio,
-                'hora_termino' => $this->_request->hora_termino,
-                'local_aplicacao' => $this->_request->local,
-                'erros_impressao' => $this->_request->erros_impressao,
-                'erros_interpretacao' => $this->_request->erros_interpretacao,
-                'cond_local_adequacao' => $this->_request->radioAdequacao,
-                'cond_local_arrumacao' => $this->_request->radioArrumacao,
-                'cond_local_silencio' => $this->_request->radioSilencio,
-                'cond_local_iluminacao' => $this->_request->radioIluminacao,
-                'fatores_influencia_aplicacao' => $this->_request->fatores_influencia_aplicacao,
-                'efetivo_realizou' => $this->_request->efetivo_realizou,
-                'efetivo_termino' => $this->_request->efetivo_termino,
-                'primeiro_discente' => array('id_aluno' => (int)$this->_request->primeiro_discente, 'tempo' => $this->_request->tempo_primeiro_discente),
-                'segundo_discente' => array('id_aluno' => (int)$this->_request->segundo_discente, 'tempo' => $this->_request->tempo_segundo_discente),
-                'terceiro_discente' => array('id_aluno' => (int)$this->_request->terceiro_discente, 'tempo' => $this->_request->tempo_terceiro_discente),
-                'maioria_efetivo' => $this->_request->tempo_maioria_efetivo,
-                'todo_efetivo' => $this->_request->tempo_todo_efetivo,
-            ];
-            
-            $validador = $this->validaRapRequest($data);
-            
+            if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
+
+                $json_data_aplicacao = null;
+                if ($this->_request->data_aplicacao) {
+                    
+                    $i = 0;
+                    foreach($this->_request->data_aplicacao as $data){
+                        $json_data_aplicacao[] = ['data_aplicacao' => $data, 'hora_inicio' => $this->_request->hora_inicio[$i], 'hora_termino' => $this->_request->hora_termino[$i]];
+                        $i++;
+                    }
+                }
+
+                $data = [
+                    'id_operador_devolucao' => session('login.operadorID'),
+                    'id_esa_avaliacoes' => $esaAvaliacoes->id,
+                    'alunos_faltas' => (isset($json_alunos) ? $json_alunos : null),
+                    'local_aplicacao' => $this->_request->local,
+                    'data_aplicacao' => (isset($json_data_aplicacao) ? $json_data_aplicacao : null),
+                    'acidentes' => $this->_request->acidentes,
+                    'fatores_neg_pos' => $this->_request->fatores_neg_pos,
+                    'cond_meter_nao' => $this->_request->cond_meter_nao,
+                    'cond_meter_sim' => $this->_request->cond_meter_sim,
+                    'efetivo_curso' => $this->_request->efetivo_curso,
+                    'efetivo_realizou' => $this->_request->efetivo_realizou
+                ];
+
+                $validador = $this->validaRapTFMRequest($data);
+            }else{
+                $data = [
+                    'id_operador_devolucao' => session('login.operadorID'),
+                    'id_esa_avaliacoes' => $esaAvaliacoes->id,
+                    'id_turmas_esa' => (int) $this->_request->turmaID,
+                    'alunos_faltas' => (isset($json_alunos) ? $json_alunos : null),
+                    'duracao' => $this->_request->duracao,
+                    'hora_inicio' => $this->_request->hora_inicio,
+                    'hora_termino' => $this->_request->hora_termino,
+                    'local_aplicacao' => $this->_request->local,
+                    'erros_impressao' => $this->_request->erros_impressao,
+                    'erros_interpretacao' => $this->_request->erros_interpretacao,
+                    'cond_local_adequacao' => $this->_request->radioAdequacao,
+                    'cond_local_arrumacao' => $this->_request->radioArrumacao,
+                    'cond_local_silencio' => $this->_request->radioSilencio,
+                    'cond_local_iluminacao' => $this->_request->radioIluminacao,
+                    'fatores_influencia_aplicacao' => $this->_request->fatores_influencia_aplicacao,
+                    'efetivo_realizou' => $this->_request->efetivo_realizou,
+                    'efetivo_termino' => $this->_request->efetivo_termino,
+                    'primeiro_discente' => array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->primeiro_discente))[1], 'tempo' => $this->_request->tempo_primeiro_discente),
+                    'segundo_discente' => array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->segundo_discente))[1], 'tempo' => $this->_request->tempo_segundo_discente),
+                    'terceiro_discente' => array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->terceiro_discente))[1], 'tempo' => $this->_request->tempo_terceiro_discente),
+                    'maioria_efetivo' => $this->_request->tempo_maioria_efetivo,
+                    'todo_efetivo' => $this->_request->tempo_todo_efetivo,
+                ];
+
+                $validador = $this->validaRapRequest($data);
+            }
+
             if ($validador->fails()) {
                 $retorno['response'] = $validador->errors()->all();
             } else {
-                if($esaAvaliacoes->esaAvaliacoesRap()->create($data)){
-                    if($esaAvaliacoes->save()){
-                        $retorno['status'] = 'success';
-                        array_push($retorno['response'], 'Registrado com sucesso.');
-                    }else{
-                        array_push($retorno['response'], 'Ocorreu um erro ao salvar o RAP.');
+
+                if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
+                    if ($esaAvaliacoes->esaAvaliacoesRapTfm()->create($data)) {
+                        if ($esaAvaliacoes->save()) {
+                            $retorno['status'] = 'success';
+                            array_push($retorno['response'], 'Registrado com sucesso.');
+                        } else {
+                            array_push($retorno['response'], 'Ocorreu um erro ao salvar o RAP DE TFM.');
+                        }
+                    } else {
+                        array_push($retorno['response'], 'Ocorreu um erro ao salvar os detalhes do RAP.');
                     }
                 }else{
-                    array_push($retorno['response'], 'Ocorreu um erro ao salvar os detalhes do RAP.');
+                    if ($esaAvaliacoes->esaAvaliacoesRap()->create($data)) {
+                        if ($esaAvaliacoes->save()) {
+                            $retorno['status'] = 'success';
+                            array_push($retorno['response'], 'Registrado com sucesso.');
+                        } else {
+                            array_push($retorno['response'], 'Ocorreu um erro ao salvar o RAP.');
+                        }
+                    } else {
+                        array_push($retorno['response'], 'Ocorreu um erro ao salvar os detalhes do RAP.');
+                    }
                 }
             }
-        }else{
+        } else {
             array_push($retorno['response'], 'Avaliação não existente.');
         }
 
         return response()->json($retorno);
     }
 
-    private function validaRapRequest($array_data){
+    private function validaRapRequest($array_data)
+    {
 
         $array_data = array_merge($array_data, array('alunos_faltas' => $array_data['alunos_faltas']));
 
@@ -354,6 +446,47 @@ class ControllerAvaliacao extends Controller
 
                 'maioria_efetivo.required' => 'O campo <b>Maioria (Meta da turma)</b> é obrigatório.',
                 'todo_efetivo.required' => 'O campo <b>Todo o efetivo</b> é obrigatório.',
+            ]
+        );
+    }
+
+    private function validaRapTFMRequest($array_data)
+    {
+        $array_data = array_merge($array_data, array('alunos_faltas' => $array_data['alunos_faltas']));
+
+        $array_data = array_merge($array_data, array('data_aplicacao' => $array_data['data_aplicacao']));
+        
+        return Validator::make(
+            $array_data,
+            [
+                'id_operador_devolucao' => 'required|numeric|exists:mysql.operadores,id',
+                'id_esa_avaliacoes' => 'required|numeric|exists:mysql_ssaa.esa_avaliacoes,id',
+                'alunos_faltas.*.id_aluno' => 'nullable|exists:mysql.alunos,id',
+                'local_aplicacao' => 'required|string',
+                'data_aplicacao.*.data_aplicacao' => 'required|date',
+                'data_aplicacao.*.hora_inicio' => 'required|date_format:H:i',
+                'data_aplicacao.*.hora_termino' => 'required|date_format:H:i',
+                'acidentes' => 'nullable|string',
+                'fatores_neg_pos' => 'nullable|string',
+                'cond_meter_nao' => 'nullable|string',
+                'cond_meter_sim' => 'nullable|string',
+                'efetivo_curso' => 'required|integer',
+                'efetivo_realizou' => 'required|integer',
+            ],
+            [
+                'id_operador_devolucao.exists' => '<b>Operador não encontrado ou a sessão finalizou.</b>',
+                'id_esa_avaliacoes.required' => '<b>Avaliação não encontrada</b>.',
+                'id_turmas_esa.required' => 'O campo <b>Turma</b> é obrigatório.',
+
+                'alunos_faltas.*.id_aluno.exists' => 'O aluno informado na falta não existe.',
+
+                'local_aplicacao.required' => '<b>Local de aplicação é obrigatório.</b>',
+                'data_aplicacao.*.data_aplicacao.required' => '<b>Data da aplicação é obrigatório.</b>',
+                'data_aplicacao.*.hora_inicio.required' => '<b>Hora de início é obrigatório.</b>',
+                'data_aplicacao.*.hora_termino.required' => '<b>Hora de término é obrigatório.</b>',
+
+                'efetivo_curso.required' => '<b>Efetivo do Curso é obrigatório.</b>',
+                'efetivo_realizou.required' => '<b>Efetivo que realizou é obrigatório.</b>'
             ]
         );
     }

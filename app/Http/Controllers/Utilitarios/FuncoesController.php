@@ -3,24 +3,32 @@
 namespace App\Http\Controllers\Utilitarios;
 
 use App\Http\Controllers\OwnAuthController;
-use App\Models\Alunos;
 use App\Models\AnoFormacao;
-use App\Models\AvaliacoesNotas;
 use App\Models\EscolhaQMS;
 use App\Models\OMCT;
 use App\Models\QMS;
 use DateTime;
-use Exception;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Collection as SupportCollection;
-use Illuminate\Support\Facades\Event;
 
 class FuncoesController
 {
 
-    public static function removerCaracterEspeciais($string){
+    public static function base64url_encode($data)
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+
+
+    public static function base64url_decode($data)
+    {
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT));
+    }
+
+    public static function removerCaracterEspeciais($string)
+    {
         $string = str_replace(' ', '-', $string); // Replaces all spaces with hyphens.
         $string = str_replace('-', '', $string);
         return preg_replace('/[^A-Za-z0-9\-]/', '', $string); // Removes special chars.
@@ -157,7 +165,7 @@ class FuncoesController
             $qmsMatriz = array(1, 2, 3, 4, 5);
         } else if (session()->has('qms_selecionada')) {
             $qmsMatriz = array(session()->get('qms_selecionada'));
-        }else if(session()->has('login.omctID')){
+        } else if (session()->has('login.omctID')) {
             $qmsMatriz = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 100, 101);
         } else {
             $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
@@ -178,14 +186,15 @@ class FuncoesController
         })->first();
     }
 
-    public static function calculaNDSemRecuperacao($array){
+    public static function calculaNDSemRecuperacao($array)
+    {
         $array = new SupportCollection($array);
 
         $soma = 0.000;
         $quantidade = 0;
-        
-        foreach($array as $key => $avaliacao){
-            if(is_numeric($key) && $avaliacao['media'] >= 5 && !isset($avaliacao['avaliacoes']['CE'])){
+
+        foreach ($array as $key => $avaliacao) {
+            if (is_numeric($key) && $avaliacao['media'] >= 5 && !isset($avaliacao['avaliacoes']['CE'])) {
                 $soma += $avaliacao['media'];
                 $quantidade++;
             }
@@ -198,7 +207,7 @@ class FuncoesController
     {
 
         foreach ($avaliacoesNotas as $nota) {
-            
+
             if (!is_null($nota->alunos_id)) {
 
                 $alunosID[] = $nota->alunos_id;
@@ -208,10 +217,15 @@ class FuncoesController
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['notas'][] = $getNota;
 
                 $indice_avaliacao = $nota->avaliacao->nome_abrev . ' - ' . $nota->avaliacao->chamada . 'ª chamada';
-                $avaliacao = (object) array('indice_notas' => array_key_last($aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['notas'])
-                , 'nota' => $getNota
-                , 'nome_abrev' => $nota->avaliacao->nome_abrev
-                , 'peso' => $nota->avaliacao->peso);
+                $avaliacao = (object) array(
+                    'indice_notas' => array_key_last($aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['notas'])
+                    ,
+                    'nota' => $getNota
+                    ,
+                    'nome_abrev' => $nota->avaliacao->nome_abrev
+                    ,
+                    'peso' => $nota->avaliacao->peso
+                );
 
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['avaliacoes'][$indice_avaliacao] = $avaliacao;
 
@@ -222,14 +236,16 @@ class FuncoesController
                 $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['tfm_abdominal'] = $nota->avaliacao->tfm_abdominal;
 
                 //Correção do alunos em recuperação por disciplinas TFM Abdominal
-                if($nota->avaliacao->disciplinas->tfm == 'S'
+                if (
+                    $nota->avaliacao->disciplinas->tfm == 'S'
                     && $nota->avaliacao->tfm_abdominal == 'S'
-                    && in_array($avaliacao->nome_abrev, array('AC'))){
+                    && in_array($avaliacao->nome_abrev, array('AC'))
+                ) {
 
                     $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['media_tfm_abdominal'] = $getNota;
                 }
                 /*if($nota->alunos_id == 5045){
-                    dd($nota);
+                dd($nota);
                 }*/
             }
         }
@@ -247,8 +263,10 @@ class FuncoesController
                     foreach ($aluno['avaliacoes'] as $key => $aval) {
 
                         $quantidadeAvaliacao += $aval->peso;
-                        if (($aluno_notas[$disciplina_id][$aluno_id]['tfm_abdominal'] == null
-                            || $aluno_notas[$disciplina_id][$aluno_id]['tfm_abdominal'] == 'N') && $aval->peso > 0) {
+                        if (
+                            ($aluno_notas[$disciplina_id][$aluno_id]['tfm_abdominal'] == null
+                                || $aluno_notas[$disciplina_id][$aluno_id]['tfm_abdominal'] == 'N') && $aval->peso > 0
+                        ) {
 
                             $aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas] = ($aval->nota * $aval->peso);
                             $aluno['notas'][$aval->indice_notas] = $aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas];
@@ -301,22 +319,23 @@ class FuncoesController
         return $aluno_notas;
     }
 
-    public static function  ArrayMergeKeepKeys()
+    public static function ArrayMergeKeepKeys()
     {
         $arg_list = func_get_args();
-        foreach ((array)$arg_list as $arg) {
-            foreach ((array)$arg as $K => $V) {
+        foreach ((array) $arg_list as $arg) {
+            foreach ((array) $arg as $K => $V) {
                 $Zoo[$K] = $V;
             }
         }
         return $Zoo;
     }
 
-    public static function retornaQMSPerfil($anoFormacaoID){
+    public static function retornaQMSPerfil($anoFormacaoID)
+    {
         return QMS::where([
             ['escolha_qms_id', '=', EscolhaQMS::where('ano_formacao_id', $anoFormacaoID)->first()->id],
             ['qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id')]
-            ])->first();
+        ])->first();
     }
 
     public static function retornaAnoFormacaoAtivoQualificacao()
@@ -324,12 +343,13 @@ class FuncoesController
         return AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
     }
 
-    public static function isArrayKeyNumeric($array){
-        
+    public static function isArrayKeyNumeric($array)
+    {
+
         $loop = array_filter($array, 'is_array');
 
-        foreach($loop as $key => $valor){
-            if(is_numeric($key)){
+        foreach ($loop as $key => $valor) {
+            if (is_numeric($key)) {
                 $retorno[] = $valor;
             }
         }
@@ -337,36 +357,39 @@ class FuncoesController
         return $retorno;
     }
 
-    public static function getSQLEloquent(EloquentBuilder $query){
+    public static function getSQLEloquent(EloquentBuilder $query)
+    {
 
-        $sql = str_replace_array('?', $query->getBindings(), $query->toSql()); 
+        $sql = str_replace_array('?', $query->getBindings(), $query->toSql());
         dd($sql);
     }
 
-    public static function getQmsColor($id_qms){
+    public static function getQmsColor($id_qms)
+    {
 
-        $return = (object)['backgroundColor' => null];
-        switch($id_qms){
-            case 1://Infantaria
+        $return = (object) ['backgroundColor' => null];
+        switch ($id_qms) {
+            case 1: //Infantaria
                 $return->backgroundColor = 'rgb(0,168,89)';
-            break;
-            case 2://Cavalaria
+                break;
+            case 2: //Cavalaria
                 $return->backgroundColor = 'rgb(237,50,55)';
-            break;
-            case 3://Artilharia
+                break;
+            case 3: //Artilharia
                 $return->backgroundColor = 'rgb(0,100,166)';
-            break;
-            case 4://Engenharia
+                break;
+            case 4: //Engenharia
                 $return->backgroundColor = 'rgb(145,216,247)';
-            break;
-            case 5://Comunicações
+                break;
+            case 5: //Comunicações
                 $return->backgroundColor = 'rgb(0,152,218)';
-            break;
-            case 9999://ESA
+                break;
+            case 9999: //ESA
                 $return->backgroundColor = 'linear-gradient(#EC2125 47%, #E0B22E 50%,#0094D3 53%)';
-            break;
+                break;
         }
 
         return $return;
     }
+
 }

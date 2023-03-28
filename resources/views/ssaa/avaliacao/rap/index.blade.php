@@ -406,14 +406,21 @@
                 evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
                 var checkbox = $(this);
                 
+                //Caso exista remove para adicionar uma nova.
+                $('form#parametrizacao_rap div#container-alunos-motivos div#'+checkbox.attr('id')).remove();
+                
                 if (checkbox.is(':checked')){
-                    var label = $("form#parametrizacao_rap label[for='"+checkbox.attr('id')+"']");
 
-                    //Caso exista remove para adicionar uma nova.
-                    $('form#parametrizacao_rap div#container-alunos-motivos div#id_'+checkbox.attr('id')).remove();
-                    $('form#parametrizacao_rap div#container-alunos-motivos').append('<div id="id_'+checkbox.attr('id')+'" style="margin: 14px auto;"><label>'+label.text()+'</label><input type="text" class="form-control" name="id_'+checkbox.attr('id')+'" placeholder="Informe aqui o motivo da falta."><div class="clear"></div></div>');
-                }else{
-                    $('form#parametrizacao_rap div#container-alunos-motivos div#id_'+checkbox.attr('id')).remove();
+                    $.ajax({
+                        url: "{{asset('/gaviao/ajax/gerenciar-avaliacao/motivoFalta')}}" + '/' +checkbox.attr('id'),
+                        type: 'GET',
+                    }).done(function(data){
+                        
+                        $('form#parametrizacao_rap div#container-alunos-motivos').append(data);
+                    }).fail(function(data){
+                        $('div.alert.errors-rap').slideDown().addClass('alert-danger').html('Erro Interno!!');
+                    });
+                    
                 }
 
                 setarEfetivoRealizouProva($('form#parametrizacao_rap div#container-alunos input[type=checkbox]').length - $('form#parametrizacao_rap div#container-alunos input[type=checkbox]:checked').length);

@@ -3,5 +3,6 @@
         "origin",
         "upstream",
         "atalaia"
-    ]
+    ],
+    "php.version": "v7.4"
 }

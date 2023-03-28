@@ -485,17 +485,26 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('gerenciar-avaliacao/get-components/{id_curso}', 'SSAA\Calendario\ControllerAvaliacao@getComponentAjax');
         Route::get('gerenciar-avaliacao/rap/{id_avaliacao}', 'SSAA\Calendario\ControllerAvaliacao@viewRelatorioAplicacaoProva');
         Route::get('gerenciar-avaliacao/turma/{id_turma}', 'SSAA\Calendario\ControllerAvaliacao@viewListagemTurma');
+        Route::get('gerenciar-avaliacao/curso/{id_curso}', 'SSAA\Calendario\ControllerAvaliacao@viewListagemCurso');
         Route::post('gerenciar-avaliacao/rap/', 'SSAA\Calendario\ControllerAvaliacao@salvaRap');
+        Route::get('gerenciar-avaliacao/motivoFalta/{id_aluno}', 'SSAA\Calendario\ControllerAvaliacao@viewMotivoFalta');
         Route::resource('gerenciar-avaliacao','SSAA\Calendario\ControllerAvaliacao');
+        
         
         /* Relatórios */
         Route::get('relatorio-rap/{hash_rap}', 'Relatorios\RelatoriosSSAA@relatorioAplicacaoProva');
+        Route::get('relatorio-rap-tfm/{hash_rap}', 'Relatorios\RelatoriosSSAA@relatorioAplicacaoProvaTFM');
         /*Fim Calendario*/
 
+        /*Índice de Dificuldades*/
+        Route::resource('indice-dificuldades', 'SSAA\Calendario\ControllerIndiceDificuldades');
+        Route::get('indice-dificuldades/get-disciplinas/{id_qms}', 'SSAA\Calendario\ControllerIndiceDificuldades@carregaDisciplinas');
+        Route::get('indice-dificuldades/get-disciplinas-provas/{id_disciplina}', 'SSAA\Calendario\ControllerIndiceDificuldades@carregaDisciplinasProvas');
+        Route::get('indice-dificuldades/carrega-indices/{id_prova}', 'SSAA\Calendario\ControllerIndiceDificuldades@carregaDisciplinasProvas');
+        /*Fim Índice de Dificuldades*/
+
+
     //Fim SSAA
-
-
-
 
 
 
@@ -512,5 +521,9 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
     });
 
     
+
+    
     //Route::get('correcao-comandanteCurso', 'Ajax\LancamentosController@CorrecaoComandante');
 });
+
+Route::get('consulta-bi', 'Utilitarios\FuncoesController@consultaBI');

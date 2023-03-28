@@ -44,4 +44,8 @@ class EsaAvaliacoesRap extends Model
     public function faltas(){
         return $this->belongsToJson('App\Models\Alunos', 'alunos_faltas[]->id_aluno');
     }
+
+    public function motivoFalta(){
+        return $this->belongsToJson('App\Models\EsaMotivosFaltas', 'alunos_faltas[]->id_motivo');
+    }
 }

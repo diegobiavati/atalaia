@@ -21,6 +21,11 @@ class QMS extends Model
         return $this->belongsTo('App\Models\Operadores', 'comandante_operador_id', 'id');
     }
 
+    public function qmsMatriz()
+    {
+        return $this->belongsTo('App\Models\QMSMatriz', 'qms_matriz_id', 'id');
+    }
+
     public function consultaTurmas(){
         return TurmasEsa::whereHas('alunos', function ($query) {
             $anoFormacao = $this->escolhaQms->anoFormacao;

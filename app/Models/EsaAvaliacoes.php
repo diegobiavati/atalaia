@@ -42,12 +42,22 @@ class EsaAvaliacoes extends Model
         return $this->hasMany('App\Models\EsaAvaliacoesRap', 'id_esa_avaliacoes', 'id');
     }
 
+    public function esaAvaliacoesRapTfm(){
+        return $this->hasMany('App\Models\EsaAvaliacoesRapTfm', 'id_esa_avaliacoes', 'id');
+    }
+
     public function getTodosTiposAvaliacoes(){
         return $this->_tipo_avaliacoes;
     }
 
     public function getTodasChamadas(){
         return $this->_chamadas;
+    }
+
+    public function getChamada(){
+        return $this->getTodasChamadas()->first(function ($value, $key) {
+            return $value->id == $this->chamada;
+        })->descricao;
     }
 
     public function getTodasAvaliacoes(){

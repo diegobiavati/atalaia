@@ -41,16 +41,7 @@
       <div class="container_calendario"></div> <!-- /container -->
   </div>
   
-  <!-- Footer -->
-  <footer class="page-footer font-small blue pt-4">
-    <!-- Copyright -->
-    <div class="footer-copyright text-center py-3">
-      Desenvolvido para SSAA/ESA
-    </div>
-    <!-- Copyright -->
-
-  </footer>
-  <!-- Footer -->
+  @include('layouts.footer_ssaa')
 
 </div>
 <script>

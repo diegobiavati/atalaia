@@ -9,9 +9,12 @@
         <div>
             @foreach($turmaAlunos as $aluno)
                 @if(!isset($edit))
+                @php
+                    $id = (($criptografia) ? App\Http\Controllers\Utilitarios\FuncoesController::base64url_encode('aluno_'.$aluno->id) : $aluno->id);
+                @endphp
                     <div class="custom-control custom-checkbox custom-control-inline" style="width: 30%;text-align:left;margin-right:0px;">
-                        <input type="checkbox" class="custom-control-input" id="aluno_{{$aluno->id}}" name="checkboxAlunos[]" value="{{$aluno->id}}">
-                        <label class="custom-control-label" for="aluno_{{$aluno->id}}" style='font-weight:bold;'>{{$aluno->numero.' - '.$aluno->nome_guerra}}</label>
+                        <input type="checkbox" class="custom-control-input" id="aluno_{{$id}}" name="checkboxAlunos[]" value="{{$id}}">
+                        <label class="custom-control-label" for="aluno_{{$id}}" style='font-weight:bold;'>{{$aluno->numero.' - '.$aluno->nome_guerra}}</label>
                     </div>
                 @else
                     <div>

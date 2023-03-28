@@ -26,12 +26,12 @@
   @isset($rapLancadas)
   <div style="background-color: #e3f2fd;">
       <nav class="navbar flex-row navbar-expand-lg navbar-light" style="padding: .5rem 1rem 0rem 1rem;">
-        <span class="navbar-brand text-muted" href="#">Turma(s) com lançamento do RAP: </span>
+        <span class="navbar-brand text-muted" href="#">Lançamento do RAP: </span>
         <!--<div class="collapse navbar-collapse">-->
           <ul class="navbar-nav mr-auto">
             @foreach($rapLancadas as $rap)
             <li class="nav-item active">
-              <a class="nav-link h4" target="_blank" href="{{asset('gaviao/ajax/relatorio-rap/'.encrypt(session('_token').'-'.$rap->id_esa_avaliacoes.'-'.$rap->id_turmas_esa) )}}"><span class="badge badge-pill badge-info" style="padding: .5rem 1rem; color: #d2fd00;">{{ $rap->esaTurma->turma }}</span></a>
+              <a class="nav-link h4" target="_blank" href="{{asset('gaviao/ajax/relatorio-rap-tfm/'.encrypt(session('_token').'-'.$rap->id_esa_avaliacoes) )}}"><span class="badge badge-pill badge-info" style="padding: .5rem 1rem; color: #d2fd00;">RAP/TFM {{ $rap->esaAvaliacoes->esaDisciplinas->qms->qms }}</span></a>
             </li>
             @endforeach
           </ul>

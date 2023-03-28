@@ -120,7 +120,7 @@ class ControllerDisciplinas extends Controller
     public function show($id)
     {
         if ($this->_ownauthcontroller->PermissaoCheck([34])) {
-
+            
             $esaDisciplinas = EsaDisciplinas::find($id);
             $cursoSelecionado = $esaDisciplinas->qms;
 

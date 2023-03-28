@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Aluno;
 
+use App\Models\QMS;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
@@ -457,7 +458,24 @@ class AlunoApiController extends Controller
         $turmaAlunos = Alunos::retornaAlunosComQmsEspecifica($turmaESA->qms->escolhaQms->anoFormacao->id, [$turmaESA->qms_id])
                 ->where('turma_esa_id', $turmaESA->id)->get();
 
-        return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos'));
+        $criptografia = (isset($request->criptografia) ? $request->criptografia : false);
+
+        return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos', 'criptografia'));
+    }
+
+    public static function viewListagemCurso(Request $request)
+    {
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+
+        $curso = QMS::find($request->id_curso);
+        
+        $turmaAlunos = Alunos::retornaAlunosComQmsEspecifica($curso->escolhaQms->anoFormacao->id, [$curso->id])->get();
+
+        $criptografia = (isset($request->criptografia) ? $request->criptografia : false);
+
+        return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos', 'criptografia'));
     }
 
     public function modeloPBCapitani(Request $request){
