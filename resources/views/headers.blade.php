@@ -8,7 +8,6 @@
 
     <!--<script src="/js/bootstrap-5.1.3.min.js"></script>-->
     <script src="/js/app.js"></script>
-    
     <!--<link href="/css/bootstrap-5.1.3.edit.css" rel="stylesheet" type="text/css" />-->
     <link href="/css/app.css" rel="stylesheet" type="text/css" />
     @yield('js-includes')
@@ -28,7 +27,6 @@
 </div>
 
 <script>
-    
     /* PRELOADING LOADINGS */
     
     var image1 = new Image();
@@ -48,12 +46,25 @@
         }
     });
 
-     $(document).on('click', 'div#back_to_top', function(){
-        $('body,html').animate({
-            scrollTop: 0
-        }, 1000);
-     });
+    $(document).on('click', 'div#back_to_top', function(){
+    $('body,html').animate({
+        scrollTop: 0
+    }, 1000);
+    });
 
+    /*Auto Logout*/
+    var w = new Worker("/js/worker.js");
+    w.onmessage = function(event){
+        if(event.data === 'logout') {
+            w.terminate()
+            console.log("Proceed to logout")
+            $('#menu-lateral #lateral-profile-top div a')[0].click();
+        }
+    }
+    
+    window.onblur = function(){ w.postMessage('enableTimeout') }
+    window.onfocus = function(){ w.postMessage('disableTimeout') }
+    window.onclick = function(){ w.postMessage('disableTimeout') }
 
 </script>
 
