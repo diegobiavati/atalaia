@@ -461,7 +461,8 @@ class ControllerAvaliacao extends Controller
             [
                 'id_operador_devolucao' => 'required|numeric|exists:mysql.operadores,id',
                 'id_esa_avaliacoes' => 'required|numeric|exists:mysql_ssaa.esa_avaliacoes,id',
-                'alunos_faltas.*.id_aluno' => 'nullable|exists:mysql.alunos,id',
+                'alunos_faltas.*.id_aluno' => 'exists:mysql.alunos,id',
+                'alunos_faltas.*.id_motivo' => 'exists:mysql_ssaa.esa_motivos_faltas,id',
                 'local_aplicacao' => 'required|string',
                 'data_aplicacao.*.data_aplicacao' => 'required|date',
                 'data_aplicacao.*.hora_inicio' => 'required|date_format:H:i',
@@ -478,7 +479,8 @@ class ControllerAvaliacao extends Controller
                 'id_esa_avaliacoes.required' => '<b>Avaliação não encontrada</b>.',
                 'id_turmas_esa.required' => 'O campo <b>Turma</b> é obrigatório.',
 
-                'alunos_faltas.*.id_aluno.exists' => 'O aluno informado na falta não existe.',
+                'alunos_faltas.*.id_aluno.exists' => '<b>O aluno informado na falta não existe.</b>',
+                'alunos_faltas.*.id_motivo.exists' => '<b>Informe o motivo da falta.</b>',
 
                 'local_aplicacao.required' => '<b>Local de aplicação é obrigatório.</b>',
                 'data_aplicacao.*.data_aplicacao.required' => '<b>Data da aplicação é obrigatório.</b>',

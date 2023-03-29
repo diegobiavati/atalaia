@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Ajax;
 
 //use Request;
+use App\Models\EsaAvaliacoesRapTfm;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
@@ -139,19 +140,33 @@ class AjaxAdminGaviaoController extends Controller
                                         'esa_disciplinas.nome_disciplina_abrev']);
 
         $rapPendentes = collect();
-       
+        
         foreach($avaliacoes as $avaliacao){
             
-            $turmas = $avaliacao->esadisciplinas->qms->consultaTurmas();
-            $contador = count($avaliacao->esaAvaliacoesRap);
-            if($contador > 0 && $contador <> count($turmas)){
+            if($avaliacao->esadisciplinas->tfm == 'S'){
+                $contador = count($avaliacao->esaAvaliacoesRapTfm);
 
-                $avaliacao->rapLancadas = count($avaliacao->esaAvaliacoesRap);
-                $avaliacao->rapTotal = count($turmas);
-                
-                $rapPendentes->push($avaliacao);
+                if($contador == 0){
+                    $avaliacao->rapLancadas = $contador;
+                    $avaliacao->rapTotal = 1;
+
+                    $rapPendentes->push($avaliacao);
+                }
+            }else{
+                $turmas = $avaliacao->esadisciplinas->qms->consultaTurmas();
+                $contador = count($avaliacao->esaAvaliacoesRap);
+
+                if($contador > 0 && $contador <> count($turmas)){
+
+                    $avaliacao->rapLancadas = $contador;
+                    $avaliacao->rapTotal = count($turmas);
+                    
+                    $rapPendentes->push($avaliacao);
+                }
             }
         }
+
+        
 
         return  view('ajax.visao-geral-gaviao')->with('total_operadores', Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])->count())
                     ->with('rapPendentes', $rapPendentes)
