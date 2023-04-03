@@ -19,6 +19,7 @@ class Alunos extends Model
         'id',
         'periodo_cfs',
         'qms_id',
+        'omcts_id',
         'numero',
         'nome_completo',
         'nome_guerra',
@@ -550,6 +551,7 @@ class Alunos extends Model
         return [
             'numero' => 'Número',
             'qms_id' => 'QMS',
+            'omcts_id' => 'UETE',
             'nome_completo' => 'Nome Completo',
             'nome_guerra' => 'Nome de Guerra',
             'data_nascimento' => 'Data de Nascimento',
@@ -663,8 +665,6 @@ class Alunos extends Model
 
         $columns = $this->getFillable();
         $return = [];
-
-
 
         foreach ($columns as $column) {
             if (key_exists($column, $this->atributos())) {

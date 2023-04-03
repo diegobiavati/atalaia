@@ -41,6 +41,14 @@
                 <td style="border: 1px solid #000; padding: 6px; text-align: center;">
                     @if(App\Http\Controllers\Utilitarios\FuncoesController::validDate($aluno->{$coluna->field}))
                     {{ App\Http\Controllers\Utilitarios\FuncoesController::formatDateEntoBr($aluno->{$coluna->field}) }}
+                    @elseif($coluna->field == 'qms_id')
+                        @if($aluno->qms_id)
+                            {{$aluno->qms->qms}}
+                        @endif
+                    @elseif($coluna->field == 'omcts_id')
+                        @if($aluno->omcts_id)
+                            {{$aluno->omct->sigla_omct}}
+                        @endif    
                     @elseif($coluna->field == 'data_matricula')
                     {{ (isset($aluno->ano_formacao_reintegr_id) ? $aluno->ano_formacao_rematr->formacao : $aluno->ano_formacao->formacao) }}
                     @elseif($coluna->field == 'primeira_data_praca')
