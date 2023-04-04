@@ -522,7 +522,7 @@ class Alunos extends Model
             'data_matricula' => 'required|numeric',
             'area_id' => 'required|numeric',
             'sexo' => 'required|string',
-            'atleta_marexaer' => 'required|string',
+            //'atleta_marexaer' => 'required|string',
             'email' => 'required|unique:alunos,email,' . $this->id,
             'al_inscricao' => 'required|numeric',
             'nasc_cidade' => 'required',
