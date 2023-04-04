@@ -576,6 +576,7 @@ class RelatoriosSSAA extends Controller {
             }
         }
         
+        $pdf->SetFont('Arial', '', 7);  
         if($i >= 12){
             $pdf->MultiCell(47.5, 5, utf8_decode($faltas[0]), 0, 'L', false, 12);
             $pdf->Rect(57.5, $y, 47.5, 60);
@@ -597,22 +598,24 @@ class RelatoriosSSAA extends Controller {
             foreach($esaAvaliacoesRap->alunos_faltas as $alunofalta){
                 $i++;
                 if($i <= 12){
-                    $motivos[0] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10);
+                    $motivos[0] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10).'('.$alunofalta['desc_motivo'].')'.chr(13).chr(10);
                 }else{
-                    $motivos[1] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10);
+                    $motivos[1] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10).'('.$alunofalta['desc_motivo'].')'.chr(13).chr(10);
                 }
             }
 
+            $pdf->SetFont('Arial', '', 6);    
             if($i >= 12){
-                $pdf->MultiCell(47.5, 5, utf8_decode($motivos[0]), 0, 'L', false, 12);
+                $pdf->MultiCell(47.5, 2.5, utf8_decode($motivos[0]), 0, 'L', false, 24);
                 $pdf->Rect(152.5, $y, 47.5, 60);
                 $pdf->SetXY(152.5, $y);
-                $pdf->MultiCell(47.5, 5, utf8_decode($motivos[1]), 0, 'L', false, 12);
+                $pdf->MultiCell(47.5, 2.5, utf8_decode($motivos[1]), 0, 'L', false, 24);
             }else{
-                $pdf->MultiCell(95, 5, utf8_decode($motivos[0]), 0, 'L', false, 12);
+                $pdf->MultiCell(95, 2.5, utf8_decode($motivos[0]), 0, 'L', false, 24);
             }
         }
         
+        $pdf->SetFont('Arial', '', 8);
         $pdf->setY(250);
         $pdf->MultiCell(0, 5, utf8_decode('* Obs: no caso de faltas a 1ª Chm, o curso deverá informar ao Cmt CA, e este, à DE, até 2 dias após realização da prova, a justificativa ou não da(s) falta(s) à prova, conforme § 1º e 2º do Art 51 das NIAA/ESA.'), 0, "L");
         $pdf->Ln(20);
@@ -716,7 +719,7 @@ class RelatoriosSSAA extends Controller {
 
         $y = $pdf->getY();
         $pdf->SetFont('Arial', '', 8);
-        $pdf->Rect($pdf->getX(), $pdf->getY(), 95, 40);
+        $pdf->Rect($pdf->getX(), $pdf->getY(), 95, 41);
 
         $faltas = array(null, null);
         $i = 0;
@@ -729,43 +732,47 @@ class RelatoriosSSAA extends Controller {
             }
         }
 
-        if($i >= 7){
-            $pdf->MultiCell(47.5, 5, utf8_decode($faltas[0]), 0, 'L', false, 12);
-            $pdf->Rect(57.5, $y, 47.5, 40);
+        if($i > 7){
+            $pdf->MultiCell(47.5, 5.5, utf8_decode($faltas[0]), 0, 'L', false, 12);
+            $pdf->Rect(57.5, $y, 47.5, 41);
             $pdf->SetXY(57.5, $y);
-            $pdf->MultiCell(47.5, 5, utf8_decode($faltas[1]), 0, 'L', false, 12);
+            $pdf->MultiCell(47.5, 5.5, utf8_decode($faltas[1]), 0, 'L', false, 12);
         }else{
-            $pdf->MultiCell(95, 5, utf8_decode($faltas[0]), 0, 'L', false, 12);
+            $pdf->MultiCell(95, 5.5, utf8_decode($faltas[0]), 0, 'L', false, 12);
         }
 
         $pdf->setXY(105, $y);
-        $pdf->Rect(105, $pdf->getY(), 95, 40);
+        $pdf->Rect(105, $pdf->getY(), 95, 41);
 
         if(isset($esaAvaliacoesRapTfm->alunos_faltas)){
             $motivos = array(null, null);
             $i = 0;
             
             $motivosFaltas = EsaMotivosFaltas::all();
+            
             foreach($esaAvaliacoesRapTfm->alunos_faltas as $alunofalta){
                 $i++;
-                if($i <= 7){
-                    $motivos[0] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10);
+                
+                if($i <= 7){ 
+                    $motivos[0] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10).'('.$alunofalta['desc_motivo'].')'.chr(13).chr(10);
                 }else{
-                    $motivos[1] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10);
+                    $motivos[1] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10).'('.$alunofalta['desc_motivo'].')'.chr(13).chr(10);
                 }
             }
 
-            if($i >= 7){
-                $pdf->MultiCell(47.5, 5, utf8_decode($motivos[0]), 0, 'L', false, 12);
-                $pdf->Rect(152.5, $y, 47.5, 40);
+            $pdf->SetFont('Arial', '', 6);            
+            if($i > 7){
+                $pdf->MultiCell(47.5, 2.9, utf8_decode($motivos[0]), 0, 'L', false, 14);
+                $pdf->Rect(152.5, $y, 47.5, 41);
                 $pdf->SetXY(152.5, $y);
-                $pdf->MultiCell(47.5, 5, utf8_decode($motivos[1]), 0, 'L', false, 12);
+                $pdf->MultiCell(47.5, 2.9, utf8_decode($motivos[1]), 0, 'L', false, 14);
             }else{
-                $pdf->MultiCell(95, 5, utf8_decode($motivos[0]), 0, 'L', false, 12);
+                $pdf->MultiCell(95, 2.9, utf8_decode($motivos[0]), 0, 'L', false, 14);
             }
 
         }
 
+        $pdf->SetFont('Arial', '', 8);
         $pdf->setY(250);
         $pdf->MultiCell(0, 5, utf8_decode('* Obs: no caso de faltas a 1ª Chm, o curso deverá informar ao Cmt CA, e este, à DE, até 2 dias após realização da prova, a justificativa ou não da(s) falta(s) à prova, conforme § 1º e 2º do Art 51 das NIAA/ESA.'), 0, "L");
         $pdf->Ln(20);

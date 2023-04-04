@@ -81,7 +81,7 @@
                                         <div style="float: left;padding-right: 10px;">
                                             <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
                                         </div>
-                                        <div style="float: left;width:75px;">
+                                        <div style="float: left;">
                                             <input type="time" class="form-control" name="hora_inicio[]" autocomplete="off" placeholder="Hora de início" required>
                                         </div>
                                     </div>
@@ -91,7 +91,7 @@
                                         <div style="float: left;padding-right: 10px;">
                                             <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
                                         </div>
-                                        <div style="float: left;width:75px;">
+                                        <div style="float: left;">
                                             <input type="time" class="form-control" name="hora_termino[]" autocomplete="off" placeholder="Hora de término" required>
                                         </div>
                                     </div>
@@ -112,7 +112,7 @@
                                         <div style="float: left;padding-right: 10px;">
                                             <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
                                         </div>
-                                        <div style="float: left;width:75px;">
+                                        <div style="float: left;">
                                             <input type="time" class="form-control" name="hora_inicio[]" autocomplete="off" placeholder="Hora de início" required>
                                         </div>
                                     </div>
@@ -122,7 +122,7 @@
                                         <div style="float: left;padding-right: 10px;">
                                             <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
                                         </div>
-                                        <div style="float: left;width:75px;">
+                                        <div style="float: left;">
                                             <input type="time" class="form-control" name="hora_termino[]" autocomplete="off" placeholder="Hora de término" required>
                                         </div>
                                     </div>
@@ -145,7 +145,7 @@
                                         <div style="float: left;padding-right: 10px;">
                                             <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
                                         </div>
-                                        <div style="float: left;width:75px;">
+                                        <div style="float: left;">
                                             <input type="time" class="form-control" name="hora_inicio[]" autocomplete="off" placeholder="Hora de início" required>
                                         </div>
                                     </div>
@@ -155,7 +155,7 @@
                                         <div style="float: left;padding-right: 10px;">
                                             <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
                                         </div>
-                                        <div style="float: left;width:75px;">
+                                        <div style="float: left;">
                                             <input type="time" class="form-control" name="hora_termino[]" autocomplete="off" placeholder="Hora de término" required>
                                         </div>
                                     </div>
@@ -178,7 +178,7 @@
                                         <div style="float: left;padding-right: 10px;">
                                             <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
                                         </div>
-                                        <div style="float: left;width:75px;">
+                                        <div style="float: left;">
                                             <input type="time" class="form-control" name="hora_inicio[]" autocomplete="off" placeholder="Hora de início" required>
                                         </div>
                                     </div>
@@ -188,7 +188,7 @@
                                         <div style="float: left;padding-right: 10px;">
                                             <i class="ion-clock" style="font-size: 24px; color: #696969;"></i>
                                         </div>
-                                        <div style="float: left;width:75px;">
+                                        <div style="float: left;">
                                             <input type="time" class="form-control" name="hora_termino[]" autocomplete="off" placeholder="Hora de término" required>
                                         </div>
                                     </div>
@@ -274,7 +274,7 @@
                                     <div class="col" style="padding:0px; flex-grow: 2;">
                                         <label for="efetivo_realizou" style="font-weight: bold;padding-right: 5px;">Efetivo do Curso que Realizou a Prova :</label>
                                         <div class="col-sm-4 custom-control-inline" style="padding: 0px;width:75px;">
-                                            <input type="number" class="form-control" id="efetivo_realizou" name="efetivo_realizou" placeholder="0" min="0">
+                                            <input type="number" class="form-control" id="efetivo_realizou" name="efetivo_realizou" placeholder="0" min="0" readonly>
                                         </div>
                                     </div>
                                 </div>
