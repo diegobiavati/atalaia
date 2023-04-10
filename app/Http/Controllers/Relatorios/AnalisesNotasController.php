@@ -255,14 +255,16 @@ class AnalisesNotasController extends Controller
 
                 $avaliacoes = Avaliacoes::where([
                     ['disciplinas_id', '=', $request->disciplinaID],
-                    ['chamada', '=', 1],
+                    ['nome_abrev', '<>', 'AF'],
                     ['data', '<', date('Y-m-d')]
-                ])->get(['nome_completo']);
+                ])->get();
 
                 foreach($alunosIDs as $alunoID){
-                    $disciplina_resultados[] = $disciplinas->getNotasAluno($alunoID);
+                    $disciplina_resultados[] = $disciplinas->getNotasAluno2023($alunoID);
                 }
                 
+                $avaliacoes = $avaliacoes->unique('nome_completo');
+
                 $retorno_excel = null;
                 foreach($disciplina_resultados as $item){
                     if($item['ND']!=null){

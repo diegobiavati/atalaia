@@ -194,7 +194,7 @@ class AlunoSitDiversasController extends Controller
                     $disciplinas = Disciplinas::where('ano_formacao_id', $alunoSitDiv->data_matricula)->get();
 
                     foreach ($disciplinas as $item) {
-                        $aluno_data['avaliacoes'][] = $item->getNotasAluno($aluno->id);
+                        $aluno_data['avaliacoes'][] = $item->getNotasAluno2023($aluno->id);
                     }
 
                     $notas_taf = AvaliacaoTaf::where('aluno_id', $aluno->id)->first();

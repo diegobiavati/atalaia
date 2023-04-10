@@ -4570,6 +4570,10 @@ class AjaxAdminController extends Controller
         $permissao = array_unique(array_merge(array_diff($operador_gravado, $nao_selecionado), $selecionado), SORT_NUMERIC);
         sort($permissao);
 
+        if(isset($request->qms_id) && !array_intersect(range(9000, 9002), $permissao)){
+            $operador->qms_matriz_id = 9999;
+        }
+
         $operador->id_funcao_operador = implode(',', $permissao);
         
         /*if ($request->tipo_operador_check) {
@@ -5825,7 +5829,7 @@ class AjaxAdminController extends Controller
                     $disciplinas = Disciplinas::where('ano_formacao_id', $alunoSitDiv->data_matricula)->get();
 
                     foreach ($disciplinas as $item) {
-                        $aluno_data['avaliacoes'][] = $item->getNotasAluno($aluno->id);
+                        $aluno_data['avaliacoes'][] = $item->getNotasAluno2023($aluno->id);
                     }
 
                     $notas_taf = AvaliacaoTaf::where('aluno_id', $aluno->id)->first();

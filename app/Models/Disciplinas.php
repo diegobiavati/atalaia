@@ -90,5 +90,50 @@ class Disciplinas extends Model
 
         return $data;
     }
+
+    //Modificado para trazer as notas já calculadas igual no demonstrativo de notas...
+    public function getNotasAluno2023($aluno_id){    
+        
+        $notas_aluno = unserialize(AlunosClassificacao::where([['aluno_id', '=', $aluno_id]])->first()->data_demonstrativo);
+
+        foreach($notas_aluno as $key => $item){
+            if(is_numeric($key) && $item['disciplina_id'] == $this->id){
+                $nd = $item['media'];
+                foreach($item['avaliacoes'] as $k => $avaliacao){
+                    if($k == 'ACR'){
+                        $nota_recuperacao = $avaliacao;  
+                    }else if(key_exists($avaliacao->indice_notas, $item['notas'])){
+                        $notas[$avaliacao->nome_abrev] = $item['notas'][$avaliacao->indice_notas];
+                    }
+                }
+            }
+        }    
+        
+        if(isset($notas)){
+            $avaliacoes = $notas;
+            $nd = number_format($nd, 3, '.', '');
+        } else {
+            $nd = null;
+            $avaliacoes = array(null);
+        }
+        
+        if(isset($nota_recuperacao)){
+            $nd = (number_format($nota_recuperacao, 3, '.', '')>5)?5:number_format($nota_recuperacao, 3, '.', '');
+        } else {
+            $nota_recuperacao = null;
+        }
+
+        $data = array(
+            "alunoID" => $aluno_id,
+            "disciplinaID" => $this->id,
+            "disciplinaNome" => $this->nome_disciplina,
+            "disciplinaNomeAbrev" => $this->nome_disciplina_abrev,
+            "avaliacoes" => $avaliacoes,
+            "avaliacoesRecperacao" => $nota_recuperacao,
+            "ND" => $nd
+        );
+
+        return $data;
+    }
       
 }
