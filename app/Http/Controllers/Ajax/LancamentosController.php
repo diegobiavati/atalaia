@@ -72,7 +72,7 @@ class LancamentosController extends Controller
 
         $conteudoAtitudinal = ConteudoAtitudinal::all();
         $napds = Napd::all();
-        $turmas = $lancamentoFo->aluno->turma;
+        //$turmas = $lancamentoFo->aluno->turma;
 
         $rotaTurma = '/ajax/lancamentosTurma';
 
@@ -80,8 +80,7 @@ class LancamentosController extends Controller
         //$funcaoOperador = session()->get('login.perfil');
 
         $readOnly = 'readOnly';
-
-        if(session()->get('login.omctID')){
+        if(session()->get('login.omctID') || !isset($lancamentoFo->aluno->turma_esa_id)){
             $uetes = array($lancamentoFo->aluno->omct);
 
             $turmas = array($lancamentoFo->aluno->turma);
@@ -557,21 +556,25 @@ class LancamentosController extends Controller
 
         $fatd = Fatd::where(['lancamento_fo_id' => $request->fatdID])->with('lancamentoFo')->first();
 
-        if(session()->get('login.qmsID')){
-            $comandanteCurso = QMS::find($fatd->lancamentoFo->aluno->qms_id)->comandanteCurso;
+        if(isset($fatd->lancamentoFo->comandante_operador_id)){
+            $comandanteCurso = $fatd->lancamentoFo->comandanteCurso;
         }else{
-            //$comandanteCurso = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2'], ['ativo', '=', 'S']])->first();
-            $operadoresAtivos = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['ativo', '=', 'S']])->get();
-
-            foreach($operadoresAtivos as $operador){
-                $funcaoOperador = explode(',', $operador->id_funcao_operador);
-
-                if(in_array(2, $funcaoOperador)){
-                    $comandanteCurso = $operador;
-                    break;
+            if(session()->get('login.qmsID')){
+                $comandanteCurso = QMS::find($fatd->lancamentoFo->aluno->qms_id)->comandanteCurso;
+            }else{
+                //$comandanteCurso = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2'], ['ativo', '=', 'S']])->first();
+                $operadoresAtivos = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['ativo', '=', 'S']])->get();
+    
+                foreach($operadoresAtivos as $operador){
+                    $funcaoOperador = explode(',', $operador->id_funcao_operador);
+    
+                    if(in_array(2, $funcaoOperador)){
+                        $comandanteCurso = $operador;
+                        break;
+                    }
                 }
+    
             }
-
         }
         
         $pdf = new PDF();
