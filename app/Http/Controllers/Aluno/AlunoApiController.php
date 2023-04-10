@@ -47,6 +47,7 @@ class AlunoApiController extends Controller
 
     public function __construct(Alunos $aluno, Request $request, ClassLog $classLog, OwnAuthController $ownauthcontroller)
     {
+
         $this->aluno = $aluno;
         $this->request = $request;
         $this->classLog = $classLog;
@@ -147,88 +148,98 @@ class AlunoApiController extends Controller
      */
     public function store(Request $request)
     {
-        $retorno['status'] = 'err';
-        $retorno['response'] = 'Houve um Erro';
 
-        $dados = $request->all();
-        $dados['data_nascimento'] = FuncoesController::formatDateBrtoEn($dados['data_nascimento']);
-        $dados['primeira_data_praca'] = FuncoesController::formatDateBrtoEn($dados['primeira_data_praca']);
-        $dados['data_cb'] = FuncoesController::formatDateBrtoEn($dados['data_cb']);
-        $dados['data_sgttemp'] = FuncoesController::formatDateBrtoEn($dados['data_sgttemp']);
-        $dados['data_baixa_ultima_om'] = FuncoesController::formatDateBrtoEn($dados['data_baixa_ultima_om']);
-        $dados['doc_idt_militar_dt_exp'] = FuncoesController::formatDateBrtoEn($dados['doc_idt_militar_dt_exp']);
-
-        $dados['cpf_pai'] = preg_replace('/[^0-9]/', '', $dados['cpf_pai']);
-        $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
-
-        $validador = Validator::make($dados, $this->aluno->regras(), [], $this->aluno->atributos());
-
-        if(!isset($dados['data_matricula'])){
-            $retorno['response'] = ['Informe o Ano de Formação.'];
-            return response()->json($retorno);
-        }
-        $validaAluno = Alunos::where([['nome_guerra', '=', $dados['nome_guerra']], ['data_matricula', '=', $dados['data_matricula']]])->get();
-        if (sizeof($validaAluno) > 0) {
-            $retorno['response'] = ['O Nome de Guerra já está sendo utilizado.'];
-            return response()->json($retorno);
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
         }
 
-        if (!preg_match('|^[\pL\s]+$|u', $dados['nome_guerra'])) {
-            $retorno['response'] = ['Existem Caracteres Não Permitidos Ou O Nome de Guerra Está em Branco, Utilize Somente Letras.'];
-            return response()->json($retorno);
-        }
+        if($this->ownauthcontroller->PermissaoCheck(8)){
+            $retorno['status'] = 'err';
+            $retorno['response'] = 'Houve um Erro';
 
-        if ($validador->passes()) {
-            $retorno['status'] = 'ok';
+            $dados = $request->all();
+            $dados['data_nascimento'] = FuncoesController::formatDateBrtoEn($dados['data_nascimento']);
+            $dados['primeira_data_praca'] = FuncoesController::formatDateBrtoEn($dados['primeira_data_praca']);
+            $dados['data_cb'] = FuncoesController::formatDateBrtoEn($dados['data_cb']);
+            $dados['data_sgttemp'] = FuncoesController::formatDateBrtoEn($dados['data_sgttemp']);
+            $dados['data_baixa_ultima_om'] = FuncoesController::formatDateBrtoEn($dados['data_baixa_ultima_om']);
+            $dados['doc_idt_militar_dt_exp'] = FuncoesController::formatDateBrtoEn($dados['doc_idt_militar_dt_exp']);
 
-            $dados['nome_guerra'] = strtoupper($dados['nome_guerra']);
-            $dados['nome_completo'] = strtoupper($dados['nome_completo']);
-            $dados['bonificacao_atleta'] = ($dados['atleta_marexaer'] == 'S' ? $dados['bonificacao_atleta'] : null);
-            $insert = $this->aluno->create($dados);
+            $dados['cpf_pai'] = preg_replace('/[^0-9]/', '', $dados['cpf_pai']);
+            $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
 
-            // Verifica se inseriu com sucesso
-            // Redireciona para a listagem das categorias
-            // Passa uma session flash success (sessão temporária)
-            if ($insert) {
-                $alunoCurso = new AlunosCurso();
-                $alunoCurso->id_aluno = $insert->id;
-                $alunoCurso->senha = 1234;
-                $alunoCurso->nota_cacfs = 0.0;
-                //$alunoCurso->id_qmsnaipe = 99;
-                $alunoCurso->id_qms = null;
+            $validador = Validator::make($dados, $this->aluno->regras(), [], $this->aluno->atributos());
 
-                $alunoCurso->save();
-
-                //Dependentes
-                if (isset($request->id_parentesco)) {
-
-                    $alunosDependentes = new AlunosDependente($dados);
-
-                    for ($i = 0; $i < sizeof($alunosDependentes->id_parentesco); $i++) {
-                        $dependente = new AlunosDependente();
-                        $dependente->id_aluno = $insert->id;
-                        $dependente->id_parentesco = (isset($alunosDependentes->id_parentesco[$i]) ? $alunosDependentes->id_parentesco[$i] : null);
-                        $dependente->dep_nome_completo = (isset($alunosDependentes->dep_nome_completo[$i]) ? $alunosDependentes->dep_nome_completo[$i] : null);
-                        $dependente->dep_data_nascimento = (isset($alunosDependentes->dep_data_nascimento[$i]) ? FuncoesController::formatDateBrtoEn($alunosDependentes->dep_data_nascimento[$i]) : null);
-                        $dependente->dep_naturalidade = (isset($alunosDependentes->dep_naturalidade[$i]) ? $alunosDependentes->dep_naturalidade[$i] : null);
-                        $dependente->dep_endereco = (isset($alunosDependentes->dep_endereco[$i]) ? $alunosDependentes->dep_endereco[$i] : null);
-                        $dependente->dep_id_profissao = (isset($alunosDependentes->dep_id_profissao[$i]) ? $alunosDependentes->dep_id_profissao[$i] : null);
-                        $dependente->dep_id_escolaridade = (isset($alunosDependentes->dep_id_escolaridade[$i]) ? $alunosDependentes->dep_id_escolaridade[$i] : null);
-                        $dependente->dep_trabalho_ativo = (isset($alunosDependentes->dep_trabalho_ativo[$i]) ? $alunosDependentes->dep_trabalho_ativo[$i] : null);
-                        $dependente->dep_trabalho_funcao = (isset($alunosDependentes->dep_trabalho_funcao[$i]) ? $alunosDependentes->dep_trabalho_funcao[$i] : null);
-                        $dependente->dep_bi_publicacao = (isset($alunosDependentes->dep_bi_publicacao[$i]) ? $alunosDependentes->dep_bi_publicacao[$i] : null);
-
-                        $dependente->save();
-                    }
-                }
-
-                $retorno['status'] = 'ok';
-                $retorno['response'] = 'Aluno(a) inserido com sucesso!';
-                $retorno['id_aluno'] = $insert->id;
-                $this->classLog->RegistrarLog('Implantou aluno ' . $dados['nome_completo'] . ' no sistema', auth()->user()->email);
+            if(!isset($dados['data_matricula'])){
+                $retorno['response'] = ['Informe o Ano de Formação.'];
+                return response()->json($retorno);
             }
-        } else {
-            $retorno['response'] = $validador->errors()->all();
+            $validaAluno = Alunos::where([['nome_guerra', '=', $dados['nome_guerra']], ['data_matricula', '=', $dados['data_matricula']]])->get();
+            if (sizeof($validaAluno) > 0) {
+                $retorno['response'] = ['O Nome de Guerra já está sendo utilizado.'];
+                return response()->json($retorno);
+            }
+
+            if (!preg_match('|^[\pL\s]+$|u', $dados['nome_guerra'])) {
+                $retorno['response'] = ['Existem Caracteres Não Permitidos Ou O Nome de Guerra Está em Branco, Utilize Somente Letras.'];
+                return response()->json($retorno);
+            }
+
+            if ($validador->passes()) {
+                $retorno['status'] = 'ok';
+
+                $dados['nome_guerra'] = strtoupper($dados['nome_guerra']);
+                $dados['nome_completo'] = strtoupper($dados['nome_completo']);
+                $dados['bonificacao_atleta'] = ($dados['atleta_marexaer'] == 'S' ? $dados['bonificacao_atleta'] : null);
+                $insert = $this->aluno->create($dados);
+
+                // Verifica se inseriu com sucesso
+                // Redireciona para a listagem das categorias
+                // Passa uma session flash success (sessão temporária)
+                if ($insert) {
+                    $alunoCurso = new AlunosCurso();
+                    $alunoCurso->id_aluno = $insert->id;
+                    $alunoCurso->senha = 1234;
+                    $alunoCurso->nota_cacfs = 0.0;
+                    //$alunoCurso->id_qmsnaipe = 99;
+                    $alunoCurso->id_qms = null;
+
+                    $alunoCurso->save();
+
+                    //Dependentes
+                    if (isset($request->id_parentesco)) {
+
+                        $alunosDependentes = new AlunosDependente($dados);
+
+                        for ($i = 0; $i < sizeof($alunosDependentes->id_parentesco); $i++) {
+                            $dependente = new AlunosDependente();
+                            $dependente->id_aluno = $insert->id;
+                            $dependente->id_parentesco = (isset($alunosDependentes->id_parentesco[$i]) ? $alunosDependentes->id_parentesco[$i] : null);
+                            $dependente->dep_nome_completo = (isset($alunosDependentes->dep_nome_completo[$i]) ? $alunosDependentes->dep_nome_completo[$i] : null);
+                            $dependente->dep_data_nascimento = (isset($alunosDependentes->dep_data_nascimento[$i]) ? FuncoesController::formatDateBrtoEn($alunosDependentes->dep_data_nascimento[$i]) : null);
+                            $dependente->dep_naturalidade = (isset($alunosDependentes->dep_naturalidade[$i]) ? $alunosDependentes->dep_naturalidade[$i] : null);
+                            $dependente->dep_endereco = (isset($alunosDependentes->dep_endereco[$i]) ? $alunosDependentes->dep_endereco[$i] : null);
+                            $dependente->dep_id_profissao = (isset($alunosDependentes->dep_id_profissao[$i]) ? $alunosDependentes->dep_id_profissao[$i] : null);
+                            $dependente->dep_id_escolaridade = (isset($alunosDependentes->dep_id_escolaridade[$i]) ? $alunosDependentes->dep_id_escolaridade[$i] : null);
+                            $dependente->dep_trabalho_ativo = (isset($alunosDependentes->dep_trabalho_ativo[$i]) ? $alunosDependentes->dep_trabalho_ativo[$i] : null);
+                            $dependente->dep_trabalho_funcao = (isset($alunosDependentes->dep_trabalho_funcao[$i]) ? $alunosDependentes->dep_trabalho_funcao[$i] : null);
+                            $dependente->dep_bi_publicacao = (isset($alunosDependentes->dep_bi_publicacao[$i]) ? $alunosDependentes->dep_bi_publicacao[$i] : null);
+
+                            $dependente->save();
+                        }
+                    }
+
+                    $retorno['status'] = 'ok';
+                    $retorno['response'] = 'Aluno(a) inserido com sucesso!';
+                    $retorno['id_aluno'] = $insert->id;
+                    $this->classLog->RegistrarLog('Implantou aluno ' . $dados['nome_completo'] . ' no sistema', auth()->user()->email);
+                }
+            } else {
+                $retorno['response'] = $validador->errors()->all();
+            }
+        }else{
+            $retorno['status'] = 'err';
+            $retorno['response'] = 'Ocorreu uma tentativa de inserção de aluno sem permissão.';
         }
 
         // Redireciona de volta com uma mensagem de erro
@@ -244,7 +255,7 @@ class AlunoApiController extends Controller
     public function show($id)
     {
         $compact = $this->loadDependencia();
-
+        
         $id = trim(explode('-', $id)[0]);
 
         $aluno = Alunos::with('ano_formacao')->with('dependentes')->with('imagem_aluno')->find($id);
@@ -316,6 +327,7 @@ class AlunoApiController extends Controller
      */
     public function edit($id)
     {
+        dd('Veio');
     }
 
     /**
@@ -328,108 +340,126 @@ class AlunoApiController extends Controller
     public function update(Request $request, $id)
     {
         
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+
         $retorno['status'] = 'err';
         $retorno['response'] = ['Nada foi encontrado.', 'Aluno pode se encontrar em situações diversas, por isso não receberá atualizações por essa rotina.'];
 
         if (!$aluno = $this->aluno->find($id))
             return response()->json($retorno);
 
-        $dados = $request->all();
+        if($this->ownauthcontroller->PermissaoCheck(10)){
 
-        $dados['data_nascimento'] = FuncoesController::formatDateBrtoEn($dados['data_nascimento']);
-        $dados['primeira_data_praca'] = FuncoesController::formatDateBrtoEn($dados['primeira_data_praca']);
-        $dados['data_cb'] = FuncoesController::formatDateBrtoEn($dados['data_cb']);
-        $dados['data_sgttemp'] = FuncoesController::formatDateBrtoEn($dados['data_sgttemp']);
-        $dados['data_baixa_ultima_om'] = FuncoesController::formatDateBrtoEn($dados['data_baixa_ultima_om']);
-        $dados['doc_idt_militar_dt_exp'] = FuncoesController::formatDateBrtoEn($dados['doc_idt_militar_dt_exp']);
+            $dados = $request->all();
 
-        $dados['cpf_pai'] = preg_replace('/[^0-9]/', '', $dados['cpf_pai']);
-        $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
+            $dados['data_nascimento'] = FuncoesController::formatDateBrtoEn($dados['data_nascimento']);
+            $dados['primeira_data_praca'] = FuncoesController::formatDateBrtoEn($dados['primeira_data_praca']);
+            $dados['data_cb'] = FuncoesController::formatDateBrtoEn($dados['data_cb']);
+            $dados['data_sgttemp'] = FuncoesController::formatDateBrtoEn($dados['data_sgttemp']);
+            $dados['data_baixa_ultima_om'] = FuncoesController::formatDateBrtoEn($dados['data_baixa_ultima_om']);
+            $dados['doc_idt_militar_dt_exp'] = FuncoesController::formatDateBrtoEn($dados['doc_idt_militar_dt_exp']);
+
+            $dados['cpf_pai'] = preg_replace('/[^0-9]/', '', $dados['cpf_pai']);
+            $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
 
 
-        if(session()->get('login.omctID')){
-            $dados['qms_id'] = (isset($dados['id_qms']) ? $dados['id_qms'] : null);
-            $dados['periodo_cfs'] = (isset($dados['id_qms']) ? 'PQ' : 'PB');
-        }
-        
-        $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
-
-        if (
-            trim($dados['nome_guerra']) <> trim($aluno->nome_guerra)
-            || ($dados['data_matricula'] <> $aluno->data_matricula)
-        ) {
-
-            $validaAluno = Alunos::where([['nome_guerra', '=', $dados['nome_guerra']], ['data_matricula', '=', $dados['data_matricula']]])->get();
-
-            if (sizeof($validaAluno) > 0) {
-                $retorno['response'] = ['O Nome de Guerra já está sendo utilizado.'];
-                return response()->json($retorno);
-            }
-        }
-
-        if (!preg_match('|^[\pL\s]+$|u', $dados['nome_guerra'])) {
-            $retorno['response'] = ['Existem Caracteres Não Permitidos Ou O Nome de Guerra Está em Branco, Utilize Somente Letras.'];
-            return response()->json($retorno);
-        }
-
-        if ($validador->passes()) {
-
-            $dados['bonificacao_atleta'] = ((isset($dados['atleta_marexaer']) && $dados['atleta_marexaer'] == 'S') ? $dados['bonificacao_atleta'] : null);
-
-            if(trim($aluno->email) <> trim($dados['email'])){
-                Users::where(['email' => $aluno->email])->update(['email' => $dados['email']]);
+            if(session()->get('login.omctID')){
+                $dados['qms_id'] = (isset($dados['id_qms']) ? $dados['id_qms'] : null);
+                $dados['periodo_cfs'] = (isset($dados['id_qms']) ? 'PQ' : 'PB');
             }
             
-            $update = $aluno->update($dados);
+            $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
 
-            if ($update) {
+            if (
+                trim($dados['nome_guerra']) <> trim($aluno->nome_guerra)
+                || ($dados['data_matricula'] <> $aluno->data_matricula)
+            ) {
 
-                //Dependentes
-                if (isset($dados['id_parentesco'])) {
+                $validaAluno = Alunos::where([['nome_guerra', '=', $dados['nome_guerra']], ['data_matricula', '=', $dados['data_matricula']]])->get();
 
-                    $alunosDependentes = new AlunosDependente($dados);
+                if (sizeof($validaAluno) > 0) {
+                    $retorno['response'] = ['O Nome de Guerra já está sendo utilizado.'];
+                    return response()->json($retorno);
+                }
+            }
 
-                    for ($i = 0; $i < sizeof($alunosDependentes->id_parentesco); $i++) {
+            if (!preg_match('|^[\pL\s]+$|u', $dados['nome_guerra'])) {
+                $retorno['response'] = ['Existem Caracteres Não Permitidos Ou O Nome de Guerra Está em Branco, Utilize Somente Letras.'];
+                return response()->json($retorno);
+            }
 
-                        $isUpdate = false;
-                        if (isset($alunosDependentes->id_dependente[$i])) {
-                            $isUpdate = true;
+            if ($validador->passes()) {
 
-                            $dependente = AlunosDependente::find($alunosDependentes->id_dependente[$i]);
-                        } else {
+                $dados['bonificacao_atleta'] = ((isset($dados['atleta_marexaer']) && $dados['atleta_marexaer'] == 'S') ? $dados['bonificacao_atleta'] : null);
+
+                if(trim($aluno->email) <> trim($dados['email'])){
+                    Users::where(['email' => $aluno->email])->update(['email' => $dados['email']]);
+                }
+                
+                $update = $aluno->update($dados);
+
+                if ($update) {
+
+                    //Dependentes
+                    if (isset($dados['id_parentesco'])) {
+
+                        $alunosDependentes = new AlunosDependente($dados);
+
+                        for ($i = 0; $i < sizeof($alunosDependentes->id_parentesco); $i++) {
+
                             $isUpdate = false;
+                            if (isset($alunosDependentes->id_dependente[$i])) {
+                                $isUpdate = true;
 
-                            $dependente = new AlunosDependente();
-                            $dependente->id_aluno = $aluno->id;
-                        }
+                                $dependente = AlunosDependente::find($alunosDependentes->id_dependente[$i]);
+                            } else {
+                                $isUpdate = false;
 
-                        $dependente->id_parentesco = (isset($alunosDependentes->id_parentesco[$i]) ? $alunosDependentes->id_parentesco[$i] : null);
-                        $dependente->dep_nome_completo = (isset($alunosDependentes->dep_nome_completo[$i]) ? $alunosDependentes->dep_nome_completo[$i] : null);
-                        $dependente->dep_data_nascimento = (isset($alunosDependentes->dep_data_nascimento[$i]) ? FuncoesController::formatDateBrtoEn($alunosDependentes->dep_data_nascimento[$i]) : null);
-                        $dependente->dep_naturalidade = (isset($alunosDependentes->dep_naturalidade[$i]) ? $alunosDependentes->dep_naturalidade[$i] : null);
-                        $dependente->dep_endereco = (isset($alunosDependentes->dep_endereco[$i]) ? $alunosDependentes->dep_endereco[$i] : null);
-                        $dependente->dep_id_profissao = (isset($alunosDependentes->dep_id_profissao[$i]) ? $alunosDependentes->dep_id_profissao[$i] : null);
-                        $dependente->dep_id_escolaridade = (isset($alunosDependentes->dep_id_escolaridade[$i]) ? $alunosDependentes->dep_id_escolaridade[$i] : null);
-                        $dependente->dep_trabalho_ativo = (isset($alunosDependentes->dep_trabalho_ativo[$i]) ? $alunosDependentes->dep_trabalho_ativo[$i] : null);
-                        $dependente->dep_trabalho_funcao = (isset($alunosDependentes->dep_trabalho_funcao[$i]) ? $alunosDependentes->dep_trabalho_funcao[$i] : null);
-                        $dependente->dep_bi_publicacao = (isset($alunosDependentes->dep_bi_publicacao[$i]) ? $alunosDependentes->dep_bi_publicacao[$i] : null);
+                                $dependente = new AlunosDependente();
+                                $dependente->id_aluno = $aluno->id;
+                            }
 
-                        if ($isUpdate) {
-                            $dependente->update();
-                        } else {
-                            $dependente->save();
+                            $dependente->id_parentesco = (isset($alunosDependentes->id_parentesco[$i]) ? $alunosDependentes->id_parentesco[$i] : null);
+                            $dependente->dep_nome_completo = (isset($alunosDependentes->dep_nome_completo[$i]) ? $alunosDependentes->dep_nome_completo[$i] : null);
+                            $dependente->dep_data_nascimento = (isset($alunosDependentes->dep_data_nascimento[$i]) ? FuncoesController::formatDateBrtoEn($alunosDependentes->dep_data_nascimento[$i]) : null);
+                            $dependente->dep_naturalidade = (isset($alunosDependentes->dep_naturalidade[$i]) ? $alunosDependentes->dep_naturalidade[$i] : null);
+                            $dependente->dep_endereco = (isset($alunosDependentes->dep_endereco[$i]) ? $alunosDependentes->dep_endereco[$i] : null);
+                            $dependente->dep_id_profissao = (isset($alunosDependentes->dep_id_profissao[$i]) ? $alunosDependentes->dep_id_profissao[$i] : null);
+                            $dependente->dep_id_escolaridade = (isset($alunosDependentes->dep_id_escolaridade[$i]) ? $alunosDependentes->dep_id_escolaridade[$i] : null);
+                            $dependente->dep_trabalho_ativo = (isset($alunosDependentes->dep_trabalho_ativo[$i]) ? $alunosDependentes->dep_trabalho_ativo[$i] : null);
+                            $dependente->dep_trabalho_funcao = (isset($alunosDependentes->dep_trabalho_funcao[$i]) ? $alunosDependentes->dep_trabalho_funcao[$i] : null);
+                            $dependente->dep_bi_publicacao = (isset($alunosDependentes->dep_bi_publicacao[$i]) ? $alunosDependentes->dep_bi_publicacao[$i] : null);
+
+                            if ($isUpdate) {
+                                $dependente->update();
+                            } else {
+                                $dependente->save();
+                            }
                         }
                     }
-                }
 
-                $retorno['status'] = 'ok';
-                $retorno['response'] = 'Aluno(a) atualizado com sucesso!';
-                $retorno['id_aluno'] = $aluno->id;
-                $this->classLog->RegistrarLog('Alterou aluno ' . $aluno->id . ' - ' . $aluno->nome_completo . ' no sistema', auth()->user()->email);
+                    $retorno['status'] = 'ok';
+                    $retorno['response'] = 'Aluno(a) atualizado com sucesso!';
+                    $retorno['id_aluno'] = $aluno->id;
+                    $this->classLog->RegistrarLog('Alterou aluno ' . $aluno->id . ' - ' . $aluno->nome_completo . ' no sistema', auth()->user()->email);
+                }
+            } else {
+                $retorno['status'] = 'err';
+                $retorno['response'] = $validador->errors()->all();
             }
-        } else {
+        }else if($this->ownauthcontroller->PermissaoCheck(37)){//Psicopedagogia
+            $aluno->obs_psicopedagogia = $request->obs_psicopedagogia;
+            if($aluno->save()){
+                $retorno['status'] = 'ok';
+                $retorno['response'] = ['Aluno(a) atualizado com sucesso!'];
+                $retorno['id_aluno'] = $aluno->id;
+                $this->classLog->RegistrarLog('Psicopedagogia alterou aluno ' . $aluno->id . ' - ' . $aluno->nome_completo . ' no sistema', auth()->user()->email);
+            }
+        }else{
             $retorno['status'] = 'err';
-            $retorno['response'] = $validador->errors()->all();
+            $retorno['response'] = ['Usuário sem permissão.', 'Ocorreu um tentativa de alterar o cadastro do aluno sem permissão.'];
         }
 
         // Redireciona de volta com uma mensagem de erro

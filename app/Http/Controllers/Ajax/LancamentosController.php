@@ -309,7 +309,16 @@ class LancamentosController extends Controller
                     }
 
                     if(session()->has('login.qmsID')){
-                        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
+                        $anoFormacao = AnoFormacao::find($explode[1]);
+                        $alunos = Alunos::retornaAlunosComQmsESA($anoFormacao->id);
+                        
+                        if($alunos->isEmpty()){
+                            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
+
+                            return view('lancamentos.lancamentoConsultaFO', compact('uetes', 'rotaConsulta', 'rotaConsultaCia'))->with('ownauthcontroller', $this->_ownauthcontroller);
+                        }
+
+                        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao($anoFormacao);
                         
                         return view('lancamentos.lancamentoConsultaFO', compact('cursos', 'rotaConsulta', 'rotaConsultaCia'))->with('ownauthcontroller', $this->_ownauthcontroller);
                     }
@@ -321,6 +330,15 @@ class LancamentosController extends Controller
                     }
 
                     if(session()->has('login.qmsID')){
+                        $anoFormacao = AnoFormacao::find($explode[1]);
+                        $alunos = Alunos::retornaAlunosComQmsESA($anoFormacao->id);
+
+                        if($alunos->isEmpty()){
+                            $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
+
+                            return view('lancamentos.lancamentoConsultaFATD', compact('uetes'))->with('ownauthcontroller', $this->_ownauthcontroller);
+                        }
+
                         $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
                         
                         return view('lancamentos.lancamentoConsultaFATD', compact('cursos'))->with('ownauthcontroller', $this->_ownauthcontroller);
@@ -442,8 +460,6 @@ class LancamentosController extends Controller
                 break;
             }
         }
-
-        
 
         $lancamentoFO = DB::select("SELECT lancamento_fo.id, lancamento_fo.data_obs, lancamento_fo.tipo, lancamento_fo.observacao, alunos.numero, alunos.nome_guerra, omcts.omct as uete, qms.qms AS curso
                                         , lancamento_fo.providencia, lancamento_fo.fatd, lancamento_fo.cancelado

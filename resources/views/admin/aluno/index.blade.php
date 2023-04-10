@@ -739,6 +739,12 @@
                         <label for="recompensas">Recompensas</label>
                         <textarea class="form-control" id="recompensas" name="recompensas" rows="3">{{$aluno->recompensas or old('recompensas') }}</textarea>
                     </div>
+                    @if($ownauthcontroller->PermissaoCheck(37))
+                    <div class="form-group">
+                        <label for="obs_psicopedagogia">Observações Seção Psicopedagogia</label>
+                        <textarea class="form-control" id="obs_psicopedagogia" name="obs_psicopedagogia" rows="3">{{$aluno->obs_psicopedagogia or old('obs_psicopedagogia') }}</textarea>
+                    </div>
+                    @endif
                 </div>
             </div>
         </form>
@@ -802,7 +808,12 @@
 
         //Desabilita edição dos campos se não tiver permissão
         @if(isset($aluno) && !$ownauthcontroller->PermissaoCheck(10))
-        $('#implantar_aluno input, select').prop('disabled', true);
+            $('#implantar_aluno input, select, textarea').prop('disabled', true);
+        @endif
+        
+        @if(isset($aluno) && $ownauthcontroller->PermissaoCheck(37))
+            $('#implantar_aluno textarea#obs_psicopedagogia').prop('disabled', false);
+            $('#implantar_aluno input[name="_token"]').prop('disabled', false);
         @endif
         
         @if(isset($aluno))
