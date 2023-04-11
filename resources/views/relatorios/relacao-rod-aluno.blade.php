@@ -27,11 +27,10 @@
 <div id="parametros-content" style="margin: 46px auto; text-align: center;"></div>
 
 <script>
-    $(document).ready(function() {
+    //$(document).ready(function() {
 
-        $(document).on('change', 'select.required_to_show_button', function() {
-            $('select.required_to_show_button').each(function(index, element) {
-
+        $('form#rodAluno select.required_to_show_button').change(function(){
+            $('form#rodAluno select.required_to_show_button').each(function(index, element) {
                 if ($(element).val() == 99) {
                     $('button#btn-rod-aluno').slideUp(100);
                     return false;
@@ -66,5 +65,5 @@
                 }
             });
         });
-    });
+    //});
 </script>

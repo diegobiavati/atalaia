@@ -46,8 +46,8 @@
 <script>
     $(document).ready(function() {
 
-        $(document).on('change', 'select.required_to_show_button', function() {
-            $('select.required_to_show_button').each(function(index, element) {
+        $('form#consulta-uete-punido select.required_to_show_button').change(function() {
+            $('form#consulta-uete-punido select.required_to_show_button').each(function(index, element) {
 
                 if ($(element).val() == 99) {
                     $('button#btn-consulta-aluno-punicao').slideUp(100);

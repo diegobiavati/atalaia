@@ -29,8 +29,8 @@
 <script>
     $(document).ready(function() {
 
-        $(document).on('change', 'select.required_to_show_button', function() {
-            $('select.required_to_show_button').each(function(index, element) {
+        $('form#fichaIndividualAluno select.required_to_show_button').change(function() {
+            $('form#fichaIndividualAluno select.required_to_show_button').each(function(index, element) {
 
                 if ($(element).val() == 99) {
                     $('button#btn-ficha-individual-aluno').slideUp(100);
