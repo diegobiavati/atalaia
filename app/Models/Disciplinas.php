@@ -94,20 +94,23 @@ class Disciplinas extends Model
     //Modificado para trazer as notas já calculadas igual no demonstrativo de notas...
     public function getNotasAluno2023($aluno_id){    
         
-        $notas_aluno = unserialize(AlunosClassificacao::where([['aluno_id', '=', $aluno_id]])->first()->data_demonstrativo);
+        $data_demonstrativo = AlunosClassificacao::where([['aluno_id', '=', $aluno_id]])->first();
+        if(isset($data_demonstrativo->data_demonstrativo)){
+            $notas_aluno = unserialize(AlunosClassificacao::where([['aluno_id', '=', $aluno_id]])->first()->data_demonstrativo);
 
-        foreach($notas_aluno as $key => $item){
-            if(is_numeric($key) && $item['disciplina_id'] == $this->id){
-                $nd = $item['media'];
-                foreach($item['avaliacoes'] as $k => $avaliacao){
-                    if($k == 'ACR'){
-                        $nota_recuperacao = $avaliacao;  
-                    }else if(key_exists($avaliacao->indice_notas, $item['notas'])){
-                        $notas[$avaliacao->nome_abrev] = $item['notas'][$avaliacao->indice_notas];
+            foreach($notas_aluno as $key => $item){
+                if(is_numeric($key) && $item['disciplina_id'] == $this->id){
+                    $nd = $item['media'];
+                    foreach($item['avaliacoes'] as $k => $avaliacao){
+                        if($k == 'ACR'){
+                            $nota_recuperacao = $avaliacao;  
+                        }else if(key_exists($avaliacao->indice_notas, $item['notas'])){
+                            $notas[$avaliacao->nome_abrev] = $item['notas'][$avaliacao->indice_notas];
+                        }
                     }
                 }
-            }
-        }    
+            }    
+        }
         
         if(isset($notas)){
             $avaliacoes = $notas;
