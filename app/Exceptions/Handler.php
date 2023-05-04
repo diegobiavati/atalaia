@@ -50,4 +50,13 @@ class Handler extends ExceptionHandler
     {
         return parent::render($request, $exception);
     }
+
+    protected function prepareException(Exception $e)
+    {
+        if ($e instanceof TokenMismatchException) {
+            $e = new HttpException(419, 'Sua sessão está expirada. Por favor atualize a página para continuar a utilizar o sistema.', $e);
+        }
+
+        return parent::prepareException($e);
+    }
 }

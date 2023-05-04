@@ -32,6 +32,27 @@ class Kernel extends ConsoleKernel
         })->weekdays()->hourly()->between('7:00', '18:00');
         //})->weekdays()->everyMinute()->between('7:00', '18:00')
         //->emailOutputTo('jvgs_o.o@live.com');
+
+
+		$schedule->call(function () {
+            echo ImportacaoController::verificaNomeBoletim();
+        //})->weekdays()->hourly()->between('7:00', '18:00')
+        })->weekdays()
+		->hourly()
+		//->everyMinute()
+		//->everyFiveMinutes()
+		->between('16:00', '19:00');
+		
+        //$schedule->command('App\Http\Controllers\Ajax\ImportacaoController@verificaNomeBoletim')
+		/*$schedule->call(function () {
+			ImportacaoController::verificaNomeBoletim();
+		})->weekdays()->everyMinute()->between('7:00', '18:00');*/
+        //})->weekdays()->hourly()->between('7:00', '18:00')
+        
+		//->name("Citado em Boletim Interno")
+		//->sendOutputTo(storage_path('logs/teste.log'))
+        //->emailOutputTo('jvgs_o.o@live.com');
+
     }
 
     /**

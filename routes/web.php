@@ -497,11 +497,12 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         /*Fim Calendario*/
 
         /*Índice de Dificuldades*/
-        Route::resource('indice-dificuldades', 'SSAA\Calendario\ControllerIndiceDificuldades');
-        Route::get('indice-dificuldades/get-disciplinas/{id_qms}', 'SSAA\Calendario\ControllerIndiceDificuldades@carregaDisciplinas');
-        Route::get('indice-dificuldades/get-disciplinas-provas/{id_disciplina}', 'SSAA\Calendario\ControllerIndiceDificuldades@carregaDisciplinasProvas');
-        Route::get('indice-dificuldades/carrega-indices/{id_prova}', 'SSAA\Calendario\ControllerIndiceDificuldades@carregaDisciplinasProvas');
-        /*Fim Índice de Dificuldades*/
+        Route::resource('indice-dificuldades', 'SSAA\Avaliacao\ControllerIndiceDificuldades');
+        Route::get('indice-dificuldades/get-disciplinas/{id_qms}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@carregaDisciplinas');
+        Route::get('indice-dificuldades/get-disciplinas-provas/{id_disciplina}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@carregaDisciplinasProvas');
+        Route::get('indice-dificuldades/carrega-indices/{id_prova?}', ['as' => 'carrega-indices', 'uses' => 'SSAA\Avaliacao\ControllerIndiceDificuldades@carregaIndices']);
+        Route::get('indice-dificuldades/get-gbm/{undefined}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@getGBM');
+
 
 
     //Fim SSAA

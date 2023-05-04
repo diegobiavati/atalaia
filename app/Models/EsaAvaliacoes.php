@@ -8,7 +8,7 @@ class EsaAvaliacoes extends Model
 {
     protected $connection = 'mysql_ssaa';
     protected $table = 'esa_avaliacoes';
-    protected $fillable = ['id_esa_disciplinas', 'nome_avaliacao', 'tipo_avaliacao', 'local_aplicacao', 'chamada', 'peso', 'proposta', 'realizacao', 'devolucao'];
+    protected $fillable = ['id_esa_disciplinas', 'nome_avaliacao', 'tipo_avaliacao', 'local_aplicacao', 'chamada', 'peso', 'proposta', 'realizacao', 'devolucao', 'avl_1_ano'];
 
     private $_tipo_avaliacoes = null;
     private $_chamadas = null;

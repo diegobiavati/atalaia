@@ -55,6 +55,13 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
     <label>Devolução</label>
     <input type="date" class="form-control" value="{{ $esaAvaliacoes->devolucao or old('devolucao') }}" name="devolucao" min="{{$cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-02-01' }}" max="{{ $cursoSelecionado->escolhaQms->anoFormacao->ano_per_qualificacao.'-12-31' }}" required {{ $readOnly }}>
 </div>
+
+<div class="fomr-group" style="width: 150px;">
+    <div class="custom-control custom-checkbox" style="margin-top: 20px;">
+        <input id="customCheckAvl1" name="avl1" type="checkbox" value="0" class="custom-control-input" {{ (isset($esaAvaliacoes) && ($esaAvaliacoes->avl_1_ano == 'S')) ? 'checked' : '' }} {{ ((isset($readOnly)) ? 'disabled="disabled"' : '' ) }}>
+        <label class="custom-control-label" for="customCheckAvl1" style="width:200px;margin-top: 0.1rem;font-weight:bold;">Avaliação do 1º Ano?</label>
+    </div>
+</div>
 <br>
 
 <div style="margin-top: 24px;">

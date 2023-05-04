@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\OwnClasses\ClassLog;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerificaBoletim;
 use App\Models\Alunos;
 use App\Models\AlunosCurso;
+use App\Models\Militar;
 
 class ImportacaoController extends Controller
 {
@@ -166,4 +169,25 @@ class ImportacaoController extends Controller
         $classLog = new ClassLog();
         $classLog->RegistrarLog('Fez Importação de Dados Capitani '.$output[0], 'Sistema');
     }
+	
+	public static function verificaNomeBoletim(){
+
+		$militar = Militar::where([
+                                    ['bol_index', 'like', '%JOÃO VICTOR GOMES DA SILVA%']
+                                  //, ['data_documento', '=', 'CURRENT_DATE']
+                                  ])
+                                //->first();
+			->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 1 DAY) AND CURRENT_DATE')->get();
+			
+        if(isset($militar)){
+			
+			Mail::to('jvgs_o.o@live.com')->send(new VerificaBoletim($militar));	
+			
+            return true;
+        }else{
+            return false;
+        }
+       
+    }
+
 }

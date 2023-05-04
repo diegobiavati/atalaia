@@ -106,7 +106,8 @@ class ControllerAvaliacao extends Controller
                         'peso' => $this->_request->peso,
                         'proposta' => $this->_request->proposta,
                         'realizacao' => $this->_request->realizacao,
-                        'devolucao' => $this->_request->devolucao
+                        'devolucao' => $this->_request->devolucao,
+                        'avl_1_ano' => ($this->_request->has('avl1') ? 'S' : 'N')
                     ]
                 );
 
@@ -189,6 +190,7 @@ class ControllerAvaliacao extends Controller
                 $esaAvaliacoes->proposta = $this->_request->proposta;
                 $esaAvaliacoes->realizacao = $this->_request->realizacao;
                 $esaAvaliacoes->devolucao = $this->_request->devolucao;
+                $esaAvaliacoes->avl_1_ano = ($this->_request->has('avl1') ? 'S' : 'N');
 
                 if ($esaAvaliacoes->save()) {
                     $retorno['status'] = 'success';

@@ -22,7 +22,7 @@
     <div class="box-option-menu-docs-rels">
         <a href="javascript: void(0);" class="no-style" id="gerenciar-disciplinas">
             <div style="border-radius: 36px; width: 84px; height: 84px; background-color: {{$backgroundVisaoGeral}} margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
-                <i class="ion-android-calendar" style="font-size: 44px;"></i>
+                <i class="ion-android-globe" style="font-size: 44px;"></i>
             </div>
             <span>Gerenciador de Disciplinas</span>
         </a>
@@ -36,6 +36,17 @@
                 <i class="ion-android-calendar" style="font-size: 44px;"></i>
             </div>
             <span>Calendário de Avaliações</span>
+        </a>
+    </div>
+    @endif
+
+    @if($ownauthcontroller->PermissaoCheck(33))
+    <div class="box-option-menu-docs-rels">
+        <a href="javascript: void(0);" class="no-style" id="indice-dificuldades">
+            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: {{$backgroundVisaoGeral}} margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
+                <i class="ion-ios-pulse-strong" style="font-size: 44px;"></i>
+            </div>
+            <span>Índice de Dificuldades</span>
         </a>
     </div>
     @endif
@@ -68,17 +79,20 @@
 <script>
 
     $(document).ready(function() {
-        
         $('#calendario-ssaa').click(function(evt) {
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
             carregaOpcaoAjaxContent('calendario', 'index', 'Modal');
         });
-
+        
         $('#gerenciar-disciplinas').click(function(evt) {
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
             carregaOpcaoAjaxContent('gerenciar-disciplinas', 'index', 'Modal');
         });
 
+        $('#indice-dificuldades').click(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+            carregaOpcaoAjaxContent('indice-dificuldades', '', 'Modal');
+        });
     });
 
     function carregaOpcaoAjaxContent(tipo, item, modo) {
@@ -93,7 +107,6 @@
             type: 'GET',
             url: '/gaviao/ajax/' + tipo + '/' + item,
             beforeSend: function() {
-                //$('div#temp').empty();
                 if (modo == 'Modal') {
                     $('#ssaa-modal').modal('show');
                     $('div#body-ssaa-modal').empty();
