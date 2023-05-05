@@ -39,7 +39,7 @@
         </a>
     </div>
     @endif
-
+	
     @if($ownauthcontroller->PermissaoCheck(33))
     <div class="box-option-menu-docs-rels">
         <a href="javascript: void(0);" class="no-style" id="indice-dificuldades">

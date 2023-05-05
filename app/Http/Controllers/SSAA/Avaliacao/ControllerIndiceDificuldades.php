@@ -220,7 +220,14 @@ class ControllerIndiceDificuldades extends Controller
     }
 
     public function getGBM(){
-        return response()->json(array('success' => true, 'resultado_gbm' => EsaAvaliacoesIndices::where([['id_esa_avaliacoes', '=', explode('-', decrypt(session()->get('encryptData')))[3] ]])->sum('score_total')));    
+        $retorno['success'] = true;
+        $retorno['resultado_gbm'] = 0;
+
+        if(session()->has('encryptData')){
+            $retorno['resultado_gbm'] = EsaAvaliacoesIndices::where([['id_esa_avaliacoes', '=', explode('-', decrypt(session()->get('encryptData')))[3] ]])->sum('score_total');
+        }
+
+        return response()->json($retorno);
     }
 
 }

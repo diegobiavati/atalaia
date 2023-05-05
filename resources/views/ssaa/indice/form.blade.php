@@ -116,42 +116,15 @@
                     <!-- Feedback message zone -->
                     <div id="message"></div>
                     <div id="toolbar" class="toolbar">
-                        <!--<input type="text" id="filter" name="filter" placeholder="Filter :type any text here"  />-->
                         <button id="addRow" type="button" class="ion-plus btn btn-primary"> Adicionar item</button>
                     </div>
-                    <!--  Number of rows per page and bars in chart -->
-                    <!--<div id="pagecontrol">
-                        <label for="pagecontrol">Rows per page: </label>
-                        <select id="pagesize" name="pagesize">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                            <option value="25">25</option>
-                            <option value="30">30</option>
-                            <option value="40">40</option>
-                            <option value="50">50</option>
-                        </select>
-                    </div>-->
-                
-                    <!-- Grid filter -->
-                    <!--<label for="filter">Filter :</label>
-                    <input type="text" id="filter">-->
-                
+                    
                     <!-- Grid contents -->
                     <div id="tablecontent"></div>
                     <!-- [DO NOT DEPLOY] --> 	
                 
-                    <!-- Paginator control -->
-                    <!--<div id="paginator"></div>-->
-                
                     <!-- Edition zone (to demonstrate the "fixed" editor mode) -->
                     <div id="edition"></div>
-                    
-                    <!-- Charts zone -->
-                    <!--<div id="barchartcontent"></div>
-                    <div id="piechartcontent"></div>-->
-                    
                 </div>  
 
 
@@ -209,7 +182,8 @@
                         $('div .container-body').css('display', 'block');
                         $('div .container-side').css('display', 'block');
 
-                        $('.container .container-body #toolbar #addRow').click( function()  {
+                        $('.container .container-body #toolbar #addRow').click( function(evt)  {
+                            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos                
                             //Adiciona Nova Linha...
                             editableGrid.addRow(null, [0]);
                         });
