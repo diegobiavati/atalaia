@@ -193,6 +193,8 @@ class ControllerIndiceDificuldades extends Controller
             if($avlBasico){
                 $editableGrid->addColumn("assunto_basico", "Disc B/As", "string", null, true, null, false);
             }
+            $editableGrid->addColumn("tipo_questao", "Tipo Questão", "string", array('BD' => 'Banco de Dados', 'N' => 'Nova'), true);
+            $editableGrid->addColumn("dificuldade_estimada", "Dif. Estimada", "string", array('F' => 'Fácil', 'M' => 'Médio', 'D' => 'Difícil', 'MD' => 'Muito Difícil'), true);
             // action column ("html" type), not editable
             $editableGrid->addColumn("action", "Ações", "html", NULL, false);
             
@@ -201,7 +203,9 @@ class ControllerIndiceDificuldades extends Controller
                 $data[] = array(
                     "id_esa_avaliacoes" => encrypt(date('Y-m-d H:i:s').'-'.$indices->id_esa_avaliacoes),
                     "nr_item" => $indices->nr_item,
-                    "score_total" => $indices->score_total
+                    "score_total" => $indices->score_total,
+                    "tipo_questao" => $indices->tipo_questao,
+                    "dificuldade_estimada" => $indices->dificuldade_estimada
                 );
     
                 if($avlBasico){
