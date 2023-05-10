@@ -315,6 +315,8 @@ class AlunoSitDiversasController extends Controller
                         //Informa o ano que ele será integrado
                         $anoFormacao = AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
                         $aluno->ano_formacao_reintegr_id = $anoFormacao->id;
+                        $aluno->qms_id = null;
+                        $aluno->turma_esa_id = null;
                     }else{
                         $aluno->ano_formacao_reintegr_id = null;
                     }
