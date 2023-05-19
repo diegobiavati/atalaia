@@ -44,13 +44,7 @@ class AnalisesNotasController extends Controller
         $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
         $ano_selecionado = (isset($ano_formacao->formacao))? $ano_formacao->formacao:'---';
 
-/*         array:3 [▼
-        "ano_formacao_id" => "1"
-        "omctID" => "todas_omct"
-        "avaliacaoID" => "22"
-      ] */
-
-      // RECUPERANDO OS DADOS DA AVALIAÇÃO
+        //RECUPERANDO OS DADOS DA AVALIAÇÃO
 
         $avaliacao = Avaliacoes::find($request->avaliacaoID);
 
@@ -87,26 +81,50 @@ class AnalisesNotasController extends Controller
 
             foreach($avaliacoes_notas_novo as $key => $aval_nota){
                 if($key != 'alunosID'){
-                    $avaliacao_data['media_aritmetica'] = number_format($aval_nota['media_disciplina'], 3, ',', '');
-                    $avaliacao_data['maior'] = $aval_nota['max_disciplina'];
-                    $avaliacao_data['menor'] = $aval_nota['min_disciplina'];
-
-                    foreach($aval_nota as $keyInfo => $info){
-
-                        if(is_numeric($keyInfo)){
-                            if($info['media']>=5){
-                                $com_media[] = 1;
-                            } else {
-                                $sem_media[] = 1;
-                            }
-                            foreach($mencoes as $menc){
-                                if($info['media']>=$menc->inicio && $info['media']<=$menc->fim) {
-                                    $mencao[$menc->mencao][] = 1;
+                    if($aval_nota['media_disciplina'] > 0){
+                        $avaliacao_data['media_aritmetica'] = number_format($aval_nota['media_disciplina'], 3, ',', '');
+                        $avaliacao_data['maior'] = $aval_nota['max_disciplina'];
+                        $avaliacao_data['menor'] = $aval_nota['min_disciplina'];
+    
+                        foreach($aval_nota as $keyInfo => $info){
+    
+                            if(is_numeric($keyInfo)){
+                                if($info['media']>=5){
+                                    $com_media[] = 1;
+                                } else {
+                                    $sem_media[] = 1;
                                 }
-                            }    
+                                foreach($mencoes as $menc){
+                                    if($info['media']>=$menc->inicio && $info['media']<=$menc->fim) {
+                                        $mencao[$menc->mencao][] = 1;
+                                    }
+                                }    
+    
+                            }
+                        }
+                    }else{
+                        $avaliacao_data['media_aritmetica'] = number_format($aval_nota['media_disciplina_s_peso'], 3, ',', '');
+                        $avaliacao_data['maior'] = $aval_nota['max_disciplina_s_peso'];
+                        $avaliacao_data['menor'] = $aval_nota['min_disciplina_s_peso'];
 
+                        foreach($aval_nota as $keyInfo => $info){
+
+                            if(is_numeric($keyInfo)){
+                                if($info['media_sem_peso']>=5){
+                                    $com_media[] = 1;
+                                } else {
+                                    $sem_media[] = 1;
+                                }
+                                foreach($mencoes as $menc){
+                                    if($info['media_sem_peso']>=$menc->inicio && $info['media_sem_peso']<=$menc->fim) {
+                                        $mencao[$menc->mencao][] = 1;
+                                    }
+                                }    
+
+                            }
                         }
                     }
+                    
                 }
             }
 
@@ -143,10 +161,20 @@ class AnalisesNotasController extends Controller
                 foreach($avaliacoes_notas_novo as $key => $aval_nota){
                     
                     if($key != 'alunosID'){
-                        foreach($aval_nota as $keyInfo => $info){
-                            if(is_numeric($keyInfo)){
-                                if($info['media']>=$i && $info['media']<=($i+0.999)){
-                                    $notas_obtidas[$i][] = 1;    
+                        if($aval_nota['media_disciplina'] > 0){
+                            foreach($aval_nota as $keyInfo => $info){
+                                if(is_numeric($keyInfo)){
+                                    if($info['media']>=$i && $info['media']<=($i+0.999)){
+                                        $notas_obtidas[$i][] = 1;    
+                                    }
+                                }
+                            }
+                        }else{
+                            foreach($aval_nota as $keyInfo => $info){
+                                if(is_numeric($keyInfo)){
+                                    if($info['media_sem_peso']>=$i && $info['media_sem_peso']<=($i+0.999)){
+                                        $notas_obtidas[$i][] = 1;    
+                                    }
                                 }
                             }
                         }
@@ -159,12 +187,24 @@ class AnalisesNotasController extends Controller
             
             foreach($avaliacoes_notas_novo as $key => $aval_nota){
                 if($key != 'alunosID'){
-                    foreach($aval_nota as $keyInfo => $info){
-                        if(is_numeric($keyInfo)){
-                            if($info['media']>=9 && $info['media']<=9.499){
-                                $notas_obtidas[9][] = 1;    
-                            } else if($info['media']>=9.5 && $info['media']<=10){
-                                $notas_obtidas[10][] = 1;
+                    if($aval_nota['media_disciplina'] > 0){
+                        foreach($aval_nota as $keyInfo => $info){
+                            if(is_numeric($keyInfo)){
+                                if($info['media']>=9 && $info['media']<=9.499){
+                                    $notas_obtidas[9][] = 1;    
+                                } else if($info['media']>=9.5 && $info['media']<=10){
+                                    $notas_obtidas[10][] = 1;
+                                }
+                            }
+                        }
+                    }else{
+                        foreach($aval_nota as $keyInfo => $info){
+                            if(is_numeric($keyInfo)){
+                                if($info['media_sem_peso']>=9 && $info['media_sem_peso']<=9.499){
+                                    $notas_obtidas[9][] = 1;    
+                                } else if($info['media_sem_peso']>=9.5 && $info['media_sem_peso']<=10){
+                                    $notas_obtidas[10][] = 1;
+                                }
                             }
                         }
                     }

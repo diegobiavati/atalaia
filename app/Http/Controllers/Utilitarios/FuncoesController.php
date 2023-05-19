@@ -252,9 +252,13 @@ class FuncoesController
             foreach ($aluno_notas as $disciplina_id => $disciplina) {
 
                 $aluno_notas[$disciplina_id]['media_disciplina'] = 0.0;
+                $aluno_notas[$disciplina_id]['media_disciplina_s_peso'] = 0.0;
                 $aluno_notas[$disciplina_id]['max_disciplina'] = 0.0;
+                $aluno_notas[$disciplina_id]['max_disciplina_s_peso'] = 0.0;
                 $aluno_notas[$disciplina_id]['min_disciplina'] = 0.0;
+                $aluno_notas[$disciplina_id]['min_disciplina_s_peso'] = 0.0;
                 $contador_media = 0;
+                $contador_media_sem_peso = 0;
 
                 foreach ($disciplina as $aluno_id => $aluno) {
                     $quantidadeAvaliacao = 0;
@@ -282,23 +286,38 @@ class FuncoesController
                     $aluno_notas[$disciplina_id][$aluno_id]['disciplina_razao'] = $quantidadeAvaliacao;
                     if ($quantidadeAvaliacao > 0) {
                         $aluno_notas[$disciplina_id][$aluno_id]['media'] = array_sum($aluno_notas[$disciplina_id][$aluno_id]['notas']) / $quantidadeAvaliacao;
+
+                        $aluno_notas[$disciplina_id]['max_disciplina'] = ($aluno_notas[$disciplina_id][$aluno_id]['media'] > $aluno_notas[$disciplina_id]['max_disciplina']
+                        ? $aluno_notas[$disciplina_id][$aluno_id]['media']
+                        : $aluno_notas[$disciplina_id]['max_disciplina']);
+
+                        $aluno_notas[$disciplina_id]['min_disciplina'] = ((($aluno_notas[$disciplina_id][$aluno_id]['media'] < $aluno_notas[$disciplina_id]['min_disciplina'])
+                            || ($aluno_notas[$disciplina_id]['min_disciplina'] == 0))
+                            ? $aluno_notas[$disciplina_id][$aluno_id]['media']
+                            : $aluno_notas[$disciplina_id]['min_disciplina']);
+                            
                     } else {
                         $aluno_notas[$disciplina_id][$aluno_id]['media'] = 0;
                         $aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso'] = array_sum($aluno_notas[$disciplina_id][$aluno_id]['notas_sem_peso']) / count($aluno_notas[$disciplina_id][$aluno_id]['notas_sem_peso']);
+
+                        $aluno_notas[$disciplina_id]['media_disciplina_s_peso'] += $aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso'];
+
+                        $aluno_notas[$disciplina_id]['max_disciplina_s_peso'] = ($aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso'] > $aluno_notas[$disciplina_id]['max_disciplina_s_peso']
+                        ? $aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso']
+                        : $aluno_notas[$disciplina_id]['max_disciplina_s_peso']);
+
+                        $aluno_notas[$disciplina_id]['min_disciplina_s_peso'] = ((($aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso'] < $aluno_notas[$disciplina_id]['min_disciplina_s_peso'])
+                            || ($aluno_notas[$disciplina_id]['min_disciplina_s_peso'] == 0))
+                            ? $aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso']
+                            : $aluno_notas[$disciplina_id]['min_disciplina_s_peso']);
                     }
 
                     $aluno_notas[$disciplina_id]['media_disciplina'] += $aluno_notas[$disciplina_id][$aluno_id]['media'];
-                    $aluno_notas[$disciplina_id]['max_disciplina'] = ($aluno_notas[$disciplina_id][$aluno_id]['media'] > $aluno_notas[$disciplina_id]['max_disciplina']
-                        ? $aluno_notas[$disciplina_id][$aluno_id]['media']
-                        : $aluno_notas[$disciplina_id]['max_disciplina']);
-                    $aluno_notas[$disciplina_id]['min_disciplina'] = ((($aluno_notas[$disciplina_id][$aluno_id]['media'] < $aluno_notas[$disciplina_id]['min_disciplina'])
-                        || ($aluno_notas[$disciplina_id]['min_disciplina'] == 0))
-                        ? $aluno_notas[$disciplina_id][$aluno_id]['media']
-                        : $aluno_notas[$disciplina_id]['min_disciplina']);
 
                     //Caso seja sem peso a avaliação e só existir uma nota lançada...
                     if ($aluno_notas[$disciplina_id][$aluno_id]['media'] == 0 && $quantidadeAvaliacao == 0) {
                         $aluno_notas[$disciplina_id][$aluno_id]['media'] = '-';
+                        $contador_media_sem_peso++;
                     } else {
                         $contador_media++;
                     }
@@ -306,6 +325,10 @@ class FuncoesController
 
                 if ($contador_media > 0) {
                     $aluno_notas[$disciplina_id]['media_disciplina'] = $aluno_notas[$disciplina_id]['media_disciplina'] / $contador_media;
+                }
+
+                if ($contador_media_sem_peso > 0) {
+                    $aluno_notas[$disciplina_id]['media_disciplina_s_peso'] = $aluno_notas[$disciplina_id]['media_disciplina_s_peso'] / $contador_media_sem_peso;
                 }
             }
             $aluno_notas['alunosID'] = $alunosID;
