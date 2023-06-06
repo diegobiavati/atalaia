@@ -380,6 +380,9 @@ Route::get('testy', function(\App\Http\Controllers\OwnAuthController $ownauthcon
 //Reintegrar Aluno Situacao Diversas
 Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
 
+//Exportar Notas dos Alunos
+Route::get('exporta-notas-aluno/{id_ano_formacao}', 'Exportar\ExportarNotasController@exportarNotasAlunos')->middleware('checkauth');
+
 //Gerar Notas Aluno Capitani
 Route::get('modelo-pb-capitani/{id_ano_formacao}', 'Aluno\AlunoApiController@modeloPBCapitani')->middleware('checkauth');
 
@@ -428,6 +431,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
     Route::get('relacao-geral-alunos/{id_ano_formacao}', 'Relatorios\RelatorioAlunoController@ViewRelatorioGeralGaviao');
     Route::get('listagem-selecao-alunos-turma', 'Ajax\AjaxAdminGaviaoController@ListagemSelecaoAlunosTurma');
     Route::post('seleciona-turma/{idTurma}/{idAluno}', 'Ajax\AjaxAdminGaviaoController@SelecionaAlunoTurma');
+    Route::get('view-combo-box-alunos/{id_turma_esa}', 'Aluno\AlunoApiController@ViewComboBoxAlunos');
 
     Route::get('load-alunos-gaviao-situacoes-diversas/', 'Ajax\AjaxAdminGaviaoController@LoadAlunosSitDiv');
 
@@ -501,10 +505,14 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('indice-dificuldades/get-disciplinas/{id_qms}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@carregaDisciplinas');
         Route::get('indice-dificuldades/get-disciplinas-provas/{id_disciplina}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@carregaDisciplinasProvas');
         Route::get('indice-dificuldades/carrega-indices/{id_prova?}', ['as' => 'carrega-indices', 'uses' => 'SSAA\Avaliacao\ControllerIndiceDificuldades@carregaIndices']);
-        Route::get('indice-dificuldades/get-gbm/{undefined}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@getGBM');
-
-
-
+        Route::get('indice-dificuldades/get-gbm/{indefinido?}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@getGBM');
+        
+        /*Lançamento de GBO*/
+        Route::resource('view-lancamento-gbo', 'SSAA\Avaliacao\ControllerLancamentoGBO');
+        
+        Route::get('view-navegacao-item/{id_aluno}/{requisicao?}/{item?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewPaginacaoLancamento');
+        
+        
     //Fim SSAA
 
 
@@ -518,7 +526,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
 
 
         //Exportar o Xlsx para o Diploma Digital
-        Route::get('exportaAluno', ['as' => 'exportaAluno', 'uses' => 'Ajax\Diploma\DiplomaController@exportAlunos'])->middleware('checkauth');
+        Route::get('exportaAlunoDiploma', ['as' => 'exportaAlunoDiploma', 'uses' => 'Ajax\Diploma\DiplomaController@exportAlunos'])->middleware('checkauth');
     });
 
     
