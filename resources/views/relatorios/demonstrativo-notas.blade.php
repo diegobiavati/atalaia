@@ -91,7 +91,7 @@ $data_array = unserialize($class->data_demonstrativo);
         @php
         $valida_col_tfm = false;
         $rowspan = 0;
-        $colspan_geral = $data_array['avaliacoes_tfm']['colspan_demonstrativo'] - 1;
+        $colspan_geral = isset($data_array['avaliacoes_tfm']) ? ($data_array['avaliacoes_tfm']['colspan_demonstrativo'] - 1) : 0;
         $colspan = 0;
 
         @endphp

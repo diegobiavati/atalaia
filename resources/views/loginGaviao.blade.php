@@ -264,7 +264,7 @@ h4{
           },
           error: function(jqxhr){
             $('div#temp').remove();
-            $('form#submitLogin').prepend('<div id="temp" style="text-align: center; margin-top: 44px; color: #DF0101;"><b>ERRO INTERNO</b></div>');
+            $('form#submitLogin').prepend('<div id="temp" style="text-align: center; margin-top: 44px; color: #DF0101;"><b>'+ jqxhr.responseJSON.message +'</b></div>');
             setTimeout(function(){
               $('div#temp').remove();
               $('form#submitLogin div').fadeIn(100);

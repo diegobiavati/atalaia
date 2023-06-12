@@ -171,23 +171,21 @@ class ImportacaoController extends Controller
     }
 	
 	public static function verificaNomeBoletim(){
-
-		$militar = Militar::where([
-                                    ['bol_index', 'like', '%JOÃO VICTOR GOMES DA SILVA%']
-                                  //, ['data_documento', '=', 'CURRENT_DATE']
-                                  ])
-                                //->first();
-			->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 1 DAY) AND CURRENT_DATE')->get();
-			
-        if(isset($militar)){
-			
-			Mail::to('jvgs_o.o@live.com')->send(new VerificaBoletim($militar));	
-			
+	
+        if(($militar = Militar::where([['bol_index', 'like', '%JOÃO VICTOR GOMES DA SILVA%']])
+        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 1 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
+			Mail::to('jvgs_o.o@live.com')->send(new VerificaBoletim($militar));		
             return true;
-        }else{
-            return false;
         }
-       
+        
+        if(($militar = Militar::where([['bol_index', 'like', '%MUNIR CHEIK KALED%']])
+        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 1 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
+            Mail::to('munir.cheik@gmail.com')->send(new VerificaBoletim($militar));		
+            return true;
+        }
+
+        
+        return false;
     }
 
 }

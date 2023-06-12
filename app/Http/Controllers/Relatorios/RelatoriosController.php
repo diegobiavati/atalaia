@@ -1071,11 +1071,11 @@ class RelatoriosController extends Controller
 
     function ListaAssinavelDemonstrativoNotasPorAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
 
-        if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
+        /*if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
 
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
 
-        } else {
+        } else {*/
 
             //omctID
             //avaliacaoID
@@ -1092,7 +1092,7 @@ class RelatoriosController extends Controller
                                                                         ->with('ano_formacao', $ano_formacao)
                                                                         ->with('alunos', $alunos);
 
-        }        
+        /*}  */      
     }
 
     function RelacaoAlunosProntos(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
