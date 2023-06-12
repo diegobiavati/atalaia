@@ -482,8 +482,14 @@ class AlunoApiController extends Controller
         if (!is_null(FuncoesController::validaSessao())) {
             return;
         }
+        
+        if(strlen($request->id_turma) > 20){
+            $idTurma = explode('_', decrypt($request->id_turma))[1];
+        }else{
+            $idTurma = $request->id_turma;
+        }
 
-        $turmaESA = TurmasEsa::find($request->id_turma);
+        $turmaESA = TurmasEsa::find($idTurma);
         
         $turmaAlunos = Alunos::retornaAlunosComQmsEspecifica($turmaESA->qms->escolhaQms->anoFormacao->id, [$turmaESA->qms_id])
                 ->where('turma_esa_id', $turmaESA->id)->get();
@@ -506,6 +512,20 @@ class AlunoApiController extends Controller
         $criptografia = (isset($request->criptografia) ? $request->criptografia : false);
 
         return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos', 'criptografia'));
+    }
+
+    public function ViewComboBoxAlunos(Request $request){
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+        
+        $id_turma = explode('_',decrypt($request->id_turma_esa))[1];
+        $criptografia = true;
+
+        $alunos = Alunos::where([['turma_esa_id', '=', $id_turma]])->get();
+
+        return view('ajax.componentes.componenteAlunos', compact('alunos', 'criptografia'))
+                ->with('ownauthcontroller', $this->ownauthcontroller);
     }
 
     public function modeloPBCapitani(Request $request){

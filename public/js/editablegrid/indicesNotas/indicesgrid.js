@@ -68,12 +68,12 @@ EditableGrid.prototype.initializeGrid = function()
 			setHeaderRenderer("score_total", new InfoHeaderRenderer("O Score Total deve ser preenchido."));
 
 			if (hasColumn('assunto_basico')) {
-				setHeaderRenderer("assunto_basico", new InfoHeaderRenderer("Informe o nome da avaliação do período básico1."))
+				setHeaderRenderer("assunto_basico", new InfoHeaderRenderer("Informe o nome da avaliação do período básico1."));
 				// use autocomplete on assunto_basico
-				setCellEditor("assunto_basico", new AutocompleteCellEditor({
-					suggestions: ['Arm Mun Tiro', 'Tec Mil I', 'Tec Mil II', 'Tec Mil III', 'Lid Mil', 'Et Prof MilDir', 'Hist Mil Brasil'
-				,'L Inglesa']
-				}));
+				//setCellEditor("assunto_basico", new AutocompleteCellEditor({
+				//	suggestions: ['Arm Mun Tiro', 'Tec Mil I', 'Tec Mil II', 'Tec Mil III', 'Lid Mil', 'Et Prof MilDir', 'Hist Mil Brasil'
+				//,'L Inglesa']
+				//}));
 			}
 	
 			// add a cell validator to check that the score_total is in [0, 10[

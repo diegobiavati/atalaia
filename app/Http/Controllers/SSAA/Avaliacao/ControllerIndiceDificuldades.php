@@ -20,6 +20,7 @@ class ControllerIndiceDificuldades extends Controller
     private $_request = null;
     private $_urlIndice = '/gaviao/ajax/indice-dificuldades';
     private $_urlGBM = '/gaviao/ajax/indice-dificuldades/get-gbm/0';
+    private $_urlLancamentoGBO = '/gaviao/ajax/view-lancamento-gbo';
     private $_urlIndiceDisciplinas = '/gaviao/ajax/indice-dificuldades/get-disciplinas/';
     private $_urlIndiceDisciplinasProvas = '/gaviao/ajax/indice-dificuldades/get-disciplinas-provas/';
 
@@ -42,7 +43,7 @@ class ControllerIndiceDificuldades extends Controller
     public function index()
     {
         session()->forget('encryptData');
-        return view('ssaa.indice.index')->with('urlIndice', $this->_urlIndice)
+        return view('ssaa.avaliacao.indice.index')->with('urlIndice', $this->_urlIndice)
                                         ->with('urlGBM', $this->_urlGBM);
     }
 
@@ -54,7 +55,7 @@ class ControllerIndiceDificuldades extends Controller
             
             $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($id));
 
-            return view('ssaa.indice.form', compact('cursos'))
+            return view('ssaa.avaliacao.indice.form', compact('cursos'))
                 ->with('ownauthcontroller', $this->_ownauthcontroller)
                 ->with('urlIndiceDisciplinas', $this->_urlIndiceDisciplinas);
         } else {
@@ -128,10 +129,11 @@ class ControllerIndiceDificuldades extends Controller
     
             $cursoSelecionado = $disciplinas[0]->qms;
     
-            return view('ssaa.indice.form', compact('cursos', 'cursoSelecionado', 'disciplinas', 'disciplinaSelecionada'))
+            return view('ssaa.avaliacao.indice.form', compact('cursos', 'cursoSelecionado', 'disciplinas', 'disciplinaSelecionada'))
                 ->with('ownauthcontroller', $this->_ownauthcontroller)
                 ->with('urlIndice', $this->_urlIndice)
                 ->with('urlIndiceDisciplinas', $this->_urlIndiceDisciplinas)
+                ->with('urlLancamentoGBO', $this->_urlLancamentoGBO)
                 ->with('urlIndiceDisciplinasProvas', $this->_urlIndiceDisciplinasProvas);
         }else{
             return $this->show(QMS::find($this->_request->id_qms)->escolhaQms->anoformacao->id);
@@ -180,11 +182,11 @@ class ControllerIndiceDificuldades extends Controller
             $esaAvaliacoes = EsaAvaliacoes::find($id_esa_avaliacoes);
             $avlBasico = ($esaAvaliacoes->avl_1_ano == 'S');
             
-            $esaAvaliacoesIndices = EsaAvaliacoesIndices::where([['id_esa_avaliacoes', '=', $esaAvaliacoes->id]])
-            ->orderByRaw('cast(esa_avaliacoes_indice.nr_item AS UNSIGNED)')
+            $esaAvaliacoesIndices = new EsaAvaliacoesIndices();
+            $esaAvaliacoesIndices = $esaAvaliacoesIndices->getOrdenadoPorItem($id_esa_avaliacoes)
             ->with('esaAvaliacoes')
             ->get();
-    
+
             $editableGrid = new EditableGrid();
             
             $editableGrid->addColumn("id_esa_avaliacoes", "", "string", null, false, null, false, true);
@@ -223,7 +225,7 @@ class ControllerIndiceDificuldades extends Controller
         }
     }
 
-    public function getGBM(){
+    public static function getGBM(){
         $retorno['success'] = true;
         $retorno['resultado_gbm'] = 0;
 

@@ -115,58 +115,62 @@ class AjaxAdminGaviaoController extends Controller
             ->whereIn('aluno_id', $param['alunosId']);
         })->get();
 
-        $fatd = LancamentoFo::whereHas('aluno', function ($query) use ($param) {
-            $query->where(['data_matricula' => $param])
-            ->whereIn('aluno_id', $param['alunosId']);
-        })->whereHas('fatdLancada', function ($query) {
-            $query->where(['justificado' => null]);
-        })->get();
-
-        $avaliacoes = EsaAvaliacoes::whereDate('realizacao', '<=', date('Y-m-d', \strtotime('+2 month')))
-                                ->join('esa_disciplinas', 'esa_avaliacoes.id_esa_disciplinas', '=', 'esa_disciplinas.id')
-                                ->join('atalaia.qms', 'esa_disciplinas.id_qms', '=', 'atalaia.qms.id');
-        
-                                
-        if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
-            $avaliacoes->where('atalaia.qms.qms_matriz_id', '=', session()->get('qms_selecionada'));
-        }else if(!$this->ownauthcontroller->PerfilCheck(['9999', '9005', '9004', '9003'])){
-            $avaliacoes->where('atalaia.qms.qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id'));
+        $fatd = null;
+        if($ownauthcontroller->PerfilCheck(9002)){
+            $fatd = LancamentoFo::whereHas('aluno', function ($query) use ($param) {
+                $query->where(['data_matricula' => $param])
+                ->whereIn('aluno_id', $param['alunosId']);
+            })->whereHas('fatdLancada', function ($query) {
+                $query->where(['justificado' => null]);
+            })->get();
         }
-
-        $avaliacoes->orderBy('realizacao', 'ASC');
         
-        $avaliacoes = $avaliacoes->get(['esa_avaliacoes.id', 'esa_avaliacoes.chamada', 'esa_avaliacoes.id_esa_disciplinas', 'esa_avaliacoes.nome_avaliacao', 
-                                        'esa_avaliacoes.realizacao', 'esa_avaliacoes.devolucao', 'esa_disciplinas.id_qms', 'esa_disciplinas.nome_disciplina', 
-                                        'esa_disciplinas.nome_disciplina_abrev']);
-
         $rapPendentes = collect();
+
+        if($ownauthcontroller->PerfilCheck([9005, 9006])){
         
-        foreach($avaliacoes as $avaliacao){
+            $avaliacoes = EsaAvaliacoes::whereDate('realizacao', '<=', date('Y-m-d', \strtotime('+2 month')))
+                                    ->join('esa_disciplinas', 'esa_avaliacoes.id_esa_disciplinas', '=', 'esa_disciplinas.id')
+                                    ->join('atalaia.qms', 'esa_disciplinas.id_qms', '=', 'atalaia.qms.id');
             
-            if($avaliacao->esadisciplinas->tfm == 'S'){
-                $contador = count($avaliacao->esaAvaliacoesRapTfm);
+                                    
+            if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
+                $avaliacoes->where('atalaia.qms.qms_matriz_id', '=', session()->get('qms_selecionada'));
+            }else if(!$this->ownauthcontroller->PerfilCheck(['9999', '9005', '9004', '9003'])){
+                $avaliacoes->where('atalaia.qms.qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id'));
+            }
 
-                if($contador == 0){
-                    $avaliacao->rapLancadas = $contador;
-                    $avaliacao->rapTotal = 1;
+            $avaliacoes->orderBy('realizacao', 'ASC');
+            
+            $avaliacoes = $avaliacoes->get(['esa_avaliacoes.id', 'esa_avaliacoes.chamada', 'esa_avaliacoes.id_esa_disciplinas', 'esa_avaliacoes.nome_avaliacao', 
+                                            'esa_avaliacoes.realizacao', 'esa_avaliacoes.devolucao', 'esa_disciplinas.id_qms', 'esa_disciplinas.nome_disciplina', 
+                                            'esa_disciplinas.nome_disciplina_abrev']);
 
-                    $rapPendentes->push($avaliacao);
-                }
-            }else{
-                $turmas = $avaliacao->esadisciplinas->qms->consultaTurmas();
-                $contador = count($avaliacao->esaAvaliacoesRap);
+            foreach($avaliacoes as $avaliacao){
+                
+                if($avaliacao->esadisciplinas->tfm == 'S'){
+                    $contador = count($avaliacao->esaAvaliacoesRapTfm);
 
-                if($contador > 0 && $contador <> count($turmas)){
+                    if($contador == 0){
+                        $avaliacao->rapLancadas = $contador;
+                        $avaliacao->rapTotal = 1;
 
-                    $avaliacao->rapLancadas = $contador;
-                    $avaliacao->rapTotal = count($turmas);
-                    
-                    $rapPendentes->push($avaliacao);
+                        $rapPendentes->push($avaliacao);
+                    }
+                }else{
+                    $turmas = $avaliacao->esadisciplinas->qms->consultaTurmas();
+                    $contador = count($avaliacao->esaAvaliacoesRap);
+
+                    if($contador > 0 && $contador <> count($turmas)){
+
+                        $avaliacao->rapLancadas = $contador;
+                        $avaliacao->rapTotal = count($turmas);
+                        
+                        $rapPendentes->push($avaliacao);
+                    }
                 }
             }
         }
-
-        
 
         return  view('ajax.visao-geral-gaviao')->with('total_operadores', Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])->count())
                     ->with('rapPendentes', $rapPendentes)

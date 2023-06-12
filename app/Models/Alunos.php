@@ -404,7 +404,7 @@ class Alunos extends Model
                 && !in_array('9003', session()->get('login.perfil'))
                 && !in_array('9004', session()->get('login.perfil'))
                 && !in_array('9005', session()->get('login.perfil'))
-                && !in_array('9006', session()->get('login.perfil'))
+                //&& !in_array('9006', session()->get('login.perfil'))
                 && !in_array('9007', session()->get('login.perfil'))
         ){
             if($anoFormacaoID > 0){

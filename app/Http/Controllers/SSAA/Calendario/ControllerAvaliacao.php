@@ -245,10 +245,12 @@ class ControllerAvaliacao extends Controller
             $rotaViewListagemCurso = '/gaviao/ajax/gerenciar-avaliacao/curso/';
             return view('ssaa.avaliacao.rap.index_tfm', compact('cursos', 'cursoSelecionado', 'rotaViewListagemCurso', 'rotaSalvaRap'))
                 ->with('esaAvaliacoes', $esaAvaliacoes)
+                ->with('criptografia', true)
                 ->with('ownauthcontroller', $this->_ownauthcontroller);
         }else{
             return view('ssaa.avaliacao.rap.index', compact('cursos', 'cursoSelecionado', 'turmas', 'rotaViewListagemTurma', 'rotaSalvaRap'))
                 ->with('esaAvaliacoes', $esaAvaliacoes)
+                ->with('criptografia', true)
                 ->with('ownauthcontroller', $this->_ownauthcontroller);
         }
     }
@@ -315,7 +317,7 @@ class ControllerAvaliacao extends Controller
                 $data = [
                     'id_operador_devolucao' => session('login.operadorID'),
                     'id_esa_avaliacoes' => $esaAvaliacoes->id,
-                    'id_turmas_esa' => (int) $this->_request->turmaID,
+                    'id_turmas_esa' => (int) explode('_', decrypt($this->_request->turmaID))[1],
                     'alunos_faltas' => (isset($json_alunos) ? $json_alunos : null),
                     'duracao' => $this->_request->duracao,
                     'hora_inicio' => $this->_request->hora_inicio,
