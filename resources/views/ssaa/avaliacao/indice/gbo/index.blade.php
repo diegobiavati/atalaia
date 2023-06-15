@@ -1,8 +1,17 @@
+@php
+    $backgroundColor = (isset($edicao) ? 'orange' : 'white');
+@endphp
+<style>
+    div#lancamento-gbo {
+        background-color: {{$backgroundColor}};
+    }
+</style>
+
 <div id="lancamento-gbo">
     <div class="row">
         <div class="col-sm" id='imagem_curso' style="height: 45px;max-width: 105px;margin-top: 0;"></div>
         <div class="col-sm" style="height: 45px;line-height: 3;font-weight: bold;">
-            Processo Nº: <span class="badge badge-info" style="font-size: large;"> {{ $esaAvaliacoes->id }} / {{ $esaAvaliacoes->esadisciplinas->qms->escolhaQms->anoFormacao->ano_cfs }} </span> 
+        Processo Nº: <span class="badge badge-info" style="font-size: large;"> {{ $esaAvaliacoes->id }} / {{ $esaAvaliacoes->esadisciplinas->qms->escolhaQms->anoFormacao->ano_cfs }} </span> 
         </div>
         
     </div>
@@ -50,7 +59,7 @@
                 </div>
             </div>
         </div>-->
-        <div class="container-body" style="padding: 0px 20px;">
+        <div class="container-body" style="margin: 0px 20px 0px 20px;">
             <div class="row">
                 <div class="col-sm" style="height:auto;">
                         <div class="componente-navegacao"></div>
