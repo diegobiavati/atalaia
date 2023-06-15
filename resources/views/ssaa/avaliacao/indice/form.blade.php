@@ -128,7 +128,16 @@
         </div>
     </div>
     <div class="container-side">
-        <button type="button" class="btn btn-success" id="btn-lancamento" onclick="javascript: void(0);">Lançamento</button>
+        <div class="row">
+            <div class="col-sm" style="margin-bottom: 10px;">
+                <button type="button" class="btn btn-primary" id="btn-lancamento" onclick="javascript: void(0);">Lançamento</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm">
+                <button type="button" class="btn btn-warning" id="btn-editar-lancamento" onclick="javascript: void(0);">Editar Lançamento</button>
+            </div>
+        </div>
     </div>
     <div class="container-body" style="height:auto;">
         <div class="row">
@@ -207,8 +216,21 @@
 
                         $('.container .container-body #toolbar #addRow').click( function(evt)  {
                             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos                
-                            //Adiciona Nova Linha...
-                            editableGrid.addRow(null, [0]);
+
+                            $.ajax({
+                                url: "{{asset('gaviao/ajax/indice-dificuldades/valida-novo-item/0')}}",
+                                dataType: 'json',
+                                beforeSend: function(){
+                                    $('div.alertas-indices-dificuldades').slideUp().empty().removeClass('alert-success').removeClass('alert-danger');
+                                }
+                            }).done(function(response){
+                                if(response.success){
+                                    //Adiciona Nova Linha...
+                                    editableGrid.addRow(null, [0]);
+                                }else{
+                                    $('div.alertas-indices-dificuldades').slideDown().addClass('alert-danger').html('<li>'+response.message+'</li>');
+                                }
+                            });
                         });
                     });
                 }
@@ -220,6 +242,26 @@
             
             $.ajax({
                 url: '{{isset($urlLancamentoGBO) ? $urlLancamentoGBO : null}}',
+                type: 'GET',
+                dataType: "html",
+                beforeSend: function() {
+                    $('div.alertas-indices-dificuldades').slideUp();
+                    loadingModalDinamica('show', 'lg');
+                },
+                success: function (response) { 
+                    $('div.container_indice_dificuldades').fadeOut();
+                    $('div#modalDinamica div.modal-content').html(response);
+                },
+                error: function(XMLHttpRequest, textStatus, exception) { alert("Ajax failure\n" + textStatus); },
+                async: true
+            });
+        });
+
+        $('.container .container-side #btn-editar-lancamento').click(function(evt){
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+            
+            $.ajax({
+                url: "{{isset($urlLancamentoGBO) ? $urlLancamentoGBO.'/0' : null}}",
                 type: 'GET',
                 dataType: "html",
                 beforeSend: function() {

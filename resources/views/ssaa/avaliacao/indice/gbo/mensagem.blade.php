@@ -6,4 +6,10 @@
 
 <script>
     $('.container-lancamento-gbo .quadro-soma-gbo #gbo').text('{{ $gbo }}');
+
+    var meuIntervalo = setInterval(() => {
+        //Ativa o gatilho para o primeiro item...
+        $('div#lancamento-gbo .container-lancamento-gbo .container-header select[name="turmaID"]').change();
+        clearInterval(meuIntervalo);
+    }, 2000);
 </script>

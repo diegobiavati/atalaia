@@ -81,7 +81,7 @@
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
             $.ajax({
-                url: '{{$urlComboAlunos}}' + evt.target.value,
+                url: '{{$urlComboAlunos}}' + evt.target.value + "{{((isset($edicao)) ? '/true' : null)}}",
                 beforeSend:function(){
                     $('div#lancamento-gbo .container-lancamento-gbo .container-header .componenteAlunos').empty()
                     $('div.alert.alertas-lancamento-gbo').slideUp().empty().removeClass('alert-success').removeClass('alert-danger');
@@ -95,7 +95,7 @@
                     param = param1 != undefined ? '/'+param1+'/'+param2 : '';
 
                     $.ajax({
-                        url: '{{$urlNavegacaoItem}}' + evt.target.value + param,
+                        url: '{{$urlNavegacaoItem}}' + evt.target.value + param + "{{((isset($edicao)) ? '?edicao=true' : null)}}",
                         beforeSend:function(){
                             $('div#lancamento-gbo .container-lancamento-gbo .container-body .componente-navegacao').empty();
                             $('div.alert.alertas-lancamento-gbo').slideUp().empty().removeClass('alert-success').removeClass('alert-danger');
@@ -105,7 +105,11 @@
                     }).fail(function(data){
                             $('div.alertas-lancamento-gbo').slideDown().addClass('alert-danger').html('Erro Interno!!'+ data);
                     });
+
+                    
                 });
+                //Ativa o gatilho para o primeiro item...
+                $('div#lancamento-gbo .container-lancamento-gbo .container-header .componenteAlunos select[name="alunoID"]').prop("selectedIndex", 1).change();
             }).fail(function(data){
                     $('div.alertas-lancamento-gbo').slideDown().addClass('alert-danger').html('Erro Interno!!'+ data);
             });

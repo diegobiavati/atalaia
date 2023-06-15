@@ -519,7 +519,7 @@ class AlunoApiController extends Controller
             return;
         }
         
-        $id_turma = explode('_',decrypt($request->id_turma_esa))[1];
+        //$id_turma = explode('_',decrypt($request->id_turma_esa))[1];
         $criptografia = true;
 
         $alunos = Alunos::where([['turma_esa_id', '=', $id_turma]])->get();

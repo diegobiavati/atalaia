@@ -7,10 +7,14 @@ use App\Http\Controllers\OwnAuthController;
 use App\Models\EsaAvaliacoesIndices;
 use App\Models\EsaAvaliacoesGbo;
 use App\Models\AlunosClassificacao;
+use App\Http\Controllers\Utilitarios\FuncoesController;
+use App\Models\Alunos;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Collection;
 use App\Models\EsaAvaliacoes;
+use Illuminate\Database\Eloquent\Builder;
 
 class ControllerLancamentoGBO extends Controller
 {
@@ -18,7 +22,7 @@ class ControllerLancamentoGBO extends Controller
     private $_ownauthcontroller = null;
     private $_request = null;
 
-    private $_urlComboAlunos = '/gaviao/ajax/view-combo-box-alunos/';
+    private $_urlComboAlunos = '/gaviao/ajax/view-combo-box-alunos-rap/';
     private $_urlNavegacaoItem = '/gaviao/ajax/view-navegacao-item/';
     private $_urlLancamentoGBO = '/gaviao/ajax/view-lancamento-gbo';
 
@@ -57,7 +61,30 @@ class ControllerLancamentoGBO extends Controller
 
     public function show($id)
     {
-        return view('ssaa.avaliacao.indice.gbo.erro_gbm')->with('mensagem', 'Usuário sem Permissão');
+        if ($this->_ownauthcontroller->PermissaoCheck([39]) && session()->has('encryptData')) {
+            $id_esa_avaliacoes = explode('-', decrypt(session()->get('encryptData')))[3];
+
+            $esaAvaliacoes = EsaAvaliacoes::find($id_esa_avaliacoes);
+            $turmas = $esaAvaliacoes->esadisciplinas->qms->consultaTurmas();
+            $gbm = ControllerIndiceDificuldades::getGBM()->getData()->resultado_gbm;
+            $gbo = 0;
+
+            //Verifica se é Par
+            if(($gbm % 2) != 0){
+                return view('ssaa.avaliacao.indice.gbo.erro_gbm')->with('mensagem', 'O GBM ['. $gbm. '] informado não pode ser ímpar');
+            }
+            $alunos = collect();
+
+            $criptografia = true;
+
+            return view('ssaa.avaliacao.indice.gbo.index', compact('esaAvaliacoes', 'turmas', 'alunos', 'criptografia', 'gbm', 'gbo'))
+                        ->with('ownauthcontroller', $this->_ownauthcontroller)
+                        ->with('urlComboAlunos', $this->_urlComboAlunos)
+                        ->with('urlNavegacaoItem', $this->_urlNavegacaoItem)
+                        ->with('edicao', true);
+        }else{
+            return view('ssaa.avaliacao.indice.gbo.erro_gbm')->with('mensagem', 'Usuário sem Permissão');
+        }
     }
 
     public function update($id)
@@ -135,12 +162,20 @@ class ControllerLancamentoGBO extends Controller
                     break;
                 }
             }
+            
+            $edicao = ($this->_request->edicao == 'true') ? true : false;
 
-            if(is_null($selecionado)){
+            if(!$edicao && is_null($selecionado)){
                 $mensagem = 'Terminou!!!';
                 return view('ssaa.avaliacao.indice.gbo.mensagem', compact('mensagem'))->with('gbo', $this->getGBO($id_esa_avaliacoes, $id_aluno)->getData()->resultado_gbo);
             }
 
+            $selecionado = is_null($selecionado) ? 0 : $selecionado;
+
+            if(!$esaAvaliacoesIndices->has($selecionado)){
+                $selecionado--;
+            }
+            
             return view('ssaa.avaliacao.indice.gbo.componente-gbo', compact('esaAvaliacoesIndices', 'selecionado'))
                         ->with('id_indice', $esaAvaliacoesIndices->get($selecionado)->id)
                         ->with('id_aluno', $id_aluno)
@@ -148,6 +183,58 @@ class ControllerLancamentoGBO extends Controller
                         ->with('gbo', $this->getGBO($id_esa_avaliacoes, $id_aluno)->getData()->resultado_gbo);
         }
     }
+
+    public function viewComboBoxAlunosRap($idTurma=null, $edicao=false){
+        if (!is_null(FuncoesController::validaSessao())) {
+            return;
+        }
+        
+        $idEsaAvaliacoes = explode('-', decrypt(session()->get('encryptData')))[3];
+        $idTurma = explode('_',decrypt($this->_request->idTurma))[1];
+
+        $esaAvaliacoes = EsaAvaliacoes::find($idEsaAvaliacoes);
+
+        if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
+            $idAlunosFaltas = array_column($esaAvaliacoes->esaAvaliacoesRapTfm
+                                ->first()->alunos_faltas, 'id_aluno');
+        }else{
+            $idAlunosFaltas = array_column($esaAvaliacoes->esaAvaliacoesRap->where('id_turmas_esa', $idTurma)
+                                ->first()->alunos_faltas, 'id_aluno');
+        }
+
+        $alunos = Alunos::join('ssaa.esa_avaliacoes', function($join) use($esaAvaliacoes){
+            $join->on(DB::raw($esaAvaliacoes->id), '=', 'ssaa.esa_avaliacoes.id');
+        })->where([['atalaia.alunos.turma_esa_id', '=', $idTurma]])->whereNotIn('atalaia.alunos.id', $idAlunosFaltas);
+
+        if(!$edicao){
+            //Listar somente alunos que tem lançamento pendentes;
+            $alunos = $this->retornaAlunosLancamentosPendentes($alunos);
+        }
+
+        $alunos = $alunos->select('atalaia.alunos.*')->orderBy('atalaia.alunos.numero')->get();
+
+        $criptografia = true;
+
+        return view('ajax.componentes.componenteAlunos', compact('alunos', 'criptografia'))
+                ->with('ownauthcontroller', $this->_ownauthcontroller);
+    }
+
+    private function retornaAlunosLancamentosPendentes(Builder $builder){
+        return $builder->join('ssaa.esa_avaliacoes_indice', function($join){
+                $join->on('ssaa.esa_avaliacoes.id', '=', 'ssaa.esa_avaliacoes_indice.id_esa_avaliacoes');
+            })
+            ->leftJoin('ssaa.esa_avaliacoes_gbo', function($join){
+                $join->on('ssaa.esa_avaliacoes_indice.id', '=', 'ssaa.esa_avaliacoes_gbo.id_esa_avaliacoes_indice');
+                $join->on('atalaia.alunos.id', '=', 'ssaa.esa_avaliacoes_gbo.id_aluno');
+            })
+            //->where([['atalaia.alunos.turma_esa_id', '=', $idTurma]])
+            ->whereNull('ssaa.esa_avaliacoes_gbo.score_vermelho')
+            //->whereNotIn('atalaia.alunos.id', $idAlunosFaltas)
+            //->select('atalaia.alunos.*')
+            ->groupBy(['atalaia.alunos.numero', 'atalaia.alunos.nome_guerra']);
+            //->orderBy('atalaia.alunos.numero');
+    }
+
     
     public static function getGBO($id_esa_avaliacoes, $id_aluno){
         $retorno['success'] = true;

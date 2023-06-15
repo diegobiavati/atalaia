@@ -506,9 +506,11 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('indice-dificuldades/get-disciplinas-provas/{id_disciplina}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@carregaDisciplinasProvas');
         Route::get('indice-dificuldades/carrega-indices/{id_prova?}', ['as' => 'carrega-indices', 'uses' => 'SSAA\Avaliacao\ControllerIndiceDificuldades@carregaIndices']);
         Route::get('indice-dificuldades/get-gbm/{indefinido?}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@getGBM');
+        Route::get('indice-dificuldades/valida-novo-item/{indefinido?}', 'SSAA\Avaliacao\ControllerIndiceDificuldades@validaNovoItem');
         
         /*Lançamento de GBO*/
         Route::resource('view-lancamento-gbo', 'SSAA\Avaliacao\ControllerLancamentoGBO');
+        Route::get('view-combo-box-alunos-rap/{idTurma}/{edicao?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewComboBoxAlunosRap');
         
         Route::get('view-navegacao-item/{id_aluno}/{requisicao?}/{item?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewPaginacaoLancamento');
         

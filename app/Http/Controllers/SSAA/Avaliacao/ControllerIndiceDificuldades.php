@@ -8,6 +8,7 @@ use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\AnoFormacao;
 use App\Models\EsaAvaliacoes;
+use App\Models\EsaAvaliacoesGbo;
 use App\Models\EsaAvaliacoesIndices;
 use App\Models\EsaDisciplinas;
 use App\Models\QMS;
@@ -179,6 +180,11 @@ class ControllerIndiceDificuldades extends Controller
         
         if ($this->_ownauthcontroller->PermissaoCheck([38]) && $id_esa_avaliacoes > 0) {
 
+            $this->encryptData();
+
+            //Verifica se existe lançamento de escore
+            $valida = $this->validaNovoItem()->getData()->success;
+
             $esaAvaliacoes = EsaAvaliacoes::find($id_esa_avaliacoes);
             $avlBasico = ($esaAvaliacoes->avl_1_ano == 'S');
             
@@ -190,16 +196,18 @@ class ControllerIndiceDificuldades extends Controller
             $editableGrid = new EditableGrid();
             
             $editableGrid->addColumn("id_esa_avaliacoes", "", "string", null, false, null, false, true);
-            $editableGrid->addColumn("nr_item", "Nº item", "string");
-            $editableGrid->addColumn("score_total", "Score Total", "integer(Score)", null, true, null, false);
+            $editableGrid->addColumn("nr_item", "Nº item", "string", null, $valida);
+            $editableGrid->addColumn("score_total", "Score Total", "integer(Score)", null, $valida, null, false);
             if($avlBasico){
-                $editableGrid->addColumn("assunto_basico", "Disc B/As", "string", null, true, null, false);
+                $editableGrid->addColumn("assunto_basico", "Disc B/As", "string", null, $valida, null, false);
             }
-            $editableGrid->addColumn("tipo_questao", "Tipo Questão", "string", array('BD' => 'Banco de Dados', 'N' => 'Nova'), true);
-            $editableGrid->addColumn("dificuldade_estimada", "Dif. Estimada", "string", array('F' => 'Fácil', 'M' => 'Médio', 'D' => 'Difícil', 'MD' => 'Muito Difícil'), true);
+            $editableGrid->addColumn("tipo_questao", "Tipo Questão", "string", array('BD' => 'Banco de Dados', 'N' => 'Nova'), $valida);
+            $editableGrid->addColumn("dificuldade_estimada", "Dif. Estimada", "string", array('F' => 'Fácil', 'M' => 'Médio', 'D' => 'Difícil', 'MD' => 'Muito Difícil'), $valida);
             // action column ("html" type), not editable
-            $editableGrid->addColumn("action", "Ações", "html", NULL, false);
-            
+            if($valida){
+                $editableGrid->addColumn("action", "Ações", "html", NULL, false);
+            }
+                        
             $data = array();
             foreach($esaAvaliacoesIndices as $indices){
                 $data[] = array(
@@ -216,13 +224,32 @@ class ControllerIndiceDificuldades extends Controller
                 }
             }
 
-            $this->encryptData();
-
             //render JSON
             return $editableGrid->renderJSON($data);
         }else{
-            return response()->json(array('message', 'Você não tem Permissão.'));    
+            return response()->json(array('message', 'Você não tem permissão.'));    
         }
+    }
+
+    public function validaNovoItem(){
+        $retorno['success'] = false;
+        $retorno['message'] = 'Logue-se no sistema.';
+
+        if(session()->has('encryptData')){
+            $idEsaAvaliacao = explode('-', decrypt(session()->get('encryptData')))[3];
+            
+            $esaAvaliacoesGbo = EsaAvaliacoesGbo::join('esa_avaliacoes_indice', 'esa_avaliacoes_gbo.id_esa_avaliacoes_indice', 'esa_avaliacoes_indice.id')
+                                                    ->where('esa_avaliacoes_indice.id_esa_avaliacoes', $idEsaAvaliacao)->get();
+
+            if($esaAvaliacoesGbo->count() == 0){
+                $retorno['success'] = true;
+                $retorno['message'] = 'Liberado.';
+            }else{
+                $retorno['message'] = 'Já existe lançamento(s) de escore para esse processo/prova.';
+            }
+        }
+        
+        return response()->json($retorno);
     }
 
     public static function getGBM(){
