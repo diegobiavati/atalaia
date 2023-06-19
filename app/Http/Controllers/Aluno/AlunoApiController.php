@@ -6,6 +6,7 @@ use App\Models\QMS;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
+use App\Http\Controllers\SSAA\Calendario\ControllerAvaliacao;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\Controllers\Utilitarios\SmbClientPhp;
 use App\Http\OwnClasses\ClassLog;
@@ -30,7 +31,9 @@ use App\Models\AlunosCurso;
 use App\Models\AlunosSitDiv;
 use App\Models\Areas;
 use App\Models\AnoFormacao;
+use App\Models\Avaliacoes;
 use App\Models\Disciplinas;
+use App\Models\EsaAvaliacoes;
 use App\Models\Instrumentos;
 use App\Models\Mencoes;
 use App\Models\ModeloNotasCapitani;
@@ -483,8 +486,28 @@ class AlunoApiController extends Controller
             return;
         }
         
+        $criptografia = (isset($request->criptografia) ? $request->criptografia : false);
+
         if(strlen($request->id_turma) > 20){
-            $idTurma = explode('_', decrypt($request->id_turma))[1];
+            $decrypt = explode('_', decrypt($request->id_turma));
+            $idTurma = $decrypt[1];
+            if(count($decrypt) > 2){
+                //Se tiver o parametro da avaliação verifica se tem faltas...
+                $idAvaliacao = $decrypt[3];
+
+                $esaAvaliacoes = EsaAvaliacoes::find($idAvaliacao);
+                
+                $colecaoFaltas = collect();
+
+                if($esaAvaliacoes->chamada == 2){
+                    $rapPrimeiraChamada = ControllerAvaliacao::getPrimeiraChamadaAvaliacao($esaAvaliacoes);
+                    $colecaoFaltas = ControllerAvaliacao::getFaltasAvaliacoes($rapPrimeiraChamada->get(0));
+
+                    $turmaAlunos = $colecaoFaltas->where('turma_esa_id', $idTurma);
+
+                    return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos', 'criptografia'));
+                }
+            }
         }else{
             $idTurma = $request->id_turma;
         }
@@ -493,8 +516,6 @@ class AlunoApiController extends Controller
         
         $turmaAlunos = Alunos::retornaAlunosComQmsEspecifica($turmaESA->qms->escolhaQms->anoFormacao->id, [$turmaESA->qms_id])
                 ->where('turma_esa_id', $turmaESA->id)->get();
-
-        $criptografia = (isset($request->criptografia) ? $request->criptografia : false);
 
         return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos', 'criptografia'));
     }

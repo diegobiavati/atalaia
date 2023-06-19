@@ -73,4 +73,5 @@ class EsaAvaliacoes extends Model
     public function getNomeProva(){
         return '['.$this->nome_avaliacao.'] '.$this->esadisciplinas->nome_disciplina.' - '.$this->getChamada();
     }
+
 }

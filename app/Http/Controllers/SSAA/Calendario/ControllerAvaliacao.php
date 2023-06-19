@@ -136,7 +136,19 @@ class ControllerAvaliacao extends Controller
 
             $esaAvaliacoes = EsaAvaliacoes::find($id);
             $cursoSelecionado = $esaAvaliacoes->esadisciplinas->qms;
-            
+
+            $colecaoFaltas = collect();
+
+            if($esaAvaliacoes->chamada == 2){
+                $rapPrimeiraChamada = $this->getPrimeiraChamadaAvaliacao($esaAvaliacoes);
+                
+                if(count($rapPrimeiraChamada) == 1){
+                    $colecaoFaltas = $this->getFaltasAvaliacoes($rapPrimeiraChamada[0]);
+                }else{
+                    return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Existem avaliações lançadas incorretamente');
+                }
+            }
+
             $readOnly = ($this->_ownauthcontroller->PermissaoCheck([33])) ? null : 'readOnly';
 
             $disciplinas = EsaDisciplinas::where(['id_qms' => $cursoSelecionado->id])->get();
@@ -154,12 +166,19 @@ class ControllerAvaliacao extends Controller
             }else{
                 $rapLancadas = $esaAvaliacoes->esaAvaliacoesRap;
 
-                $turmasRapPendente = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray());
-
+                if($esaAvaliacoes->chamada == 2){
+                    $turmasRapPendente = $cursoSelecionado->consultaTurmas()
+                                                            ->whereIn('id', $colecaoFaltas->pluck('turma_esa_id'))
+                                                            ->whereNotIn('id', $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray());
+                }else{
+                    $turmasRapPendente = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray());
+                }
+   
                 return view('ssaa.avaliacao.form', compact('cursos', 'cursoSelecionado', 'rapLancadas', 'turmasRapPendente', 'disciplinas', 'esaAvaliacoes', 'readOnly'))
                         ->with('ownauthcontroller', $this->_ownauthcontroller)
                         ->with('tipoAvaliacao', $esaAvaliacoes->getTodosTiposAvaliacoes())
                         ->with('chamadas', $esaAvaliacoes->getTodasChamadas())
+                        ->with('colecaoFaltas', ($esaAvaliacoes->chamada == 2) ? $colecaoFaltas : null)
                         ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes());
             }
 
@@ -236,10 +255,22 @@ class ControllerAvaliacao extends Controller
 
         $cursoSelecionado = $esaAvaliacoes->esadisciplinas->qms;
         $cursos = collect([$cursoSelecionado]);
+        
+        $colecaoFaltas = collect();
 
-        //Verifica se existe turmas já lançadas...
-        $turmasLancadas = $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray();
-        $turmas = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $turmasLancadas);
+        if($esaAvaliacoes->chamada == 2){
+            $rapPrimeiraChamada = $this->getPrimeiraChamadaAvaliacao($esaAvaliacoes);
+
+            $colecaoFaltas = $this->getFaltasAvaliacoes($rapPrimeiraChamada->get(0));
+
+            $turmasLancadas = $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray();
+            $turmas = $cursoSelecionado->consultaTurmas()->whereIn('id', $colecaoFaltas->pluck('turma_esa_id'))->whereNotIn('id', $turmasLancadas);
+
+        }else{
+            //Verifica se existe turmas já lançadas...
+            $turmasLancadas = $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray();
+            $turmas = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $turmasLancadas);
+        }
 
         if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
             $rotaViewListagemCurso = '/gaviao/ajax/gerenciar-avaliacao/curso/';
@@ -332,9 +363,15 @@ class ControllerAvaliacao extends Controller
                     'fatores_influencia_aplicacao' => $this->_request->fatores_influencia_aplicacao,
                     'efetivo_realizou' => $this->_request->efetivo_realizou,
                     'efetivo_termino' => $this->_request->efetivo_termino,
-                    'primeiro_discente' => array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->primeiro_discente))[1], 'tempo' => $this->_request->tempo_primeiro_discente),
-                    'segundo_discente' => array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->segundo_discente))[1], 'tempo' => $this->_request->tempo_segundo_discente),
-                    'terceiro_discente' => array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->terceiro_discente))[1], 'tempo' => $this->_request->tempo_terceiro_discente),
+                    'primeiro_discente' => ($this->_request->has('primeiro_discente') 
+                                                        ? array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->primeiro_discente))[1], 'tempo' => $this->_request->tempo_primeiro_discente)
+                                                        : null),
+                    'segundo_discente' => ($this->_request->has('segundo_discente') 
+                                                        ? array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->segundo_discente))[1], 'tempo' => $this->_request->tempo_segundo_discente)
+                                                        : null),
+                    'terceiro_discente' => ($this->_request->has('terceiro_discente') 
+                                                        ? array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->terceiro_discente))[1], 'tempo' => $this->_request->tempo_terceiro_discente) 
+                                                        : null),
                     'maioria_efetivo' => $this->_request->tempo_maioria_efetivo,
                     'todo_efetivo' => $this->_request->tempo_todo_efetivo,
                 ];
@@ -377,6 +414,38 @@ class ControllerAvaliacao extends Controller
         return response()->json($retorno);
     }
 
+    public static function getPrimeiraChamadaAvaliacao(EsaAvaliacoes $esaAvaliacoes){
+        return $esaAvaliacoes->esaDisciplinas->esaAvaliacoes
+                                        ->where('chamada', '=', 1)
+                                        ->where('nome_avaliacao', '=', $esaAvaliacoes->nome_avaliacao)->values()->all();
+    }
+
+    public static function getFaltasAvaliacoes(EsaAvaliacoes $esaAvaliacoes){
+        $colecao = collect();
+
+        if($esaAvaliacoes->esadisciplinas->tfm == 'N'){
+            $esaAvaliacoes->esaAvaliacoesRap->each(function($item, $key) use ($colecao){
+                if($item->faltas->count() > 0){
+                    $item->faltas->each(function($i, $k) use ($colecao){
+                        $colecao->push($i);  
+                    });
+                }
+            });
+        }else{
+            $esaAvaliacoes->esaAvaliacoesRapTfm->each(function($item, $key) use ($colecao){
+                dd($item);
+                if($item->faltas->count() > 0){
+                    $item->faltas->each(function($i, $k) use ($colecao){
+                        $colecao->push($i);  
+                    });
+                }
+            });
+        }
+
+        $colecao->all();
+        return $colecao;
+    }
+
     private function validaRapRequest($array_data)
     {
 
@@ -406,12 +475,12 @@ class ControllerAvaliacao extends Controller
                 'fatores_influencia_aplicacao' => 'nullable|string',
                 'efetivo_realizou' => 'required|integer',
                 'efetivo_termino' => 'required|integer',
-                'primeiro_discente.tempo' => 'required|date_format:H:i',
-                'primeiro_discente.id_aluno' => 'required|numeric|exists:mysql.alunos,id',
-                'segundo_discente.tempo' => 'required|date_format:H:i',
-                'segundo_discente.id_aluno' => 'required|numeric|exists:mysql.alunos,id',
-                'terceiro_discente.tempo' => 'required|date_format:H:i',
-                'terceiro_discente.id_aluno' => 'required|numeric|exists:mysql.alunos,id',
+                'primeiro_discente.tempo' => 'date_format:H:i',
+                'primeiro_discente.id_aluno' => 'numeric|exists:mysql.alunos,id',
+                'segundo_discente.tempo' => 'date_format:H:i',
+                'segundo_discente.id_aluno' => 'numeric|exists:mysql.alunos,id',
+                'terceiro_discente.tempo' => 'date_format:H:i',
+                'terceiro_discente.id_aluno' => 'numeric|exists:mysql.alunos,id',
                 'maioria_efetivo' => 'required|date_format:H:i',
                 'todo_efetivo' => 'required|date_format:H:i',
             ],
@@ -433,20 +502,20 @@ class ControllerAvaliacao extends Controller
                 'efetivo_realizou.required' => 'O campo <b>Efetivo que realizou a prova</b> é obrigatório.',
                 'efetivo_termino.required' => 'O campo <b>Efetivo na sala ao término do tempo</b> é obrigatório.',
 
-                'primeiro_discente.id_aluno.required' => 'O campo <b>Primeiro Discente</b> é obrigatório.',
+                //'primeiro_discente.id_aluno.required' => 'O campo <b>Primeiro Discente</b> é obrigatório.',
                 'primeiro_discente.id_aluno.numeric' => 'O campo <b>Primeiro Discente</b> deve ser um número.',
                 'primeiro_discente.id_aluno.exists' => 'Informe o aluno no campo <b>Primeiro Discente</b>.',
-                'primeiro_discente.tempo.required' => 'O campo <b>Tempo</b> do Primeiro Discente é obrigatório.',
+                //'primeiro_discente.tempo.required' => 'O campo <b>Tempo</b> do Primeiro Discente é obrigatório.',
 
-                'segundo_discente.id_aluno.required' => 'O campo <b>Segundo Discente</b> é obrigatório.',
+                //'segundo_discente.id_aluno.required' => 'O campo <b>Segundo Discente</b> é obrigatório.',
                 'segundo_discente.id_aluno.numeric' => 'O campo <b>Segundo Discente</b> deve ser um número.',
                 'segundo_discente.id_aluno.exists' => 'Informe o aluno no campo <b>Segundo Discente</b>.',
-                'segundo_discente.tempo.required' => 'O campo <b>Tempo</b> do Segundo Discente é obrigatório.',
+                //'segundo_discente.tempo.required' => 'O campo <b>Tempo</b> do Segundo Discente é obrigatório.',
 
-                'terceiro_discente.id_aluno.required' => 'O campo <b>Terceiro Discente</b> é obrigatório.',
+                //'terceiro_discente.id_aluno.required' => 'O campo <b>Terceiro Discente</b> é obrigatório.',
                 'terceiro_discente.id_aluno.numeric' => 'O campo <b>Terceiro Discente</b> deve ser um número.',
                 'terceiro_discente.id_aluno.exists' => 'Informe o aluno no campo <b>Terceiro Discente</b>.',
-                'terceiro_discente.tempo.required' => 'O campo <b>Tempo</b> do Terceiro Discente é obrigatório.',
+                //'terceiro_discente.tempo.required' => 'O campo <b>Tempo</b> do Terceiro Discente é obrigatório.',
 
                 'maioria_efetivo.required' => 'O campo <b>Maioria (Meta da turma)</b> é obrigatório.',
                 'todo_efetivo.required' => 'O campo <b>Todo o efetivo</b> é obrigatório.',

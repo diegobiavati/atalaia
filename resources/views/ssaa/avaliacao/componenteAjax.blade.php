@@ -71,7 +71,10 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
     
     @if($ownauthcontroller->PerfilCheck([9006]) && count($turmasRapPendente) > 0)
     <!-- Libera Lançar a RAP -->
-        <button type="button" class="btn btn btn-primary" onclick="javascript:void(0);">Lançar o RAP</button>
+        @if(!isset($colecaoFaltas) || $colecaoFaltas->count() > 0)
+            <button type="button" class="btn btn btn-primary" onclick="javascript:void(0);">Lançar o RAP</button>
+        @endif
+        
     @endif
 
     <button type="button" class="btn btn-warning" onclick="javascript:void(0);">Cancelar</button>

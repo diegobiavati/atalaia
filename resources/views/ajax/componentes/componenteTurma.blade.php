@@ -5,7 +5,7 @@
     @endif
     @foreach ($turmas as $turma)
     @php
-        $id = (($criptografia) ? encrypt('turma_'.$turma->id) : $turma->id);
+        $id = (($criptografia) ? encrypt('turma_'.$turma->id.(isset($esaAvaliacoes) ? '_idAvaliacao_'.$esaAvaliacoes->id : null)) : $turma->id);
     @endphp
     <option {{ ((isset($turmaSelecionada) && $turma->id == $turmaSelecionada->id) ? 'selected' : '') }}
                         value={{$id}}>{{ $turma->turma }}</option>

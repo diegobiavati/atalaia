@@ -25,7 +25,7 @@ class EsaDisciplinas extends Model
 
     public function esaAvaliacoes()
     {
-        return $this->hasMany('App\Models\EsaAvaliacoes', 'id', 'id_esa_disciplinas');
+        return $this->hasMany('App\Models\EsaAvaliacoes', 'id_esa_disciplinas', 'id');
     }
 
     public function getTipoDisciplinas()

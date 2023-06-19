@@ -530,19 +530,19 @@ class RelatoriosSSAA extends Controller {
         $pdf->Cell(90, 5, 'PRIMEIRO DISCENTE', 1, 0, 'R');
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, $esaAvaliacoesRap->primeiro_discente['tempo'], 1, 0, 'C');
-        $pdf->Cell(70, 5, utf8_decode($esaAvaliacoesRap->primeiroDiscente->numero.' - '.$esaAvaliacoesRap->primeiroDiscente->nome_guerra), 1, 1, 'C');
+        $pdf->Cell(70, 5, (isset($esaAvaliacoesRap->primeiroDiscente) ? utf8_decode($esaAvaliacoesRap->primeiroDiscente->numero.' - '.$esaAvaliacoesRap->primeiroDiscente->nome_guerra) : '-'), 1, 1, 'C');
 
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(90, 5, 'SEGUNDO DISCENTE', 1, 0, 'R');
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, $esaAvaliacoesRap->segundo_discente['tempo'], 1, 0, 'C');
-        $pdf->Cell(70, 5, utf8_decode($esaAvaliacoesRap->segundoDiscente->numero.' - '.$esaAvaliacoesRap->segundoDiscente->nome_guerra), 1, 1, 'C');
+        $pdf->Cell(70, 5, (isset($esaAvaliacoesRap->segundoDiscente) ? utf8_decode($esaAvaliacoesRap->segundoDiscente->numero.' - '.$esaAvaliacoesRap->segundoDiscente->nome_guerra) : '-'), 1, 1, 'C');
 
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(90, 5, 'TERCEIRO DISCENTE', 1, 0, 'R');
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, $esaAvaliacoesRap->terceiro_discente['tempo'], 1, 0, 'C');
-        $pdf->Cell(70, 5, utf8_decode($esaAvaliacoesRap->terceiroDiscente->numero.' - '.$esaAvaliacoesRap->terceiroDiscente->nome_guerra), 1, 1, 'C');
+        $pdf->Cell(70, 5, (isset($esaAvaliacoesRap->terceiroDiscente) ? utf8_decode($esaAvaliacoesRap->terceiroDiscente->numero.' - '.$esaAvaliacoesRap->terceiroDiscente->nome_guerra) : '-'), 1, 1, 'C');
 
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(90, 5, 'MAIORIA (META DA TURMA + 1)', 1, 0, 'R');
