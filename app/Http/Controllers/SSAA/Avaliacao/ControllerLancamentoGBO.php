@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SSAA\Avaliacao;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
+use App\Http\Controllers\SSAA\Calendario\ControllerAvaliacao;
 use App\Models\EsaAvaliacoesIndices;
 use App\Models\EsaAvaliacoesGbo;
 use App\Models\AlunosClassificacao;
@@ -193,24 +194,44 @@ class ControllerLancamentoGBO extends Controller
         $idTurma = explode('_',decrypt($this->_request->idTurma))[1];
 
         $esaAvaliacoes = EsaAvaliacoes::find($idEsaAvaliacoes);
+        $idAlunosFaltas = [];
+
+$colecaoFaltas = collect();
+if($esaAvaliacoes->chamada == 2){        
+    $rapPrimeiraChamada = ControllerAvaliacao::getPrimeiraChamadaAvaliacao($esaAvaliacoes);        
+
+    if(count($rapPrimeiraChamada) == 1){
+        $colecaoFaltas = ControllerAvaliacao::getFaltasAvaliacoes($rapPrimeiraChamada[0]);
+    }else{
+        return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Existem avaliações lançadas incorretamente');
+    }
+}
 
         if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
-            $idAlunosFaltas = array_column($esaAvaliacoes->esaAvaliacoesRapTfm
-                                ->first()->alunos_faltas, 'id_aluno');
+            if(isset($esaAvaliacoes->esaAvaliacoesRapTfm->first()->alunos_faltas)){
+                $idAlunosFaltas = array_column($esaAvaliacoes->esaAvaliacoesRapTfm->first()->alunos_faltas, 'id_aluno');
+            }
         }else{
-            $idAlunosFaltas = array_column($esaAvaliacoes->esaAvaliacoesRap->where('id_turmas_esa', $idTurma)
-                                ->first()->alunos_faltas, 'id_aluno');
+            if(isset($esaAvaliacoes->esaAvaliacoesRap->where('id_turmas_esa', $idTurma)->first()->alunos_faltas)){
+                $idAlunosFaltas = array_column($esaAvaliacoes->esaAvaliacoesRap->where('id_turmas_esa', $idTurma)
+                ->first()->alunos_faltas, 'id_aluno');
+            }
         }
 
         $alunos = Alunos::join('ssaa.esa_avaliacoes', function($join) use($esaAvaliacoes){
             $join->on(DB::raw($esaAvaliacoes->id), '=', 'ssaa.esa_avaliacoes.id');
-        })->where([['atalaia.alunos.turma_esa_id', '=', $idTurma]])->whereNotIn('atalaia.alunos.id', $idAlunosFaltas);
+        })->where([['atalaia.alunos.turma_esa_id', '=', $idTurma]])
+        ->whereNotIn('atalaia.alunos.id', $idAlunosFaltas);
 
+        if($colecaoFaltas->count() > 0){
+            $alunos->whereIn('atalaia.alunos.id', $colecaoFaltas->where('turma_esa_id', $idTurma)->pluck('id'));
+        }
+    
         if(!$edicao){
             //Listar somente alunos que tem lançamento pendentes;
             $alunos = $this->retornaAlunosLancamentosPendentes($alunos);
         }
-
+        
         $alunos = $alunos->select('atalaia.alunos.*')->orderBy('atalaia.alunos.numero')->get();
 
         $criptografia = true;
