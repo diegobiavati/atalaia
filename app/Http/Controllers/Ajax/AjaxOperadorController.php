@@ -560,7 +560,7 @@ class AjaxOperadorController extends Controller
                 $omct_id = session()->get('login.omctID');
                 if ($aluno->omcts_id == $omct_id || $ownauthcontroller->PermissaoCheck(1)) {
                     AvaliacoesNotas::where('alunos_id', $request->id)->where('avaliacao_id', $request->avaliacaoID)->delete();
-                    if($request->gbo > 0){
+                    //if($request->gbo > 0){
                         $avaliacoes_notas = new AvaliacoesNotas;
                         $avaliacoes_notas->alunos_id = $request->id;
                         $avaliacoes_notas->avaliacao_id = $request->avaliacaoID;
@@ -625,12 +625,12 @@ class AjaxOperadorController extends Controller
                                                         </a>                                                    
                                                     </div>';
                         }
-                    }else{
+                    /*}else{
                         $data['status'] = 'ok';
                         $data['response'] = '<input type="text" name="nota_aluno_id_'.$aluno->id.'" value="" style="width: 38px; border: 1px solid #ccc; padding: 3px 4px; text-align: right; margin-top: -10px;" onkeyup="toogleConfirmGrau(this);" autocomplete="off" maxlength="3" /><br />
                                                     <a href="javascript: void(0);" class="badge badge-success" onclick="registrarGrauAluno('.$aluno->id.', '.$request->avaliacaoID.');" style="display: none; margin-top: 8px;">Confirmar</a>
                                                     <span class="badge badge-secondary" style="margin-top: 8px;">Confirma</span>';
-                    }
+                    }*/
                     
                 } else {
                     $data['status'] = 'err';
