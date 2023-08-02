@@ -66,14 +66,14 @@ class AlunosNotasExport extends DefaultValueBinder implements FromCollection, Re
                     $identificador = $item->get('nome_disciplina').'-'.$avaliacoes->get('nome_avaliacao_abrev');
                     $collection->get($aluno->aluno_id)->put($identificador, 0);
                     foreach($dataDemonstrativo as $info){
-                        if(is_array($info)){
+                        if(is_array($info) && isset($info['avaliacoes'])){
                             foreach($info['avaliacoes'] as $aval){
                                 if($item->get('id_disciplina') == $info['disciplina_id']
-                                    && $aval->nome_abrev == $avaliacoes->get('nome_avaliacao_abrev')){
+                                    && isset($aval->nome_abrev) && $aval->nome_abrev == $avaliacoes->get('nome_avaliacao_abrev')){
                                     
                                     $collection->get($aluno->aluno_id)->put($identificador, number_format($aval->nota, 3, ',', '.'));
                                     //dd($item, $collection->get($aluno->aluno_id));
-                                }       
+                                }   
                             }
                         }
                     }
