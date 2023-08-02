@@ -256,7 +256,21 @@ if($esaAvaliacoes->chamada == 2){
             //->orderBy('atalaia.alunos.numero');
     }
 
-    
+    public static function retornaLancamentosAvaliacao(EsaAvaliacoes $esaAvaliacoes){
+        return EsaAvaliacoesGbo::join('esa_avaliacoes_indice', 'esa_avaliacoes_gbo.id_esa_avaliacoes_indice', 'esa_avaliacoes_indice.id')
+                    ->join('atalaia.alunos', 'esa_avaliacoes_gbo.id_aluno', 'atalaia.alunos.id')
+                    ->select(DB::raw('atalaia.alunos.id AS id_aluno, 
+                            COUNT(esa_avaliacoes_gbo.id_esa_avaliacoes_indice) AS lancamentos, 
+                            SUM(esa_avaliacoes_indice.score_total) AS gbm,
+                            SUM(esa_avaliacoes_gbo.score_vermelho) AS gbo_errado,
+                            SUM(esa_avaliacoes_indice.score_total) - SUM(esa_avaliacoes_gbo.score_vermelho) AS gbo_certo,
+                            ROUND(((SUM(esa_avaliacoes_indice.score_total) - SUM(esa_avaliacoes_gbo.score_vermelho)) / (SUM(esa_avaliacoes_indice.score_total)) * 10), 3) AS nota_aluno'))
+                    ->where('esa_avaliacoes_indice.id_esa_avaliacoes', $esaAvaliacoes->id)
+                    ->groupBy('atalaia.alunos.id')
+                    ->havingRaw('COUNT(esa_avaliacoes_gbo.id_esa_avaliacoes_indice) = (SELECT COUNT(nr_item) FROM esa_avaliacoes_indice
+                                        WHERE esa_avaliacoes_indice.id_esa_avaliacoes = ?)', [$esaAvaliacoes->id])->get();
+    }
+
     public static function getGBO($id_esa_avaliacoes, $id_aluno){
         $retorno['success'] = true;
 

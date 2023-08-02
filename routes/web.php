@@ -369,13 +369,7 @@ Route::get('pdfTeste', function(){
     exit();
 });
 
-Route::get('testy', function(\App\Http\Controllers\OwnAuthController $ownauthcontroller){
-
-    
-    
-});
-
-
+Route::get('pdfDomTeste', 'Relatorios\RelatoriosSSAAController@analiseResultadoProvas');
 
 //Reintegrar Aluno Situacao Diversas
 Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
@@ -469,18 +463,23 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
 
         //SSAA
         Route::post('demonstrativo-notas/{id_ano_formacao}/{curso_id}/', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
+        Route::get('analise-resultado-prova/{avaliacaoID}', 'Relatorios\RelatoriosSSAAController@analiseResultadoProvas');
+        Route::get('assinatura/{id_assinatura}', 'Relatorios\RelatoriosSSAAController@mostrarAssinatura')->name('assinatura.mostrar');
     });
 
 
     //SSAA
     Route::get('demonstrativo-notas/{id_ano_formacao}', 'Ajax\AjaxRelatoriosGaviaoController@DemonstrativoNotas');
-
+    Route::get('analise-resultado-prova/{id_ano_formacao}', 'Ajax\AjaxRelatoriosGaviaoController@analiseResultadoProva');
+    Route::post('analise-resultado-prova/valida', 'Relatorios\RelatoriosSSAAController@validaLancamentoAvaliacao');
+    
     Route::get('view-ssaa', 'Ajax\AjaxAdminGaviaoController@ViewOpcoesSSAA');
 
         /* Gerenciador de Disciplinas SSAA */
         Route::get('gerenciar-disciplinas/index/{id_ano_formacao?}', 'SSAA\ControllerDisciplinas@index');
         Route::get('gerenciar-disciplinas/load/{id_curso}', 'SSAA\ControllerDisciplinas@load');
         Route::get('gerenciar-disciplinas/form/{id_curso}', 'SSAA\ControllerDisciplinas@form');
+        Route::get('get-combo-disciplinas/{id_curso}', 'SSAA\ControllerDisciplinas@getComboDisciplinas');
         Route::resource('gerenciar-disciplinas', 'SSAA\ControllerDisciplinas');
 
         /* Calendário SSAA */
@@ -496,8 +495,8 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         
         
         /* Relatórios */
-        Route::get('relatorio-rap/{hash_rap}', 'Relatorios\RelatoriosSSAA@relatorioAplicacaoProva');
-        Route::get('relatorio-rap-tfm/{hash_rap}', 'Relatorios\RelatoriosSSAA@relatorioAplicacaoProvaTFM');
+        Route::get('relatorio-rap/{hash_rap}', 'Relatorios\RelatoriosSSAAController@relatorioAplicacaoProva');
+        Route::get('relatorio-rap-tfm/{hash_rap}', 'Relatorios\RelatoriosSSAAController@relatorioAplicacaoProvaTFM');
         /*Fim Calendario*/
 
         /*Índice de Dificuldades*/
@@ -513,7 +512,6 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('view-combo-box-alunos-rap/{idTurma}/{edicao?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewComboBoxAlunosRap');
         
         Route::get('view-navegacao-item/{id_aluno}/{requisicao?}/{item?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewPaginacaoLancamento');
-        
         
     //Fim SSAA
 

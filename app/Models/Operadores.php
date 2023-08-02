@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Operadores extends Model
 {
+    protected $connection = 'mysql';
     protected $table = 'operadores';
     public $timestamps = false;
     

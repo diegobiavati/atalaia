@@ -2,24 +2,34 @@
 
 namespace App\Http\Controllers\Relatorios;
 
-use App\Http\Controllers\Ajax\ImportacaoController;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\SSAA\Avaliacao\ControllerIndiceDificuldades;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\FPDF\PDF_DEM_NOTAS;
 use App\Models\Alunos;
 use App\Models\AnoFormacao;
+use App\Models\EsaAssinaturas;
 use App\Models\EsaAvaliacoesRap;
 use App\Models\Disciplinas;
 use App\Models\EsaMotivosFaltas;
+use App\Models\Mencoes;
+use File;
+use Hamcrest\Text\StringContains;
+use Hash;
 use Illuminate\Http\Request;
 use App\Http\Controllers\OwnAuthController;
+use App\Http\Controllers\SSAA\Avaliacao\ControllerLancamentoGBO;
 use App\Http\FPDF\PDF;
+use App\Models\EsaAvaliacoes;
 use App\Models\EsaAvaliacoesRapTfm;
-use DateTime;
-use DateTimeInterface;
 use Exception;
+use Khill\Lavacharts\Lavacharts;
+use Barryvdh\DomPDF\Facade as DOMPDF;
+use Psy\Util\Str;
+use Response;
 
-class RelatoriosSSAA extends Controller {
+class RelatoriosSSAAController extends Controller
+{
 
     private $_ownauthcontroller = null;
     private $_request = null;
@@ -28,40 +38,40 @@ class RelatoriosSSAA extends Controller {
     {
         $this->_ownauthcontroller = $ownauthcontroller;
         $this->_request = $request;
-        
     }
 
-    public function DemonstrativoNotasGaviao($anoFormacaoId, $cursoId){
+    public function DemonstrativoNotasGaviao($anoFormacaoId, $cursoId)
+    {
 
         //ImportacaoController::ImportaMSAccessCapitaniMysql();
 
         $anoFormacao = AnoFormacao::find($anoFormacaoId);
-       
+
         $alunos = Alunos::retornaAlunosComQmsEspecifica($anoFormacao->id, [$cursoId])->get();
-       
+
         //$alunos_id = Alunos::retornaAlunosComQmsEspecifica($anoFormacao->id, [$cursoId])->pluck('id')->toArray();
         //$capitaniMSAccess = CapitaniMSAccess::whereIn('aluno_id', $alunos_id)->get();
         /*$alunosNotas = Collection::make();
         
         foreach($alunos_id as $id){
-            $filtroAluno = $capitaniMSAccess->filter(function($item, $key) use($id){
-                return ($item->aluno_id == $id);
-            });
-            $alunosNotas->put($id, $filtroAluno);
+        $filtroAluno = $capitaniMSAccess->filter(function($item, $key) use($id){
+        return ($item->aluno_id == $id);
+        });
+        $alunosNotas->put($id, $filtroAluno);
         }*/
 
         $pdf = new PDF_DEM_NOTAS('P');
-        
+
         $pdf->AliasNbPages();
         $pdf->SetAutoPageBreak(true, 10);
         $pdf->SetLeftMargin(5);
 
-        
+
         $disciplinas = Disciplinas::where('tfm', 'N')->get();
 
-        
-        foreach($alunos as $aluno){
-            
+
+        foreach ($alunos as $aluno) {
+
             $pdf->AddPage();
 
             //Cria a Borda Externa
@@ -73,7 +83,7 @@ class RelatoriosSSAA extends Controller {
             $pdf->Cell(30, 4, '(SSAA/SCP)', 0, 0, 'L', false);
             $pdf->SetFont('Arial', '', 8);
             $pdf->Cell(145, 4, date('d/m/Y'), 0, 0, 'R', false);
-            
+
             //Cria a Borda Interna
             $pdf->Rect(17, 16, 172, 11);
             $pdf->Image(public_path() . '/images/logo_esa.png', 6, 16, 10, 10);
@@ -89,7 +99,7 @@ class RelatoriosSSAA extends Controller {
 
             $pdf->SetFont('Arial', 'B', 8);
             $pdf->SetXY(17, 21);
-            $pdf->WriteHTML(utf8_decode('<b>'.$aluno->numero.' - '.$aluno->nome_guerra.' </b> ('.$aluno->nome_completo.')'));
+            $pdf->WriteHTML(utf8_decode('<b>' . $aluno->numero . ' - ' . $aluno->nome_guerra . ' </b> (' . $aluno->nome_completo . ')'));
             $pdf->SetX(114);
             //$pdf->Cell(97, 5, utf8_decode($aluno->numero.' - '.$aluno->nome_guerra.' - '.$aluno->nome_completo), 0, 0, 'L', false);
             $pdf->Cell(15, 5, FuncoesController::formatDateEntoBr($aluno->data_nascimento), 0, 0, 'C', false);
@@ -101,11 +111,11 @@ class RelatoriosSSAA extends Controller {
             $pdf->SetY(29);
             $pdf->SetFillColor(255, 255, 255);
             $pdf->SetFont('Arial', '', 9);
-            
+
             $pdf->Cell(45, 5, utf8_decode('1º Ano do CFGS'), 0, 0, 'L', false);
-            $pdf->WriteHTML(utf8_decode('<b>UETE 1º Ano:</b> '.(isset($aluno->omct->sigla_omct) ? $aluno->omct->sigla_omct : null)));
+            $pdf->WriteHTML(utf8_decode('<b>UETE 1º Ano:</b> ' . (isset($aluno->omct->sigla_omct) ? $aluno->omct->sigla_omct : null)));
             $pdf->Cell(45, 5, '', 0, 0, 'L', false);
-            $pdf->WriteHTML('<b>CFGS:</b> '.$aluno->formacao()->formacao.'  '.$aluno->formacao()->ano_cfs);
+            $pdf->WriteHTML('<b>CFGS:</b> ' . $aluno->formacao()->formacao . '  ' . $aluno->formacao()->ano_cfs);
             $pdf->SetXY(175, 29);
 
             $pdf->CheckBox($pdf, (!$aluno->conselhoEscolar->isEmpty()));
@@ -128,33 +138,35 @@ class RelatoriosSSAA extends Controller {
             $pdf->Cell(14, 5, 'PATR', 0, 0, 'C', false);
             $pdf->Cell(14, 5, 'GLO', 0, 1, 'C', false);
 
-            try{
-                $info_1Ano = unserialize($aluno->classificacao->data_demonstrativo)??[];
-            }catch(Exception $ex){
+            try {
+                $info_1Ano = unserialize($aluno->classificacao->data_demonstrativo) ?? [];
+            } catch (Exception $ex) {
                 dd($aluno->classificacao, $aluno);
             }
-            
-        
+
+
             //Caso seja Aluno de Períodos Anteriores
-            if(!key_exists('avaliacoes_tfm', $info_1Ano)){
-                $filtro = array_filter($info_1Ano, function($v, $k){
+            if (!key_exists('avaliacoes_tfm', $info_1Ano)) {
+                $filtro = array_filter($info_1Ano, function ($v, $k) {
                     return (is_numeric($k) && (key_exists('disciplina_id', $v) && $v['disciplina_id'] == '99999'));
                 }, ARRAY_FILTER_USE_BOTH);
 
                 $info_1Ano['avaliacoes_tfm']['media_tfm'] = array_shift($filtro)['media'];
             }
-            
+
             $notas1Ano = [];
-            foreach($info_1Ano as $k => $v){
-                try{ 
-                    if( is_numeric($k) && ( (!key_exists('tfm', $v) && ($v['disciplina_id'] != 99999 && $v['disciplina_id'] != 88888))  
-                                                || (key_exists('tfm', $v) && $v['tfm'] == 'N') ) ){
-                    
-                        $filtro = $disciplinas->search(function($item, $key) use ($v){
+            foreach ($info_1Ano as $k => $v) {
+                try {
+                    if (
+                        is_numeric($k) && ((!key_exists('tfm', $v) && ($v['disciplina_id'] != 99999 && $v['disciplina_id'] != 88888))
+                            || (key_exists('tfm', $v) && $v['tfm'] == 'N'))
+                    ) {
+
+                        $filtro = $disciplinas->search(function ($item, $key) use ($v) {
                             return $v['disciplina_id'] == $item->id;
                         });
-                    
-                        switch($disciplinas->get($filtro)->nome_disciplina_abrev){
+
+                        switch ($disciplinas->get($filtro)->nome_disciplina_abrev) {
                             case 'ARMTO':
                                 $notas1Ano['ARMTO'] = $v['media'];
                                 break;
@@ -181,14 +193,14 @@ class RelatoriosSSAA extends Controller {
                                 break;
                         }
                     }
-                }catch(Exception $ex){
+                } catch (Exception $ex) {
                     dd($aluno, $v);
                 }
             }
-        
+
             $pdf->SetY(40);
             $pdf->SetFont('Arial', '', 7);
-        
+
             $pdf->Cell(15, 5, number_format($info_1Ano['avaliacoes_tfm']['media_tfm'], 3, ',', ''), 0, 0, 'C', false);
             $pdf->Cell(15, 5, number_format($notas1Ano['ARMTO'], 3, ',', ''), 0, 0, 'C', false);
             $pdf->Cell(15, 5, number_format($notas1Ano['LID'], 3, ',', ''), 0, 0, 'C', false);
@@ -202,7 +214,7 @@ class RelatoriosSSAA extends Controller {
             $pdf->Cell(14, 5, '', 0, 0, 'C', false);
             $pdf->Cell(14, 5, '', 0, 0, 'C', false);
             $pdf->Cell(14, 5, '', 0, 0, 'C', false);
-        
+
             $pdf->SetY(50);
             $pdf->SetFont('Arial', 'BI', 8);
             $pdf->Cell(45, 5, 'Disciplina', 0, 0, 'C', false);
@@ -223,54 +235,54 @@ class RelatoriosSSAA extends Controller {
             $pdf->SetFillColor(170, 170, 170);
 
             $fill = false;
-            
+
             $notasFinais = null;
-            foreach($aluno->capitaniNotas as $notas){
+            foreach ($aluno->capitaniNotas as $notas) {
                 $demonstrativo = json_decode($notas->data_demonstrativo);
-                
+
                 $pdf->SetX(5);
                 $pdf->Cell(45, 5, utf8_decode($notas->disciplina), 0, 0, 'L', $fill);
                 $pdf->Cell(13, 5, (isset($demonstrativo->AA_A1) ? number_format($demonstrativo->AA_A1, 3, ',', '') : null), 0, 0, 'C', $fill);
-                $pdf->Cell(13, 5, (isset($demonstrativo->AA2)   ? number_format($demonstrativo->AA2, 3, ',', '')   : null), 0, 0, 'C', $fill);
-                $pdf->Cell(13, 5, (isset($demonstrativo->AA3)   ? number_format($demonstrativo->AA3, 3, ',', '')   : null), 0, 0, 'C', $fill);
+                $pdf->Cell(13, 5, (isset($demonstrativo->AA2) ? number_format($demonstrativo->AA2, 3, ',', '') : null), 0, 0, 'C', $fill);
+                $pdf->Cell(13, 5, (isset($demonstrativo->AA3) ? number_format($demonstrativo->AA3, 3, ',', '') : null), 0, 0, 'C', $fill);
                 $pdf->Cell(13, 5, (isset($demonstrativo->AC_AI) ? number_format($demonstrativo->AC_AI, 3, ',', '') : null), 0, 0, 'C', $fill);
-                $pdf->Cell(13, 5, (isset($demonstrativo->AC2)   ? number_format($demonstrativo->AC2, 3, ',', '')   : null), 0, 0, 'C', $fill);
-                $pdf->Cell(13, 5, (isset($demonstrativo->AR)    ? number_format($demonstrativo->AR, 3, ',', '')    : null), 0, 0, 'C', $fill);
-                $pdf->Cell(13, 5, (isset($demonstrativo->AD)    ? number_format($demonstrativo->AD, 3, ',', '')    : null), 0, 0, 'C', $fill);
-                $pdf->Cell(13, 5, (isset($demonstrativo->AF1)   ? number_format($demonstrativo->AF1, 3, ',', '')   : null), 0, 0, 'C', $fill);
-                $pdf->Cell(13, 5, (isset($demonstrativo->AF2)   ? number_format($demonstrativo->AF2, 3, ',', '')   : null), 0, 0, 'C', $fill);
-                $pdf->Cell(13, 5, (isset($demonstrativo->NDF)   ? $demonstrativo->NDF : null)                             , 0, 0, 'C', $fill);
-                $pdf->Cell(13, 5, (isset($demonstrativo->NDC)   ? number_format($demonstrativo->NDC, 3, ',', '')   : null), 0, 0, 'C', $fill);
+                $pdf->Cell(13, 5, (isset($demonstrativo->AC2) ? number_format($demonstrativo->AC2, 3, ',', '') : null), 0, 0, 'C', $fill);
+                $pdf->Cell(13, 5, (isset($demonstrativo->AR) ? number_format($demonstrativo->AR, 3, ',', '') : null), 0, 0, 'C', $fill);
+                $pdf->Cell(13, 5, (isset($demonstrativo->AD) ? number_format($demonstrativo->AD, 3, ',', '') : null), 0, 0, 'C', $fill);
+                $pdf->Cell(13, 5, (isset($demonstrativo->AF1) ? number_format($demonstrativo->AF1, 3, ',', '') : null), 0, 0, 'C', $fill);
+                $pdf->Cell(13, 5, (isset($demonstrativo->AF2) ? number_format($demonstrativo->AF2, 3, ',', '') : null), 0, 0, 'C', $fill);
+                $pdf->Cell(13, 5, (isset($demonstrativo->NDF) ? $demonstrativo->NDF : null), 0, 0, 'C', $fill);
+                $pdf->Cell(13, 5, (isset($demonstrativo->NDC) ? number_format($demonstrativo->NDC, 3, ',', '') : null), 0, 0, 'C', $fill);
                 $pdf->Cell(12, 5, (isset($demonstrativo->Bonus) ? number_format($demonstrativo->Bonus, 3, ',', '') : null), 0, 1, 'C', $fill);
-    
-                $notasFinais['N1'] =    (isset($demonstrativo->NPBARRED) ? number_format($demonstrativo->NPBARRED, 3, ',', '')    : null);
-                $notasFinais['N2'] =    (isset($demonstrativo->NQ)       ? number_format($demonstrativo->NQ, 3, ',', '')          : null);
-                $notasFinais['NACP'] =  (isset($demonstrativo->NACP)     ? number_format($demonstrativo->NACP, 3, ',', '')        : null);
-                $notasFinais['NAA'] =   (isset($demonstrativo->NAA)      ? number_format($demonstrativo->NAA, 3, ',', '')         : null);
-                $notasFinais['NFC'] =   (isset($demonstrativo->NFC)      ? number_format($demonstrativo->NFC, 3, ',', '')         : null);
-                $notasFinais['MENCAO'] = (isset($demonstrativo->mencao)  ? $demonstrativo->mencao : '-');
-                $notasFinais['QR'] =    (isset($demonstrativo->QR)       ? number_format($demonstrativo->QR, 3, ',', '')          : null);
-                $notasFinais['CLASS'] = (isset($demonstrativo->ClasF)  ? utf8_decode($demonstrativo->ClasF) : '-');
 
-                $notasFinais['DIZCLASS'] = (isset($demonstrativo->NFC_Diz) ? number_format((double)str_replace(',', '.', $demonstrativo->NFC_Diz), 3, ',', '') : null);
+                $notasFinais['N1'] = (isset($demonstrativo->NPBARRED) ? number_format($demonstrativo->NPBARRED, 3, ',', '') : null);
+                $notasFinais['N2'] = (isset($demonstrativo->NQ) ? number_format($demonstrativo->NQ, 3, ',', '') : null);
+                $notasFinais['NACP'] = (isset($demonstrativo->NACP) ? number_format($demonstrativo->NACP, 3, ',', '') : null);
+                $notasFinais['NAA'] = (isset($demonstrativo->NAA) ? number_format($demonstrativo->NAA, 3, ',', '') : null);
+                $notasFinais['NFC'] = (isset($demonstrativo->NFC) ? number_format($demonstrativo->NFC, 3, ',', '') : null);
+                $notasFinais['MENCAO'] = (isset($demonstrativo->mencao) ? $demonstrativo->mencao : '-');
+                $notasFinais['QR'] = (isset($demonstrativo->QR) ? number_format($demonstrativo->QR, 3, ',', '') : null);
+                $notasFinais['CLASS'] = (isset($demonstrativo->ClasF) ? utf8_decode($demonstrativo->ClasF) : '-');
+
+                $notasFinais['DIZCLASS'] = (isset($demonstrativo->NFC_Diz) ? number_format((float)str_replace(',', '.', $demonstrativo->NFC_Diz), 3, ',', '') : null);
                 $fill = !$fill;
             }
-        
+
             $posicaoY = ($pdf->getY() + 3);
 
-                $pdf->SetY(45);
-                $pdf->SetFont('Arial', '', 9);
-                $pdf->Cell(125, 5, utf8_decode('2º Ano do CFGS'), 0, 0, 'L', false);
-                
-                
-                $pdf->SetTextColor(112, 128, 144);
-                $pdf->Cell(45, 5, utf8_decode('Dízima Clas: ').$notasFinais['DIZCLASS'], 0, 0, 'L', false);
+            $pdf->SetY(45);
+            $pdf->SetFont('Arial', '', 9);
+            $pdf->Cell(125, 5, utf8_decode('2º Ano do CFGS'), 0, 0, 'L', false);
 
-                $pdf->SetTextColor(0, 0, 0);
+
+            $pdf->SetTextColor(112, 128, 144);
+            $pdf->Cell(45, 5, utf8_decode('Dízima Clas: ') . $notasFinais['DIZCLASS'], 0, 0, 'L', false);
+
+            $pdf->SetTextColor(0, 0, 0);
 
             $pdf->setY($posicaoY);
             $pdf->Rect(5, $pdf->getY(), 40, 11);
-            
+
             $pdf->SetFont('Arial', '', 6);
             $pdf->setX(16);
             $pdf->WriteHTML(utf8_decode('<b><u>Fórmula da N2</u></b>'));
@@ -314,43 +326,43 @@ class RelatoriosSSAA extends Controller {
             $pdf->Cell(12, 4, $notasFinais['N1'], 1, 0, 'C');
 
             $posicaoX = $pdf->getX();
-            $pdf->setXY($posicaoX,($posicaoY + 1.5));
+            $pdf->setXY($posicaoX, ($posicaoY + 1.5));
             $pdf->Cell(12, 4, 'N2', 1, 1, 'C');
             $pdf->setX($posicaoX);
             $pdf->Cell(12, 4, $notasFinais['N2'], 1, 0, 'C');
 
             $posicaoX = $pdf->getX();
-            $pdf->setXY($posicaoX,($posicaoY + 1.5));
+            $pdf->setXY($posicaoX, ($posicaoY + 1.5));
             $pdf->Cell(12, 4, 'NACP', 1, 1, 'C');
             $pdf->setX($posicaoX);
             $pdf->Cell(12, 4, $notasFinais['NACP'], 1, 0, 'C');
 
             $posicaoX = $pdf->getX();
-            $pdf->setXY($posicaoX,($posicaoY + 1.5));
+            $pdf->setXY($posicaoX, ($posicaoY + 1.5));
             $pdf->Cell(12, 4, 'NAA', 1, 1, 'C');
             $pdf->setX($posicaoX);
             $pdf->Cell(12, 4, $notasFinais['NAA'], 1, 0, 'C');
 
             $posicaoX = $pdf->getX();
-            $pdf->setXY($posicaoX,($posicaoY + 1.5));
+            $pdf->setXY($posicaoX, ($posicaoY + 1.5));
             $pdf->Cell(12, 4, 'NFC', 1, 1, 'C');
             $pdf->setX($posicaoX);
             $pdf->Cell(12, 4, $notasFinais['NFC'], 1, 0, 'C');
 
             $posicaoX = $pdf->getX();
-            $pdf->setXY($posicaoX,($posicaoY + 1.5));
+            $pdf->setXY($posicaoX, ($posicaoY + 1.5));
             $pdf->Cell(12, 4, utf8_decode('Menção'), 1, 1, 'C');
             $pdf->setX($posicaoX);
             $pdf->Cell(12, 4, $notasFinais['MENCAO'], 1, 0, 'C');
 
             $posicaoX = $pdf->getX();
-            $pdf->setXY($posicaoX,($posicaoY + 1.5));
+            $pdf->setXY($posicaoX, ($posicaoY + 1.5));
             $pdf->Cell(12, 4, 'QR', 1, 1, 'C');
             $pdf->setX($posicaoX);
             $pdf->Cell(12, 4, $notasFinais['QR'], 1, 0, 'C');
 
             $posicaoX = $pdf->getX();
-            $pdf->setXY($posicaoX,($posicaoY + 1.5));
+            $pdf->setXY($posicaoX, ($posicaoY + 1.5));
             $pdf->Cell(12, 4, 'Clas', 1, 1, 'C');
             $pdf->setX($posicaoX);
             $pdf->Cell(12, 4, $notasFinais['CLASS'], 1, 1, 'C');
@@ -375,36 +387,35 @@ class RelatoriosSSAA extends Controller {
             $pdf->setXY(($pdf->getX() + 15), $posicaoY);
             $pdf->SetLineWidth(0.4);
             $pdf->Rect($pdf->getX(), $posicaoY, 156, 11);
-            
+
             $pdf->setXY(($pdf->getX()), $posicaoY + 1);
             $pdf->MultiCell(155, 3, utf8_decode('Atenção: O aluno deverá realizar a conferência de suas notas e dados pessoais (Ex.: Data Nasc, Situação Anterior, Data Promoções Sgt T, Cb, Sd ...), os quais serão utilizados como critérios de desempate na classificação final. Os graus atribuídos pelo C Ens não serão computados para o cálculo da NFC, sendo utilizados os obtidos ao longo do ano, conforme Parágrafo Único do art.92 das NAA (EB60-N-06.004) e os graus atribuídos mediante parecer do comando.'), 0, 'J');
-
-
         }
-        
-        
+
+
         FuncoesController::LimpaPastaTemp();
-        $nomeArquivo = 'Dem_Notas_'.uniqid().'.pdf';
-        $pdf->Output('F', storage_path('app/public/temp/').$nomeArquivo);
-        
-        $data['success'] = true; 
+        $nomeArquivo = 'Dem_Notas_' . uniqid() . '.pdf';
+        $pdf->Output('F', storage_path('app/public/temp/') . $nomeArquivo);
+
+        $data['success'] = true;
         $data['arquivo'] = $nomeArquivo;
         $data['rota'] = 'ajax/relatorios/download-pdf';
-        
+
         return response()->json($data);
-        
+
         //exit();
     }
 
-    public function relatorioAplicacaoProva(){
+    public function relatorioAplicacaoProva()
+    {
 
         $explode = explode('-', decrypt($this->_request->hash_rap));
-        
+
         $esaAvaliacoesRap = EsaAvaliacoesRap::where([['id_esa_avaliacoes', '=', $explode[1]], ['id_turmas_esa', '=', $explode[2]]])->first();
-        
+
         $condicoesAplicacao = array('MB', 'B', 'R', 'I');
         $pdf = new PDF('P');
-        
+
         $pdf->AliasNbPages();
         $pdf->SetAutoPageBreak(true, 10);
 
@@ -418,13 +429,13 @@ class RelatoriosSSAA extends Controller {
         $pdf->ln(3);
 
         $pdf->SetFont('Arial', '', 10);
-        if(strlen($esaAvaliacoesRap->esaAvaliacoes->esadisciplinas->nome_disciplina_abrev) > 20){
+        if (strlen($esaAvaliacoesRap->esaAvaliacoes->esadisciplinas->nome_disciplina_abrev) > 20) {
             $pdf->SetFont('Arial', '', 6);
         }
         $pdf->Cell(47.5, 5, utf8_decode(substr($esaAvaliacoesRap->esaAvaliacoes->esadisciplinas->nome_disciplina_abrev, 0, 40)), 1, 0, 'C');
         $pdf->SetFont('Arial', '', 10);
-        $pdf->Cell(47.5, 5, utf8_decode($esaAvaliacoesRap->esaAvaliacoes->nome_avaliacao.' - '.$esaAvaliacoesRap->esaAvaliacoes->chamada.'ª chamada'), 1, 0, 'C');
-        $pdf->Cell(47.5, 5, utf8_decode('C '.$esaAvaliacoesRap->esaTurma->qms->qms_sigla.' / '.$esaAvaliacoesRap->esaTurma->turma), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode($esaAvaliacoesRap->esaAvaliacoes->nome_avaliacao . ' - ' . $esaAvaliacoesRap->esaAvaliacoes->chamada . 'ª chamada'), 1, 0, 'C');
+        $pdf->Cell(47.5, 5, utf8_decode('C ' . $esaAvaliacoesRap->esaTurma->qms->qms_sigla . ' / ' . $esaAvaliacoesRap->esaTurma->turma), 1, 0, 'C');
         $pdf->Cell(47.5, 5, utf8_decode($esaAvaliacoesRap->local_aplicacao), 1, 1, 'C');
 
         $pdf->SetFont('Arial', 'B', 10);
@@ -451,7 +462,7 @@ class RelatoriosSSAA extends Controller {
         $pdf->Cell(95, 5, utf8_decode('ERROS DE INTERPRETAÇÃO'), 1, 1, 'C');
         $pdf->Cell(95, 5, utf8_decode('QUESTÃO(ÕES) OU ITEM(NS)'), 1, 0, 'C');
         $pdf->Cell(95, 5, utf8_decode('QUESTÃO(ÕES) OU ITEM(NS)'), 1, 1, 'C');
-        
+
         $y = $pdf->getY();
         $pdf->SetFont('Arial', '', 8);
         $pdf->Rect($pdf->getX(), $pdf->getY(), 95, 35);
@@ -476,41 +487,41 @@ class RelatoriosSSAA extends Controller {
         $y = $pdf->getY();
         $pdf->Cell(55, 5, utf8_decode('ADEQUAÇÃO'), 1, 0, 'C');
         $pdf->SetFont('Arial', '', 10);
-        foreach($condicoesAplicacao as $condicao){
-            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_adequacao == $condicao) ? "X" : null, 1, 0, 'C');    
+        foreach ($condicoesAplicacao as $condicao) {
+            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_adequacao == $condicao) ? "X" : null, 1, 0, 'C');
         }
 
         $pdf->ln(5);
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(55, 5, utf8_decode('ARRUMAÇÃO'), 1, 0, 'C');
         $pdf->SetFont('Arial', '', 10);
-        foreach($condicoesAplicacao as $condicao){
-            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_arrumacao == $condicao) ? "X" : null, 1, 0, 'C');    
+        foreach ($condicoesAplicacao as $condicao) {
+            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_arrumacao == $condicao) ? "X" : null, 1, 0, 'C');
         }
 
         $pdf->ln(5);
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(55, 5, utf8_decode('SILÊNCIO'), 1, 0, 'C');
         $pdf->SetFont('Arial', '', 10);
-        foreach($condicoesAplicacao as $condicao){
-            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_silencio == $condicao) ? "X" : null, 1, 0, 'C');    
+        foreach ($condicoesAplicacao as $condicao) {
+            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_silencio == $condicao) ? "X" : null, 1, 0, 'C');
         }
 
         $pdf->ln(5);
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(55, 5, utf8_decode('ILUMINAÇÃO'), 1, 0, 'C');
         $pdf->SetFont('Arial', '', 10);
-        foreach($condicoesAplicacao as $condicao){
-            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_iluminacao == $condicao) ? "X" : null, 1, 0, 'C');    
+        foreach ($condicoesAplicacao as $condicao) {
+            $pdf->Cell(10, 5, ($esaAvaliacoesRap->cond_local_iluminacao == $condicao) ? "X" : null, 1, 0, 'C');
         }
-        
+
         $pdf->Rect(($pdf->getX() + 5), $y, 90, 20);
         $pdf->setXY(110, $y);
         $pdf->SetFont('Arial', '', 8);
         $pdf->MultiCell(90, 5, utf8_decode($esaAvaliacoesRap->fatores_influencia_aplicacao), 0, "L", false, 4);
 
         $pdf->setY(130);
-        
+
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(140, 5, 'EFETIVO QUE REALIZOU A PROVA', 1, 0, 'R');
         $pdf->SetFont('Arial', '', 10);
@@ -530,19 +541,19 @@ class RelatoriosSSAA extends Controller {
         $pdf->Cell(90, 5, 'PRIMEIRO DISCENTE', 1, 0, 'R');
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, $esaAvaliacoesRap->primeiro_discente['tempo'], 1, 0, 'C');
-        $pdf->Cell(70, 5, (isset($esaAvaliacoesRap->primeiroDiscente) ? utf8_decode($esaAvaliacoesRap->primeiroDiscente->numero.' - '.$esaAvaliacoesRap->primeiroDiscente->nome_guerra) : '-'), 1, 1, 'C');
+        $pdf->Cell(70, 5, (isset($esaAvaliacoesRap->primeiroDiscente) ? utf8_decode($esaAvaliacoesRap->primeiroDiscente->numero . ' - ' . $esaAvaliacoesRap->primeiroDiscente->nome_guerra) : '-'), 1, 1, 'C');
 
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(90, 5, 'SEGUNDO DISCENTE', 1, 0, 'R');
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, $esaAvaliacoesRap->segundo_discente['tempo'], 1, 0, 'C');
-        $pdf->Cell(70, 5, (isset($esaAvaliacoesRap->segundoDiscente) ? utf8_decode($esaAvaliacoesRap->segundoDiscente->numero.' - '.$esaAvaliacoesRap->segundoDiscente->nome_guerra) : '-'), 1, 1, 'C');
+        $pdf->Cell(70, 5, (isset($esaAvaliacoesRap->segundoDiscente) ? utf8_decode($esaAvaliacoesRap->segundoDiscente->numero . ' - ' . $esaAvaliacoesRap->segundoDiscente->nome_guerra) : '-'), 1, 1, 'C');
 
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(90, 5, 'TERCEIRO DISCENTE', 1, 0, 'R');
         $pdf->SetFont('Arial', '', 10);
         $pdf->Cell(30, 5, $esaAvaliacoesRap->terceiro_discente['tempo'], 1, 0, 'C');
-        $pdf->Cell(70, 5, (isset($esaAvaliacoesRap->terceiroDiscente) ? utf8_decode($esaAvaliacoesRap->terceiroDiscente->numero.' - '.$esaAvaliacoesRap->terceiroDiscente->nome_guerra) : '-'), 1, 1, 'C');
+        $pdf->Cell(70, 5, (isset($esaAvaliacoesRap->terceiroDiscente) ? utf8_decode($esaAvaliacoesRap->terceiroDiscente->numero . ' - ' . $esaAvaliacoesRap->terceiroDiscente->nome_guerra) : '-'), 1, 1, 'C');
 
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(90, 5, 'MAIORIA (META DA TURMA + 1)', 1, 0, 'R');
@@ -560,61 +571,61 @@ class RelatoriosSSAA extends Controller {
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(95, 5, utf8_decode('FALTAS'), 1, 0, 'C');
         $pdf->Cell(95, 5, utf8_decode('MOTIVO'), 1, 1, 'C');
-        
+
         $y = $pdf->getY();
         $pdf->SetFont('Arial', '', 8);
         $pdf->Rect($pdf->getX(), $pdf->getY(), 95, 60);
 
         $faltas = array(null, null);
         $i = 0;
-        foreach($esaAvaliacoesRap->faltas->pluck('numero_nome_guerra')->toArray() as $aluno){
+        foreach ($esaAvaliacoesRap->faltas->pluck('numero_nome_guerra')->toArray() as $aluno) {
             $i++;
-            if($i <= 12){
-                $faltas[0] .= $i.'. '.$aluno.chr(13).chr(10);
-            }else{
-                $faltas[1] .= $i.'. '.$aluno.chr(13).chr(10);
+            if ($i <= 12) {
+                $faltas[0] .= $i . '. ' . $aluno . chr(13) . chr(10);
+            } else {
+                $faltas[1] .= $i . '. ' . $aluno . chr(13) . chr(10);
             }
         }
-        
-        $pdf->SetFont('Arial', '', 7);  
-        if($i >= 12){
+
+        $pdf->SetFont('Arial', '', 7);
+        if ($i >= 12) {
             $pdf->MultiCell(47.5, 5, utf8_decode($faltas[0]), 0, 'L', false, 12);
             $pdf->Rect(57.5, $y, 47.5, 60);
             $pdf->SetXY(57.5, $y);
             $pdf->MultiCell(47.5, 5, utf8_decode($faltas[1]), 0, 'L', false, 12);
-        }else{
+        } else {
             $pdf->MultiCell(95, 5, utf8_decode($faltas[0]), 0, 'L', false, 12);
         }
 
         $pdf->setXY(105, $y);
         $pdf->Rect(105, $pdf->getY(), 95, 60);
 
-        if(isset($esaAvaliacoesRap->alunos_faltas)){
+        if (isset($esaAvaliacoesRap->alunos_faltas)) {
             $motivos = array(null, null);
             $i = 0;
-            
+
             $motivosFaltas = EsaMotivosFaltas::all();
 
-            foreach($esaAvaliacoesRap->alunos_faltas as $alunofalta){
+            foreach ($esaAvaliacoesRap->alunos_faltas as $alunofalta) {
                 $i++;
-                if($i <= 12){
-                    $motivos[0] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10).'('.$alunofalta['desc_motivo'].')'.chr(13).chr(10);
-                }else{
-                    $motivos[1] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10).'('.$alunofalta['desc_motivo'].')'.chr(13).chr(10);
+                if ($i <= 12) {
+                    $motivos[0] .= $i . '. ' . ($motivosFaltas->find($alunofalta['id_motivo'])->descricao) . chr(13) . chr(10) . '(' . $alunofalta['desc_motivo'] . ')' . chr(13) . chr(10);
+                } else {
+                    $motivos[1] .= $i . '. ' . ($motivosFaltas->find($alunofalta['id_motivo'])->descricao) . chr(13) . chr(10) . '(' . $alunofalta['desc_motivo'] . ')' . chr(13) . chr(10);
                 }
             }
 
-            $pdf->SetFont('Arial', '', 6);    
-            if($i >= 12){
+            $pdf->SetFont('Arial', '', 6);
+            if ($i >= 12) {
                 $pdf->MultiCell(47.5, 2.5, utf8_decode($motivos[0]), 0, 'L', false, 24);
                 $pdf->Rect(152.5, $y, 47.5, 60);
                 $pdf->SetXY(152.5, $y);
                 $pdf->MultiCell(47.5, 2.5, utf8_decode($motivos[1]), 0, 'L', false, 24);
-            }else{
+            } else {
                 $pdf->MultiCell(95, 2.5, utf8_decode($motivos[0]), 0, 'L', false, 24);
             }
         }
-        
+
         $pdf->SetFont('Arial', '', 8);
         $pdf->setY(250);
         $pdf->MultiCell(0, 5, utf8_decode('* Obs: no caso de faltas a 1ª Chm, o curso deverá informar ao Cmt CA, e este, à DE, até 2 dias após realização da prova, a justificativa ou não da(s) falta(s) à prova, conforme § 1º e 2º do Art 51 das NIAA/ESA.'), 0, "L");
@@ -626,14 +637,15 @@ class RelatoriosSSAA extends Controller {
         exit();
     }
 
-    public function relatorioAplicacaoProvaTFM(){
+    public function relatorioAplicacaoProvaTFM()
+    {
 
         $explode = explode('-', decrypt($this->_request->hash_rap));
-        
+
         $esaAvaliacoesRapTfm = EsaAvaliacoesRapTfm::where([['id_esa_avaliacoes', '=', $explode[1]]])->first();
 
         $pdf = new PDF('P');
-        
+
         $pdf->AliasNbPages();
         $pdf->SetAutoPageBreak(true, 10);
 
@@ -651,7 +663,7 @@ class RelatoriosSSAA extends Controller {
         $pdf->Cell(63.33, 5, utf8_decode('LOCAL'), 1, 1, 'C');
 
         $pdf->SetFont('Arial', '', 8);
-        $pdf->Cell(63.33, 5, utf8_decode($esaAvaliacoesRapTfm->esaAvaliacoes->nome_avaliacao.' - '.$esaAvaliacoesRapTfm->esaAvaliacoes->chamada.'ª chamada'), 1, 0, 'C');
+        $pdf->Cell(63.33, 5, utf8_decode($esaAvaliacoesRapTfm->esaAvaliacoes->nome_avaliacao . ' - ' . $esaAvaliacoesRapTfm->esaAvaliacoes->chamada . 'ª chamada'), 1, 0, 'C');
         $pdf->Cell(63.33, 5, utf8_decode($esaAvaliacoesRapTfm->esaAvaliacoes->esaDisciplinas->qms->qms), 1, 0, 'C');
         $pdf->Cell(63.33, 5, utf8_decode($esaAvaliacoesRapTfm->local_aplicacao), 1, 1, 'C');
         $pdf->ln(3);
@@ -662,7 +674,7 @@ class RelatoriosSSAA extends Controller {
         $pdf->Cell(63.33, 5, utf8_decode('HORA DE TÉRMINO'), 1, 1, 'C');
 
         $pdf->SetFont('Arial', '', 8);
-        foreach($esaAvaliacoesRapTfm->data_aplicacao as $data){
+        foreach ($esaAvaliacoesRapTfm->data_aplicacao as $data) {
             $pdf->Cell(63.33, 5, FuncoesController::formatDateEntoBr($data['data_aplicacao']), 1, 0, 'C');
             $pdf->Cell(63.33, 5, $data['hora_inicio'], 1, 0, 'C');
             $pdf->Cell(63.33, 5, $data['hora_termino'], 1, 1, 'C');
@@ -687,7 +699,7 @@ class RelatoriosSSAA extends Controller {
         $pdf->MultiCell(0, 5, utf8_decode($esaAvaliacoesRapTfm->fatores_neg_pos), 0, "L", false, 8);
         $pdf->setXY(105, ($y + 35));
         $pdf->ln(3);
-        
+
         $pdf->SetFont('Arial', 'B', 10);
         $pdf->Cell(0, 5, utf8_decode('CONDIÇÕES METEREOLÓGICAS IMPEDIRAM A REALIZAÇÃO DE ALGUM TESTE'), 1, 1, 'C');
         $pdf->Cell(95, 5, utf8_decode('NÃO'), 1, 0, 'C');
@@ -723,65 +735,276 @@ class RelatoriosSSAA extends Controller {
 
         $faltas = array(null, null);
         $i = 0;
-        foreach($esaAvaliacoesRapTfm->faltas->pluck('numero_nome_guerra')->toArray() as $aluno){
+        foreach ($esaAvaliacoesRapTfm->faltas->pluck('numero_nome_guerra')->toArray() as $aluno) {
             $i++;
-            if($i <= 7){
-                $faltas[0] .= $i.'. '.$aluno.chr(13).chr(10);
-            }else{
-                $faltas[1] .= $i.'. '.$aluno.chr(13).chr(10);
+            if ($i <= 7) {
+                $faltas[0] .= $i . '. ' . $aluno . chr(13) . chr(10);
+            } else {
+                $faltas[1] .= $i . '. ' . $aluno . chr(13) . chr(10);
             }
         }
 
-        if($i > 7){
+        if ($i > 7) {
             $pdf->MultiCell(47.5, 5.5, utf8_decode($faltas[0]), 0, 'L', false, 12);
             $pdf->Rect(57.5, $y, 47.5, 41);
             $pdf->SetXY(57.5, $y);
             $pdf->MultiCell(47.5, 5.5, utf8_decode($faltas[1]), 0, 'L', false, 12);
-        }else{
+        } else {
             $pdf->MultiCell(95, 5.5, utf8_decode($faltas[0]), 0, 'L', false, 12);
         }
 
         $pdf->setXY(105, $y);
         $pdf->Rect(105, $pdf->getY(), 95, 41);
 
-        if(isset($esaAvaliacoesRapTfm->alunos_faltas)){
+        if (isset($esaAvaliacoesRapTfm->alunos_faltas)) {
             $motivos = array(null, null);
             $i = 0;
-            
+
             $motivosFaltas = EsaMotivosFaltas::all();
-            
-            foreach($esaAvaliacoesRapTfm->alunos_faltas as $alunofalta){
+
+            foreach ($esaAvaliacoesRapTfm->alunos_faltas as $alunofalta) {
                 $i++;
-                
-                if($i <= 7){ 
-                    $motivos[0] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10).'('.$alunofalta['desc_motivo'].')'.chr(13).chr(10);
-                }else{
-                    $motivos[1] .= $i.'. '.($motivosFaltas->find($alunofalta['id_motivo'])->descricao).chr(13).chr(10).'('.$alunofalta['desc_motivo'].')'.chr(13).chr(10);
+
+                if ($i <= 7) {
+                    $motivos[0] .= $i . '. ' . ($motivosFaltas->find($alunofalta['id_motivo'])->descricao) . chr(13) . chr(10) . '(' . $alunofalta['desc_motivo'] . ')' . chr(13) . chr(10);
+                } else {
+                    $motivos[1] .= $i . '. ' . ($motivosFaltas->find($alunofalta['id_motivo'])->descricao) . chr(13) . chr(10) . '(' . $alunofalta['desc_motivo'] . ')' . chr(13) . chr(10);
                 }
             }
 
-            $pdf->SetFont('Arial', '', 6);            
-            if($i > 7){
+            $pdf->SetFont('Arial', '', 6);
+            if ($i > 7) {
                 $pdf->MultiCell(47.5, 2.9, utf8_decode($motivos[0]), 0, 'L', false, 14);
                 $pdf->Rect(152.5, $y, 47.5, 41);
                 $pdf->SetXY(152.5, $y);
                 $pdf->MultiCell(47.5, 2.9, utf8_decode($motivos[1]), 0, 'L', false, 14);
-            }else{
+            } else {
                 $pdf->MultiCell(95, 2.9, utf8_decode($motivos[0]), 0, 'L', false, 14);
             }
-
         }
 
         $pdf->SetFont('Arial', '', 8);
         $pdf->setY(250);
         $pdf->MultiCell(0, 5, utf8_decode('* Obs: no caso de faltas a 1ª Chm, o curso deverá informar ao Cmt CA, e este, à DE, até 2 dias após realização da prova, a justificativa ou não da(s) falta(s) à prova, conforme § 1º e 2º do Art 51 das NIAA/ESA.'), 0, "L");
         $pdf->Ln(20);
-        
+
         $pdf->Cell(85, 5, 'Avaliador/SEF', 'T', 0, 'C');
         $pdf->Cell(20, 5, null, 0, 0, 'C');
         $pdf->Cell(85, 5, 'Instrutor/Monitor do curso', 'T', 1, 'C');
 
         $pdf->Output('I', utf8_decode('Relatório de Aplicação de Prova.pdf'));
         exit();
+    }
+
+    public function validaLancamentoAvaliacao($retornaDados = false)
+    {
+        $retorno = array('success' => false, 'warning' => false, 'message' => 'Ocorreu um Erro.');
+        $esaAvaliacoes = EsaAvaliacoes::find(explode('_', decrypt($this->_request->avaliacaoID))[1]);
+
+        if ($esaAvaliacoes->isTFM()) {
+            $esaAvaliacoes->esaAvaliacoesRapTfm;
+        } else {
+            $efetivo = 0;
+            $realizaram = 0;
+
+            foreach ($esaAvaliacoes->esaAvaliacoesRap as $avaliacaoRap) {
+                $efetivo += $avaliacaoRap->efetivo_realizou;
+                $realizaram = $efetivo - (($avaliacaoRap->alunos_faltas) ? count($avaliacaoRap->alunos_faltas) : 0);
+            }
+
+            //Traz os alunos que tem lançamento completo de GBO
+            $alunosComLancamento = ControllerLancamentoGBO::retornaLancamentosAvaliacao($esaAvaliacoes);
+
+            //Valida se todos que foram informados no RAP estão com lançamentos...
+            if ($realizaram <> $alunosComLancamento->count()) {
+                $realizaram = $alunosComLancamento->count();
+
+                $retorno['success'] = true;
+                $retorno['warning'] = true;
+                $retorno['message'] = 'Existem lançamentos de GBO de aluno(s) pendentes na avaliação.';
+            } else {
+                $retorno['success'] = true;
+                $retorno['warning'] = false;
+                $retorno['message'] = 'Liberado para visualização.';
+            }
+
+            if ($retornaDados) {
+                $retorno['json'] = array('efetivo' => $efetivo, 'realizaram' => $realizaram, 'alunosComLancamento' => $alunosComLancamento);
+            }
+        }
+
+        return response()->json($retorno);
+    }
+
+    public function analiseResultadoProvas()
+    {
+        
+        if($this->_ownauthcontroller->PermissaoCheck(40)){
+            /*Remover depois*/
+            //$this->_request->disciplinaID = 'eyJpdiI6Iko1YyszSFhCQ2c1aTAyaWl6NWIyOUE9PSIsInZhbHVlIjoid0lDeDdUTUhnb2FlVHBZalc2Kyt0K004bE5KWlkzaTlWYm1JV2R2Rm5CMD0iLCJtYWMiOiI2M2E1ZmY5MzljODFiNmM0MjA1NmJiNzllNjFjMGEzMzgyZmQ0MjczODg5MjgzY2VhY2VhMmNkNmYyY2Y4MmYzIn0=';
+            //$this->_request->avaliacaoID = 'eyJpdiI6InA0TVdvUXJUV1FsK3BvY2ZVWDdkWlE9PSIsInZhbHVlIjoicjRDZjAxMUxSMlRFN0JaWHc1Z2pmc3laUFhnMGRyWFQ0Z3pVc2hTYWpXVT0iLCJtYWMiOiJiOWI3M2QyMmQ1ZTdhMzVmM2I1ZGYzNTNiMjgyYzZjM2Y1YmE4ZTM4Y2EyMDdhYWEzN2JhZDgxZjM2M2FhZjljIn0=';
+            /*Remover até aqui*/
+
+            //$disciplinaID = explode('_', decrypt($this->_request->disciplinaID))[1];
+            $avaliacaoID = explode('_', decrypt($this->_request->avaliacaoID))[1];
+
+            $esaAvaliacoes = EsaAvaliacoes::find($avaliacaoID);
+
+            $gbm = ControllerIndiceDificuldades::getGBM($esaAvaliacoes->id)->getData()->resultado_gbm;
+
+            $lancamentosGbo = ControllerLancamentoGBO::retornaLancamentosAvaliacao($esaAvaliacoes);
+
+            $retorno = $this->validaLancamentoAvaliacao(true);
+
+            $efetivo = $retorno->getData()->json->efetivo;
+            $realizaram = $retorno->getData()->json->realizaram;
+            $alunosNota = $retorno->getData()->json->alunosComLancamento;
+            $acima_media = 0;
+            $abaixo_media = 0;
+            $abaixo_5 = 0;
+
+            if (count($retorno->getData()->json->alunosComLancamento) == 0) {
+                return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Avaliação sem Lançamentos.');
+            }
+
+            $mediaAritmetica = round((array_sum(array_column($retorno->getData()->json->alunosComLancamento, 'nota_aluno')) / count($retorno->getData()->json->alunosComLancamento)), 3);
+
+            $alunosComLancamento = ControllerLancamentoGBO::retornaLancamentosAvaliacao($esaAvaliacoes);
+
+            $maiorNota = $alunosComLancamento->max('nota_aluno');
+            $menorNota = $alunosComLancamento->min('nota_aluno');
+            $mencoes = Mencoes::all();
+
+            foreach ($mencoes as $mencao) {
+                $mencao->quantidade = 0;
+                $mencao->porcentagem = 0;
+
+                $mencao->geraFrequencia();
+
+                foreach (array_column($alunosNota, 'nota_aluno') as $nota) {
+                    if ($nota >= $mencao->inicio && $nota <= $mencao->fim) {
+                        $mencao->quantidade++;
+
+                        if ($nota >= $mediaAritmetica) {
+                            $acima_media++;
+                        } else {
+                            $abaixo_media++;
+                        }
+
+                        if ($nota < 5)
+                            $abaixo_5++;
+
+                        $mencao->setFrequencia($nota, $realizaram);
+                    }
+                }
+                //$mencao->quantidade = $quantidade;
+                $mencao->porcentagem = (($mencao->quantidade / $realizaram) * 100);
+            }
+
+            ## Gráfico 
+            $lava = new Lavacharts();
+            $dataTable = $lava->DataTable();
+            $dataTable->addStringColumn('Teste')
+                ->addNumberColumn('Porcentagem');
+
+            foreach ($mencoes as $mencao) {
+                $dataTable->addRow([$mencao->mencao, $mencao->quantidade]);
+            }
+
+            $lava->PieChart('Graph', $dataTable, [
+                'title' => 'Gráfico',
+                'is3D' => true,
+                'width' => 650,
+                'slices' => [
+                    ['offset' => 0.2],
+                    ['offset' => 0.25],
+                    ['offset' => 0.3]
+                ]
+            ]);
+
+            $dataTable = $lava->DataTable();
+            $dataTable->addStringColumn('Notas')
+                ->addNumberColumn('Frequência');
+
+            foreach ($mencoes as $mencao) {
+                foreach ($mencao->getFrequencia()[0] as $item => $frequencia) {
+                    if (($frequencia['freq'] > 0))
+                        $dataTable->addRow([$item, $frequencia['freq']]);
+                }
+            }
+
+            $lava->ColumnChart('Histograma', $dataTable, [
+                'title' => 'Histograma',
+                'legend' => ['position' => 'none'],
+                'hAxis' => ['textPosition' => 'out'],
+                'vAxis' => ['gridlines' => ['minSpacing' => 20, 'color' => '#333']],
+                'width' => 650
+            ]);
+            ## Fim Gráfico 
+
+            /*$assinatura = EsaAssinaturas::where([['assina_relatorio', '=', 'S']])->first();
+            $pdf = DOMPDF::loadView(
+                'ssaa.relatorios.analise-resultado-prova',
+                compact(
+                    'esaAvaliacoes',
+                    'lancamentosGbo',
+                    'efetivo',
+                    'realizaram',
+                    'mediaAritmetica',
+                    'maiorNota',
+                    'menorNota',
+                    'mencoes',
+                    'lava',
+                    'acima_media',
+                    'abaixo_media',
+                    'abaixo_5',
+                    'gbm',
+                    'assinatura'
+                )
+            );
+            //return $pdf->download('pdfview.pdf');
+            
+            $pdf->save(storage_path('app/public/temp/'.(String)\Illuminate\Support\Str::uuid().'.pdf'));*/
+
+            return view(
+            'ssaa.relatorios.analise-resultado-prova',
+            compact(
+            'esaAvaliacoes',
+            'lancamentosGbo',
+            'efetivo',
+            'realizaram',
+            'mediaAritmetica',
+            'maiorNota',
+            'menorNota',
+            'mencoes',
+            'lava',
+            'acima_media',
+            'abaixo_media',
+            'abaixo_5',
+            'gbm'
+            )
+            )->with('assinatura', EsaAssinaturas::where([['assina_relatorio', '=', 'S']])->first());
+        }else{
+            return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Usuário sem permissão.');
+        }
+        
+    }
+
+    public function mostrarAssinatura($id_assinatura)
+    {
+        $esaAssinatura = EsaAssinaturas::find($id_assinatura);
+        $path = storage_path($esaAssinatura->caminho_assinatura);
+
+        if (!File::exists($path)) {
+            abort(404);
+        }
+
+        $file = File::get($path);
+        $type = File::mimeType($path);
+
+        $response = Response::make($file, 200);
+        $response->header("Content-Type", $type);
+
+        return $response;
     }
 }

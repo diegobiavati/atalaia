@@ -145,8 +145,15 @@ class ControllerIndiceDificuldades extends Controller
     {
         session()->forget('encryptData');
         $provas = collect();
+        $criptografia = false;
 
-        $avaliacoes = EsaAvaliacoes::where([['id_esa_disciplinas', '=', $this->_request->id_disciplina]])->get();
+        $idDisciplina = $this->_request->id_disciplina;
+        if(strlen($idDisciplina) > 10){
+            $idDisciplina = explode('_', decrypt($idDisciplina))[1];
+            $criptografia = true;
+        }
+
+        $avaliacoes = EsaAvaliacoes::where([['id_esa_disciplinas', '=', $idDisciplina]])->get();
         $turmas = $avaliacoes->first()->esadisciplinas->qms->consultaTurmas();
         
         //Só habilita a avaliação se estiver com o RAP de todas as turmas lançados
@@ -166,7 +173,7 @@ class ControllerIndiceDificuldades extends Controller
             }
         }
 
-        return view('ajax.ssaa.componenteDisciplinasProvas', compact('provas'));
+        return view('ajax.ssaa.componenteDisciplinasProvas', compact('provas', 'criptografia'));
     }
 
     public function carregaIndices()
@@ -252,14 +259,22 @@ class ControllerIndiceDificuldades extends Controller
         return response()->json($retorno);
     }
 
-    public static function getGBM(){
+    public static function getGBM($idAvaliacao=null){
         $retorno['success'] = true;
         $retorno['resultado_gbm'] = 0;
-
+        
+        if($idAvaliacao){
+            session()->forget('encryptData');
+        }
+        
         if(session()->has('encryptData')){
-            $retorno['resultado_gbm'] = EsaAvaliacoesIndices::where([['id_esa_avaliacoes', '=', explode('-', decrypt(session()->get('encryptData')))[3] ]])->sum('score_total');
+            $idAvaliacao = explode('-', decrypt(session()->get('encryptData')))[3];
         }
 
+        if($idAvaliacao){
+            $retorno['resultado_gbm'] = EsaAvaliacoesIndices::where([['id_esa_avaliacoes', '=', $idAvaliacao]])->sum('score_total');
+        }
+        
         return response()->json($retorno);
     }
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\AnoFormacao;
+use App\Models\EsaAvaliacoes;
 use App\Models\EsaDisciplinas;
 use App\Models\QMS;
 use App\Rules\Uppercase;
@@ -162,6 +163,16 @@ class ControllerDisciplinas extends Controller
         }
 
         return response()->json($retorno);
+    }
+
+    public function getDisciplinas(QMS $qms){
+        return EsaDisciplinas::where(['id_qms' => $qms->id])->get();
+    }
+
+    public function getComboDisciplinas(){
+        $criptografia = true;
+
+        return view('ajax.ssaa.componenteDisciplinas', compact('criptografia'))->with('disciplinas', $this->getDisciplinas(Qms::find($this->_request->id_curso)));
     }
 
     public function validaRequest()

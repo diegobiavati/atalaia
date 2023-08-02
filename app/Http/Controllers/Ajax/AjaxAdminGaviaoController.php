@@ -7,7 +7,7 @@ use App\Models\EsaAvaliacoesRapTfm;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
-use App\Http\Controllers\Relatorios\RelatoriosSSAA;
+use App\Http\Controllers\Relatorios\RelatoriosSSAAController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\Controllers\Utilitarios\ImportadorController;
 use App\Http\FPDF\PDF_DEM_NOTAS;
@@ -443,7 +443,7 @@ class AjaxAdminGaviaoController extends Controller
         if(!$ownauthcontroller->PermissaoCheck([1,27]) && $request->curso_id!=FuncoesController::retornaQMSPerfil($request->id_ano_formacao)->id){
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
         } else {
-            $relatorioSSAA = new RelatoriosSSAA($request, $ownauthcontroller);
+            $relatorioSSAA = new RelatoriosSSAAController($request, $ownauthcontroller);
             return $relatorioSSAA->DemonstrativoNotasGaviao($request->id_ano_formacao, $request->curso_id);
         }
     }

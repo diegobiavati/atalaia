@@ -36,7 +36,11 @@ class EsaAvaliacoes extends Model
 
     public function esadisciplinas(){
         return $this->belongsTo('App\Models\EsaDisciplinas', 'id_esa_disciplinas', 'id');
-    } 
+    }
+    
+    public function isTFM(){
+        return $this->esadisciplinas->tfm == 'S';
+    }
 
     public function esaAvaliacoesRap(){
         return $this->hasMany('App\Models\EsaAvaliacoesRap', 'id_esa_avaliacoes', 'id');
