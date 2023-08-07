@@ -9,6 +9,7 @@ use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\FPDF\PDF;
 use App\Http\FPDF\PDF_AUD_FO;
 use App\Http\FPDF\ROD_PDF;
+use App\Http\FPDF\PDF_Footer;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\Alunos;
 use App\Models\AlunosClassificacao;
@@ -1026,8 +1027,10 @@ class RelatorioAlunoController extends Controller
             return view('relatorios.relacao-ficha-disciplinar-individual', compact('alunos', 'anoFormacao'))->with('relacao', $request->relacao);
 
         }else{
-            $pdf = new PDF('L');
-            $pdf->SetAutoPageBreak(true);
+            $pdf = new PDF_Footer('L');
+            $pdf->SetAutoPageBreak(true, 25);
+            $pdf->AliasNbPages();
+            //$pdf->SetMargins();
     
             foreach ($alunos as $key) {
     
@@ -1153,8 +1156,22 @@ class RelatorioAlunoController extends Controller
                 $pdf->ln(3);
                 $pdf->Cell(0, 4, utf8_decode((isset($aluno->recompensas) ? $aluno->recompensas : 'Sem recompensas')), 1, 1, 'L', false);
                 $pdf->SetFont('Times', 'B', 8);
+
+                $pdf->SetFont('Times', '', 12);
+                $pdf->ln(15); //$pdf->SetXY(0, 100);
+                $pdf->WriteHTML(utf8_decode('<p align="center">'.str_pad(' ',(strlen($aluno->nome_completo)+strlen($aluno->ano_formacao->ano_cfs)+strlen( ' - Aluno(a) CFGS/' )+10),"_").'</p>'));
+                $pdf->WriteHTML('<p align="center">' . strtoupper(utf8_decode(trim($aluno->nome_completo))) . ' - Aluno(a) CFGS/' . $aluno->ano_formacao->ano_cfs . '</p>');
+                //$pdf->SetXY(0, 300); //275
+                //$pdf->WriteHTML('<b><p align="center">Arrolado(a)</p></b>');
+                
             }
-    
+
+            //$pdffooter = new PDF_Footer();
+            //$pdffooter->Footer();
+            //$pdf->Footer();//.Footer();
+            //$pdf->AliasNbPages();
+            //$pdf->SetFont('Times','',12);
+
             $pdf->Output('I', 'Ficha_Disciplinar.pdf');
     
             exit();
