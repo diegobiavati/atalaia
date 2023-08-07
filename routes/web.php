@@ -511,7 +511,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::resource('view-lancamento-gbo', 'SSAA\Avaliacao\ControllerLancamentoGBO');
         Route::get('view-combo-box-alunos-rap/{idTurma}/{edicao?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewComboBoxAlunosRap');
         
-        Route::get('view-navegacao-item/{id_aluno}/{requisicao?}/{item?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewPaginacaoLancamento');
+        Route::get('view-navegacao-item/{id_aluno?}/{requisicao?}/{item?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewPaginacaoLancamento');
         
     //Fim SSAA
 

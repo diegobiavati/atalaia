@@ -23,15 +23,16 @@
         /*.footer {
             position: fixed;
             bottom: 0px;
-            left: 0;
+            left: 10;
             width: 100%;
             padding: 5px 10px 10px 10px;
-            text-align: center;
-            background: #555555;
-            color: #ffffff;
-        }
+            text-align: right;
+            background: #231442;
+            color: #d90c59;
+            right: 10%;
+        }*/
 
-        .footer .page:after {
+        /*.footer .page:after {
             content: 'Página ' counter(page);
         }*/
 
@@ -227,12 +228,13 @@
 
         <div class="break"></div>
 
-        @include('ssaa.relatorios.ficha-controle-resultado-avaliacao')
-
         <div class="footer">
             <span class="page"></span>
         </div>
     </div>
+
+    @include('ssaa.relatorios.ficha-controle-resultado-avaliacao')
+
 </body>
 
 </html>

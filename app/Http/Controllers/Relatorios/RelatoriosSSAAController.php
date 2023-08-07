@@ -14,8 +14,6 @@ use App\Models\Disciplinas;
 use App\Models\EsaMotivosFaltas;
 use App\Models\Mencoes;
 use File;
-use Hamcrest\Text\StringContains;
-use Hash;
 use Illuminate\Http\Request;
 use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\SSAA\Avaliacao\ControllerLancamentoGBO;
@@ -808,8 +806,9 @@ class RelatoriosSSAAController extends Controller
             $realizaram = 0;
 
             foreach ($esaAvaliacoes->esaAvaliacoesRap as $avaliacaoRap) {
-                $efetivo += $avaliacaoRap->efetivo_realizou;
-                $realizaram = $efetivo - (($avaliacaoRap->alunos_faltas) ? count($avaliacaoRap->alunos_faltas) : 0);
+                $efetivo += ($avaliacaoRap->efetivo_realizou + (($avaliacaoRap->alunos_faltas) ? count($avaliacaoRap->alunos_faltas) : 0));
+                //$realizaram += ($avaliacaoRap->efetivo_realizou - (($avaliacaoRap->alunos_faltas) ? count($avaliacaoRap->alunos_faltas) : 0));
+                $realizaram += $avaliacaoRap->efetivo_realizou;
             }
 
             //Traz os alunos que tem lançamento completo de GBO
