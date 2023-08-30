@@ -20,7 +20,7 @@
 
   @case('avaliacoes'):
         <ul class="list-group list-group-flush" style="margin-top: 44px;">
-          <!--<li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('demonstrativo-notas');">Demonstrativo de notas</a></li>-->
+          <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('demonstrativo-notas');">Demonstrativo de notas</a></li>
           <li class="list-group-item opcoes-relatorios"><a href="javascript: void(0);" class="no-style" onclick="loadRelatorioAjaxContent('analise-resultado-prova');">Análise de Resultado de Prova</a></li>
         </ul>
   @break

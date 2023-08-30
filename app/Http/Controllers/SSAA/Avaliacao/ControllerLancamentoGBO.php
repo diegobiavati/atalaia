@@ -10,6 +10,7 @@ use App\Models\EsaAvaliacoesGbo;
 use App\Models\AlunosClassificacao;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\Alunos;
+use App\Models\EsaAvaliacoesResultados;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -98,6 +99,7 @@ class ControllerLancamentoGBO extends Controller
             $id_indice = (int)explode('_', decrypt($id))[2];
             $id_aluno = (int)explode('_', decrypt($this->_request->id_aluno))[2];
             $score_vermelho = $this->_request->score_vermelho;
+            $gbo_errado = $this->_request->gbo_errado > 0 ? $this->_request->gbo_errado : null;
 
             $esaAvaliacoesGbo = EsaAvaliacoesGBO::where([['id_esa_avaliacoes_indice', '=', $id_indice], ['id_aluno', '=', $id_aluno]])
                 ->firstOrCreate(array('id_esa_avaliacoes_indice' => $id_indice, 'id_aluno' => $id_aluno, 'id_operador' => session('login.operadorID')));
@@ -113,6 +115,9 @@ class ControllerLancamentoGBO extends Controller
                     $esaAvaliacoesGbo->score_vermelho = $score_vermelho;
                     $esaAvaliacoesGbo->id_operador = session('login.operadorID');
                     $esaAvaliacoesGbo->save();
+
+                    EsaAvaliacoesResultados::where([['id_esa_avaliacoes', '=', $esaAvaliacoesGbo->esaAvaliacoesIndices->esaAvaliacoes->id], ['id_aluno', '=', $id_aluno]])
+                        ->update(['gbo_aluno' => $gbo_errado]);
 
                     $retorno['status'] = 'success';
                     $retorno['response'] = 'GBO Registrado.';
@@ -182,11 +187,14 @@ class ControllerLancamentoGBO extends Controller
                 $selecionado--;
             }
 
+            $gbo_errado = EsaAvaliacoesResultados::where([['id_esa_avaliacoes', '=', $id_esa_avaliacoes], ['id_aluno', '=', $id_aluno]])->first()->gbo_aluno ?? 0;
+
             return view('ssaa.avaliacao.indice.gbo.componente-gbo', compact('esaAvaliacoesIndices', 'selecionado'))
                 ->with('id_indice', $esaAvaliacoesIndices->get($selecionado)->id)
                 ->with('id_aluno', $id_aluno)
                 ->with('urlLancamentoGBO', $this->_urlLancamentoGBO)
-                ->with('gbo', $this->getGBO($id_esa_avaliacoes, $id_aluno)->getData()->resultado_gbo);
+                ->with('gbo', $this->getGBO($id_esa_avaliacoes, $id_aluno)->getData()->resultado_gbo)
+                ->with('gbo_errado', $gbo_errado);
         }
     }
 
@@ -250,8 +258,7 @@ class ControllerLancamentoGBO extends Controller
     {
         return $builder->join('ssaa.esa_avaliacoes_indice', function ($join) {
             $join->on('ssaa.esa_avaliacoes.id', '=', 'ssaa.esa_avaliacoes_indice.id_esa_avaliacoes');
-        })
-            ->leftJoin('ssaa.esa_avaliacoes_gbo', function ($join) {
+        })->leftJoin('ssaa.esa_avaliacoes_gbo', function ($join) {
                 $join->on('ssaa.esa_avaliacoes_indice.id', '=', 'ssaa.esa_avaliacoes_gbo.id_esa_avaliacoes_indice');
                 $join->on('atalaia.alunos.id', '=', 'ssaa.esa_avaliacoes_gbo.id_aluno');
             })
@@ -265,6 +272,7 @@ class ControllerLancamentoGBO extends Controller
 
     public static function retornaLancamentosAvaliacao(EsaAvaliacoes $esaAvaliacoes)
     {
+        //Traz os alunos que tem lançamento completo de GBO
         return EsaAvaliacoesGbo::join('esa_avaliacoes_indice', 'esa_avaliacoes_gbo.id_esa_avaliacoes_indice', 'esa_avaliacoes_indice.id')
             ->join('atalaia.alunos', 'esa_avaliacoes_gbo.id_aluno', 'atalaia.alunos.id')
             ->select(DB::raw('atalaia.alunos.id AS id_aluno, 
@@ -272,7 +280,7 @@ class ControllerLancamentoGBO extends Controller
                             SUM(esa_avaliacoes_indice.score_total) AS gbm,
                             SUM(esa_avaliacoes_gbo.score_vermelho) AS gbo_errado,
                             SUM(esa_avaliacoes_indice.score_total) - SUM(esa_avaliacoes_gbo.score_vermelho) AS gbo_certo,
-                            ROUND(((SUM(esa_avaliacoes_indice.score_total) - SUM(esa_avaliacoes_gbo.score_vermelho)) / (SUM(esa_avaliacoes_indice.score_total)) * 10), 3) AS nota_aluno'))
+                            ROUND((( SUM(esa_avaliacoes_indice.score_total) - SUM(esa_avaliacoes_gbo.score_vermelho)) / (SUM(esa_avaliacoes_indice.score_total)) * 10), 3) AS nota_aluno'))
             ->where('esa_avaliacoes_indice.id_esa_avaliacoes', $esaAvaliacoes->id)
             ->groupBy('atalaia.alunos.id')
             ->orderBy('atalaia.alunos.numero')

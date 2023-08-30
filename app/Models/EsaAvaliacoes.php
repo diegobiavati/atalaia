@@ -17,7 +17,7 @@ class EsaAvaliacoes extends Model
     public function __construct()
     {
         $this->_tipo_avaliacoes = collect([(object)['id' => 'N', 'descricao' => 'Nota'], (object)['id' => 'C', 'descricao' => 'Conceitual']]);
-        $this->_chamadas = collect([(object)['id' => '1', 'descricao' => '1ª Chamada'], (object)['id' => '2', 'descricao' => '2ª Chamada']]);
+        $this->_chamadas = collect([(object)['id' => '1', 'descricao' => '1ª Chamada', 'abreviado' => '1ª Chm'], (object)['id' => '2', 'descricao' => '2ª Chamada', 'abreviado' => '2ª Chm']]);
         $this->_avaliacoes = collect([
               (object)['id' => 'AA', 'descricao' => 'Acompanhamento']
             , (object)['id' => 'AA1', 'descricao' => 'Acompanhamento']
@@ -50,6 +50,10 @@ class EsaAvaliacoes extends Model
         return $this->hasMany('App\Models\EsaAvaliacoesRapTfm', 'id_esa_avaliacoes', 'id');
     }
 
+    public function esaAvaliacoesResultados(){
+        return $this->hasMany('App\Models\EsaAvaliacoesResultados', 'id_esa_avaliacoes', 'id');
+    }
+
     public function getTodosTiposAvaliacoes(){
         return $this->_tipo_avaliacoes;
     }
@@ -62,6 +66,12 @@ class EsaAvaliacoes extends Model
         return $this->getTodasChamadas()->first(function ($value, $key) {
             return $value->id == $this->chamada;
         })->descricao;
+    }
+
+    public function getChamadaAbreviada(){
+        return $this->getTodasChamadas()->first(function ($value, $key) {
+            return $value->id == $this->chamada;
+        })->abreviado;
     }
 
     public function getTodasAvaliacoes(){

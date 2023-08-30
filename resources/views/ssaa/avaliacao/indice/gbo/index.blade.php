@@ -52,13 +52,7 @@
                 </div>
             </div>
         </div>
-        <!--<div class="container-side">
-            <div class="row">
-                <div class="col-sm">
-                    <button type="button" class="btn btn-warning" >Lateral</button>
-                </div>
-            </div>
-        </div>-->
+        
         <div class="container-body" style="margin: 0px 20px 0px 20px;">
             <div class="row">
                 <div class="col-sm" style="height:auto;">

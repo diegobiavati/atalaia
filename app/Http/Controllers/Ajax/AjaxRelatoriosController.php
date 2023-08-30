@@ -2078,7 +2078,7 @@ class AjaxRelatoriosController extends Controller
                                 }
                             }
                         }
-/*if($alunoID == 4085){//THAYANE (THAYANE DA SILVA DE ALMÊDA)
+/*if($alunoID == 6291){//THAYANE (THAYANE DA SILVA DE ALMÊDA)
     dd($k[$alunoID], $mf, $reprovado, $disciplinas_reprovado_array);
 }*/
                         if(isset($mf)){

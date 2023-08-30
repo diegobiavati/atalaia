@@ -295,8 +295,8 @@ foreach ($uetes as $uete) {
   function enviarArquivo(formID, action) {
     var input = $('form#' + formID + ' input[type="file"]')[0];
     var fileSize = (input.files[0].size / 1000);
-    if (fileSize > 1024) {
-      $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 1024Kb').slideDown();
+    if (fileSize > 5120) {
+      $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 5120Kb').slideDown();
     } else {
       var fd = new FormData(document.getElementById(formID));
       $.ajax({

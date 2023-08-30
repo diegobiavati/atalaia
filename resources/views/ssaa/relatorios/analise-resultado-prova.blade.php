@@ -6,9 +6,6 @@
     <link href="{{asset('/css/app.css')}}" rel="stylesheet" type="text/css" />
     <title>Análise de Resultado de Prova</title>
     <style>
-        @page {
-            margin: 0;
-        }
 
         * {
             font-family: Arial, Helvetica, sans-serif;
@@ -235,6 +232,9 @@
 
     @include('ssaa.relatorios.ficha-controle-resultado-avaliacao')
 
+    <div class="break"></div>
+
+    @include('ssaa.relatorios.demonstrativo-individual-reservado')
 </body>
 
 </html>

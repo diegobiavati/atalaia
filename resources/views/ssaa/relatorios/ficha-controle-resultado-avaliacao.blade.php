@@ -1,14 +1,5 @@
 <style>
-    div.imagem-curso {
-        background: url('{{asset($esaAvaliacoes->esadisciplinas->qms->qmsMatriz->img_ssaa)}}') no-repeat center center;
-        background-size: 120px;
-        background-position: left center;
-    }
-
-    div span.title {
-        font-size:20px;
-    }
-
+        
     .center {
         text-align: center;
     }
@@ -23,18 +14,9 @@
 
 </style>
 
-<div class="container" style="margin-top: 100px;">
-    <div class="row" style="border: 1px solid;">
-        <div class="col imagem-curso"></div>
-        <div class="col" style="flex: 4;">
-            <div><span class="title">Curso de {{$esaAvaliacoes->esadisciplinas->qms->qms}}</span></div>
-            <div><span class="title">SSAA</span></div>
-        </div>
-        <div class="col" style="flex: 4;text-align:right;">
-            <div><span class="title">CFGS: {{$esaAvaliacoes->esadisciplinas->qms->escolhaQms->anoFormacao->ano_cfs}}</span></div>
-            <div><span class="title">Período: 2º Ano</span></div>
-        </div>
-    </div>
+<div class="container">
+
+    @include('ssaa.relatorios.cabecalho')
 
     <div class="row center uppercase border" style="margin-top: 10px;">
         <span class="title" style="margin:auto;">Ficha de Controle de Resultados de Avaliação</span>
@@ -74,17 +56,17 @@
                     <th><span>Nota</span></th>
                     <th><span>Menção</span></th>
                 </tr>
-                @foreach($lancamentosGbo as $lancamento)
-                    @if($turma->id == $lancamento->aluno->turma_esa_id)
+                @foreach($avaliacoesResultados as $resultado)
+                    @if($turma->id == $resultado->aluno->turma_esa_id)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{ $lancamento->aluno->numero }}</td>
-                            <td>{{ $lancamento->aluno->nome_guerra }}</td>
-                            <td>{{ $lancamento->gbo_errado }}</td>
-                            <td>{{ $lancamento->gbo_certo }}</td>
+                            <td>{{ $resultado->aluno->numero }}</td>
+                            <td>{{ $resultado->aluno->nome_guerra }}</td>
+                            <td>{{ ($resultado->gbo_aluno) ?? '-' }}</td>
+                            <td>{{ $resultado->gbo_ssaa }}</td>
                             <td>-</td>
-                            <td>{{ $lancamento->nota_aluno }}</td>
-                            <td>{{ App\Models\Mencoes::getMencaoV2($lancamento->nota_aluno)->mencao }}</td>
+                            <td>{{ number_format($resultado->nota, 3, ',', '.') }}</td>
+                            <td>{{ App\Models\Mencoes::getMencaoV2($resultado->nota)->mencao }}</td>
                         </tr>
                     @endif
                 @endforeach
@@ -92,4 +74,8 @@
         </div>   
     @endforeach
     
+    <div style="text-align: center;">
+        <img src="{{ route('gaviao.ajax.relatorios.assinatura.mostrar', $assinatura->id) }}" alt="Image" width="auto" height="100"/>
+    </div>
 </div>
+

@@ -77,7 +77,7 @@
     }
 
     div.componente-navegacao input[type=number].form-control {
-        width: 100px;
+        width: 115px;
         vertical-align: -40px;
         display: inline;
         padding: .5rem 1rem;

@@ -11,6 +11,7 @@ use App\Models\AnoFormacao;
 use App\Models\EsaAssinaturas;
 use App\Models\EsaAvaliacoesRap;
 use App\Models\Disciplinas;
+use App\Models\EsaAvaliacoesResultados;
 use App\Models\EsaMotivosFaltas;
 use App\Models\Mencoes;
 use File;
@@ -837,21 +838,22 @@ class RelatoriosSSAAController extends Controller
 
     public function analiseResultadoProvas()
     {
-        
-        if($this->_ownauthcontroller->PermissaoCheck(40)){
-            /*Remover depois*/
-            //$this->_request->disciplinaID = 'eyJpdiI6Iko1YyszSFhCQ2c1aTAyaWl6NWIyOUE9PSIsInZhbHVlIjoid0lDeDdUTUhnb2FlVHBZalc2Kyt0K004bE5KWlkzaTlWYm1JV2R2Rm5CMD0iLCJtYWMiOiI2M2E1ZmY5MzljODFiNmM0MjA1NmJiNzllNjFjMGEzMzgyZmQ0MjczODg5MjgzY2VhY2VhMmNkNmYyY2Y4MmYzIn0=';
-            //$this->_request->avaliacaoID = 'eyJpdiI6InA0TVdvUXJUV1FsK3BvY2ZVWDdkWlE9PSIsInZhbHVlIjoicjRDZjAxMUxSMlRFN0JaWHc1Z2pmc3laUFhnMGRyWFQ0Z3pVc2hTYWpXVT0iLCJtYWMiOiJiOWI3M2QyMmQ1ZTdhMzVmM2I1ZGYzNTNiMjgyYzZjM2Y1YmE4ZTM4Y2EyMDdhYWEzN2JhZDgxZjM2M2FhZjljIn0=';
-            /*Remover até aqui*/
 
-            //$disciplinaID = explode('_', decrypt($this->_request->disciplinaID))[1];
+        if ($this->_ownauthcontroller->PermissaoCheck(40)) {
+            
             $avaliacaoID = explode('_', decrypt($this->_request->avaliacaoID))[1];
 
             $esaAvaliacoes = EsaAvaliacoes::find($avaliacaoID);
 
-            $gbm = ControllerIndiceDificuldades::getGBM($esaAvaliacoes->id)->getData()->resultado_gbm;
+            //$gbm = ControllerIndiceDificuldades::getGBM($esaAvaliacoes->id)->getData()->resultado_gbm;
+            $gbm = $esaAvaliacoes->gbm;
 
-            $lancamentosGbo = ControllerLancamentoGBO::retornaLancamentosAvaliacao($esaAvaliacoes);
+            //Traz os alunos que tem lançamento completo de GBO
+            //$lancamentosGbo = ControllerLancamentoGBO::retornaLancamentosAvaliacao($esaAvaliacoes);
+            
+            $avaliacoesResultados = $esaAvaliacoes->esaAvaliacoesResultados;
+            
+            //dd($lancamentosGbo->whereIn('id_aluno', [4644]), $avaliacoesResultados->max('nota'));
 
             $retorno = $this->validaLancamentoAvaliacao(true);
 
@@ -868,10 +870,11 @@ class RelatoriosSSAAController extends Controller
 
             $mediaAritmetica = round((array_sum(array_column($retorno->getData()->json->alunosComLancamento, 'nota_aluno')) / count($retorno->getData()->json->alunosComLancamento)), 3);
 
-            $alunosComLancamento = ControllerLancamentoGBO::retornaLancamentosAvaliacao($esaAvaliacoes);
+            //$maiorNota = $lancamentosGbo->max('nota_aluno');
+            //$menorNota = $lancamentosGbo->min('nota_aluno');
+            $maiorNota = $avaliacoesResultados->max('nota');
+            $menorNota = $avaliacoesResultados->min('nota');
 
-            $maiorNota = $alunosComLancamento->max('nota_aluno');
-            $menorNota = $alunosComLancamento->min('nota_aluno');
             $mencoes = Mencoes::all();
 
             foreach ($mencoes as $mencao) {
@@ -966,27 +969,27 @@ class RelatoriosSSAAController extends Controller
             $pdf->save(storage_path('app/public/temp/'.(String)\Illuminate\Support\Str::uuid().'.pdf'));*/
 
             return view(
-            'ssaa.relatorios.analise-resultado-prova',
-            compact(
-            'esaAvaliacoes',
-            'lancamentosGbo',
-            'efetivo',
-            'realizaram',
-            'mediaAritmetica',
-            'maiorNota',
-            'menorNota',
-            'mencoes',
-            'lava',
-            'acima_media',
-            'abaixo_media',
-            'abaixo_5',
-            'gbm'
-            )
+                'ssaa.relatorios.analise-resultado-prova',
+                compact(
+                    'esaAvaliacoes',
+                    'avaliacoesResultados',
+                    //'lancamentosGbo',
+                    'efetivo',
+                    'realizaram',
+                    'mediaAritmetica',
+                    'maiorNota',
+                    'menorNota',
+                    'mencoes',
+                    'lava',
+                    'acima_media',
+                    'abaixo_media',
+                    'abaixo_5',
+                    'gbm'
+                )
             )->with('assinatura', EsaAssinaturas::where([['assina_relatorio', '=', 'S']])->first());
-        }else{
+        } else {
             return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Usuário sem permissão.');
         }
-        
     }
 
     public function mostrarAssinatura($id_assinatura)

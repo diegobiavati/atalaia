@@ -272,7 +272,8 @@ class ControllerIndiceDificuldades extends Controller
         }
 
         if($idAvaliacao){
-            $retorno['resultado_gbm'] = EsaAvaliacoesIndices::where([['id_esa_avaliacoes', '=', $idAvaliacao]])->sum('score_total');
+            //$retorno['resultado_gbm'] = EsaAvaliacoesIndices::where([['id_esa_avaliacoes', '=', $idAvaliacao]])->sum('score_total');
+            $retorno['resultado_gbm'] = EsaAvaliacoes::find($idAvaliacao)->gbm;
         }
         
         return response()->json($retorno);
