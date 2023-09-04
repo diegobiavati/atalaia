@@ -8,7 +8,9 @@
 
 <script>
     $(document).ready(function() {
-        $(document).on('change', 'select.required_to_show_button', function() {
+        $('select[name=qmsID].required_to_show_button').change(function(evt){
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
             $('button#submit-demonstrativo').slideDown(100);
         });
 

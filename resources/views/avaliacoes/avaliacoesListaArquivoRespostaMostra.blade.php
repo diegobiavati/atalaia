@@ -101,8 +101,8 @@
     function enviarArquivoReposta(formID, action) {
             var input = $('form#' + formID + ' input[type="file"]')[0];
             var fileSize = (input.files[0].size/1000);
-            if(fileSize>5092){
-                $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 5092Kb').slideDown();
+            if(fileSize>10240){
+                $('div.erro-upload').html('O arquivo a ser enviado não deve ser maior que 10240Kb').slideDown();
             } else {
                 var fd = new FormData(document.getElementById(formID));
                 $.ajax({

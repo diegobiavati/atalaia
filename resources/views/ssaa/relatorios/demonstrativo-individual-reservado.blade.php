@@ -14,7 +14,10 @@
 
 .center {
     text-align: center;
+    
 }
+
+
 
 </style>
 
@@ -22,17 +25,17 @@
 
     @include('ssaa.relatorios.cabecalho')
 
-    <div class="row center border" style="margin-top: 10px;">
-        <div class="col" style="min-width:70%;">
+    <div class="row border" style="margin-top: 10px;">
+        <div class="col center" style="min-width:70%; font-weight: bold;">
             Demonstrativo Individual e Reservado de Nota de Prova <br>Referente à {{$esaAvaliacoes->nome_avaliacao}} {{$esaAvaliacoes->esadisciplinas->nome_disciplina}} - C {{$esaAvaliacoes->esadisciplinas->qms->qms_sigla}} ({{$esaAvaliacoes->getChamadaAbreviada()}})
         </div>
-        <div class="col" style="border: 1px solid;">
-            <div class="row">
-                <label style="background-color:gray;">Pasta nº 0</label>
+        <div class="col" style="border: 1px solid;padding: 0;">
+            <div class="center" style="background-color:gray!important;text-align:center;" >
+                Pasta nº
             </div>
-            <div class="row">
-                - SSAA: __Arquivado <br> em: <br>
-                ___/___/{{$esaAvaliacoes->esadisciplinas->qms->escolhaQms->anoFormacao->ano_per_qualificacao}}
+            <div>
+                <div class="col">SSAA: ___Arquivado </div>
+                <div div class="col"> em: ___/___/{{$esaAvaliacoes->esadisciplinas->qms->escolhaQms->anoFormacao->ano_per_qualificacao}}</div>
             </div>
         </div>
     </div>

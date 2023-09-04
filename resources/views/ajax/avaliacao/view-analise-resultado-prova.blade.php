@@ -11,7 +11,8 @@
 <script>
     $(document).ready(function() {
 
-        $(document).on('change', 'select[name=qmsID].required_to_show_button', function(evt) {
+        //$(document).on('change', 'select[name=qmsID].required_to_show_button', function(evt) {
+        $('select[name=qmsID].required_to_show_button').change(function(evt){
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
 
             //Filtrar Disciplina;
