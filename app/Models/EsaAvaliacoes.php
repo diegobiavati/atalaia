@@ -19,73 +19,84 @@ class EsaAvaliacoes extends Model
         $this->_tipo_avaliacoes = collect([(object)['id' => 'N', 'descricao' => 'Nota'], (object)['id' => 'C', 'descricao' => 'Conceitual']]);
         $this->_chamadas = collect([(object)['id' => '1', 'descricao' => '1ª Chamada', 'abreviado' => '1ª Chm'], (object)['id' => '2', 'descricao' => '2ª Chamada', 'abreviado' => '2ª Chm']]);
         $this->_avaliacoes = collect([
-              (object)['id' => 'AA', 'descricao' => 'Acompanhamento']
-            , (object)['id' => 'AA1', 'descricao' => 'Acompanhamento']
-            , (object)['id' => 'AA2', 'descricao' => 'Acompanhamento']
-            , (object)['id' => 'AA3', 'descricao' => 'Acompanhamento']
-            , (object)['id' => 'AF', 'descricao' => 'Formativa']
-            , (object)['id' => 'AF1', 'descricao' => 'Formativa']
-            , (object)['id' => 'AF2', 'descricao' => 'Formativa']
-            , (object)['id' => 'AC', 'descricao' => 'Controle']
-            , (object)['id' => 'AC1', 'descricao' => 'Controle']
-            , (object)['id' => 'AC2', 'descricao' => 'Controle']
-            , (object)['id' => 'AR', 'descricao' => 'Recuperação']
-            , (object)['id' => 'AI', 'descricao' => 'Interdisciplinar']
+            (object)['id' => 'AA', 'descricao' => 'Acompanhamento'], (object)['id' => 'AA1', 'descricao' => 'Acompanhamento'], (object)['id' => 'AA2', 'descricao' => 'Acompanhamento'], (object)['id' => 'AA3', 'descricao' => 'Acompanhamento'], (object)['id' => 'AF', 'descricao' => 'Formativa'], (object)['id' => 'AF1', 'descricao' => 'Formativa'], (object)['id' => 'AF2', 'descricao' => 'Formativa'], (object)['id' => 'AC', 'descricao' => 'Controle'], (object)['id' => 'AC1', 'descricao' => 'Controle'], (object)['id' => 'AC2', 'descricao' => 'Controle'], (object)['id' => 'AR', 'descricao' => 'Recuperação'], (object)['id' => 'AI', 'descricao' => 'Interdisciplinar']
         ]);
     }
 
-    public function esadisciplinas(){
+    public function esadisciplinas()
+    {
         return $this->belongsTo('App\Models\EsaDisciplinas', 'id_esa_disciplinas', 'id');
     }
-    
-    public function isTFM(){
+
+    public function isTFM()
+    {
         return $this->esadisciplinas->tfm == 'S';
     }
 
-    public function esaAvaliacoesRap(){
+    public function esaAvaliacoesRap()
+    {
         return $this->hasMany('App\Models\EsaAvaliacoesRap', 'id_esa_avaliacoes', 'id');
     }
 
-    public function esaAvaliacoesRapTfm(){
+    public function esaAvaliacoesRapTfm()
+    {
         return $this->hasMany('App\Models\EsaAvaliacoesRapTfm', 'id_esa_avaliacoes', 'id');
     }
 
-    public function esaAvaliacoesResultados(){
+    public function esaAvaliacoesResultados()
+    {
         return $this->hasMany('App\Models\EsaAvaliacoesResultados', 'id_esa_avaliacoes', 'id');
     }
 
-    public function getTodosTiposAvaliacoes(){
+    public function esaAvaliacoesResultadosOrderByAlunos()
+    {
+        ///dd(
+        return $this->esaAvaliacoesResultados()
+            ->select('esa_avaliacoes_resultados.*')
+            ->join('atalaia.alunos', 'atalaia.alunos.id', '=', 'id_aluno')
+            ->orderBy('atalaia.alunos.numero')->get();
+        //);
+        //return $this->esaAvaliacoesResultados()->join('atalaia.alunos', 'atalaia.alunos.id', '=', 'id_aluno')->orderBy('atalaia.alunos.numero')->get();
+    }
+
+    public function getTodosTiposAvaliacoes()
+    {
         return $this->_tipo_avaliacoes;
     }
 
-    public function getTodasChamadas(){
+    public function getTodasChamadas()
+    {
         return $this->_chamadas;
     }
 
-    public function getChamada(){
+    public function getChamada()
+    {
         return $this->getTodasChamadas()->first(function ($value, $key) {
             return $value->id == $this->chamada;
         })->descricao;
     }
 
-    public function getChamadaAbreviada(){
+    public function getChamadaAbreviada()
+    {
         return $this->getTodasChamadas()->first(function ($value, $key) {
             return $value->id == $this->chamada;
         })->abreviado;
     }
 
-    public function getTodasAvaliacoes(){
+    public function getTodasAvaliacoes()
+    {
         return $this->_avaliacoes;
     }
 
-    public function getDescricao(){
+    public function getDescricao()
+    {
         return $this->getTodasAvaliacoes()->first(function ($value, $key) {
             return $value->id == $this->nome_avaliacao;
         })->descricao;
     }
 
-    public function getNomeProva(){
-        return '['.$this->nome_avaliacao.'] '.$this->esadisciplinas->nome_disciplina.' - '.$this->getChamada();
+    public function getNomeProva()
+    {
+        return '[' . $this->nome_avaliacao . '] ' . $this->esadisciplinas->nome_disciplina . ' - ' . $this->getChamada();
     }
-
 }

@@ -840,7 +840,7 @@ class RelatoriosSSAAController extends Controller
     {
 
         if ($this->_ownauthcontroller->PermissaoCheck(40)) {
-            
+
             $avaliacaoID = explode('_', decrypt($this->_request->avaliacaoID))[1];
 
             $esaAvaliacoes = EsaAvaliacoes::find($avaliacaoID);
@@ -850,9 +850,9 @@ class RelatoriosSSAAController extends Controller
 
             //Traz os alunos que tem lançamento completo de GBO
             //$lancamentosGbo = ControllerLancamentoGBO::retornaLancamentosAvaliacao($esaAvaliacoes);
-            
-            $avaliacoesResultados = $esaAvaliacoes->esaAvaliacoesResultados;
-            
+
+            $avaliacoesResultados = $esaAvaliacoes->esaAvaliacoesResultadosOrderByAlunos();
+
             //dd($lancamentosGbo->whereIn('id_aluno', [4644]), $avaliacoesResultados->max('nota'));
 
             $retorno = $this->validaLancamentoAvaliacao(true);
@@ -899,7 +899,7 @@ class RelatoriosSSAAController extends Controller
                         $mencao->setFrequencia($nota, $realizaram);
                     }
                 }
-                //$mencao->quantidade = $quantidade;
+                
                 $mencao->porcentagem = (($mencao->quantidade / $realizaram) * 100);
             }
 
