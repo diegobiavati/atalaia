@@ -178,6 +178,7 @@
                             <th><span>Freq</span></th>
                             <th><span>%</span></th>
                         </tr>
+                        
                         @foreach($mencoes as $mencao)
                             <tr>
                                 <td rowspan={{ (count($mencao->getFrequencia()[0]) + 1) }}> {{$mencao->mencao}} </td>

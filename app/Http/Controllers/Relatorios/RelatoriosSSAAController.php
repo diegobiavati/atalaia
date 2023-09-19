@@ -39,7 +39,7 @@ class RelatoriosSSAAController extends Controller
         $this->_request = $request;
     }
 
-    public function DemonstrativoNotasGaviao($anoFormacaoId, $cursoId)
+    public function DemonstrativoNotsGaviao($anoFormacaoId, $cursoId)
     {
 
         //ImportacaoController::ImportaMSAccessCapitaniMysql();

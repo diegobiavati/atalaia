@@ -623,7 +623,7 @@ class LancamentosController extends Controller
         $pdf->SetXY(10, 60);
         $pdf->Cell(0, 5, utf8_decode('Grau hierárquico: Aluno CFGS'), 0, 1, 'L', false);
 
-        $pdf->WriteHTML(utf8_decode('Nome: ' . str_replace($fatd->lancamentoFo->aluno->nome_guerra, '<b>' . $fatd->lancamentoFo->aluno->nome_guerra . '</b>', $fatd->lancamentoFo->aluno->nome_completo)));
+        $pdf->WriteHTML(utf8_decode('Nrº / Nome: ' .$fatd->lancamentoFo->aluno->numero.' - '. str_replace($fatd->lancamentoFo->aluno->nome_guerra, '<b>' . $fatd->lancamentoFo->aluno->nome_guerra . '</b>', $fatd->lancamentoFo->aluno->nome_completo)));
         $pdf->SetXY(145, 65);
         $pdf->Cell(0, 5, 'Nr / Idt ' . $fatd->lancamentoFo->aluno->doc_idt_militar . ' ' . $fatd->lancamentoFo->aluno->doc_idt_militar_o_exp, 0, 1, 'L', false);
         $pdf->Line(10, 75, 200, 75);
