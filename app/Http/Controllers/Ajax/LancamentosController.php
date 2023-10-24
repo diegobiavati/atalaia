@@ -272,7 +272,7 @@ class LancamentosController extends Controller
             switch ($explode[0]) {
                 case 'lancarFO':
                     $readOnly = null;
-
+                    
                     if(count($explode) == 1){
                         return view('lancamentos.lancamentoSelecaoAno');
                     }
