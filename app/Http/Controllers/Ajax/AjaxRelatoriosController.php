@@ -30,6 +30,7 @@ use App\Http\Controllers\Utilitarios\FuncoesController;
 use Exception;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 setlocale(LC_ALL, "pt_BR.utf8");
 
@@ -1673,21 +1674,6 @@ class AjaxRelatoriosController extends Controller
 
             $bonus_atleta = (isset($request->bonus_atleta_1)) ? true : false; 
 
-            /*
-            
-                Atualizando tabela conf_demonstrativos com as avaliações que serão consideradas para cálculo da classificação.
-                Nota: Na MODAL (dialogo da seleção de avaliações) que serão consideradas para cálculo da classificação, não são 
-                selecionadas as avaliações de 2ª chamada.
-                No código abaixo, as avaliações de 2ª chamada são adicionadas a array $request->avaliacoesID. Posteriormente são persistidas 
-                na tabela conf_demonstrativos somente as de 1º chamada, OU SEJA, todas as avaliações EXCETO as de segunda chamada são adicionadas a tabela.
-            
-                $avaliacoesIDs = esta variavel do tipo array contém as avaliações e suas respectivas 2ª chamadas.
-
-            */
-
-            //Forçar avaliações...Deletar depois
-            //$request->avaliacoesID = array(113,115,131,145,147,118,120,123,125,127,137,140,142,134,150,151,163,154,161,153,159,152);
-
             if($request->avaliacoesID){
                 $avaliacoes_2_chamada = Avaliacoes::whereIn('chamada_refer_id', $request->avaliacoesID)->where('chamada', '<>', 1)->get(['id']);
                 foreach($avaliacoes_2_chamada as $ava_2_chamada){
@@ -1739,8 +1725,8 @@ class AjaxRelatoriosController extends Controller
             $alunoNota = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
 
             $alunosAtleta = ($bonus_atleta) ? Alunos::where(['data_matricula' => $ano_corrente->id, 'atleta_marexaer' => 'S'])
-                                    ->whereNull('qms_id')->get() : null;
-            
+                                    ->whereNull('turma_esa_id')->get() : null;
+
             //dd($alunoNota[33][3378]);
             $alunosID = $alunoNota['alunosID'];
             //Fim Alteração 2ºTen João Victor
@@ -1827,7 +1813,7 @@ class AjaxRelatoriosController extends Controller
                                 try{
                                     // Faz cálculo da NA do TFM
                                     if($key == 'avaliacoes_tfm'){
-                                              
+                                            
                                         $soma = null;
                                         $soma_avaliacoes = 0;
                                         $colspan_demonstrativo = 0;
@@ -1847,7 +1833,9 @@ class AjaxRelatoriosController extends Controller
                                         */
                                         //Verifica se o Aluno é Atleta
                                         $alunosAtletaIds = (isset($alunosAtleta)) ? $alunosAtleta->pluck('id') : null;
+                                        
                                         if($bonus_atleta && $alunosAtletaIds->contains($alunoID)){
+                                            Log::channel('gaviao')->info("Gerou Bonificação Atleta.", ['id_aluno' => $alunoID]);  
                                             $nd = FuncoesController::calculaNDSemRecuperacao($k[$alunoID][$key]);
 
                                             $bonus = 0.000;
@@ -1863,6 +1851,9 @@ class AjaxRelatoriosController extends Controller
                                             }
 
                                             $atleta = $alunosAtleta->find($alunoID);
+                                            Log::channel('gaviao')->info("1. Bonificação Atleta."
+                                                , ['nd' => $nd
+                                                , 'bonus' => $bonus]);  
 
                                             foreach($k[$alunoID][$key] as $keys => $itens){
                                                 if(is_numeric($keys) && $itens['tfm_abdominal'] == 'N'){
@@ -1870,6 +1861,7 @@ class AjaxRelatoriosController extends Controller
                                                         if(in_array($avaliacoes->nome_abrev, ['AA', 'AC'])){
                                                             if($avaliacoes->nome_abrev == $atleta->bonificacao_atleta
                                                                 || $atleta->bonificacao_atleta == 'AAAC'){
+                                                                    
                                                                 //Insere o bônus na avaliação
                                                                 $avaliacoes->bonusAtleta = $bonus;
                                                                 $avaliacoes->nota_sem_bonus = $avaliacoes->nota;
@@ -1887,16 +1879,24 @@ class AjaxRelatoriosController extends Controller
                                                                         $colspan_atleta = 1;
                                                                         break;
                                                                     case 'AAAC': 
-                                                                        $colspan_atleta = 2;
+                                                                        $colspan_atleta = 1;
                                                                         break;
                                                                 }
+
+                                                                Log::channel('gaviao')
+                                                                        ->info("2. Bonificação Atleta", [
+                                                                            "id_aluno" => $alunoID,
+                                                                            "avaliacoes" => $avaliacoes
+                                                                        ]);
                                                             }
                                                         }
                                                     }
                                                     //Média deverá receber o novo valor...
                                                     $k[$alunoID][$key][$keys]['media'] = (array_sum($k[$alunoID][$key][$keys]['notas']) / number_format($k[$alunoID][$key][$keys]['disciplina_razao'], '3', '.', ''));
                                                 }
-                                            }                                            
+                                            } 
+                                            
+                                            
                                         }
                                         /*
                                         * 2022 - Fim TFM
