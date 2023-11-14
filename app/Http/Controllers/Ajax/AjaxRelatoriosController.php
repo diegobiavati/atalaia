@@ -1829,16 +1829,16 @@ class AjaxRelatoriosController extends Controller
                                         $k[$alunoID]['avaliacoes_tfm']['atleta'] = false;
 
                                         /*
-                                        * 2022 - Cálculo de TFM modificado
+                                        * 2023 - Cálculo de TFM modificado
                                         */
                                         //Verifica se o Aluno é Atleta
                                         $alunosAtletaIds = (isset($alunosAtleta)) ? $alunosAtleta->pluck('id') : null;
                                         
                                         if($bonus_atleta && $alunosAtletaIds->contains($alunoID)){
-                                            Log::channel('gaviao')->info("Gerou Bonificação Atleta.", ['id_aluno' => $alunoID]);  
-                                            $nd = FuncoesController::calculaNDSemRecuperacao($k[$alunoID][$key]);
-
-                                            $bonus = 0.000;
+                                            //Log::channel('gaviao')->info("Gerou Bonificação Atleta.", ['id_aluno' => $alunoID]);  
+                                            //$nd = FuncoesController::calculaNDSemRecuperacao($k[$alunoID][$key]);
+                                            
+                                            /*$bonus = 0.000;
                                             switch($nd){
                                                 case (($nd >= 5) && ($nd < 7)):
                                                     //Conceder 1,000 de bônus
@@ -1848,12 +1848,12 @@ class AjaxRelatoriosController extends Controller
                                                     //Conceder 2,000 de bônus
                                                     $bonus = 2.000;
                                                     break;
-                                            }
+                                            }*/
 
                                             $atleta = $alunosAtleta->find($alunoID);
-                                            Log::channel('gaviao')->info("1. Bonificação Atleta."
+                                            /*Log::channel('gaviao')->info("1. Bonificação Atleta."
                                                 , ['nd' => $nd
-                                                , 'bonus' => $bonus]);  
+                                                , 'bonus' => $bonus]);*/  
 
                                             foreach($k[$alunoID][$key] as $keys => $itens){
                                                 if(is_numeric($keys) && $itens['tfm_abdominal'] == 'N'){
@@ -1861,7 +1861,19 @@ class AjaxRelatoriosController extends Controller
                                                         if(in_array($avaliacoes->nome_abrev, ['AA', 'AC'])){
                                                             if($avaliacoes->nome_abrev == $atleta->bonificacao_atleta
                                                                 || $atleta->bonificacao_atleta == 'AAAC'){
-                                                                    
+                                                                Log::channel('gaviao')->info("Gerou Bonificação Atleta.", ['id_aluno' => $alunoID]);  
+                                                                $bonus = 0.000;
+                                                                switch($avaliacoes->nota){
+                                                                    case (($avaliacoes->nota >= 5) && ($avaliacoes->nota < 7)):
+                                                                        //Conceder 1,000 de bônus
+                                                                        $bonus = 1.000;
+                                                                        break;
+                                                                    case ($avaliacoes->nota >= 7):
+                                                                        //Conceder 2,000 de bônus
+                                                                        $bonus = 2.000;
+                                                                        break;
+                                                                }
+
                                                                 //Insere o bônus na avaliação
                                                                 $avaliacoes->bonusAtleta = $bonus;
                                                                 $avaliacoes->nota_sem_bonus = $avaliacoes->nota;
@@ -1899,7 +1911,7 @@ class AjaxRelatoriosController extends Controller
                                             
                                         }
                                         /*
-                                        * 2022 - Fim TFM
+                                        * 2023 - Fim TFM
                                         */
                                         
                                         foreach($k[$alunoID][$key] as $key_aval => $avaliacao){
