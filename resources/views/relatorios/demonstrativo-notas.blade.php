@@ -279,7 +279,7 @@ $data_array = unserialize($class->data_demonstrativo);
             <div class="clean" style="margin-top: 10px;"></div>
             - Classificação Geral: Classificação na Área contendo os segmentos masculino e feminino.
             <div class="clean" style="margin-top: 10px;"></div>
-            - De acordo com os Art 59 e 67 das NIAA, o grau dos alunos aprovados por decisão do Diretor de Ensino, após o julgamento do Conselho de Ensino,
+            - De acordo com o § 4º do Art 72, o grau dos alunos aprovados por decisão do Diretor de Ensino, após o julgamento do Conselho de Ensino,
             não será computado para o cálculo da Nota do 1º Ano (N1) e da Nota Final de Curso (NFC), sendo utilizados os graus obtidos na disciplina antes da recuperação.
             <div class="clean" style="margin-top: 10px;"></div>
             <b><u>Cálculo Notas :</u></b>
