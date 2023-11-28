@@ -4659,7 +4659,7 @@ class AjaxAdminController extends Controller
             }
 
             unset($data);
-
+            
             if ($usr->imagens_id == null) {
                 $img_perfil = Imagens::find(1);
             } else {
@@ -4717,20 +4717,23 @@ class AjaxAdminController extends Controller
 
             $style_back_ground = ($aluno->sexo == 'M') ? 'background-color: #0B6138; color: #fff;' : 'background-color: #F8E0EC; color: #696969;';
             $style_ion_close = ($aluno->sexo == 'M') ? 'color: #ffffff;' : 'color: #696969;';
-
-            if ($usr->imagens_id == null) {
+            
+            /*if ($usr->imagens_id == null) {
                 $img_perfil = Imagens::find(1);
             } else {
                 $img_perfil = Imagens::find($usr->imagens_id);
-            }
-
+            }*/
+            $img_perfil = '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12)
+                ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo)
+                : 'no-image.jpg');
+            
             $data['body'] = '   <div style="position: absolute; top: 5px; left: 95%">
                                     <a class="no-style" href="javascript: void(0);" data-dismiss="modal"><i class="ion-close" style="font-size: 20px; ' . $style_ion_close . '"></i></a>
                                 </div>
                                 <div style="' . $style_back_ground . '">
                                     <div style="padding: 22px;">
                                         <div style="float: left; width: 130px;">
-                                            <div class="imagem_perfil_info" style="background: url(\'' . $img_perfil->imagem . '\') no-repeat center center; background-size: cover;"></div>                                        
+                                            <div class="imagem_perfil_info" style="background: url(\''.$img_perfil.'\') no-repeat center center; background-size: cover;"></div>                                        
                                         </div>
                                         <div style="margin-top: 18px;">
                                             <h5>AL ' . $aluno->numero . ' ' . $aluno->nome_guerra . '</h5>
