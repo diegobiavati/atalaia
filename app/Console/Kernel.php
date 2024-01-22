@@ -25,11 +25,12 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
-        $schedule->call(function () {
+
+        /*$schedule->call(function () {
             ImportacaoController::ImportaMSAccessCapitaniMysql();
-        })->weekdays()->hourly()->between('7:00', '18:00');
+        })->weekdays()->hourly()->between('7:00', '18:00');*/
+
+        
         //})->weekdays()->everyMinute()->between('7:00', '18:00')
         //->emailOutputTo('jvgs_o.o@live.com');
 

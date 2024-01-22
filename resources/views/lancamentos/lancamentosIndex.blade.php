@@ -95,7 +95,8 @@
         $('div.alert-success').html(null).slideUp();
         $('div.alert-danger').html(null).slideUp();
 
-        $('div#lancamentoTemp').empty();
+        //Removido a pedido do Cap Pedro Ricardo...
+        //$('div#lancamentoTemp').empty();
         $('div#body-full-modal').empty();
 
         $.ajax({
