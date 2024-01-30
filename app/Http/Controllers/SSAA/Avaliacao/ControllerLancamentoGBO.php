@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 use App\Models\EsaAvaliacoes;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Log;
 
 class ControllerLancamentoGBO extends Controller
 {
@@ -32,6 +33,7 @@ class ControllerLancamentoGBO extends Controller
     {
         $this->_ownauthcontroller = $ownauthcontroller;
         $this->_request = $request;
+        //Log::channel('gaviao')->info("Entrou na Rotina");
     }
 
     public function index()
@@ -149,7 +151,7 @@ class ControllerLancamentoGBO extends Controller
             $requisicao = $this->_request->requisicao ?? null;
             $item = (!is_null($this->_request->item)) ? explode('_', decrypt($this->_request->item))[2] : null;
             $selecionado = null;
-
+            
             $esaAvaliacoesIndices = new EsaAvaliacoesIndices();
 
             $esaAvaliacoesIndices = $esaAvaliacoesIndices->getAlunoIndicesItens($id_esa_avaliacoes, $id_aluno)->get();

@@ -71,7 +71,8 @@ class AlunosNotasExport extends DefaultValueBinder implements FromCollection, Re
                                 if($item->get('id_disciplina') == $info['disciplina_id']
                                     && isset($aval->nome_abrev) && $aval->nome_abrev == $avaliacoes->get('nome_avaliacao_abrev')){
                                     
-                                    $collection->get($aluno->aluno_id)->put($identificador, number_format($aval->nota, 3, ',', '.'));
+                                    
+                                    $collection->get($aluno->aluno_id)->put($identificador, (is_numeric($aval->nota) ? number_format($aval->nota, 3, ',', '.') : $aval->nota ));
                                     //dd($item, $collection->get($aluno->aluno_id));
                                 }   
                             }

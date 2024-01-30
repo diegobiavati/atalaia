@@ -16,6 +16,7 @@ use App\Models\AvaliacaoTaf;
 use App\Models\Disciplinas;
 use App\Models\Motivos;
 use App\Models\SituacoesDiversas;
+use Exception;
 
 class AlunoSitDiversasController extends Controller
 {
@@ -127,6 +128,7 @@ class AlunoSitDiversasController extends Controller
                     \App\Models\AlunosVoluntAv::where('alunos_id', $alunoSitDiv->id)->update(['alunos_situacoes_diversas_id' => $alunoSitDiv->id]);
                     \App\Models\AvaliacoesNotas::where('alunos_id', $alunoSitDiv->id)->update(['alunos_situacoes_diversas_id' => $alunoSitDiv->id]);
                     \App\Models\LancamentoFo::where('aluno_id', $alunoSitDiv->id)->update(['alunos_situacoes_diversas_id' => $alunoSitDiv->id, 'aluno_id' => null]);
+                    \App\Models\CapitaniMSAccess::where('aluno_id', $alunoSitDiv->id)->delete();
 
                     if ($aluno = Alunos::find($alunoSitDiv->id)) {
                         $aluno->delete();
@@ -330,7 +332,7 @@ class AlunoSitDiversasController extends Controller
 
                     try{
                         $aluno->update();
-                        
+                        $aluno->save();
                     }catch(Exception $ex){
                         $aluno->save();
                     }

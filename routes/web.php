@@ -372,7 +372,7 @@ Route::get('pdfTeste', function(){
 Route::get('pdfDomTeste', 'Relatorios\RelatoriosSSAAController@analiseResultadoProvas');
 
 //Reintegrar Aluno Situacao Diversas
-Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
+//Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
 
 //Exportar Notas dos Alunos
 Route::get('exporta-notas-aluno/{id_ano_formacao}', 'Exportar\ExportarNotasController@exportarNotasAlunos')->middleware('checkauth');
@@ -512,7 +512,9 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('view-combo-box-alunos-rap/{idTurma}/{edicao?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewComboBoxAlunosRap');
         
         Route::get('view-navegacao-item/{id_aluno?}/{requisicao?}/{item?}', 'SSAA\Avaliacao\ControllerLancamentoGBO@viewPaginacaoLancamento');
-        
+
+        /*Route::resource('gerenciador-resultados', 'SSAA\Avaliacao\ControllerResultados');*/
+        Route::post('gerenciador-resultados/dar-ciente-aluno/', 'SSAA\Avaliacao\ControllerResultados@gerarND');
     //Fim SSAA
 
 
@@ -523,8 +525,6 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
 
     Route::group(['prefix' => 'diploma', 'as' => 'diploma.'], function () {
         Route::resource('diploma-periodo', 'Ajax\Diploma\DiplomaController')->middleware('checkauth');
-
-
         //Exportar o Xlsx para o Diploma Digital
         Route::get('exportaAlunoDiploma', ['as' => 'exportaAlunoDiploma', 'uses' => 'Ajax\Diploma\DiplomaController@exportAlunos'])->middleware('checkauth');
     });

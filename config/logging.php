@@ -43,8 +43,8 @@ return [
 
         'daily' => [
             'driver' => 'daily',
-            'path' => storage_path('logs/laravel.log'),
-            'level' => 'debug',
+			'path' => storage_path('logs/' . date("Y") . '/' . date("m") . '/laravel.log'),
+            //'level' => 'debug',
             'days' => 7,
         ],
 
@@ -64,6 +64,13 @@ return [
         'errorlog' => [
             'driver' => 'errorlog',
             'level' => 'debug',
+        ],
+
+        'gaviao' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/' . date("Y") . '/' . date("m") . '/gaviao.log'),
+            'level' => 'debug',
+            'days' => 7,
         ],
     ],
 

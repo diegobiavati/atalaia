@@ -137,6 +137,10 @@ class ControllerAvaliacao extends Controller
             $esaAvaliacoes = EsaAvaliacoes::find($id);
             $cursoSelecionado = $esaAvaliacoes->esadisciplinas->qms;
 
+            if($esaAvaliacoes->nome_avaliacao == 'AR'){
+                
+            }
+
             $colecaoFaltas = collect();
 
             if($esaAvaliacoes->chamada == 2){
@@ -261,7 +265,7 @@ class ControllerAvaliacao extends Controller
         if($esaAvaliacoes->chamada == 2){
             $rapPrimeiraChamada = $this->getPrimeiraChamadaAvaliacao($esaAvaliacoes);
 
-            $colecaoFaltas = $this->getFaltasAvaliacoes($rapPrimeiraChamada->get(0));
+            $colecaoFaltas = $this->getFaltasAvaliacoes($rapPrimeiraChamada[0]);
 
             $turmasLancadas = $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray();
             $turmas = $cursoSelecionado->consultaTurmas()->whereIn('id', $colecaoFaltas->pluck('turma_esa_id'))->whereNotIn('id', $turmasLancadas);

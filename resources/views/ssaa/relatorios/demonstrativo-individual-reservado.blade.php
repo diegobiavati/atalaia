@@ -1,5 +1,11 @@
 <style>
 
+@media print {
+    div .break {
+        margin-top: 1.5cm;
+    }
+}
+
 .tabela1{
     margin-top: 10px;
 }
@@ -156,9 +162,9 @@
                 @php
                     $i = 0;
                 @endphp
-                <div style="text-align: center;">
+                <!--<div style="text-align: center;">
                     <img src="{{ route('gaviao.ajax.relatorios.assinatura.mostrar', $assinatura->id) }}" alt="Image" width="auto" height="100"/>
-                </div>
+                </div>-->
                 <div class="break"></div>
             @endif
         @endforeach

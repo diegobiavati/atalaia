@@ -79,7 +79,7 @@
         <div class="row" style="border: 1px solid;">
             <div class="col imagem-curso"></div>
             <div class="col" style="flex: 10;">
-                <div class="center"><span class="title">Relação de Aluno(s) com Nota(s) abaixo de 5,00 da {{$esaAvaliacoes->getChamadaAbreviada()}} da {{$esaAvaliacoes->nome_avaliacao}} de {{$esaAvaliacoes->esadisciplinas->nome_disciplina}} do Curso de Engenharia</span></div>
+                <div class="center"><span class="title">Relação de Aluno(s) com Nota(s) abaixo de 5,00 da {{$esaAvaliacoes->getChamadaAbreviada()}} da {{$esaAvaliacoes->nome_avaliacao}} de {{$esaAvaliacoes->esadisciplinas->nome_disciplina}} do Curso de {{ $esaAvaliacoes->esadisciplinas->qms->qms }}</span></div>
             </div>
         </div>
 

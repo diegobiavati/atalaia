@@ -21,6 +21,7 @@ use App\Http\Controllers\SSAA\Avaliacao\ControllerLancamentoGBO;
 use App\Http\FPDF\PDF;
 use App\Models\EsaAvaliacoes;
 use App\Models\EsaAvaliacoesRapTfm;
+use App\Models\Operadores;
 use Exception;
 use Khill\Lavacharts\Lavacharts;
 use Barryvdh\DomPDF\Facade as DOMPDF;
@@ -39,7 +40,7 @@ class RelatoriosSSAAController extends Controller
         $this->_request = $request;
     }
 
-    public function DemonstrativoNotsGaviao($anoFormacaoId, $cursoId)
+    public function DemonstrativoNotasGaviao($anoFormacaoId, $cursoId)
     {
 
         //ImportacaoController::ImportaMSAccessCapitaniMysql();
@@ -968,6 +969,8 @@ class RelatoriosSSAAController extends Controller
             
             $pdf->save(storage_path('app/public/temp/'.(String)\Illuminate\Support\Str::uuid().'.pdf'));*/
 
+            $chefeSSAA = Operadores::where([['id_funcao_operador', 'LIKE', '%9008%'], ['ativo', '=', 'S']])->first();
+            
             return view(
                 'ssaa.relatorios.analise-resultado-prova',
                 compact(
@@ -986,7 +989,7 @@ class RelatoriosSSAAController extends Controller
                     'abaixo_5',
                     'gbm'
                 )
-            )->with('assinatura', EsaAssinaturas::where([['assina_relatorio', '=', 'S']])->first());
+            )->with('assinatura', EsaAssinaturas::where([['id_operador', '=', $chefeSSAA->id]])->first());
         } else {
             return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Usuário sem permissão.');
         }

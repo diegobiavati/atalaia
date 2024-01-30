@@ -12,7 +12,6 @@ class EsaDisciplinas extends Model
     
     private $_tipos_disciplinas = null;
 
-
     public function __construct()
     {
         $this->_tipos_disciplinas = collect([(object)['id' => 'C', 'descricao' => 'Comum'], (object)['id' => 'E', 'descricao' => 'Específicas']]);

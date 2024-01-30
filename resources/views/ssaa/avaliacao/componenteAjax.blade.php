@@ -1,5 +1,8 @@
 @php
 $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoSelecionado->qms_matriz_id)->backgroundColor;
+
+$readOnly = (count($turmasRapPendente) == 0) ? 'readOnly': '';
+
 @endphp
 <div class="fomr-group" style="width: 410px;">
     <label>Disciplina</label>
@@ -62,19 +65,30 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
         <label class="custom-control-label" for="customCheckAvl1" style="width:200px;margin-top: 0.1rem;font-weight:bold;">Avaliação do 1º Ano?</label>
     </div>
 </div>
+
+@if(count($turmasRapPendente) == 0)
+@isset($esaAvaliacoes)
+<div class="fomr-group" style="width: 150px;">
+    <div class="custom-control custom-checkbox" style="margin-top: 20px;">
+        <input id="customCheckCiente" name="ciente" type="checkbox" value="0" class="custom-control-input" {{ (isset($esaAvaliacoes) && ($esaAvaliacoes->retorno_aluno == 'S')) ? 'checked' : '' }} {{ (!$ownauthcontroller->PermissaoCheck(41)) ? 'disabled=\'disabled\'' : '' }}>
+        <label class="custom-control-label" for="customCheckCiente" style="width:500px;margin-top: 0.1rem;font-weight:bold;">Retorno do Ciente <font style="color:#AA2EFE">* Irá calcular a NDs dos Aluno(a)s</font></label>
+    </div>
+</div>
 <br>
+@endisset
+@endif
 
 <div style="margin-top: 24px;">
     @if(!isset($readOnly))
-         <button type="button" class="btn btn btn-success" onclick="javascript:void(0);">{{ isset($esaAvaliacoes) ? 'Modificar' : 'Salvar' }}</button>
+    <button type="button" class="btn btn btn-success" onclick="javascript:void(0);">{{ isset($esaAvaliacoes) ? 'Modificar' : 'Salvar' }}</button>
     @endif
-    
+
     @if($ownauthcontroller->PerfilCheck([9006]) && count($turmasRapPendente) > 0)
     <!-- Libera Lançar a RAP -->
-        @if(!isset($colecaoFaltas) || $colecaoFaltas->count() > 0)
-            <button type="button" class="btn btn btn-primary" onclick="javascript:void(0);">Lançar o RAP</button>
-        @endif
-        
+    @if(!isset($colecaoFaltas) || $colecaoFaltas->count() > 0)
+    <button type="button" class="btn btn btn-primary" onclick="javascript:void(0);">Lançar o RAP</button>
+    @endif
+
     @endif
 
     <button type="button" class="btn btn-warning" onclick="javascript:void(0);">Cancelar</button>
@@ -101,7 +115,7 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
     </div>
 </div>
 
-<!-- FINAL MODAL confirmAcao DINAMICA-->
+<!-- FINAL MODAL confirmacao DINAMICA-->
 
 <script>
     $(function() {
@@ -226,30 +240,65 @@ $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoS
     });
 
     @isset($esaAvaliacoes)
-    $('#form-avaliacao .btn.btn-primary').click(function(evt){
+    $('#form-avaliacao .btn.btn-primary').click(function(evt) {
         evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-        
+
         $('div#modalDinamica div.modal-content').fadeIn(1000);
 
-            $.ajax({
-                type:'GET',
-                url: "{{ asset('/gaviao/ajax/gerenciar-avaliacao/rap/').'/'.$esaAvaliacoes->id }}",
-                beforeSend: function(){
-                    $('div.alert.alertas-avaliacoes').slideUp().empty().removeClass('alert-success').removeClass('alert-danger');
-                    loadingModalDinamica('show', 'lg');
-                },
-                success: function(data){
-                    $('#form-avaliacao').fadeOut();
-                    $('div#modalDinamica div.modal-content').html(data);
-                    
-                    $('.carousel').carousel({
-                        interval: false
-                    });
-                    
-                    loadingModalDinamica('hide', 'lg');
-                }
+        $.ajax({
+            type: 'GET',
+            url: "{{ asset('/gaviao/ajax/gerenciar-avaliacao/rap/').'/'.$esaAvaliacoes->id }}",
+            beforeSend: function() {
+                $('div.alert.alertas-avaliacoes').slideUp().empty().removeClass('alert-success').removeClass('alert-danger');
+                loadingModalDinamica('show', 'lg');
+            },
+            success: function(data) {
+                $('#form-avaliacao').fadeOut();
+                $('div#modalDinamica div.modal-content').html(data);
+
+                $('.carousel').carousel({
+                    interval: false
+                });
+
+                loadingModalDinamica('hide', 'lg');
+            }
+        });
+    });
+
+    $('form#form-avaliacoes div.custom-checkbox input[name=ciente]').click(function(evt) {
+        evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+        if (evt.target.checked) {
+            $(document).confirmAcao('Registrar o <strong>"Ciente do Aluno"</strong>.<p>Deseja realmente realizar?</p> </p><i>Esse procedimento pode alterar as notas dos alunos</i>?</p>', function() {
+
+                var formData = $('form#form-avaliacoes').serialize();
+
+                $.ajax({
+                    dataType: 'json',
+                    url: "{{asset('/gaviao/ajax/gerenciador-resultados/dar-ciente-aluno/')}}",
+                    type: 'POST',
+                    data: formData,
+                    beforeSend: function(){
+                        $('div.alertas-avaliacoes').empty().hide();
+
+                        $('div.alertas-avaliacoes').removeClass('alert-success').empty();
+                        $('div.alertas-avaliacoes').removeClass('alert-danger').empty();
+                    },
+                    success: function(data) {
+                        if(data.success){
+                            $('div.alertas-avaliacoes').addClass('alert-success').empty();
+                        }else{
+                            $('div.alertas-avaliacoes').addClass('alert-danger').empty();
+                        }
+                        $('div.alertas-avaliacoes').html(data.message).slideDown();
+                    },
+                    error: function(jqxhr) {
+                        $('div.alertas-avaliacoes').addClass('alert-danger').empty();
+                        $('div.alertas-avaliacoes').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+                    }
+                });
             });
+        }
     });
     @endisset
-
 </script>

@@ -394,7 +394,7 @@ class AlunoApiController extends Controller
             }
 
             if ($validador->passes()) {
-
+                
                 $dados['bonificacao_atleta'] = ((isset($dados['atleta_marexaer']) && $dados['atleta_marexaer'] == 'S') ? $dados['bonificacao_atleta'] : null);
 
                 if(trim($aluno->email) <> trim($dados['email'])){
@@ -501,7 +501,7 @@ class AlunoApiController extends Controller
 
                 if($esaAvaliacoes->chamada == 2){
                     $rapPrimeiraChamada = ControllerAvaliacao::getPrimeiraChamadaAvaliacao($esaAvaliacoes);
-                    $colecaoFaltas = ControllerAvaliacao::getFaltasAvaliacoes($rapPrimeiraChamada->get(0));
+                    $colecaoFaltas = ControllerAvaliacao::getFaltasAvaliacoes($rapPrimeiraChamada[0]);
 
                     $turmaAlunos = $colecaoFaltas->where('turma_esa_id', $idTurma);
 

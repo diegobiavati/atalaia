@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SSAA\Avaliacao;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\EditableGrid\EditableGrid;
 use App\Http\Controllers\OwnAuthController;
+use App\Http\Controllers\SSAA\Calendario\ControllerAvaliacao;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\AnoFormacao;
 use App\Models\EsaAvaliacoes;
@@ -154,9 +155,10 @@ class ControllerIndiceDificuldades extends Controller
         }
 
         $avaliacoes = EsaAvaliacoes::where([['id_esa_disciplinas', '=', $idDisciplina]])->get();
-        $turmas = $avaliacoes->first()->esadisciplinas->qms->consultaTurmas();
+
+        //$turmas = $avaliacoes->first()->esadisciplinas->qms->consultaTurmas();
         
-        //Só habilita a avaliação se estiver com o RAP de todas as turmas lançados
+        //Só habilita a avaliação se estiver com o RAP de todas as turmas pendentes lançadas
         foreach($avaliacoes as $avaliacao){
             if($avaliacao->esadisciplinas->tfm == 'S'){
                 $contador = count($avaliacao->esaAvaliacoesRapTfm);
@@ -166,6 +168,13 @@ class ControllerIndiceDificuldades extends Controller
                 }
             }else{
                 $contador = count($avaliacao->esaAvaliacoesRap);
+                $turmas = $avaliacao->esadisciplinas->qms->consultaTurmas();
+                
+                if($avaliacao->chamada == 2){
+                    $colecaoFaltas = ControllerAvaliacao::getFaltasAvaliacoes(ControllerAvaliacao::getPrimeiraChamadaAvaliacao($avaliacao)[0]);
+                        
+                    $turmas = $turmas->whereIn('id', $colecaoFaltas->pluck('turma_esa_id'));
+                }
 
                 if($contador > 0 && $contador == count($turmas)){
                     $provas->push($avaliacao);
