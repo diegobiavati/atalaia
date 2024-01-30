@@ -70,7 +70,7 @@ $readOnly = (count($turmasRapPendente) == 0) ? 'readOnly': '';
 @isset($esaAvaliacoes)
 <div class="fomr-group" style="width: 150px;">
     <div class="custom-control custom-checkbox" style="margin-top: 20px;">
-        <input id="customCheckCiente" name="ciente" type="checkbox" value="0" class="custom-control-input" {{ (isset($esaAvaliacoes) && ($esaAvaliacoes->retorno_aluno == 'S')) ? 'checked' : '' }} {{ (!$ownauthcontroller->PermissaoCheck(41)) ? 'disabled=\'disabled\'' : '' }}>
+        <input id="customCheckCiente" name="ciente" type="checkbox" value="0" class="custom-control-input" {{ (isset($esaAvaliacoes) && ($esaAvaliacoes->retorno_aluno == 'S')) ? 'checked' : '' }} {{ (!$ownauthcontroller->PermissaoCheck(41) || ($esaAvaliacoes->retorno_aluno == 'S')) ? 'disabled=\'disabled\'' : '' }}>
         <label class="custom-control-label" for="customCheckCiente" style="width:500px;margin-top: 0.1rem;font-weight:bold;">Retorno do Ciente <font style="color:#AA2EFE">* Irá calcular a NDs dos Aluno(a)s</font></label>
     </div>
 </div>
@@ -236,7 +236,7 @@ $readOnly = (count($turmasRapPendente) == 0) ? 'readOnly': '';
     $('#form-avaliacao .btn.btn-warning').click(function(evt) {
         evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
         //Ativa o gatilho para o carregamento do calendário...
-        carregaContainerCalendario("{{ asset('gaviao/ajax/calendario/index/'.$cursoSelecionado->escolhaQms->anoFormacao->id) }}");
+        carregaContainerCalendario("{{ session('url_mes_calendario') }}");
     });
 
     @isset($esaAvaliacoes)
