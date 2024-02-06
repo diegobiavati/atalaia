@@ -46,7 +46,9 @@ class ControllerResultados extends Controller
             return response()->json(['error' => true, 'message' => '<strong>ATENÇÃO: </strong></p>Usuário sem Permissão</p>']);
         }
 
-        $param = ['AF', 'AF1', 'AF2', 'AR', 'AI'];
+        $param = ['AF', 'AF1', 'AF2', 'AR', 'AI', 'AD'];
+        $aas = ['AA', 'AA1', 'AA2', 'AA3'];
+        $acs = ['AC', 'AC1', 'AC2'];
 
         $esaDisciplinas = EsaDisciplinas::find($this->_request->disciplinaID);
 
@@ -71,6 +73,12 @@ class ControllerResultados extends Controller
                     $arrayCalc['peso'] = $arrayCalc['peso'] + $avaliacao->esaAvaliacoes->peso;
 
                     $avaliacoes_resultados['avaliacoes'][] = ['id_esa_avaliacao' => $avaliacao->id_esa_avaliacoes, 'nota' => $avaliacao->nota];
+
+                    if(in_array($avaliacao->esaAvaliacoes->nome_avaliacao, $aas)){
+                        array_push($arrayCalc['AA'], $avaliacao->nota);
+                    }else if(in_array($avaliacao->esaAvaliacoes->nome_avaliacao, $acs)){
+                        array_push($arrayCalc['AC'], $avaliacao->nota);
+                    }
                 }
 
                 $avaliacoes_resultados['ND'] = (float) number_format((array_sum($arrayCalc['AA']) + array_sum($arrayCalc['AC'])) / $arrayCalc['peso'], 3);

@@ -1,7 +1,7 @@
 @php
 $color = App\Http\Controllers\Utilitarios\FuncoesController::getQmsColor($cursoSelecionado->qms_matriz_id)->backgroundColor;
 
-$readOnly = (count($turmasRapPendente) == 0) ? 'readOnly': '';
+$readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'readOnly': $readOnly;
 
 @endphp
 <div class="fomr-group" style="width: 410px;">
@@ -66,7 +66,7 @@ $readOnly = (count($turmasRapPendente) == 0) ? 'readOnly': '';
     </div>
 </div>
 
-@if(count($turmasRapPendente) == 0)
+@if(isset($turmasRapPendente) && count($turmasRapPendente) == 0)
 @isset($esaAvaliacoes)
 <div class="fomr-group" style="width: 150px;">
     <div class="custom-control custom-checkbox" style="margin-top: 20px;">
@@ -83,7 +83,7 @@ $readOnly = (count($turmasRapPendente) == 0) ? 'readOnly': '';
     <button type="button" class="btn btn btn-success" onclick="javascript:void(0);">{{ isset($esaAvaliacoes) ? 'Modificar' : 'Salvar' }}</button>
     @endif
 
-    @if($ownauthcontroller->PerfilCheck([9006]) && count($turmasRapPendente) > 0)
+    @if($ownauthcontroller->PerfilCheck([9006]) && (isset($turmasRapPendente) && count($turmasRapPendente) > 0) )
     <!-- Libera Lançar a RAP -->
     @if(!isset($colecaoFaltas) || $colecaoFaltas->count() > 0)
     <button type="button" class="btn btn btn-primary" onclick="javascript:void(0);">Lançar o RAP</button>
