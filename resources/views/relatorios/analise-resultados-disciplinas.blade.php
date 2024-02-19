@@ -18,7 +18,7 @@
         </tr>
         <tr>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$omct}}</td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$disciplina_data['periodo']}}</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{!!$disciplina_data['periodo']!!}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">
                 {{$disciplina_data['nome']}}<br>
                 @foreach ($avaliacoes as $avaliacao)

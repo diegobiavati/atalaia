@@ -333,7 +333,8 @@ class AnalisesNotasController extends Controller
 
                 if($array_nds){
                     $disciplina_data['nome'] = $disciplinas->nome_disciplina;
-                    $disciplina_data['periodo'] = 'Básico';
+                    //$disciplina_data['periodo'] = 'Básico';
+                    $disciplina_data['periodo'] = '1º Ano <br>CFGS '.$disciplinas->ano_formacao->ano_cfs;
                     rsort($array_nds);
                     $disciplina_data['maior'] = $array_nds[0];
                     sort($array_nds);
