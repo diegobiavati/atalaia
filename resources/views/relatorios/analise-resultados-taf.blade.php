@@ -18,7 +18,7 @@
         </tr>
         <tr>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$omct}}</td>
-            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$taf_data['periodo']}}</td>
+            <td style="border: 1px solid #000; padding: 6px; text-align: center;">{!!$taf_data['periodo']!!}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$taf_data['nome']}}</td>
             <td style="border: 1px solid #000; padding: 6px; text-align: center;">{{$taf_data['efetivo']}}</td>
         </tr>

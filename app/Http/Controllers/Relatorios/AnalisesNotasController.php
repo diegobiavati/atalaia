@@ -466,7 +466,7 @@ class AnalisesNotasController extends Controller
                     "media_aritmetica" => number_format($media_aritmetica, 3, ',', ''),
                     "amplitude" => number_format($amplitude, 3, ',', ''),
                     "faltas" => count($alunos) - count($taf),
-                    "periodo" => 'Básico',
+                    "periodo" => '1º Ano <br>CFGS '.$taf->first()->aluno->ano_formacao->ano_cfs,
                     "nome" => "TESTE DA APTIDÃO FÍSICA",
                     "efetivo" => count($alunos)
                 );
