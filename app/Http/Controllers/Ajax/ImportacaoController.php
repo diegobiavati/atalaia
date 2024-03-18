@@ -11,6 +11,7 @@ use App\Mail\VerificaBoletim;
 use App\Models\Alunos;
 use App\Models\AlunosCurso;
 use App\Models\Militar;
+use Illuminate\Support\Facades\Log;
 
 class ImportacaoController extends Controller
 {
@@ -166,8 +167,11 @@ class ImportacaoController extends Controller
 
         exec('java -jar '.app_path('Imports/').'SQLMSAccess.jar "'.$sql.'"', $output);
 
-        $classLog = new ClassLog();
-        $classLog->RegistrarLog('Fez Importação de Dados Capitani '.$output[0], 'Sistema');
+        if(count($output) > 0){
+            Log::channel('gaviao')->info("Fez Importação de Dados Capitani ", ['retorno' => $output[0]]);   
+        }
+        //$classLog = new ClassLog();
+        //$classLog->RegistrarLog('Fez Importação de Dados Capitani '.$output[0], 'Sistema');
     }
 	
 	public static function verificaNomeBoletim(){
@@ -190,8 +194,6 @@ class ImportacaoController extends Controller
             return true;
         }
 
-        
         return false;
     }
-
 }

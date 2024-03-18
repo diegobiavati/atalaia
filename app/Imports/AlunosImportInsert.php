@@ -63,8 +63,10 @@ class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, W
                 'nasc_cidade' => $row['nasc_cidade'],
                 'nasc_id_uf' => (array_key_exists($row['nasc_uf'], $this->ufs) ? $this->ufs[$row['nasc_uf']]->id : 28),
                 'nasc_pais' => $row['nasc_pais'],
-                'omcts_id' => OMCT::retornaOmctsConcurso()[$row['omcts_id']]['cod_no_atalaia'],
-                'area_id' => Areas::retornaAreasConcurso()[$row['area_id']]['cod_no_atalaia'],
+                'omcts_id' => $row['omcts_id'],
+                'area_id' => $row['area_id'],
+                //'omcts_id' => OMCT::retornaOmctsConcurso()[$row['omcts_id']]['cod_no_atalaia'],
+                //'area_id' => Areas::retornaAreasConcurso()[$row['area_id']]['cod_no_atalaia'],
                 'id_situacao_anterior' => 1, //Falta Verificar
                 'id_situacao_matricula' => 100, //Falta Verificar
                 'endereco' => $row['endereco'].', '.$row['numero'].(isset($row['complemento']) ? ', compl '.$row['complemento'] : null),
