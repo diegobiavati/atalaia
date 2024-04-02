@@ -369,10 +369,11 @@ Route::get('pdfTeste', function(){
     exit();
 });
 
+Route::get('testeMail', 'Ajax\ImportacaoController@verificaNomeBoletim');
 Route::get('pdfDomTeste', 'Relatorios\RelatoriosSSAAController@analiseResultadoProvas');
 
 //Reintegrar Aluno Situacao Diversas
-//Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
+Route::get('reintegrar/{requisicao}/{sistema}/{idaluno}', 'Aluno\AlunoSitDiversasController@update');
 
 //Exportar Notas dos Alunos
 Route::get('exporta-notas-aluno/{id_ano_formacao}', 'Exportar\ExportarNotasController@exportarNotasAlunos')->middleware('checkauth');

@@ -193,7 +193,7 @@ class AlunoApiController extends Controller
 
                 $dados['nome_guerra'] = strtoupper($dados['nome_guerra']);
                 $dados['nome_completo'] = strtoupper($dados['nome_completo']);
-                $dados['bonificacao_atleta'] = ($dados['atleta_marexaer'] == 'S' ? $dados['bonificacao_atleta'] : null);
+                $dados['bonificacao_atleta'] = ((isset($dados['atleta_marexaer']) && $dados['atleta_marexaer'] == 'S') ? $dados['bonificacao_atleta'] : null);
                 $insert = $this->aluno->create($dados);
 
                 // Verifica se inseriu com sucesso
