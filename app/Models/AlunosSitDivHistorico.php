@@ -12,5 +12,4 @@ class AlunosSitDivHistorico extends Model
     public function omct(){
         return $this->belongsTo('App\Models\OMCT', 'omct_id', 'id'); 
     }
-
 }

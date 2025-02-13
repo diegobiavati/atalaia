@@ -1723,7 +1723,7 @@ class AjaxRelatoriosController extends Controller
 
             //2ºTen João Victor, Alteração no Cálculo da NOTA
             $alunoNota = FuncoesController::recalculaNotaAluno(AvaliacoesNotas::whereIn('avaliacao_id', $avaliacoesIDs)->get());
-
+//dd($alunoNota[67][11759]);
             $alunosAtleta = ($bonus_atleta) ? Alunos::where(['data_matricula' => $ano_corrente->id, 'atleta_marexaer' => 'S'])
                                     ->whereNull('turma_esa_id')->get() : null;
 

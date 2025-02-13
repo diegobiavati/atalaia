@@ -162,51 +162,84 @@ class MapaEfetivoController extends Controller
     {
 
         if ((session()->get('login')['omctID'] <> 1)) {
-            $alunosSituacoesDiversas = AlunosSitDiv::where([['data_matricula', '=', $idAnoFormacao], ['omcts_id', '=', session()->get('login')['omctID']]])->with('omct')->with('situacao')->with('motivos')
-                ->whereNotNull('solicitacao_situacao')->orderBy('omcts_id', 'asc')->get();
+            $alunosSituacoesDiversas = AlunosSitDiv::where([
+                                                                ['data_matricula', '=', $idAnoFormacao]
+                                                              , ['omcts_id', '=', session()->get('login')['omctID']]
+                                                          ])
+                                                    ->with('omct')
+                                                    ->with('situacao')
+                                                    ->with('motivos')
+                                                    ->with('situacaoDivHistorico')
+                                                    ->whereNotNull('solicitacao_situacao')
+                                                    //->whereNull('qms_id')
+                                                    ->orderBy('omcts_id', 'asc')->get();
+
         } else {
-            $alunosSituacoesDiversas = AlunosSitDiv::where([['data_matricula', '=', $idAnoFormacao]])->with('omct')->with('situacao')->with('motivos')
-                ->whereNotNull('solicitacao_situacao')->orderBy('omcts_id', 'asc')->get();
+            $alunosSituacoesDiversas = AlunosSitDiv::where([['data_matricula', '=', $idAnoFormacao]])
+                                                    ->with('omct')
+                                                    ->with('situacao')
+                                                    ->with('motivos')
+                                                    ->with('situacaoDivHistorico')
+                                                    ->whereNotNull('solicitacao_situacao')
+                                                    //->whereNull('qms_id')
+                                                    ->orderBy('omcts_id', 'asc')->get();
+
+/*
+FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $idAnoFormacao]])
+->with('omct')
+->with('situacao')
+->with('motivos')
+->with('situacaoDivHistorico')
+->whereNotNull('solicitacao_situacao')
+//->whereNull('qms_id')
+->orderBy('omcts_id', 'asc'));
+*/
         }
 
         $resumoUetes = array();
         foreach ($alunosSituacoesDiversas as $value) {
 
-            if (!isset($resumoUetes[$value->omct->id])) {
-                $resumoUetes[$value->omct->id] = (object) array(
-                    'sigla_uete' => $value->omct->omct,
-                    'desligamentoApedido' => 0,
-                    'desligamentoExOficio' => 0,
-                    'trancamentoApedido' => 0,
-                    'trancamentoExOficio' => 0,
-                    'total' => 0
-                );
-            }
+            $data = unserialize($value->situacaoDivHistorico->data);
 
-            switch ($value->situacoes_diversas_id) {
-                case 1: //Trancamento
-                    switch ($value->solicitacao_situacao) {
-                        case 'AP': //A pedido
-                            $resumoUetes[$value->omct->id]->trancamentoApedido++;
-                            break;
-                        case 'EO': //Ex Oficio
-                            $resumoUetes[$value->omct->id]->trancamentoExOficio++;
-                            break;
-                    }
-                    break;
-                case 3: //Desligamento
-                    switch ($value->solicitacao_situacao) {
-                        case 'AP': //A pedido
-                            $resumoUetes[$value->omct->id]->desligamentoApedido++;
-                            break;
-                        case 'EO': //Ex Oficio
-                            $resumoUetes[$value->omct->id]->desligamentoExOficio++;
-                            break;
-                    }
-                    break;
-            }
+            //Senão tiver turma no segundo ano
+            //if(!isset($data['turma_esa_id'])){
 
-            $resumoUetes[$value->omct->id]->total = ((($resumoUetes[$value->omct->id]->trancamentoApedido + $resumoUetes[$value->omct->id]->trancamentoExOficio) + $resumoUetes[$value->omct->id]->desligamentoApedido) + $resumoUetes[$value->omct->id]->desligamentoExOficio);
+                if (!isset($resumoUetes[$value->omct->id])) {
+                    $resumoUetes[$value->omct->id] = (object) array(
+                        'sigla_uete' => $value->omct->omct,
+                        'desligamentoApedido' => 0,
+                        'desligamentoExOficio' => 0,
+                        'trancamentoApedido' => 0,
+                        'trancamentoExOficio' => 0,
+                        'total' => 0
+                    );
+                }
+    
+                switch ($value->situacoes_diversas_id) {
+                    case 1: //Trancamento
+                        switch ($value->solicitacao_situacao) {
+                            case 'AP': //A pedido
+                                $resumoUetes[$value->omct->id]->trancamentoApedido++;
+                                break;
+                            case 'EO': //Ex Oficio
+                                $resumoUetes[$value->omct->id]->trancamentoExOficio++;
+                                break;
+                        }
+                        break;
+                    case 3: //Desligamento
+                        switch ($value->solicitacao_situacao) {
+                            case 'AP': //A pedido
+                                $resumoUetes[$value->omct->id]->desligamentoApedido++;
+                                break;
+                            case 'EO': //Ex Oficio
+                                $resumoUetes[$value->omct->id]->desligamentoExOficio++;
+                                break;
+                        }
+                        break;
+                }
+    
+                $resumoUetes[$value->omct->id]->total = ((($resumoUetes[$value->omct->id]->trancamentoApedido + $resumoUetes[$value->omct->id]->trancamentoExOficio) + $resumoUetes[$value->omct->id]->desligamentoApedido) + $resumoUetes[$value->omct->id]->desligamentoExOficio);                
+            //}
         }
 
         $retorno = array('alunosSituacoesDiversas' => $alunosSituacoesDiversas, 'resumoUetes' => $resumoUetes);

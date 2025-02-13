@@ -229,7 +229,7 @@ class AlunoSitDiversasController extends Controller
                             $retorno['status'] = 'ok';
                             array_push($retorno['response'], $aluno->nome_completo . ' agora está enquadrado em situações diversas. Clique na aba correspondente para editar.');
 
-                            $this->classLog->RegistrarLog('Adicionou aluno em lista de situações diversas', auth()->user()->email);
+                            $this->classLog->RegistrarLog('Adicionou aluno '. $aluno->numero .'em lista de situações diversas', auth()->user()->email);
                         } else {
                             $retorno['status'] = 'err';
                             array_push($retorno['response'], 'Houve um erro ao mover o aluno!');

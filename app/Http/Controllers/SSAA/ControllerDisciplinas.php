@@ -53,7 +53,6 @@ class ControllerDisciplinas extends Controller
 
     public function form()
     {
-
         $cursoSelecionado = QMS::find($this->_request->id_curso);
 
         $cursos = array($cursoSelecionado);
@@ -62,6 +61,15 @@ class ControllerDisciplinas extends Controller
         return view('ssaa.disciplina.form', compact('cursos', 'cursoSelecionado'))
             ->with('ownauthcontroller', $this->_ownauthcontroller)
             ->with('tipo_disciplina', $esaDisciplinas->getTodosTiposDisciplinas());
+    }
+
+    public function showImportar()
+    {
+        $cursoSelecionado = QMS::find($this->_request->id_curso);
+
+        $cursos = array($cursoSelecionado);
+        
+        return view('ssaa.disciplina.importar', compact('cursoSelecionado'));
     }
 
     public function store()

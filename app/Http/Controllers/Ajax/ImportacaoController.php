@@ -177,20 +177,20 @@ class ImportacaoController extends Controller
 	public static function verificaNomeBoletim(){
 	
         if(($militar = Militar::where([['bol_index', 'like', '%OTT JOÃO VICTOR%']])
-        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 1 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
+        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
 			Mail::to('jvgs_o.o@live.com')->send(new VerificaBoletim($militar));		
             return true;
         }
 
         if(($militar = Militar::where([['bol_index', 'like', '%JOÃO VICTOR GOMES DA SILVA%']])
-        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 1 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
+        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
 			Mail::to('jvgs_o.o@live.com')->send(new VerificaBoletim($militar));		
             return true;
         }
         
-        if(($militar = Militar::where([['bol_index', 'like', '%KALED%']])
-        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 1 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
-            Mail::to('munir.cheik@gmail.com')->send(new VerificaBoletim($militar));		
+        if(($militar = Militar::where([['bol_index', 'like', '%ZAVALHIA%']])
+        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
+            Mail::to('joaovictorgomesdasilva@live.com')->send(new VerificaBoletim($militar));		
             return true;
         }
 

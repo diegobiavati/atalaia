@@ -35,19 +35,22 @@ class Kernel extends ConsoleKernel
         //->emailOutputTo('jvgs_o.o@live.com');
 
 
-		$schedule->call(function () {
-            echo ImportacaoController::verificaNomeBoletim();
+		//$schedule->call(function () {
+          //  echo ImportacaoController::verificaNomeBoletim();
         //})->weekdays()->hourly()->between('7:00', '18:00')
-        })->weekdays()
-		->hourly()
+        //})->weekdays()
+		//->hourly()
 		//->everyMinute()
 		//->everyFiveMinutes()
-		->between('16:00', '19:00');
+		//->between('16:00', '19:00');
 		
         //$schedule->command('App\Http\Controllers\Ajax\ImportacaoController@verificaNomeBoletim')
-		/*$schedule->call(function () {
+		$schedule->call(function () {
 			ImportacaoController::verificaNomeBoletim();
-		})->weekdays()->everyMinute()->between('7:00', '18:00');*/
+		})->weekdays()
+        ->hourly()
+        //->everyMinute()
+        ->between('14:00', '18:00');
         //})->weekdays()->hourly()->between('7:00', '18:00')
         
 		//->name("Citado em Boletim Interno")

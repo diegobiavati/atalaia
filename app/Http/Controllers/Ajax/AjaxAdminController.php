@@ -1430,9 +1430,15 @@ class AjaxAdminController extends Controller
             ->whereRaw('DATE_ADD(avaliacoes.data_mostra, INTERVAL avaliacoes.limite_dias_pedido DAY) >= CURRENT_DATE')
             ->orderBy('data', 'asc')->get();
 
+        $mostras_resolvidas = AvaliacoesMostrasRespostas::join('atalaia.avaliacoes', 'atalaia.avaliacoes_mostras_respostas.avaliacoes_id', 'atalaia.avaliacoes.id')
+        ->join('atalaia.disciplinas', 'atalaia.avaliacoes.disciplinas_id', 'atalaia.disciplinas.id')
+        ->where([['atalaia.disciplinas.ano_formacao_id', '=', $ano_corrente->id], ['visualizado', '=', 'N']])
+        ->select('atalaia.avaliacoes_mostras_respostas.*')
+        ->get();
+    
         return  view('ajax.visao-geral')->with('total_operadores', Operadores::count())
             ->with('mostras_pendentes', AvaliacoesMostra::whereIn('status', array('P', 'A'))->get())
-            ->with('mostras_resolvidas', AvaliacoesMostrasRespostas::where([['visualizado', '=', 'N']])->get())
+            ->with('mostras_resolvidas', $mostras_resolvidas)
             //->with('total_resolvidos', AvaliacoesMostrasRespostas::whereIn('status', array('P', 'A'))->count())
             ->with('ano_corrente', $ano_corrente)
             ->with('disciplinas', $disciplinas)

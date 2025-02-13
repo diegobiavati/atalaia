@@ -327,7 +327,7 @@ $data_array = unserialize($class->data_demonstrativo);
                 </tr>
                 <tr>
                     <td style="border: 1px solid #000; text-align:center;">B</td>
-                    <td style="border: 1px solid #000; text-align:center;">7,000 - 7,9999</td>
+                    <td style="border: 1px solid #000; text-align:center;">7,000 - 7,999</td>
                 </tr>
                 <tr>
                     <td style="border: 1px solid #000; text-align:center;">MB</td>
@@ -335,7 +335,7 @@ $data_array = unserialize($class->data_demonstrativo);
                 </tr>
                 <tr>
                     <td style="border: 1px solid #000; text-align:center;">E</td>
-                    <td style="border: 1px solid #000; text-align:center;">9,500 - 10,0000</td>
+                    <td style="border: 1px solid #000; text-align:center;">9,500 - 10,000</td>
                 </tr>
             </table>
         </div>

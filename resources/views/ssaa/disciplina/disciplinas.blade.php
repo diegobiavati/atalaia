@@ -28,9 +28,9 @@
                 <div class="menu_inside_popover">
                     <i class="ion-ios-bookmarks"></i><a href="javascript: void(0);" onclick="dialogAdicionaDisciplina({{$cursoSelecionado->id}});">Adicionar disciplina no sistema</a><br />
                 </div>
-                <!--<div class="menu_inside_popover">
-                    <i class="ion-android-arrow-down"></i><a href="javascript: void(0);" onclick="dialogImportarDisciplinas();">Importar disciplinas</a><br />                 
-                </div>-->
+                <div class="menu_inside_popover">
+                    <i class="ion-android-arrow-down"></i><a href="javascript: void(0);" onclick="dialogImportarDisciplinas({{$cursoSelecionado->id}});">Importar disciplinas <b>(Ano Anterior)</b></a><br />                 
+                </div>
             </div>
             @endif
         </div>
@@ -140,6 +140,21 @@
                 $('div#modalDinamica div.modal-content').html(data);
             }
         });
+    }
+
+    function dialogImportarDisciplinas(cursoId){
+        $('div.alertas-gerenciador-disciplinas').slideUp();
+        $.ajax({
+            type:'GET',
+            url: '/gaviao/ajax/gerenciar-disciplinas/showImportar/' + cursoId,
+            beforeSend: function(){
+                loadingModalDinamica('show', 'lg');
+            },
+            success: function(data){
+                $('div.container_disciplinas').fadeOut();
+                $('div#modalDinamica div.modal-content').html(data);                   
+            }
+        });            
     }
 
     function dialogRemoverDisciplina(id) {

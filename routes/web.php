@@ -480,6 +480,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('gerenciar-disciplinas/index/{id_ano_formacao?}', 'SSAA\ControllerDisciplinas@index');
         Route::get('gerenciar-disciplinas/load/{id_curso}', 'SSAA\ControllerDisciplinas@load');
         Route::get('gerenciar-disciplinas/form/{id_curso}', 'SSAA\ControllerDisciplinas@form');
+        Route::get('gerenciar-disciplinas/showImportar/{id_curso}', 'SSAA\ControllerDisciplinas@showImportar');
         Route::get('get-combo-disciplinas/{id_curso}', 'SSAA\ControllerDisciplinas@getComboDisciplinas');
         Route::resource('gerenciar-disciplinas', 'SSAA\ControllerDisciplinas');
 

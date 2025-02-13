@@ -4,7 +4,7 @@
     }
     p.card-text{
         color: #FF4000;
-    }   
+    }
 </style>
 <div style="text-align: center; margin-bottom: 56px; color: #696969;">
     <h4>VISÃO GERAL DO SISTEMA</h4>
@@ -100,6 +100,9 @@
                 Segmento feminino <i>({{$alunos['total_alunas']}})</i><br />
                 <div id="bar_porcentagem_alunas" style="background-color: #FA58AC; width: 0; height: 22px; float: left; margin-right: 6px; margin-top: 2px;"></div>
                 <span id="porcentagem_seg_fem" style="display: none;">{{$alunos['porcentagem_alunas']}}%</span>
+                <div class="clear"></div>
+
+                <span style="text-align: center; color: #f00;">Total <i>({{ ($alunos['total_alunos'] + $alunos['total_alunas']) }})</i></span>
                 <div class="clear"></div>
             </div>
         </div>
