@@ -2,6 +2,7 @@
 @section('js-includes')
 
 <script src="/js/jquery.mask.min.js"></script>
+<script src="/js/bootstrap-4.0.0.js"></script>
 
 @stop
 @section('css-includes')

@@ -68,6 +68,8 @@ class ControllerDisciplinas extends Controller
         $cursoSelecionado = QMS::find($this->_request->id_curso);
 
         $cursos = array($cursoSelecionado);
+
+        //dd($cursos->img);
         
         return view('ssaa.disciplina.importar', compact('cursoSelecionado'));
     }

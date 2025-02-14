@@ -24,139 +24,87 @@ select[readonly] {
     margin-bottom: 0px;
     text-align: center;
 }
+
+div#imagem_curso {
+    background: url("{{ isset($cursoSelecionado) ? asset($cursoSelecionado->qmsMatriz->img_ssaa) : asset('/images/logo_esa.png') }}") no-repeat center center;
+    height: 50px;
+    background-size: contain;
+    margin-top: -5px;
+}
 </style>
 
-<div id="esa_importar_disciplinas" class="carousel slide">
-    <div class="carousel-indicators">
-        <button type="button" data-bs-target="#esa_importar_disciplinas" data-bs-slide-to="0" class="active"
-            aria-current="true" aria-label="Slide 1"></button>
-        <button type="button" data-bs-target="#esa_importar_disciplinas" data-bs-slide-to="1"
-            aria-label="Slide 2"></button>
-        <button type="button" data-bs-target="#esa_importar_disciplinas" data-bs-slide-to="2"
-            aria-label="Slide 3"></button>
-    </div>
-</div>
-<!--
-<div id="esa_importar_disciplinas">
+
+<div id="esa_container">
     <div class="card-header">
-        <i class="ion-ios-bookmarks" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i><b>{{ (isset($esaDisciplinas) ? 'Editar Disciplina' : 'Adicionar Disciplina ao Sistema') }} </b>
+        <div id="imagem_curso">
+            <i class="ion-ios-bookmarks"
+                style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i><b>Importador de Disciplinas</b>
+        </div>
     </div>
 
     <div class="card-body">
-
         <div class="alert alertas-disciplinas" role="alert" style="margin:10px;width:100%;"></div>
 
-        <form id="form_esa_disciplina">
-            @csrf
-            
-            <div style="margin: 14px auto; width: 70%; text-align:center; max-width: 380px;">
-                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                    <label class="btn btn-secondary" style="text-align: center;">
-                        <input type="radio" name="ano_formacao" value="{{$cursoSelecionado->escolhaQms->anoFormacao->id}}" checked /> {{ $cursoSelecionado->escolhaQms->anoFormacao->ano_cfs }}
-                    </label>
+        <div id="esa_importa_disciplinas" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+                <li data-target="#esa_importa_disciplinas" data-slide-to="0" class=""></li>
+                <li data-target="#esa_importa_disciplinas" data-slide-to="1" class=""></li>
+                <li data-target="#esa_importa_disciplinas" data-slide-to="2" class="active"></li>
+            </ol>
+            <div class="carousel-inner">
+                <div class="carousel-item">
+                    <img class="d-block w-100"
+                        data-src="holder.js/800x400?auto=yes&amp;bg=777&amp;fg=555&amp;text=First slide"
+                        alt="First slide [800x400]" src="{{$cursoSelecionado->img}}" data-holder-rendered="true">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>First slide label</h5>
+                        <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
+                    </div>
                 </div>
-                <div class="clear"></div>
-            </div>
-
-            <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                <div style="float: left;"> <i class="ion-ios-compose" style="font-size: 24px; color: #696969;"></i> </div>
-                <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                    <input class="form-control text-uppercase" onkeyup="this.value = this.value.toUpperCase();" style="width: 100%;" name="nome_disciplina" type="text" value="{{$esaDisciplinas->nome_disciplina or old('nome_disciplina')}}" maxlength="100" autocomplete="off" placeholder="Nome completo da disciplina" />
+                <div class="carousel-item">
+                    <img class="d-block w-100"
+                        data-src="holder.js/800x400?auto=yes&amp;bg=666&amp;fg=444&amp;text=Second slide"
+                        alt="Second slide [800x400]"
+                        src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_19504c684b0%20text%20%7B%20fill%3A%23444%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_19504c684b0%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23666%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22247.3125%22%20y%3D%22217.7%22%3ESecond%20slide%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"
+                        data-holder-rendered="true">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Second slide label</h5>
+                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    </div>
                 </div>
-                <div class="clear"></div>
-            </div>
-
-            <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                <div style="float: left;"> <i class="ion-ios-compose-outline" style="font-size: 24px; color: #696969;"></i> </div>
-                <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                    <input class="form-control text-uppercase" onkeyup="this.value = this.value.toUpperCase();" style="width: 100%;" name="nome_disciplina_abrev" type="text" value="{{$esaDisciplinas->nome_disciplina_abrev or old('nome_disciplina_abrev')}}" maxlength="50" autocomplete="off" placeholder="Nome abreviado" />
-                </div>
-                <div class="clear"></div>
-            </div>
-
-            <div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" data-html="true" title="Informe o prazo em <b>horas</b> da carga horária da disciplina.">
-                <div style="float: left;"><i class="ion-clock" style="font-size: 24px; color: #696969;"></i></div>
-                <div style="float: right; border-bottom: 1px solid #ccc; width: 93%; margin-top: 4px; padding: 0 0 10px 6px; ">
-                    <input class="form-control" style="width: 100%;" name="carga_horaria" type="number" step="1" min="0" max="200" autocomplete="off" value="{{$esaDisciplinas->carga_horaria or old('carga_horaria')}}" placeholder="Carga horária" required data-required-error="Preencha este campo."/>
-                </div>
-                <div class="clear"></div>
-            </div>
-
-            <div style="margin: 14px auto; width: 70%; max-width: 380px;">
-                <div class="custom-control custom-checkbox" style="margin-top: 20px;">
-                    <input id="customCheck" name="tfm" type="checkbox" value="0" class="custom-control-input" {{ (isset($esaDisciplinas) && ($esaDisciplinas->tfm == 'S')) ? 'checked' : '' }}>
-                    <label class="custom-control-label" for="customCheck">TFM (Treinamento Físico Militar)</label>
+                <div class="carousel-item active">
+                    <img class="d-block w-100"
+                        data-src="holder.js/800x400?auto=yes&amp;bg=555&amp;fg=333&amp;text=Third slide"
+                        alt="Third slide [800x400]"
+                        src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_19504c684b0%20text%20%7B%20fill%3A%23333%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_19504c684b0%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23555%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22276.9921875%22%20y%3D%22217.7%22%3EThird%20slide%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"
+                        data-holder-rendered="true">
+                    <div class="carousel-caption d-none d-md-block">
+                        <h5>Third slide label</h5>
+                        <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
+                    </div>
                 </div>
             </div>
-
-        </form>
-
+            <a class="carousel-control-prev" href="#esa_importa_disciplinas" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#esa_importa_disciplinas" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
     </div>
 
     <div class="card-footer" style="text-align: right;">
         <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-primary salvar-disciplina">{{ isset($esaDisciplinas) ? 'Modificar' : 'Salvar' }}</button>
+        <button type="button"
+            class="btn btn-primary salvar-disciplina">{{ isset($esaDisciplinas) ? 'Modificar' : 'Salvar' }}</button>
     </div>
 </div>
 
-
 <script>
-    $(function() {
-        $('[data-toggle="tooltip"]').tooltip()
-    });
-
-    $('#form_esa_disciplina .selectpicker').attr("readonly", "readonly");
-
-    $('div#esa_adiciona_disciplinas button.btn.btn-danger').click(function(evt){
-        $('div.container_disciplinas').fadeIn(1000);
-    });
-
-    $('.btn.btn-primary.salvar-disciplina').click(function(evt) {
-        //evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
-
-        $(this).hide();
-
-        var formData = $('form#form_esa_disciplina').serialize();
-
-        $.ajax({
-            dataType: 'json',
-            url: '/gaviao/ajax/gerenciar-disciplinas{{ (isset($esaDisciplinas) ? "/".$esaDisciplinas->id : null) }}',
-            type: (evt.target.textContent == 'Salvar') ? 'POST' : 'PUT',
-            data: formData,
-            beforeSend: function() {
-                $('div.alertas-disciplinas').empty().hide();
-                $('div.alertas-disciplinas').removeClass('alert-success').empty();
-                $('div.alertas-disciplinas').removeClass('alert-danger').empty();
-            },
-            success: function(data) {
-
-                if (data.status == 'success') {
-                    $('div.alertas-disciplinas').addClass('alert-success').empty().slideDown();
-                    $('div.alertas-disciplinas').append('<li>' + data.response + '</li>');
-
-                    setTimeout(function() {
-                        $('div.alertas-disciplinas').slideUp(200, function() {
-                            $('#esa_adiciona_disciplinas .btn.btn-danger').click();
-
-                            //Ativa o gatilho da caixa de seleção para carregar o gerenciador de disciplinas...
-                            $('div.container_disciplinas select.custom-select[name="qmsID"]').change()
-                        });
-                    }, 2000);
-                } else {
-                    $('div.alertas-disciplinas').html('<strong>ATENÇÃO:</strong><br />').slideDown();
-                    $('div.alertas-disciplinas').addClass('alert-danger').empty();
-                    $.each(data.response, function(key, value) {
-                        $('div.alertas-disciplinas').append('<li>' + value + '</li>');
-                    });
-                }
-
-            },
-            error: function(jqxhr) {
-                $('div.alertas-disciplinas').addClass('alert-danger').empty();
-                $('div.alertas-disciplinas').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
-            }
-        });
-
-    });
+$('div.alertas-disciplinas').empty().hide();
+$('div#esa_container button.btn.btn-danger').click(function(evt) {
+    $('div.container_disciplinas').fadeIn(1000);
+});
 </script>
--->
