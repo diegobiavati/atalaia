@@ -231,7 +231,7 @@
         </div>
         <div style="float: right; margin: 10px 12px 0 0;">
             Escola de Sargentos das Armas<br/>
-            Escola Sargento Max Wolf Filho
+            Escola Sargento Max Wolff Filho
         </div>
         <div class="clear"></div>
     </div>

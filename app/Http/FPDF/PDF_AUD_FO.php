@@ -29,7 +29,7 @@ class PDF_AUD_FO extends PDF
         $this->Cell(0, 3, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
         $this->Cell(0, 3, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
         $this->Cell(0, 3, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
-        $this->Cell(0, 3, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
+        $this->Cell(0, 3, '(ESCOLA SARGENTO MAX WOLFF FILHO)', 0, 1, 'C', false);
                     
         $this->SetFont('Times', 'B', 10);
         $this->ln(5);

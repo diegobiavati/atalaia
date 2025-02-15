@@ -24,7 +24,7 @@
         <strong>MINISTÉRIO DA DEFESA</strong><br />
         <strong>EXÉRCITO BRASILEIRO</strong><br />
         <strong>ESCOLA DE SARGENTOS DAS ARMAS</strong><br />
-        (ESCOLA SARGENTO MAX WOLF FILHO)
+        (ESCOLA SARGENTO MAX WOLFF FILHO)
     </div>
 
     <div style="margin-bottom: 20px;">

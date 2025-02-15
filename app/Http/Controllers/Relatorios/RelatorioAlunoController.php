@@ -645,7 +645,7 @@ class RelatorioAlunoController extends Controller
                 $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
                 $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
                 $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
-                $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
+                $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLFF FILHO)', 0, 1, 'C', false);
                 $pdf->SetFont('Times', 'B', 8);
 
                 $pdf->Rect(250, 5, 25.2, 30.2);
@@ -800,7 +800,7 @@ class RelatorioAlunoController extends Controller
             $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C');
             $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C');
             $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C');
-            $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C');
+            $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLFF FILHO)', 0, 1, 'C');
             $pdf->SetFont('Times', 'B', 8);
 
             $pdf->Rect(250, 5, 25.2, 30.2);
@@ -1050,7 +1050,7 @@ class RelatorioAlunoController extends Controller
                 $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
                 $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
                 $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
-                $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
+                $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLFF FILHO)', 0, 1, 'C', false);
                 $pdf->SetFont('Times', 'B', 8);
     
                 $pdf->Rect(229.6, 56.9, 36.0, 40.5);
@@ -1348,7 +1348,7 @@ class RelatorioAlunoController extends Controller
         $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
         $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
         $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
-        $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
+        $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLFF FILHO)', 0, 1, 'C', false);
 
         $pdf->SetFont('Times', 'B', 12);
         $pdf->ln(5);

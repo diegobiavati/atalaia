@@ -588,7 +588,7 @@ class LancamentosController extends Controller
         $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
         $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
         $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
-        $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLF FILHO)', 0, 1, 'C', false);
+        $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLFF FILHO)', 0, 1, 'C', false);
         $pdf->SetFont('Times', 'B', 8);
 
         //Cria a Borda
