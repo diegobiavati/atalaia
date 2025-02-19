@@ -20,6 +20,7 @@
                 <th scope="col">Adiamento de Mtcl</th>
                 <th scope="col">1ª Mtcl</th>
                 <th scope="col">2ª Mtcl</th>
+                <th scope="col">Repetente</th>
                 <th scope="col">Mtcl por Adiamento</th>
                 <th scope="col">Mtcl por Ordem Judicial</th>
                 <th scope="col">TOTAL do Efetivo Matriculado</th>
@@ -45,6 +46,7 @@
                 <td>{{$informacao->qtdade_adiamentomtcl}}</td>
                 <td {{ ($informacao->em_1mtcl <> $informacao->qtdade_em_1mtcl) ? 'bgcolor=#DAA520' : ''}}>{{$informacao->em_1mtcl}}</td>
                 <td {{ ($informacao->em_2mtcl <> $informacao->qtdade_em_2mtcl) ? 'bgcolor=#DAA520' : ''}}>{{$informacao->em_2mtcl}}</td>
+                <td>{{$informacao->em_repetente}}</td>
                 <td {{ ($informacao->em_mtcl_adiam <> $informacao->qtdade_em_mtcladiamento) ? 'bgcolor=#DAA520' : ''}}>{{$informacao->em_mtcl_adiam}}</td>
                 <td {{ ($informacao->em_mtcl_ord_jud <> $informacao->qtdade_em_mtclordjudicial) ? 'bgcolor=#DAA520' : ''}}>{{$informacao->em_mtcl_ord_jud}}</td>
                 <td>{{$informacao->em_total}}</td>
@@ -68,6 +70,7 @@
                 <td>{{$informacao->totAdiMtr}}</td>
                 <td>{{$informacao->tot1Mtr}}</td>
                 <td>{{$informacao->tot2Mtr}}</td>
+                <td>{{$informacao->totRepetente}}</td>
                 <td>{{$informacao->totMtrPorAdi}}</td>
                 <td>{{$informacao->totMtrOrdJud}}</td>
                 <td>{{$informacao->totEfeMtr}}</td>

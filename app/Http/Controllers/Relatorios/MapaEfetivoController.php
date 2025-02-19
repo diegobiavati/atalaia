@@ -274,6 +274,7 @@ FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $
             $mapaEfetivo[$i]->em_1mtcl = 0;
             $mapaEfetivo[$i]->em_mtcl_adiam = 0;
             $mapaEfetivo[$i]->em_2mtcl = 0;
+            $mapaEfetivo[$i]->em_repetente = 0;
             $mapaEfetivo[$i]->em_mtcl_ord_jud = 0;
 
             foreach ($alunosFiltro as $aluno) {
@@ -289,6 +290,9 @@ FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $
                         break;
                     case 103:
                         $mapaEfetivo[$i]->em_mtcl_ord_jud++;
+                        break;
+                    case 104:
+                        $mapaEfetivo[$i]->em_repetente++;
                         break;
                 }
             }
@@ -345,7 +349,7 @@ FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $
         }
 
         $totalizadores = (object) [
-            'totOmct' => 'TODAS', 'totArea' => 'TODAS', 'totSexo' => 'TODOS', 'totPrevisto' => 0, 'totDesMtr' => 0, 'totAdiMtr' => 0, 'tot1Mtr' => 0, 'tot2Mtr' => 0, 'totMtrPorAdi' => 0, 'totMtrOrdJud' => 0, 'totEfeMtr' => 0, 'totDeslPed' => 0, 'totDeslExOf' => 0, 'totTrancMtrPed' => 0, 'totTrancMtrExOf' => 0, 'totEfetDesl' => 0, 'totMtrEsa' => 0, 'totMtrEsSLog' => 0, 'totMtrCIAvEx' => 0, 'totEECFS' => 0
+            'totOmct' => 'TODAS', 'totArea' => 'TODAS', 'totSexo' => 'TODOS', 'totPrevisto' => 0, 'totDesMtr' => 0, 'totAdiMtr' => 0, 'tot1Mtr' => 0, 'tot2Mtr' => 0, 'totRepetente' => 0, 'totMtrPorAdi' => 0, 'totMtrOrdJud' => 0, 'totEfeMtr' => 0, 'totDeslPed' => 0, 'totDeslExOf' => 0, 'totTrancMtrPed' => 0, 'totTrancMtrExOf' => 0, 'totEfetDesl' => 0, 'totMtrEsa' => 0, 'totMtrEsSLog' => 0, 'totMtrCIAvEx' => 0, 'totEECFS' => 0
         ];
 
         foreach ($mapaEfetivo as $informacao) {
@@ -354,6 +358,7 @@ FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $
             $totalizadores->totAdiMtr = ($totalizadores->totAdiMtr + $informacao->qtdade_adiamentomtcl);
             $totalizadores->tot1Mtr = ($totalizadores->tot1Mtr + $informacao->em_1mtcl);
             $totalizadores->tot2Mtr = ($totalizadores->tot2Mtr + $informacao->em_2mtcl);
+            $totalizadores->totRepetente = ($totalizadores->totRepetente + $informacao->em_repetente);
             $totalizadores->totMtrPorAdi = ($totalizadores->totMtrPorAdi + $informacao->em_mtcl_adiam);
             $totalizadores->totMtrOrdJud = ($totalizadores->totMtrOrdJud + $informacao->em_mtcl_ord_jud);
             $totalizadores->totEfeMtr = ($totalizadores->totEfeMtr + $informacao->em_total);
