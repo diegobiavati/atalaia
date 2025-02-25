@@ -52,10 +52,10 @@ class RelatoriosController extends Controller
     protected $classLog;
     protected $ownauthcontroller;
 
-    public function __construct(\App\Http\OwnClasses\ClassLog $classLog, OwnAuthController $ownauthcontroller){
+    public function __construct(\App\Http\OwnClasses\ClassLog $classLog, OwnAuthController $ownauthcontroller, Request $request){
         $this->classLog = $classLog;
         $this->ownauthcontroller = $ownauthcontroller;
-        $classLog->ip=$_SERVER['REMOTE_ADDR'];      
+        $this->classLog->ip = $request->ip();  
     }    
 
     public function LoadHistoricoAluno(OwnAuthController $ownauthcontroller, Request $request){

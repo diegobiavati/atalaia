@@ -23,9 +23,9 @@ class OwnAuthController extends Controller
 
     protected $classLog;
 
-    public function __construct(ClassLog $classLog){
+    public function __construct(ClassLog $classLog, Request $request){
         $this->classLog = $classLog;
-        $classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);    
+        $this->classLog->ip = $request->ip();      
         
     }
 

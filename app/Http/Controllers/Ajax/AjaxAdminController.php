@@ -75,7 +75,7 @@ class AjaxAdminController extends Controller
         $this->lancarTaf = $avaliacaTaf;
         $this->request = $request;
         $this->classLog = $classLog;
-        $classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
+        $this->classLog->ip = $request->ip();      
         $this->ownauthcontroller = $ownauthcontroller;
     }
 

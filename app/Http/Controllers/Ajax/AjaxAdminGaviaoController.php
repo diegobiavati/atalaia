@@ -49,7 +49,7 @@ class AjaxAdminGaviaoController extends Controller
     {
         $this->request = $request;
         $this->classLog = $classLog;
-        $classLog->ip = $_SERVER['REMOTE_ADDR'];
+        $this->classLog->ip = $request->ip();      
         $this->ownauthcontroller = $ownauthcontroller;
     }
 
