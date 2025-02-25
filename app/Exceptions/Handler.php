@@ -56,7 +56,7 @@ class Handler extends ExceptionHandler
     protected function prepareException(Exception $e)
     {
         if ($e instanceof TokenMismatchException) {
-            $e = new HttpException(419, 'Sua sessão está expirada. Por favor atualize a página para continuar a utilizar o sistema.', $e);
+            $e = new HttpException(419, 'Sua sessão está expirada. Aguarde que a página será atualizada automáticamente.', $e);
         }
 
         return parent::prepareException($e);
