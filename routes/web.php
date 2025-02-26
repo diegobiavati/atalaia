@@ -350,7 +350,6 @@ Route::get('/sair', function () {
     session()->flush();
     return redirect()->route('login');
 })->name('atalaia.logout');
-
 /* FIM DAS ROTAS DE AUTENTICAÇÃO */
 
 /* MQTT */
@@ -367,7 +366,7 @@ Route::get('pdfTeste', function(){
     Fpdf::Cell(50, 25, 'Hello World!');
     Fpdf::Output();
     exit();
-});
+})->name('pdfTeste');
 
 Route::get('testeMail', 'Ajax\ImportacaoController@verificaNomeBoletim');
 Route::get('pdfDomTeste', 'Relatorios\RelatoriosSSAAController@analiseResultadoProvas');
@@ -481,6 +480,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('gerenciar-disciplinas/load/{id_curso}', 'SSAA\ControllerDisciplinas@load');
         Route::get('gerenciar-disciplinas/form/{id_curso}', 'SSAA\ControllerDisciplinas@form');
         Route::get('gerenciar-disciplinas/showImportar/{id_curso}', 'SSAA\ControllerDisciplinas@showImportar');
+        Route::post('gerenciar-disciplinas/importar', 'SSAA\ControllerDisciplinas@Importar')->name('disciplinas.importar');
         Route::get('get-combo-disciplinas/{id_curso}', 'SSAA\ControllerDisciplinas@getComboDisciplinas');
         Route::resource('gerenciar-disciplinas', 'SSAA\ControllerDisciplinas');
 

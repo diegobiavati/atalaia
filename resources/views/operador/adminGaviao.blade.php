@@ -306,6 +306,8 @@
 
 
 <script>
+        
+
         //Corrige o bug de perda do controle de modal sobre modal quando fecha
         $(document).on('hidden.bs.modal', function(event){
             if($('.modal:visible').length){

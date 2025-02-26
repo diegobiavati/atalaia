@@ -1,110 +1,161 @@
 <style>
-select[readonly] {
-    background-color: {
-            {
-            App\Http\Controllers\Utilitarios\FuncoesController: :getQmsColor($cursoSelecionado->qms_matriz_id)->backgroundColor
+    select[readonly] {
+        background-color: {
+                {
+                App\Http\Controllers\Utilitarios\FuncoesController: :getQmsColor($cursoSelecionado->qms_matriz_id)->backgroundColor
+            }
         }
+
+        ;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
     }
 
-    ;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-}
+    .custom-select {
+        height: auto;
+    }
 
-.custom-select {
-    height: auto;
-}
+    .custom-label-curso {
+        border-radius: .25rem;
+        padding: 5px;
+        width: 100%;
+        background-color: rgb(121, 161, 212);
+        margin-bottom: 0px;
+        text-align: center;
+    }
 
-.custom-label-curso {
-    border-radius: .25rem;
-    padding: 5px;
-    width: 100%;
-    background-color: rgb(121, 161, 212);
-    margin-bottom: 0px;
-    text-align: center;
-}
+    div#imagem_curso {
+        background: url("{{ isset($cursoSelecionado) ? asset($cursoSelecionado->qmsMatriz->img_ssaa) : asset('/images/logo_esa.png') }}") no-repeat center center;
+        height: 50px;
+        background-size: contain;
+        margin-top: -5px;
+    }
 
-div#imagem_curso {
-    background: url("{{ isset($cursoSelecionado) ? asset($cursoSelecionado->qmsMatriz->img_ssaa) : asset('/images/logo_esa.png') }}") no-repeat center center;
-    height: 50px;
-    background-size: contain;
-    margin-top: -5px;
-}
+    .carousel-control-next-icon,
+    .carousel-control-prev-icon {
+        filter: invert(29%) sepia(83%) saturate(596%) hue-rotate(180deg) brightness(90%) contrast(85%);
+    }
 </style>
 
 
 <div id="esa_container">
     <div class="card-header">
-        <div id="imagem_curso">
-            <i class="ion-ios-bookmarks"
-                style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i><b>Importador de Disciplinas</b>
-        </div>
-    </div>
-
-    <div class="card-body">
-        <div class="alert alertas-disciplinas" role="alert" style="margin:10px;width:100%;"></div>
-
-        <div id="esa_importa_disciplinas" class="carousel slide" data-ride="carousel">
-            <ol class="carousel-indicators">
-                <li data-target="#esa_importa_disciplinas" data-slide-to="0" class=""></li>
-                <li data-target="#esa_importa_disciplinas" data-slide-to="1" class=""></li>
-                <li data-target="#esa_importa_disciplinas" data-slide-to="2" class="active"></li>
-            </ol>
-            <div class="carousel-inner">
-                <div class="carousel-item">
-                    <img class="d-block w-100"
-                        data-src="holder.js/800x400?auto=yes&amp;bg=777&amp;fg=555&amp;text=First slide"
-                        alt="First slide [800x400]" src="{{$cursoSelecionado->img}}" data-holder-rendered="true">
-                    <div class="carousel-caption d-none d-md-block">
-                        <h5>First slide label</h5>
-                        <p>Nulla vitae elit libero, a pharetra augue mollis interdum.</p>
-                    </div>
-                </div>
-                <div class="carousel-item">
-                    <img class="d-block w-100"
-                        data-src="holder.js/800x400?auto=yes&amp;bg=666&amp;fg=444&amp;text=Second slide"
-                        alt="Second slide [800x400]"
-                        src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_19504c684b0%20text%20%7B%20fill%3A%23444%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_19504c684b0%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23666%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22247.3125%22%20y%3D%22217.7%22%3ESecond%20slide%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"
-                        data-holder-rendered="true">
-                    <div class="carousel-caption d-none d-md-block">
-                        <h5>Second slide label</h5>
-                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                    </div>
-                </div>
-                <div class="carousel-item active">
-                    <img class="d-block w-100"
-                        data-src="holder.js/800x400?auto=yes&amp;bg=555&amp;fg=333&amp;text=Third slide"
-                        alt="Third slide [800x400]"
-                        src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22400%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20800%20400%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_19504c684b0%20text%20%7B%20fill%3A%23333%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A40pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_19504c684b0%22%3E%3Crect%20width%3D%22800%22%20height%3D%22400%22%20fill%3D%22%23555%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22276.9921875%22%20y%3D%22217.7%22%3EThird%20slide%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"
-                        data-holder-rendered="true">
-                    <div class="carousel-caption d-none d-md-block">
-                        <h5>Third slide label</h5>
-                        <p>Praesent commodo cursus magna, vel scelerisque nisl consectetur.</p>
-                    </div>
-                </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <i class="ion-ios-bookmarks"
+                    style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i><b>Importador de
+                    Disciplinas</b>
             </div>
-            <a class="carousel-control-prev" href="#esa_importa_disciplinas" role="button" data-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="sr-only">Previous</span>
-            </a>
-            <a class="carousel-control-next" href="#esa_importa_disciplinas" role="button" data-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="sr-only">Next</span>
-            </a>
+            <div id="imagem_curso" class="col-sm-5"></div>
         </div>
     </div>
+    <form id="form_importa_disciplina">
+        @csrf
+        <div class="card-body">
+            <div class="alert alertas-disciplinas" role="alert" style="margin:10px;width:100%;"></div>
 
-    <div class="card-footer" style="text-align: right;">
-        <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
-        <button type="button"
-            class="btn btn-primary salvar-disciplina">{{ isset($esaDisciplinas) ? 'Modificar' : 'Salvar' }}</button>
-    </div>
+
+            <input type="hidden" name="cursoSelecionado" value="{{ $cursoSelecionado->id }}" />
+            <div id="esa_importa_disciplinas" class="carousel slide" data-interval="false">
+                <div class="carousel-inner">
+                    @foreach($agrupados as $agrupado)
+                    <div class="carousel-item {{ $loop->last ? 'active' : '' }}">
+
+                        <div class="container">
+                            <h2 class="text-center mb-4">{{ $agrupado->formacao }}</h2>
+                            <div class="row justify-content-center">
+                                @foreach($query as $linha)
+                                @if($agrupado->formacao == $linha->formacao)
+                                <div class="col-md-8 mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="disciplinas[]"
+                                            id="disciplina_{{ $linha->id }}" value="{{ $linha->id }}">
+                                        <label class="form-check-label" for="disciplina_{{ $linha->id }}">
+                                            {{ $linha->nome_disciplina }} ({{ $linha->carga_horaria }}h)
+                                        </label>
+                                    </div>
+                                </div>
+                                @endif
+                                @endforeach
+                            </div>
+                        </div>
+
+                    </div>
+                    @endforeach
+                </div>
+
+                <a class="carousel-control-prev" href="#esa_importa_disciplinas" role="button" data-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Anterior</span>
+                </a>
+                <a class="carousel-control-next" href="#esa_importa_disciplinas" role="button" data-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="sr-only">Próximo</span>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="card-footer" style="text-align: right;">
+            <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-primary importar-disciplina">Salvar</button>
+        </div>
+    </form>
 </div>
 
 <script>
-$('div.alertas-disciplinas').empty().hide();
-$('div#esa_container button.btn.btn-danger').click(function(evt) {
-    $('div.container_disciplinas').fadeIn(1000);
-});
+    $('div.alertas-disciplinas').empty().hide();
+    $('div#esa_container button.btn.btn-danger').click(function(evt) {
+        $('div.container_disciplinas').fadeIn(1000);
+    });
+
+    $('.btn.btn-primary.importar-disciplina').click(function(evt) {
+        evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+
+        $(this).hide();
+
+        var formData = $('form#form_importa_disciplina').serialize();
+
+        $.ajax({
+            dataType: 'json',
+            url: "{{ route('gaviao.ajax.disciplinas.importar') }}",
+            type: 'POST',
+            data: formData,
+            beforeSend: function() {
+                $('div.alertas-disciplinas').empty().hide();
+                $('div.alertas-disciplinas').removeClass('alert-success').removeClass('alert-danger').empty();
+            },
+            success: function(data) {
+
+                if (data.status == 'success') {
+                    $('div.alertas-disciplinas').addClass('alert-success').empty().slideDown();
+                    $('div.alertas-disciplinas').append('<li>' + data.response + '</li>');
+
+                    setTimeout(function() {
+                        $('div.alertas-disciplinas').slideUp(200, function() {
+                            $('#form_importa_disciplina .btn.btn-danger').click();
+
+                            //Ativa o gatilho da caixa de seleção para carregar o gerenciador de disciplinas...
+                            $('div.container_disciplinas select.custom-select[name="qmsID"]')
+                                .change()
+                        });
+                    }, 2000);
+                } else {
+                    $('div.alertas-disciplinas').html('<strong>ATENÇÃO:</strong><br />').slideDown();
+                    $('div.alertas-disciplinas').addClass('alert-danger').empty();
+                    $.each(data.response, function(key, value) {
+                        $('div.alertas-disciplinas').append('<li>' + value + '</li>');
+                    });
+                }
+
+            },
+            error: function(jqxhr) {
+                $('div.alertas-disciplinas').addClass('alert-danger').empty();
+                $('div.alertas-disciplinas').html('<strong>ATENÇÃO: </strong> Houve um erro interno')
+                    .slideDown();
+            }
+        });
+
+    });
 </script>
