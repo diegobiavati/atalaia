@@ -209,8 +209,9 @@ $readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'rea
 
                     setTimeout(function() {
                         $('div.alert.alertas-avaliacoes').slideUp(200, function() {
-                            $('#form-avaliacao .btn.btn-warning').click();
-
+                            //$('#form-avaliacao .btn.btn-warning').click();
+                            $('div.container_calendario').empty();
+                            
                             //Ativa o gatilho para o carregamento do calendário...
                             carregaContainerCalendario("{{ asset('gaviao/ajax/calendario/index/'.$cursoSelecionado->escolhaQms->anoFormacao->id) }}");
                         });
@@ -235,6 +236,8 @@ $readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'rea
 
     $('#form-avaliacao .btn.btn-warning').click(function(evt) {
         evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+        //$('div.container_calendario').empty();
+
         //Ativa o gatilho para o carregamento do calendário...
         carregaContainerCalendario("{{ session('url_mes_calendario') }}");
     });

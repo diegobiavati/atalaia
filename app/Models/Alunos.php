@@ -137,6 +137,16 @@ class Alunos extends Model
         'obs_psicopedagogia'
     ];
 
+    public function getNomeGuerraAttribute($value)
+    {
+        return strtoupper($value); // Retorna o valor em letras maiúsculas
+    }
+
+    public function getNomeCompletoAttribute($value)
+    {
+        return strtoupper($value); // Retorna o valor em letras maiúsculas
+    }
+
     public function turma()
     {
         return ($this->belongsTo('App\Models\TurmasPB', 'turma_id', 'id')) ?? 'Não informada';

@@ -11,7 +11,7 @@ class EsaAvaliacoesResultados extends Model
     protected $table = 'esa_avaliacoes_resultados';
     protected $primaryKey = ['id_esa_avaliacoes', 'id_aluno'];
     public $incrementing = false;
-    protected $fillable = ['id_esa_avaliacoes', 'id_aluno', 'gbo_aluno', 'gbo_ssaa', 'id_operador'];
+    protected $fillable = ['id_esa_avaliacoes', 'id_aluno', 'nota', 'gbo_aluno', 'gbo_ssaa', 'id_operador'];
 
     public function esaAvaliacoes(){
         return $this->belongsTo('App\Models\EsaAvaliacoes', 'id_esa_avaliacoes', 'id');

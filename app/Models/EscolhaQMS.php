@@ -12,4 +12,8 @@ class EscolhaQMS extends Model
     public function anoFormacao(){
         return $this->belongsTo('App\Models\AnoFormacao', 'ano_formacao_id', 'id');
     }
+
+    public function qmss(){
+        return $this->hasMany(QMS::class, 'escolha_qms_id', 'id');
+    }
 }

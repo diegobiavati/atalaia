@@ -91,4 +91,17 @@ class AjaxRelatoriosGaviaoController extends Controller
         return view('ajax.avaliacao.view-analise-resultado-prova', compact('cursos', 'urlVisualizacao', 'urlGetDisciplinas', 'urlGetAvaliacoes', 'urlValidaVisualizacao'))
             ->with('ownauthcontroller', $this->_ownauthcontroller);
     }
+
+    public function AvaliacaoRecuperacao()
+    {
+        $anoFormacao = AnoFormacao::find($this->_request->id_ano_formacao);
+
+        $cursos = FuncoesController::retornaCursoPerfilAnoFormacao($anoFormacao);
+
+        $urlVisualizacao = 'ajax/relatorios/avaliacao-recuperacao';
+        $urlGetDisciplinas = 'ajax/get-combo-disciplinas/';
+
+        return view('ajax.avaliacao.view-avaliacoes-recuperacao', compact('cursos', 'urlVisualizacao', 'urlGetDisciplinas'))
+            ->with('ownauthcontroller', $this->_ownauthcontroller);
+    }
 }

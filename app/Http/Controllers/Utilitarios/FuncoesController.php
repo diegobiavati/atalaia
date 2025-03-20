@@ -160,7 +160,7 @@ class FuncoesController
         $param['anoFormacao_id'] = $anoFormacao->id;
 
         if ((session()->has('qms_selecionada') && session()->get('qms_selecionada') == 9999) || (session()->get('login.qmsID.0.qms_matriz_id') == 9999)) { //ESA
-            $qmsMatriz = array(1, 2, 3, 4, 5);
+            $qmsMatriz = explode(',', env('QMS_ESA_ID'));
         } else if (session()->has('qms_selecionada')) {
             $qmsMatriz = array(session()->get('qms_selecionada'));
         } else if (session()->has('login.omctID')) {

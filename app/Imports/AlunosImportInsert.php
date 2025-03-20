@@ -21,6 +21,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 use Maatwebsite\Excel\Events\BeforeImport;
 use Maatwebsite\Excel\Validators\Failure;
 use Maatwebsite\Excel\Validators\ValidationException;
+use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, WithHeadingRow
 {
@@ -33,7 +34,7 @@ class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, W
 
         ini_set('memory_limit', '-1');
 
-        ini_set('display_errors', true); 
+        ini_set('display_errors', true);
         error_reporting(E_ALL);
 
         foreach (AnoFormacao::all() as $formacao) {
@@ -43,7 +44,6 @@ class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, W
         foreach (Uf::all() as $uf) {
             $this->ufs[$uf['uf_sigla']] = $uf;
         }
-        
     }
 
     /**
@@ -53,13 +53,19 @@ class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, W
      */
     public function model(array $row)
     {
-    
-        try{
+
+        try {
+            $dataBrasileira = $row['data_nascimento'];  // Data exemplo no formato dd/mm/yyyy
+            // Crie um objeto DateTime a partir da string
+            $dateTime = \DateTime::createFromFormat('d/m/Y', $dataBrasileira);
+            // Converta a data para o formato Excel Date
+            $excelDate = Date::PHPToExcel($dateTime);
+
             $aluno = Alunos::create([
                 'data_matricula' => $row['data_matricula'],
                 'al_inscricao' => utf8_encode($row['al_inscricao']),
                 'nome_completo' => $row['nome_completo'],
-                'data_nascimento' => Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($row['data_nascimento'])),
+                'data_nascimento' => Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($excelDate)),
                 'nasc_cidade' => $row['nasc_cidade'],
                 'nasc_id_uf' => (array_key_exists($row['nasc_uf'], $this->ufs) ? $this->ufs[$row['nasc_uf']]->id : 28),
                 'nasc_pais' => $row['nasc_pais'],
@@ -69,7 +75,7 @@ class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, W
                 //'area_id' => Areas::retornaAreasConcurso()[$row['area_id']]['cod_no_atalaia'],
                 'id_situacao_anterior' => 1, //Falta Verificar
                 'id_situacao_matricula' => 100, //Falta Verificar
-                'endereco' => $row['endereco'].', '.$row['numero'].(isset($row['complemento']) ? ', compl '.$row['complemento'] : null),
+                'endereco' => $row['endereco'] . ', ' . $row['numero'] . (isset($row['complemento']) ? ', compl ' . $row['complemento'] : null),
                 'bairro' => $row['bairro'],
                 'cidade' => $row['cidade'],
                 'id_uf' => $this->ufs[$row['uf']]->id,
@@ -86,18 +92,16 @@ class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, W
                 'nome_pai' => $row['pai']
             ]);
 
-            if(isset($aluno)){
+            if (isset($aluno)) {
                 $alunosCurso = AlunosCurso::create([
                     'id_aluno' => $aluno->id,
                     'senha' => 1234,
                     'nota_cacfs' => 0
                 ]);
             }
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             dd($row, $ex);
         }
-            
-            
     }
 
     public function batchSize(): int

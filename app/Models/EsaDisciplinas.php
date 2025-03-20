@@ -51,4 +51,8 @@ class EsaDisciplinas extends Model
     {
         return $this->_tipos_disciplinas;
     }
+
+    public function esaAvaliacoesDemonstrativos(){
+        return $this->hasMany(EsaAvaliacoesDemonstrativo::class, 'id_esa_disciplinas', 'id');
+    }
 }

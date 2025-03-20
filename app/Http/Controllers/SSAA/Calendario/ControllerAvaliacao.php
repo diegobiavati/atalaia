@@ -9,6 +9,8 @@ use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\Alunos;
 use App\Models\AnoFormacao;
 use App\Models\EsaAvaliacoes;
+use App\Models\EsaAvaliacoesGbo;
+use App\Models\EsaAvaliacoesResultados;
 use App\Models\EsaDisciplinas;
 use App\Models\EsaMotivosFaltas;
 use App\Models\QMS;
@@ -137,18 +139,17 @@ class ControllerAvaliacao extends Controller
             $esaAvaliacoes = EsaAvaliacoes::find($id);
             $cursoSelecionado = $esaAvaliacoes->esadisciplinas->qms;
 
-            if($esaAvaliacoes->nome_avaliacao == 'AR'){
-                
+            if ($esaAvaliacoes->nome_avaliacao == 'AR') {
             }
 
             $colecaoFaltas = collect();
 
-            if($esaAvaliacoes->chamada == 2){
+            if ($esaAvaliacoes->chamada == 2) {
                 $rapPrimeiraChamada = $this->getPrimeiraChamadaAvaliacao($esaAvaliacoes);
-                
-                if(count($rapPrimeiraChamada) == 1){
+
+                if (count($rapPrimeiraChamada) == 1) {
                     $colecaoFaltas = $this->getFaltasAvaliacoes($rapPrimeiraChamada[0]);
-                }else{
+                } else {
                     return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Existem avaliações lançadas incorretamente');
                 }
             }
@@ -157,35 +158,34 @@ class ControllerAvaliacao extends Controller
 
             $disciplinas = EsaDisciplinas::where(['id_qms' => $cursoSelecionado->id])->get();
 
-            if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
+            if ($esaAvaliacoes->esadisciplinas->tfm == 'S') {
                 $rapLancadas = $esaAvaliacoes->esaAvaliacoesRapTfm;
-                
+
                 $turmasRapPendente = $rapLancadas->isEmpty() ? collect(1) : collect();
 
                 return view('ssaa.avaliacao.form_tfm', compact('cursos', 'cursoSelecionado', 'rapLancadas', 'turmasRapPendente', 'disciplinas', 'esaAvaliacoes', 'readOnly'))
-                        ->with('ownauthcontroller', $this->_ownauthcontroller)
-                        ->with('tipoAvaliacao', $esaAvaliacoes->getTodosTiposAvaliacoes())
-                        ->with('chamadas', $esaAvaliacoes->getTodasChamadas())
-                        ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes());
-            }else{
+                    ->with('ownauthcontroller', $this->_ownauthcontroller)
+                    ->with('tipoAvaliacao', $esaAvaliacoes->getTodosTiposAvaliacoes())
+                    ->with('chamadas', $esaAvaliacoes->getTodasChamadas())
+                    ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes());
+            } else {
                 $rapLancadas = $esaAvaliacoes->esaAvaliacoesRap;
 
-                if($esaAvaliacoes->chamada == 2){
+                if ($esaAvaliacoes->chamada == 2) {
                     $turmasRapPendente = $cursoSelecionado->consultaTurmas()
-                                                            ->whereIn('id', $colecaoFaltas->pluck('turma_esa_id'))
-                                                            ->whereNotIn('id', $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray());
-                }else{
+                        ->whereIn('id', $colecaoFaltas->pluck('turma_esa_id'))
+                        ->whereNotIn('id', $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray());
+                } else {
                     $turmasRapPendente = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray());
                 }
-   
-                return view('ssaa.avaliacao.form', compact('cursos', 'cursoSelecionado', 'rapLancadas', 'turmasRapPendente', 'disciplinas', 'esaAvaliacoes', 'readOnly'))
-                        ->with('ownauthcontroller', $this->_ownauthcontroller)
-                        ->with('tipoAvaliacao', $esaAvaliacoes->getTodosTiposAvaliacoes())
-                        ->with('chamadas', $esaAvaliacoes->getTodasChamadas())
-                        ->with('colecaoFaltas', ($esaAvaliacoes->chamada == 2) ? $colecaoFaltas : null)
-                        ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes());
-            }
 
+                return view('ssaa.avaliacao.form', compact('cursos', 'cursoSelecionado', 'rapLancadas', 'turmasRapPendente', 'disciplinas', 'esaAvaliacoes', 'readOnly'))
+                    ->with('ownauthcontroller', $this->_ownauthcontroller)
+                    ->with('tipoAvaliacao', $esaAvaliacoes->getTodosTiposAvaliacoes())
+                    ->with('chamadas', $esaAvaliacoes->getTodasChamadas())
+                    ->with('colecaoFaltas', ($esaAvaliacoes->chamada == 2) ? $colecaoFaltas : null)
+                    ->with('nomeAvaliacoes', $esaAvaliacoes->getTodasAvaliacoes());
+            }
         } else {
             return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Usuário sem Permissão');
         }
@@ -259,30 +259,29 @@ class ControllerAvaliacao extends Controller
 
         $cursoSelecionado = $esaAvaliacoes->esadisciplinas->qms;
         $cursos = collect([$cursoSelecionado]);
-        
+
         $colecaoFaltas = collect();
 
-        if($esaAvaliacoes->chamada == 2){
+        if ($esaAvaliacoes->chamada == 2) {
             $rapPrimeiraChamada = $this->getPrimeiraChamadaAvaliacao($esaAvaliacoes);
 
             $colecaoFaltas = $this->getFaltasAvaliacoes($rapPrimeiraChamada[0]);
 
             $turmasLancadas = $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray();
             $turmas = $cursoSelecionado->consultaTurmas()->whereIn('id', $colecaoFaltas->pluck('turma_esa_id'))->whereNotIn('id', $turmasLancadas);
-
-        }else{
+        } else {
             //Verifica se existe turmas já lançadas...
             $turmasLancadas = $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray();
             $turmas = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $turmasLancadas);
         }
 
-        if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
+        if ($esaAvaliacoes->esadisciplinas->tfm == 'S') {
             $rotaViewListagemCurso = '/gaviao/ajax/gerenciar-avaliacao/curso/';
             return view('ssaa.avaliacao.rap.index_tfm', compact('cursos', 'cursoSelecionado', 'rotaViewListagemCurso', 'rotaSalvaRap'))
                 ->with('esaAvaliacoes', $esaAvaliacoes)
                 ->with('criptografia', true)
                 ->with('ownauthcontroller', $this->_ownauthcontroller);
-        }else{
+        } else {
             return view('ssaa.avaliacao.rap.index', compact('cursos', 'cursoSelecionado', 'turmas', 'rotaViewListagemTurma', 'rotaSalvaRap'))
                 ->with('esaAvaliacoes', $esaAvaliacoes)
                 ->with('criptografia', true)
@@ -293,7 +292,7 @@ class ControllerAvaliacao extends Controller
     public function viewMotivoFalta()
     {
         $hash = explode('_', $this->_request->id_aluno)[1];
-        
+
         $id_aluno = explode('_', FuncoesController::base64url_decode($hash))[1];
 
         $aluno = Alunos::find($id_aluno);
@@ -316,18 +315,30 @@ class ControllerAvaliacao extends Controller
             if ($this->_request->checkboxAlunos) {
                 foreach ($this->_request->checkboxAlunos as $aluno) {
                     $id_aluno = explode('_', FuncoesController::base64url_decode($aluno))[1];
-                    
-                    $json_alunos[] = ['id_aluno' => (int) $id_aluno, 'id_motivo' => $this->_request->{'id_motivo_' . $aluno}, 'desc_motivo' => $this->_request->{'motivo_'. $aluno}];
+
+                    $json_alunos[] = ['id_aluno' => (int) $id_aluno, 'id_motivo' => $this->_request->{'id_motivo_' . $aluno}, 'desc_motivo' => $this->_request->{'motivo_' . $aluno}];
+
+                    //Se for 2ª Chamada, lançar nota 0 para o aluno para poder entrar no cálculo...
+                    if ($esaAvaliacoes->chamada == 2) {
+                        EsaAvaliacoesResultados::where([['id_esa_avaliacoes', '=', $esaAvaliacoes->id], ['id_aluno', '=', $id_aluno]])
+                            ->firstOrCreate(array(
+                                'id_esa_avaliacoes' => $esaAvaliacoes->id,
+                                'id_aluno' => $id_aluno,
+                                'gbo_ssaa' => 0,
+                                'nota' => 0.0,
+                                'id_operador' => session('login.operadorID')
+                            ));
+                    }
                 }
             }
 
-            if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
+            if ($esaAvaliacoes->esadisciplinas->tfm == 'S') {
 
                 $json_data_aplicacao = null;
                 if ($this->_request->data_aplicacao) {
-                    
+
                     $i = 0;
-                    foreach($this->_request->data_aplicacao as $data){
+                    foreach ($this->_request->data_aplicacao as $data) {
                         $json_data_aplicacao[] = ['data_aplicacao' => $data, 'hora_inicio' => $this->_request->hora_inicio[$i], 'hora_termino' => $this->_request->hora_termino[$i]];
                         $i++;
                     }
@@ -348,7 +359,7 @@ class ControllerAvaliacao extends Controller
                 ];
 
                 $validador = $this->validaRapTFMRequest($data);
-            }else{
+            } else {
                 $data = [
                     'id_operador_devolucao' => session('login.operadorID'),
                     'id_esa_avaliacoes' => $esaAvaliacoes->id,
@@ -367,15 +378,15 @@ class ControllerAvaliacao extends Controller
                     'fatores_influencia_aplicacao' => $this->_request->fatores_influencia_aplicacao,
                     'efetivo_realizou' => $this->_request->efetivo_realizou,
                     'efetivo_termino' => $this->_request->efetivo_termino,
-                    'primeiro_discente' => ($this->_request->has('primeiro_discente') 
-                                                        ? array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->primeiro_discente))[1], 'tempo' => $this->_request->tempo_primeiro_discente)
-                                                        : null),
-                    'segundo_discente' => ($this->_request->has('segundo_discente') 
-                                                        ? array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->segundo_discente))[1], 'tempo' => $this->_request->tempo_segundo_discente)
-                                                        : null),
-                    'terceiro_discente' => ($this->_request->has('terceiro_discente') 
-                                                        ? array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->terceiro_discente))[1], 'tempo' => $this->_request->tempo_terceiro_discente) 
-                                                        : null),
+                    'primeiro_discente' => ($this->_request->has('primeiro_discente')
+                        ? array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->primeiro_discente))[1], 'tempo' => $this->_request->tempo_primeiro_discente)
+                        : null),
+                    'segundo_discente' => ($this->_request->has('segundo_discente')
+                        ? array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->segundo_discente))[1], 'tempo' => $this->_request->tempo_segundo_discente)
+                        : null),
+                    'terceiro_discente' => ($this->_request->has('terceiro_discente')
+                        ? array('id_aluno' => (int) explode('_', FuncoesController::base64url_decode($this->_request->terceiro_discente))[1], 'tempo' => $this->_request->tempo_terceiro_discente)
+                        : null),
                     'maioria_efetivo' => $this->_request->tempo_maioria_efetivo,
                     'todo_efetivo' => $this->_request->tempo_todo_efetivo,
                 ];
@@ -387,7 +398,7 @@ class ControllerAvaliacao extends Controller
                 $retorno['response'] = $validador->errors()->all();
             } else {
 
-                if($esaAvaliacoes->esadisciplinas->tfm == 'S'){
+                if ($esaAvaliacoes->esadisciplinas->tfm == 'S') {
                     if ($esaAvaliacoes->esaAvaliacoesRapTfm()->create($data)) {
                         if ($esaAvaliacoes->save()) {
                             $retorno['status'] = 'success';
@@ -398,7 +409,7 @@ class ControllerAvaliacao extends Controller
                     } else {
                         array_push($retorno['response'], 'Ocorreu um erro ao salvar os detalhes do RAP.');
                     }
-                }else{
+                } else {
                     if ($esaAvaliacoes->esaAvaliacoesRap()->create($data)) {
                         if ($esaAvaliacoes->save()) {
                             $retorno['status'] = 'success';
@@ -418,29 +429,31 @@ class ControllerAvaliacao extends Controller
         return response()->json($retorno);
     }
 
-    public static function getPrimeiraChamadaAvaliacao(EsaAvaliacoes $esaAvaliacoes){
+    public static function getPrimeiraChamadaAvaliacao(EsaAvaliacoes $esaAvaliacoes)
+    {
         return $esaAvaliacoes->esaDisciplinas->esaAvaliacoes
-                                        ->where('chamada', '=', 1)
-                                        ->where('nome_avaliacao', '=', $esaAvaliacoes->nome_avaliacao)->values()->all();
+            ->where('chamada', '=', 1)
+            ->where('nome_avaliacao', '=', $esaAvaliacoes->nome_avaliacao)->values()->all();
     }
 
-    public static function getFaltasAvaliacoes(EsaAvaliacoes $esaAvaliacoes){
+    public static function getFaltasAvaliacoes(EsaAvaliacoes $esaAvaliacoes)
+    {
         $colecao = collect();
 
-        if($esaAvaliacoes->esadisciplinas->tfm == 'N'){
-            $esaAvaliacoes->esaAvaliacoesRap->each(function($item, $key) use ($colecao){
-                if($item->faltas->count() > 0){
-                    $item->faltas->each(function($i, $k) use ($colecao){
-                        $colecao->push($i);  
+        if ($esaAvaliacoes->esadisciplinas->tfm == 'N') {
+            $esaAvaliacoes->esaAvaliacoesRap->each(function ($item, $key) use ($colecao) {
+                if ($item->faltas->count() > 0) {
+                    $item->faltas->each(function ($i, $k) use ($colecao) {
+                        $colecao->push($i);
                     });
                 }
             });
-        }else{
-            $esaAvaliacoes->esaAvaliacoesRapTfm->each(function($item, $key) use ($colecao){
+        } else {
+            $esaAvaliacoes->esaAvaliacoesRapTfm->each(function ($item, $key) use ($colecao) {
                 dd($item);
-                if($item->faltas->count() > 0){
-                    $item->faltas->each(function($i, $k) use ($colecao){
-                        $colecao->push($i);  
+                if ($item->faltas->count() > 0) {
+                    $item->faltas->each(function ($i, $k) use ($colecao) {
+                        $colecao->push($i);
                     });
                 }
             });
@@ -532,7 +545,7 @@ class ControllerAvaliacao extends Controller
         $array_data = array_merge($array_data, array('alunos_faltas' => $array_data['alunos_faltas']));
 
         $array_data = array_merge($array_data, array('data_aplicacao' => $array_data['data_aplicacao']));
-        
+
         return Validator::make(
             $array_data,
             [

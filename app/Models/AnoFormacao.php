@@ -12,4 +12,8 @@ class AnoFormacao extends Model
     public function disciplinas(){
         return $this->hasMany('App\Models\Disciplinas');
     }    
+
+    public function escolhaQMS(){
+        return $this->hasOne('App\Models\EscolhaQMS', 'ano_formacao_id', 'id');
+    }
 }

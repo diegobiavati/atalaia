@@ -18,13 +18,16 @@ use File;
 use Illuminate\Http\Request;
 use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\SSAA\Avaliacao\ControllerLancamentoGBO;
+use App\Http\Controllers\SSAA\Avaliacao\ControllerResultados;
 use App\Http\FPDF\PDF;
 use App\Models\EsaAvaliacoes;
 use App\Models\EsaAvaliacoesRapTfm;
+use App\Models\EsaDisciplinas;
 use App\Models\Operadores;
 use Exception;
 use Khill\Lavacharts\Lavacharts;
 use Barryvdh\DomPDF\Facade as DOMPDF;
+use Illuminate\Http\File as HttpFile;
 use Psy\Util\Str;
 use Response;
 
@@ -900,7 +903,7 @@ class RelatoriosSSAAController extends Controller
                         $mencao->setFrequencia($nota, $realizaram);
                     }
                 }
-                
+
                 $mencao->porcentagem = (($mencao->quantidade / $realizaram) * 100);
             }
 
@@ -970,7 +973,7 @@ class RelatoriosSSAAController extends Controller
             $pdf->save(storage_path('app/public/temp/'.(String)\Illuminate\Support\Str::uuid().'.pdf'));*/
 
             $chefeSSAA = Operadores::where([['id_funcao_operador', 'LIKE', '%9008%'], ['ativo', '=', 'S']])->first();
-            
+
             return view(
                 'ssaa.relatorios.analise-resultado-prova',
                 compact(
@@ -990,6 +993,24 @@ class RelatoriosSSAAController extends Controller
                     'gbm'
                 )
             )->with('assinatura', EsaAssinaturas::where([['id_operador', '=', $chefeSSAA->id]])->first());
+        } else {
+            return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Usuário sem permissão.');
+        }
+    }
+
+    public function AvaliacoesRecuperacao()
+    {
+        if ($this->_ownauthcontroller->PermissaoCheck(40)) {
+
+            $disciplinaID = explode('_', decrypt($this->_request->disciplinaID))[1];
+
+            $esaDisciplinas = EsaDisciplinas::find($disciplinaID);
+
+            $resultados = ControllerResultados::getAvaliacoesDisciplinas($esaDisciplinas->id);
+
+            $chefeSSAA = Operadores::where([['id_funcao_operador', 'LIKE', '%9008%'], ['ativo', '=', 'S']])->first();
+
+            return view('ssaa.relatorios.avaliacoes-recuperacao', compact('esaDisciplinas', 'resultados'))->with('assinatura', EsaAssinaturas::where([['id_operador', '=', $chefeSSAA->id]])->first());
         } else {
             return view('ajax.erros.view-erro-padrao-centralizado')->with('mensagem', 'Usuário sem permissão.');
         }
