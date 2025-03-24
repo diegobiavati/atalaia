@@ -9,6 +9,7 @@ use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\Alunos;
 use App\Models\AnoFormacao;
 use App\Models\EsaAvaliacoes;
+use App\Models\EsaAvaliacoesDemonstrativo;
 use App\Models\EsaAvaliacoesGbo;
 use App\Models\EsaAvaliacoesResultados;
 use App\Models\EsaDisciplinas;
@@ -319,7 +320,8 @@ class ControllerAvaliacao extends Controller
                     $json_alunos[] = ['id_aluno' => (int) $id_aluno, 'id_motivo' => $this->_request->{'id_motivo_' . $aluno}, 'desc_motivo' => $this->_request->{'motivo_' . $aluno}];
 
                     //Se for 2ª Chamada, lançar nota 0 para o aluno para poder entrar no cálculo...
-                    if ($esaAvaliacoes->chamada == 2) {
+                    //Se for AR lançar nota 0 para o aluno para poder entrar no cálculo...
+                    if ($esaAvaliacoes->chamada == 2 || $esaAvaliacoes->nome_avaliacao == 'AR') {
                         EsaAvaliacoesResultados::where([['id_esa_avaliacoes', '=', $esaAvaliacoes->id], ['id_aluno', '=', $id_aluno]])
                             ->firstOrCreate(array(
                                 'id_esa_avaliacoes' => $esaAvaliacoes->id,
@@ -458,6 +460,18 @@ class ControllerAvaliacao extends Controller
                 }
             });
         }
+
+        $colecao->all();
+        return $colecao;
+    }
+
+    public static function getRecuperacaoAvaliacoes(Collection $collection)
+    {
+        $colecao = collect();
+
+        $collection->each(function ($item, $key) use ($colecao){
+            $colecao->push($item->aluno);
+        });
 
         $colecao->all();
         return $colecao;

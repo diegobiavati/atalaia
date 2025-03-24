@@ -43,7 +43,7 @@ class ControllerResultados extends Controller
             return response()->json(['error' => true, 'message' => '<strong>ATENÇÃO: </strong></p>Usuário sem Permissão</p>']);
         }
 
-        $param = ['AF', 'AF1', 'AF2', 'AR', 'AI', 'AD'];
+        $param = ['AF', 'AF1', 'AF2', 'AI', 'AD'];
         $aas = ['AA', 'AA1', 'AA2', 'AA3'];
         $acs = ['AC', 'AC1', 'AC2'];
 
@@ -71,15 +71,30 @@ class ControllerResultados extends Controller
 
         foreach ($turmaAlunoAvaliacao as $aluno) {
             foreach ($aluno as $id_aluno => $avaliacoes) {
-                $arrayCalc = array('peso' => 0, 'AA' => [], 'AC' => []);
+                $arrayCalc = array('peso' => 0, 'AA' => [], 'AC' => [], 'AR' => []);
                 $avaliacoes_resultados = null;
-                foreach ($avaliacoes as $avaliacao) {
-                    $arrayCalc[$avaliacao->esaAvaliacoes->nome_avaliacao][] = ($avaliacao->nota * $avaliacao->esaAvaliacoes->peso);
-                    $arrayCalc['peso'] = $arrayCalc['peso'] + $avaliacao->esaAvaliacoes->peso;
+                $avaliacao_recuperacao = false;
 
-                    $avaliacoes_resultados['avaliacoes'][] = ['id_esa_avaliacao' => $avaliacao->id_esa_avaliacoes, 'nota' => (float)$avaliacao->nota, 'peso' => (float)$avaliacao->esaAvaliacoes->peso];
+                foreach ($avaliacoes as $avaliacao) {
+
+                    //Recuperação - AR
+                    if ($avaliacao->esaAvaliacoes->nome_avaliacao == 'AR') {
+                        $avaliacao_recuperacao = true;
+                        $arrayCalc[$avaliacao->esaAvaliacoes->nome_avaliacao][] = $avaliacao->nota;
+
+                        $avaliacoes_resultados['avaliacoes'][] = ['id_esa_avaliacao' => $avaliacao->id_esa_avaliacoes, 'nota' => (float)$avaliacao->nota, 'peso' => (float)0.0];
+                    } else {
+                        $arrayCalc[$avaliacao->esaAvaliacoes->nome_avaliacao][] = ($avaliacao->nota * $avaliacao->esaAvaliacoes->peso);
+                        $arrayCalc['peso'] = $arrayCalc['peso'] + $avaliacao->esaAvaliacoes->peso;
+
+                        $avaliacoes_resultados['avaliacoes'][] = ['id_esa_avaliacao' => $avaliacao->id_esa_avaliacoes, 'nota' => (float)$avaliacao->nota, 'peso' => (float)$avaliacao->esaAvaliacoes->peso];
+                    }
                 }
 
+                if ($avaliacao_recuperacao){
+                    $avaliacoes_resultados['ND_AR'] = number_format((array_sum($arrayCalc['AR']) >= 5 ? 5.0 : array_sum($arrayCalc['AR'])), 3);
+                }
+                
                 $avaliacoes_resultados['ND'] = (float) number_format((array_sum($arrayCalc['AA']) + array_sum($arrayCalc['AC'])) / $arrayCalc['peso'], 3);
 
                 EsaAvaliacoesDemonstrativo::updateOrCreate(
@@ -102,10 +117,10 @@ class ControllerResultados extends Controller
         return response()->json(['success' => true, 'message' => '<strong>ATENÇÃO: </strong></p>Ciente do Aluno Realizado</p>']);
     }
 
-    public static function getAvaliacoesDisciplinas($disciplina_id)
+    public static function getAvaliacoesDisciplinasRecuperacao($disciplina_id)
     {
 
-        //Verifica quem está com ND abaixo da média
+        //Verifica quem está com ND abaixo da média (5) antes de fazer a AR...
         $filtro = EsaDisciplinas::find($disciplina_id)->esaAvaliacoesDemonstrativos->filter(function ($esaAvaliacoesDemonstrativo) {
             $avaliacoes_resultados = json_decode($esaAvaliacoesDemonstrativo->avaliacoes_resultados);
             return $avaliacoes_resultados->ND < 5;

@@ -1006,7 +1006,7 @@ class RelatoriosSSAAController extends Controller
 
             $esaDisciplinas = EsaDisciplinas::find($disciplinaID);
 
-            $resultados = ControllerResultados::getAvaliacoesDisciplinas($esaDisciplinas->id);
+            $resultados = ControllerResultados::getAvaliacoesDisciplinasRecuperacao($esaDisciplinas->id);
 
             $chefeSSAA = Operadores::where([['id_funcao_operador', 'LIKE', '%9008%'], ['ativo', '=', 'S']])->first();
 

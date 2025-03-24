@@ -6,6 +6,7 @@ use App\Models\QMS;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
+use App\Http\Controllers\SSAA\Avaliacao\ControllerResultados;
 use App\Http\Controllers\SSAA\Calendario\ControllerAvaliacao;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\Controllers\Utilitarios\SmbClientPhp;
@@ -54,7 +55,7 @@ class AlunoApiController extends Controller
         $this->aluno = $aluno;
         $this->request = $request;
         $this->classLog = $classLog;
-        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
+        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
 
         $this->ownauthcontroller = $ownauthcontroller;
     }
@@ -90,9 +91,9 @@ class AlunoApiController extends Controller
         $readOnly = (!$this->ownauthcontroller->PermissaoCheck(1)) ? 'readonly' : '';
 
         //Para Carregar o datalist 
-        if(request()->is('gaviao/*')){
+        if (request()->is('gaviao/*')) {
             $alunos['list'] = Alunos::retornaAlunosComQmsESA();
-        }else{
+        } else {
             $alunos['list'] = Alunos::carregaAlunosVsAlunosSitDiv();
         }
 
@@ -139,9 +140,7 @@ class AlunoApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
-    {
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
@@ -156,7 +155,7 @@ class AlunoApiController extends Controller
             return;
         }
 
-        if($this->ownauthcontroller->PermissaoCheck(8)){
+        if ($this->ownauthcontroller->PermissaoCheck(8)) {
             $retorno['status'] = 'err';
             $retorno['response'] = 'Houve um Erro';
 
@@ -173,7 +172,7 @@ class AlunoApiController extends Controller
 
             $validador = Validator::make($dados, $this->aluno->regras(), [], $this->aluno->atributos());
 
-            if(!isset($dados['data_matricula'])){
+            if (!isset($dados['data_matricula'])) {
                 $retorno['response'] = ['Informe o Ano de Formação.'];
                 return response()->json($retorno);
             }
@@ -240,7 +239,7 @@ class AlunoApiController extends Controller
             } else {
                 $retorno['response'] = $validador->errors()->all();
             }
-        }else{
+        } else {
             $retorno['status'] = 'err';
             $retorno['response'] = 'Ocorreu uma tentativa de inserção de aluno sem permissão.';
         }
@@ -258,7 +257,7 @@ class AlunoApiController extends Controller
     public function show($id)
     {
         $compact = $this->loadDependencia();
-        
+
         $id = trim(explode('-', $id)[0]);
 
         $aluno = Alunos::with('ano_formacao')->with('dependentes')->with('imagem_aluno')->find($id);
@@ -300,11 +299,11 @@ class AlunoApiController extends Controller
         } else {
             $compact['situacaoAtuals'] = SituacaoMatricula::find($aluno->id_situacao_matricula)->situacao_matricula;
 
-            $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find( (isset($aluno->ano_formacao_reintegr_id) ? $aluno->ano_formacao_reintegr_id : $aluno->data_matricula) ));
+            $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find((isset($aluno->ano_formacao_reintegr_id) ? $aluno->ano_formacao_reintegr_id : $aluno->data_matricula)));
 
-            if($aluno->sexo == 'M'){
+            if ($aluno->sexo == 'M') {
                 $qms = $cursos->where('segmento', 'M');
-            }else{
+            } else {
                 $qms = $cursos->where('segmento', 'F');
             }
         }
@@ -342,7 +341,7 @@ class AlunoApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+
         if (!is_null(FuncoesController::validaSessao())) {
             return;
         }
@@ -353,7 +352,7 @@ class AlunoApiController extends Controller
         if (!$aluno = $this->aluno->find($id))
             return response()->json($retorno);
 
-        if($this->ownauthcontroller->PermissaoCheck(10)){
+        if ($this->ownauthcontroller->PermissaoCheck(10)) {
 
             $dados = $request->all();
 
@@ -368,11 +367,11 @@ class AlunoApiController extends Controller
             $dados['cpf_mae'] = preg_replace('/[^0-9]/', '', $dados['cpf_mae']);
 
 
-            if(session()->get('login.omctID')){
+            if (session()->get('login.omctID')) {
                 $dados['qms_id'] = (isset($dados['id_qms']) ? $dados['id_qms'] : null);
                 $dados['periodo_cfs'] = (isset($dados['id_qms']) ? 'PQ' : 'PB');
             }
-            
+
             $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
 
             if (
@@ -394,13 +393,13 @@ class AlunoApiController extends Controller
             }
 
             if ($validador->passes()) {
-                
+
                 $dados['bonificacao_atleta'] = ((isset($dados['atleta_marexaer']) && $dados['atleta_marexaer'] == 'S') ? $dados['bonificacao_atleta'] : null);
 
-                if(trim($aluno->email) <> trim($dados['email'])){
+                if (trim($aluno->email) <> trim($dados['email'])) {
                     Users::where(['email' => $aluno->email])->update(['email' => $dados['email']]);
                 }
-                
+
                 $update = $aluno->update($dados);
 
                 if ($update) {
@@ -452,15 +451,15 @@ class AlunoApiController extends Controller
                 $retorno['status'] = 'err';
                 $retorno['response'] = $validador->errors()->all();
             }
-        }else if($this->ownauthcontroller->PermissaoCheck(37)){//Psicopedagogia
+        } else if ($this->ownauthcontroller->PermissaoCheck(37)) { //Psicopedagogia
             $aluno->obs_psicopedagogia = $request->obs_psicopedagogia;
-            if($aluno->save()){
+            if ($aluno->save()) {
                 $retorno['status'] = 'ok';
                 $retorno['response'] = ['Aluno(a) atualizado com sucesso!'];
                 $retorno['id_aluno'] = $aluno->id;
                 $this->classLog->RegistrarLog('Psicopedagogia alterou aluno ' . $aluno->id . ' - ' . $aluno->nome_completo . ' no sistema', auth()->user()->email);
             }
-        }else{
+        } else {
             $retorno['status'] = 'err';
             $retorno['response'] = ['Usuário sem permissão.', 'Ocorreu um tentativa de alterar o cadastro do aluno sem permissão.'];
         }
@@ -485,21 +484,34 @@ class AlunoApiController extends Controller
         if (!is_null(FuncoesController::validaSessao())) {
             return;
         }
-        
+
         $criptografia = (isset($request->criptografia) ? $request->criptografia : false);
 
-        if(strlen($request->id_turma) > 20){
+        if (strlen($request->id_turma) > 20) {
             $decrypt = explode('_', decrypt($request->id_turma));
             $idTurma = $decrypt[1];
-            if(count($decrypt) > 2){
+            if (count($decrypt) > 2) {
                 //Se tiver o parametro da avaliação verifica se tem faltas...
                 $idAvaliacao = $decrypt[3];
 
                 $esaAvaliacoes = EsaAvaliacoes::find($idAvaliacao);
-                
+
                 $colecaoFaltas = collect();
 
-                if($esaAvaliacoes->chamada == 2){
+                //Avaliação Recuperação...
+                if ($esaAvaliacoes->nome_avaliacao == 'AR') {
+                    $avaliacoesDisciplinasRecuperacao = ControllerResultados::getAvaliacoesDisciplinasRecuperacao($esaAvaliacoes->esadisciplinas->id);
+
+                    $filtro = $avaliacoesDisciplinasRecuperacao->filter(function ($esaAvaliacoesDemonstrativo) use ($idTurma) {
+                        return $esaAvaliacoesDemonstrativo->aluno->turma_esa_id == $idTurma;
+                    });
+
+                    $turmaAlunos = ControllerAvaliacao::getRecuperacaoAvaliacoes($filtro);
+
+                    return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos', 'criptografia'));
+                }
+
+                if ($esaAvaliacoes->chamada == 2) {
                     $rapPrimeiraChamada = ControllerAvaliacao::getPrimeiraChamadaAvaliacao($esaAvaliacoes);
                     $colecaoFaltas = ControllerAvaliacao::getFaltasAvaliacoes($rapPrimeiraChamada[0]);
 
@@ -508,14 +520,14 @@ class AlunoApiController extends Controller
                     return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos', 'criptografia'));
                 }
             }
-        }else{
+        } else {
             $idTurma = $request->id_turma;
         }
 
         $turmaESA = TurmasEsa::find($idTurma);
-        
+
         $turmaAlunos = Alunos::retornaAlunosComQmsEspecifica($turmaESA->qms->escolhaQms->anoFormacao->id, [$turmaESA->qms_id])
-                ->where('turma_esa_id', $turmaESA->id)->get();
+            ->where('turma_esa_id', $turmaESA->id)->get();
 
         return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos', 'criptografia'));
     }
@@ -527,7 +539,7 @@ class AlunoApiController extends Controller
         }
 
         $curso = QMS::find($request->id_curso);
-        
+
         $turmaAlunos = Alunos::retornaAlunosComQmsEspecifica($curso->escolhaQms->anoFormacao->id, [$curso->id])->get();
 
         $criptografia = (isset($request->criptografia) ? $request->criptografia : false);
@@ -535,169 +547,169 @@ class AlunoApiController extends Controller
         return view('ajax.componentes.componenteTurmaAlunos', compact('turmaAlunos', 'criptografia'));
     }
 
-    public function ViewComboBoxAlunos(Request $request){
+    public function ViewComboBoxAlunos(Request $request)
+    {
         if (!is_null(FuncoesController::validaSessao())) {
             return;
         }
-        
+
         //$id_turma = explode('_',decrypt($request->id_turma_esa))[1];
         $criptografia = true;
 
         $alunos = Alunos::where([['turma_esa_id', '=', $id_turma]])->get();
 
         return view('ajax.componentes.componenteAlunos', compact('alunos', 'criptografia'))
-                ->with('ownauthcontroller', $this->ownauthcontroller);
+            ->with('ownauthcontroller', $this->ownauthcontroller);
     }
 
-    public function modeloPBCapitani(Request $request){
+    public function modeloPBCapitani(Request $request)
+    {
 
-            ModeloNotasCapitani::truncate();
+        ModeloNotasCapitani::truncate();
 
-            $alunosID = Alunos::retornaAlunosComQmsESAGeral($request->id_ano_formacao)->get(['id']);
+        $alunosID = Alunos::retornaAlunosComQmsESAGeral($request->id_ano_formacao)->get(['id']);
 
-            $id_anoForm_disc = Alunos::retornaAlunosComQmsESAGeral($request->id_ano_formacao)
-                                ->groupBy('data_matricula')->pluck('data_matricula')->toArray();
+        $id_anoForm_disc = Alunos::retornaAlunosComQmsESAGeral($request->id_ano_formacao)
+            ->groupBy('data_matricula')->pluck('data_matricula')->toArray();
 
-            $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)
-            ->whereHas('aluno', function($q) use ($request) {
+        $alunos_classif = AlunosClassificacao::whereIn('aluno_id', $alunosID)
+            ->whereHas('aluno', function ($q) use ($request) {
                 $q->orderBy('numero', 'asc');
             })->get();
 
-            //dd(unserialize($alunos_classif[0]->data_demonstrativo));
+        //dd(unserialize($alunos_classif[0]->data_demonstrativo));
 
-            $disciplinas_capitani['ARMTO'] = 'ARMT';
-            $disciplinas_capitani['LID'] = 'LIDMIL';
-            $disciplinas_capitani['ÉTICA'] = 'ETICA';
-            $disciplinas_capitani['TEC MIL 1'] = 'TEC_MIL_I';
-            $disciplinas_capitani['TEC MIL 2'] = 'TEC_MIL_II';
-            $disciplinas_capitani['TEC MIL 3'] = 'TEC_MIL_III';
-            $disciplinas_capitani['HIST'] = 'HIST';
-            $disciplinas_capitani['Hist Mil BR'] = 'HIST';
-            $disciplinas_capitani['ING 1'] = 'INGLES_I';
-            $disciplinas_capitani['TFM'] = 'TFM1';
-            
-            $mencoes = Mencoes::get();
-            $disciplinas = Disciplinas::whereIn('ano_formacao_id', $id_anoForm_disc)->get();
+        $disciplinas_capitani['ARMTO'] = 'ARMT';
+        $disciplinas_capitani['LID'] = 'LIDMIL';
+        $disciplinas_capitani['ÉTICA'] = 'ETICA';
+        $disciplinas_capitani['TEC MIL 1'] = 'TEC_MIL_I';
+        $disciplinas_capitani['TEC MIL 2'] = 'TEC_MIL_II';
+        $disciplinas_capitani['TEC MIL 3'] = 'TEC_MIL_III';
+        $disciplinas_capitani['HIST'] = 'HIST';
+        $disciplinas_capitani['Hist Mil BR'] = 'HIST';
+        $disciplinas_capitani['ING 1'] = 'INGLES_I';
+        $disciplinas_capitani['TFM'] = 'TFM1';
 
-            foreach($disciplinas as $disciplina){
-                if($disciplina->tfm == 'N'){
-                    $disciplinas_array['TFM-'.$disciplina->tfm][$disciplinas_capitani[$disciplina->nome_disciplina_abrev]][$disciplina->id] = $disciplina;   
-                    $disciplinas_utilz[] = $disciplinas_capitani[$disciplina->nome_disciplina_abrev];
-                }
+        $mencoes = Mencoes::get();
+        $disciplinas = Disciplinas::whereIn('ano_formacao_id', $id_anoForm_disc)->get();
+
+        foreach ($disciplinas as $disciplina) {
+            if ($disciplina->tfm == 'N') {
+                $disciplinas_array['TFM-' . $disciplina->tfm][$disciplinas_capitani[$disciplina->nome_disciplina_abrev]][$disciplina->id] = $disciplina;
+                $disciplinas_utilz[] = $disciplinas_capitani[$disciplina->nome_disciplina_abrev];
             }
+        }
 
-            $disciplinas = $disciplinas_array;
-            
-            $lista_retorno = array();
-            $lista_colunas = array('Ano_Cad', 'Numero', 'ND_TFM');
-            
-            foreach($disciplinas_utilz as $dsp){
-                $lista_colunas[] = $dsp;
-            }
-            
-            array_push($lista_colunas, 'N1', 'class', 'MEN', 'QR_1');
+        $disciplinas = $disciplinas_array;
 
-            $lista_colunas = array_unique($lista_colunas);
-            
-            foreach ($alunos_classif as $class){
+        $lista_retorno = array();
+        $lista_colunas = array('Ano_Cad', 'Numero', 'ND_TFM');
 
-                $modeloNotas = new ModeloNotasCapitani();
+        foreach ($disciplinas_utilz as $dsp) {
+            $lista_colunas[] = $dsp;
+        }
 
-                $modeloNotas->ano_cad = $class->anoFormacao->formacao;
-                $modeloNotas->numero = $class->aluno->numero;
-                
-                $mencao_aluno = 'Não Informada';
-                                
-                $data_array = unserialize($class->data_demonstrativo);
-                $media_disciplina = null;
-                $qr = 0;
-                
-                if(!isset($data_array['avaliacoes_tfm'])){
-                    foreach($data_array as $key => $data){
-                        if(is_numeric($key) && $data['disciplina_id'] == 99999){
-                            $data_array['avaliacoes_tfm']['media_tfm'] = number_format($data['media'], '3', ',', '');
-                            break;
-                        }
-                    }
-                }
+        array_push($lista_colunas, 'N1', 'class', 'MEN', 'QR_1');
 
-                $modeloNotas->nd_tfm = $data_array['avaliacoes_tfm']['media_tfm'];
-                
-                $modeloNotas->nd_armt = 0.000;
-                $modeloNotas->nd_lidmil = 0.000;
-                $modeloNotas->nd_etica = 0.000;
-                $modeloNotas->nd_tec_mil_1 = 0.000;
-                $modeloNotas->nd_tec_mil_2 = 0.000;
-                $modeloNotas->nd_tec_mil_3 = 0.000;
-                $modeloNotas->nd_hist = 0.000;
-                $modeloNotas->nd_ingles_1 = 0.000;
+        $lista_colunas = array_unique($lista_colunas);
 
-                foreach ($disciplinas['TFM-N'] as $keydisc => $disciplina){
-                    foreach($data_array as $key => $data){
-                    
-                        if(is_numeric($key)){
-                            if(in_array($data['disciplina_id'], array_keys($disciplina))){
-                                if(isset($data['AR'])){
-                                    $qr++;
-                                }
-                                $media_disciplina = (isset($data['media_sem_peso']) ? $data['media_sem_peso'] : $data['media']);
-                                break;
-                            }
-                        }
-                    }
-                   
-                    $media_disciplina = (is_numeric($media_disciplina) ? number_format($media_disciplina, '3', ',', '') : number_format(0, '3', ',', ''));
-                    
-                    switch($keydisc){
-                        case 'ARMT':
-                            $modeloNotas->nd_armt = $media_disciplina;
-                            break;
-                        case 'LIDMIL':
-                            $modeloNotas->nd_lidmil = $media_disciplina;
-                            break;
-                        case 'ETICA':
-                            $modeloNotas->nd_etica = $media_disciplina;
-                            break;
-                        case 'TEC_MIL_I':
-                            $modeloNotas->nd_tec_mil_1 = $media_disciplina;
-                            break;
-                        case 'TEC_MIL_II':
-                            $modeloNotas->nd_tec_mil_2 = $media_disciplina;
-                            break;
-                        case 'TEC_MIL_III':
-                            $modeloNotas->nd_tec_mil_3 = $media_disciplina;
-                            break;
-                        case 'HIST':
-                            $modeloNotas->nd_hist = $media_disciplina;
-                            break;
-                        case 'INGLES_I':
-                            $modeloNotas->nd_ingles_1 = $media_disciplina;
-                            break;
-                    }
+        foreach ($alunos_classif as $class) {
 
-                }
+            $modeloNotas = new ModeloNotasCapitani();
 
-                $modeloNotas->n1 = $class->nota_final_arredondada;
-                $modeloNotas->class = $class->classificacao;
-                                
-                foreach($mencoes as $mencao){
-                    if($class->nota_final>=$mencao->inicio && $class->nota_final<=$mencao->fim){
-                        $mencao_aluno = $mencao->mencao;
+            $modeloNotas->ano_cad = $class->anoFormacao->formacao;
+            $modeloNotas->numero = $class->aluno->numero;
+
+            $mencao_aluno = 'Não Informada';
+
+            $data_array = unserialize($class->data_demonstrativo);
+            $media_disciplina = null;
+            $qr = 0;
+
+            if (!isset($data_array['avaliacoes_tfm'])) {
+                foreach ($data_array as $key => $data) {
+                    if (is_numeric($key) && $data['disciplina_id'] == 99999) {
+                        $data_array['avaliacoes_tfm']['media_tfm'] = number_format($data['media'], '3', ',', '');
                         break;
                     }
                 }
-
-                $modeloNotas->qr_1 = $qr;
-                $modeloNotas->men = $mencao_aluno;
-
-                $lista_retorno[] = $modeloNotas;
-
-                $modeloNotas->save();
             }
 
-            $this->classLog->RegistrarLog('Acessou modelo de notas capitani', auth()->user()->email);
-            //return view('relatorios.modelo-notas-capitani', compact('mencoes', 'disciplinas', 'disciplinas_capitani', 'alunos_classif'));
-            return view('relatorios.modelo-notas-capitani', compact('lista_colunas', 'lista_retorno'));
+            $modeloNotas->nd_tfm = $data_array['avaliacoes_tfm']['media_tfm'];
 
+            $modeloNotas->nd_armt = 0.000;
+            $modeloNotas->nd_lidmil = 0.000;
+            $modeloNotas->nd_etica = 0.000;
+            $modeloNotas->nd_tec_mil_1 = 0.000;
+            $modeloNotas->nd_tec_mil_2 = 0.000;
+            $modeloNotas->nd_tec_mil_3 = 0.000;
+            $modeloNotas->nd_hist = 0.000;
+            $modeloNotas->nd_ingles_1 = 0.000;
+
+            foreach ($disciplinas['TFM-N'] as $keydisc => $disciplina) {
+                foreach ($data_array as $key => $data) {
+
+                    if (is_numeric($key)) {
+                        if (in_array($data['disciplina_id'], array_keys($disciplina))) {
+                            if (isset($data['AR'])) {
+                                $qr++;
+                            }
+                            $media_disciplina = (isset($data['media_sem_peso']) ? $data['media_sem_peso'] : $data['media']);
+                            break;
+                        }
+                    }
+                }
+
+                $media_disciplina = (is_numeric($media_disciplina) ? number_format($media_disciplina, '3', ',', '') : number_format(0, '3', ',', ''));
+
+                switch ($keydisc) {
+                    case 'ARMT':
+                        $modeloNotas->nd_armt = $media_disciplina;
+                        break;
+                    case 'LIDMIL':
+                        $modeloNotas->nd_lidmil = $media_disciplina;
+                        break;
+                    case 'ETICA':
+                        $modeloNotas->nd_etica = $media_disciplina;
+                        break;
+                    case 'TEC_MIL_I':
+                        $modeloNotas->nd_tec_mil_1 = $media_disciplina;
+                        break;
+                    case 'TEC_MIL_II':
+                        $modeloNotas->nd_tec_mil_2 = $media_disciplina;
+                        break;
+                    case 'TEC_MIL_III':
+                        $modeloNotas->nd_tec_mil_3 = $media_disciplina;
+                        break;
+                    case 'HIST':
+                        $modeloNotas->nd_hist = $media_disciplina;
+                        break;
+                    case 'INGLES_I':
+                        $modeloNotas->nd_ingles_1 = $media_disciplina;
+                        break;
+                }
+            }
+
+            $modeloNotas->n1 = $class->nota_final_arredondada;
+            $modeloNotas->class = $class->classificacao;
+
+            foreach ($mencoes as $mencao) {
+                if ($class->nota_final >= $mencao->inicio && $class->nota_final <= $mencao->fim) {
+                    $mencao_aluno = $mencao->mencao;
+                    break;
+                }
+            }
+
+            $modeloNotas->qr_1 = $qr;
+            $modeloNotas->men = $mencao_aluno;
+
+            $lista_retorno[] = $modeloNotas;
+
+            $modeloNotas->save();
+        }
+
+        $this->classLog->RegistrarLog('Acessou modelo de notas capitani', auth()->user()->email);
+        //return view('relatorios.modelo-notas-capitani', compact('mencoes', 'disciplinas', 'disciplinas_capitani', 'alunos_classif'));
+        return view('relatorios.modelo-notas-capitani', compact('lista_colunas', 'lista_retorno'));
     }
 }

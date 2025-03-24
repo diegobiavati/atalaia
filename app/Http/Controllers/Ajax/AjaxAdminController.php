@@ -1801,7 +1801,6 @@ class AjaxAdminController extends Controller
         $avaliacao = new Avaliacoes;
 
         if ($disciplina->tfm == 'S') {
-
             $avaliacao->tfm_abdominal = (isset($request->abdominal) ? 'S' : 'N');
             $avaliacao->tfm_barra = (isset($request->flex_barra) ? 'S' : 'N');
         } else {
@@ -1811,6 +1810,9 @@ class AjaxAdminController extends Controller
             $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
         }
         $peso = ($request->peso == '') ? 1 : $request->peso;
+        if(isset($request->abdominal)){
+            $peso = 0;
+        }
 
         $avaliacao->disciplinas_id = $disciplina->id;
         $avaliacao->nome_completo = $request->nome_completo;

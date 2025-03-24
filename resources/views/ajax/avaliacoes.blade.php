@@ -55,10 +55,12 @@ foreach ($uetes as $uete) {
         $style_color_chamada = 'bg-success';
         $style_color_footer = 'border-success';
         $avaliacao_referencia = $avaliacao->chamada . 'ª chamada';
+        unset($recuperacao);
       } else {
         $style_color_chamada = 'bg-warning';
         $style_color_footer = 'border-warning';
         $avaliacao_referencia = $avaliacao->chamada . 'ª chamada da ' . $avaliacao_nome_por_indice[$avaliacao->chamada_refer_id];
+        unset($recuperacao);
       }
 
       $qtde_avaliacoes++;

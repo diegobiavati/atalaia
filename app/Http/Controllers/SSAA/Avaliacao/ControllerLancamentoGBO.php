@@ -213,6 +213,18 @@ class ControllerLancamentoGBO extends Controller
         $idAlunosFaltas = [];
 
         $colecaoFaltas = collect();
+
+        //Avaliação Recuperação...
+        if ($esaAvaliacoes->nome_avaliacao == 'AR') {
+            $avaliacoesDisciplinasRecuperacao = ControllerResultados::getAvaliacoesDisciplinasRecuperacao($esaAvaliacoes->esadisciplinas->id);
+
+            $filtro = $avaliacoesDisciplinasRecuperacao->filter(function ($esaAvaliacoesDemonstrativo) use ($idTurma) {
+                return $esaAvaliacoesDemonstrativo->aluno->turma_esa_id == $idTurma;
+            });
+
+            $colecaoFaltas = ControllerAvaliacao::getRecuperacaoAvaliacoes($filtro);
+        }
+
         if ($esaAvaliacoes->chamada == 2) {
             $rapPrimeiraChamada = ControllerAvaliacao::getPrimeiraChamadaAvaliacao($esaAvaliacoes);
 
