@@ -40,7 +40,7 @@ class RelatorioAlunoController extends Controller
     {
         $this->ownauthcontroller = $ownauthcontroller;
         $this->classLog = $classLog;
-        $this->classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);    
+        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
     }
 
     public function ViewFichaDisciplinarGaviao(Request $request)
@@ -49,7 +49,7 @@ class RelatorioAlunoController extends Controller
 
         $cursos = FuncoesController::retornaCursoPerfilAnoFormacao($anoFormacao);
 
-        $rota = 'ajax/view-relacao-ficha-disciplinar/'.$anoFormacao->id;
+        $rota = 'ajax/view-relacao-ficha-disciplinar/' . $anoFormacao->id;
 
         return view('admin.consulta.consulta-uete-aluno', compact('cursos', 'anoFormacao', 'rota'))
             ->with('ownauthcontroller', $this->ownauthcontroller);
@@ -81,7 +81,7 @@ class RelatorioAlunoController extends Controller
         $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
 
         $cursos = FuncoesController::retornaCursoPerfilAnoFormacao($anoFormacao);
-        
+
         $alunos = new Alunos();
         $colunas = $alunos->getFillableDescription();
 
@@ -171,7 +171,7 @@ class RelatorioAlunoController extends Controller
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
         } else {
 
-            $arrayExcessao = ['ano_formacao_id', 'omctID', 'qmsID','ordem', 'alteracao', 'ciente', 'relacao'];
+            $arrayExcessao = ['ano_formacao_id', 'omctID', 'qmsID', 'ordem', 'alteracao', 'ciente', 'relacao'];
             $arrayColunas = [];
 
             $ano_formacao = AnoFormacao::find($request->ano_formacao_id);
@@ -190,14 +190,14 @@ class RelatorioAlunoController extends Controller
 
             $alunos = [];
 
-            if(session()->has('login.qmsID')){
+            if (session()->has('login.qmsID')) {
                 $alunosSelect = Alunos::whereIn('sexo', $segmento_array)
-                //->where('data_matricula', $request->ano_formacao_id)
-                ->where(function($query) use($request){
-                    return $query->where('data_matricula', $request->ano_formacao_id)->orWhere('ano_formacao_reintegr_id', $request->ano_formacao_id);
-                })
-                ->where('qms_id', (($request->qmsID == 'todas_qmss') ? '<>' : '='), (($request->qmsID == 'todas_qmss') ? 1 : $request->qmsID))
-                ->orderBy('numero', 'desc')->get();
+                    //->where('data_matricula', $request->ano_formacao_id)
+                    ->where(function ($query) use ($request) {
+                        return $query->where('data_matricula', $request->ano_formacao_id)->orWhere('ano_formacao_reintegr_id', $request->ano_formacao_id);
+                    })
+                    ->where('qms_id', (($request->qmsID == 'todas_qmss') ? '<>' : '='), (($request->qmsID == 'todas_qmss') ? 1 : $request->qmsID))
+                    ->orderBy('numero', 'desc')->get();
 
                 switch ($request->qmsID) {
                     case 'todas_qmss';
@@ -208,17 +208,17 @@ class RelatorioAlunoController extends Controller
                         break;
                 }
 
-                foreach($qmss as $qms){
-                    $alunos[$qms->id] = $alunosSelect->filter(function ($new) use($qms) {
+                foreach ($qmss as $qms) {
+                    $alunos[$qms->id] = $alunosSelect->filter(function ($new) use ($qms) {
                         return $new['qms_id'] == $qms->id;
                     });
                 }
-            }else{
+            } else {
                 $alunosSelect = Alunos::whereIn('sexo', $segmento_array)
-                ->whereIn('area_id', $areas_array)
-                ->where('data_matricula', $request->ano_formacao_id)
-                ->where('omcts_id', (($request->omctID == 'todas_omct') ? '<>' : '='), (($request->omctID == 'todas_omct') ? 1 : $request->omctID))
-                ->orderBy('numero', 'desc')->get();
+                    ->whereIn('area_id', $areas_array)
+                    ->where('data_matricula', $request->ano_formacao_id)
+                    ->where('omcts_id', (($request->omctID == 'todas_omct') ? '<>' : '='), (($request->omctID == 'todas_omct') ? 1 : $request->omctID))
+                    ->orderBy('numero', 'desc')->get();
 
                 switch ($request->omctID) {
                     case 'todas_omct';
@@ -228,7 +228,7 @@ class RelatorioAlunoController extends Controller
                         $omct = OMCT::where('id', $request->omctID)->get();
                         break;
                 }
-                    
+
                 foreach ($alunosSelect as $aluno) {
                     $alunos[$aluno->omcts_id][] = $aluno;
                 }
@@ -249,22 +249,21 @@ class RelatorioAlunoController extends Controller
 
             $this->classLog->RegistrarLog('Acessou lista de alunos prontos', auth()->user()->email);
 
-            if(isset($qmss)){
+            if (isset($qmss)) {
                 return view('relatorios.new-relacao-alunos-prontos')
-                ->with('ano_formacao', $ano_formacao)
-                ->with('qmss', $qmss)
-                ->with('alunos', $alunos)
-                ->with('arrayColunas', $arrayColunas)
-                ->with('relacao', $request->relacao);
-            }else{
+                    ->with('ano_formacao', $ano_formacao)
+                    ->with('qmss', $qmss)
+                    ->with('alunos', $alunos)
+                    ->with('arrayColunas', $arrayColunas)
+                    ->with('relacao', $request->relacao);
+            } else {
                 return view('relatorios.new-relacao-alunos-prontos')
-                ->with('ano_formacao', $ano_formacao)
-                ->with('omct', $omct)
-                ->with('alunos', $alunos)
-                ->with('arrayColunas', $arrayColunas)
-                ->with('relacao', $request->relacao);
+                    ->with('ano_formacao', $ano_formacao)
+                    ->with('omct', $omct)
+                    ->with('alunos', $alunos)
+                    ->with('arrayColunas', $arrayColunas)
+                    ->with('relacao', $request->relacao);
             }
-            
         }
     }
 
@@ -273,34 +272,34 @@ class RelatorioAlunoController extends Controller
         $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
 
         $rota = 'relatorios.relacao-ficha-individual-aluno';
-                
-        if(session()->has('login.qmsID')){       
+
+        if (session()->has('login.qmsID')) {
             $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id);
 
             if ($request->qmsID != 'todas_qmss') {
                 $alunos = $alunos->where('qms_id', $request->qmsID);
             }
-    
+
             if (isset($request->numero_aluno)) {
                 $alunos = $alunos->where('numero', $request->numero_aluno);
             }
-    
+
             if (isset($request->nome_aluno)) {
-                $alunos = $alunos->where('nome_completo', 'like', '%'.strtoupper($request->nome_aluno).'%');
+                $alunos = $alunos->where('nome_completo', 'like', '%' . strtoupper($request->nome_aluno) . '%');
             }
 
             $alunos = $alunos->get();
-        }else{
+        } else {
             $alunos = Alunos::carregaAlunosVsAlunosSitDiv($anoFormacao->id);
 
             if ($request->omctID != 'todas_omct') {
                 $alunos = Alunos::filtraAlunosOmct($alunos, $request->omctID);
             }
-    
+
             if (isset($request->numero_aluno)) {
                 $alunos = Alunos::filtraAlunosNumero($alunos, $request->numero_aluno);
             }
-    
+
             if (isset($request->nome_aluno)) {
                 $alunos = Alunos::filtraAlunosNome($alunos, $request->nome_aluno);
             }
@@ -319,22 +318,22 @@ class RelatorioAlunoController extends Controller
 
         $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
 
-        if(session()->has('login.qmsID')){
-            
-            $lancamentoFo = LancamentoFo::whereHas('aluno', function($query) use($anoFormacao){
+        if (session()->has('login.qmsID')) {
+
+            $lancamentoFo = LancamentoFo::whereHas('aluno', function ($query) use ($anoFormacao) {
                 $query->where('data_matricula', $anoFormacao->id)->orWhere('ano_formacao_reintegr_id', $anoFormacao->id);
             })->whereBetween('data_obs', array(FuncoesController::formatDateBrtoEn($request->data_inicial), FuncoesController::formatDateBrtoEn($request->data_final)))
-            ->where('cancelado', 'N')
-            ->whereNull('providencia');
+                ->where('cancelado', 'N')
+                ->whereNull('providencia');
 
-            switch($request->relacao){
-                case '0'://Negativo
+            switch ($request->relacao) {
+                case '0': //Negativo
                     $lancamentoFo->where('tipo', 0);
                     break;
-                case '1'://Neutro
+                case '1': //Neutro
                     $lancamentoFo->where('tipo', 1);
                     break;
-                case '2'://Positivos
+                case '2': //Positivos
                     $lancamentoFo->where('tipo', 2);
                     break;
                 default:
@@ -346,17 +345,17 @@ class RelatorioAlunoController extends Controller
                 $parametros['cia'] = $request->cia;
 
                 //Filtra somente do curso especificado
-                $lancamentoFo->whereHas('aluno', function($query) use($parametros){
+                $lancamentoFo->whereHas('aluno', function ($query) use ($parametros) {
                     $query->where('alunos.qms_id', $parametros['qms']->id);
 
-                    if($parametros['qms']->qms_matriz_id == 1){//Infantaria
-                        if($parametros['cia'] == 1){
+                    if ($parametros['qms']->qms_matriz_id == 1) { //Infantaria
+                        if ($parametros['cia'] == 1) {
                             $query->join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
-                                    ->whereIn('turmas_esa.turma', array('I1', 'I2', 'I3'));//Turma I1, I2, I3
-                        }else if($parametros['cia'] == 2){
+                                ->whereIn('turmas_esa.turma', array('I1', 'I2', 'I3')); //Turma I1, I2, I3
+                        } else if ($parametros['cia'] == 2) {
                             $query->join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
-                                    ->whereIn('turmas_esa.turma', array('I4', 'I5', 'I6'));//Turma I1, I2, I3
-                        }   
+                                ->whereIn('turmas_esa.turma', array('I4', 'I5', 'I6')); //Turma I1, I2, I3
+                        }
                     }
                 });
             }
@@ -368,7 +367,7 @@ class RelatorioAlunoController extends Controller
             $pdf->SetAutoPageBreak(true, 10);
 
             $pdf->setPeriodos($request->data_inicial, $request->data_final);
-    
+
             $pdf->AddPage();
             $pdf->SetFillColor(255, 255, 255);
 
@@ -377,24 +376,26 @@ class RelatorioAlunoController extends Controller
             $pdf->SetFont('Times', '', 7);
 
             foreach ($lancamentosFo as $key) {
-        
+
                 $pdf->Row(array(
-                    FuncoesController::formatDateEntoBr($key->data_obs), ($key->tipo == 0 ? 'NEGATIVO' : (($key->tipo == 1) ? 'NEUTRO': 'POSITIVO'))
-                    , utf8_decode($key->aluno->numero.'-'.$key->aluno->nome_guerra), utf8_decode($key->operador->posto->postograd_abrev.'-'.$key->operador->nome_guerra)
-                    , utf8_decode($key->observacao), utf8_decode('Em Desenvolvimento')
-                    , null
+                    FuncoesController::formatDateEntoBr($key->data_obs),
+                    ($key->tipo == 0 ? 'NEGATIVO' : (($key->tipo == 1) ? 'NEUTRO' : 'POSITIVO')),
+                    utf8_decode($key->aluno->numero . '-' . $key->aluno->nome_guerra),
+                    utf8_decode($key->operador->posto->postograd_abrev . '-' . $key->operador->nome_guerra),
+                    utf8_decode($key->observacao),
+                    utf8_decode('Em Desenvolvimento'),
+                    null
                 ));
-
             }
-    
-            FuncoesController::LimpaPastaTemp();
-            $nomeArquivo = 'Aud_FO_'.uniqid().'.pdf';
-            $pdf->Output('F', storage_path('app/public/temp/').$nomeArquivo);
 
-            $data['success'] = true; 
+            FuncoesController::LimpaPastaTemp();
+            $nomeArquivo = 'Aud_FO_' . uniqid() . '.pdf';
+            $pdf->Output('F', storage_path('app/public/temp/') . $nomeArquivo);
+
+            $data['success'] = true;
             $data['arquivo'] = $nomeArquivo;
             $data['rota'] = 'ajax/relatorios/download-pdf';
-            
+
             return response()->json($data);
         }
 
@@ -409,7 +410,7 @@ class RelatorioAlunoController extends Controller
 
         $rotaGeral = 'relatorios.relacao-frad-geral';
 
-        if(session()->has('login.qmsID')){
+        if (session()->has('login.qmsID')) {
             $idUeteCurso = $request->qmsID;
 
             $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id);
@@ -417,19 +418,18 @@ class RelatorioAlunoController extends Controller
             if ($request->qmsID != 'todas_qmss') {
                 $alunos = $alunos->where('qms_id', $request->qmsID);
             }
-    
+
             if (isset($request->numero_aluno)) {
                 $alunos = $alunos->where('numero', $request->numero_aluno);
             }
-    
+
             if (isset($request->nome_aluno)) {
-                $alunos = $alunos->where('nome_completo', 'like', '%'.strtoupper($request->nome_aluno).'%');
+                $alunos = $alunos->where('nome_completo', 'like', '%' . strtoupper($request->nome_aluno) . '%');
             }
 
             //Faz o Join para verificar se existe informacao para a FRAD
             $alunos = $this->selectAlunosFrad(null, null, $alunos);
-
-        }else{
+        } else {
             $idUeteCurso = $request->omctID;
 
             $where = '';
@@ -451,13 +451,13 @@ class RelatorioAlunoController extends Controller
         return view('relatorios/ficha-frad-do-aluno', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idUeteCurso'));
     }
 
-    private function selectAlunosFrad($idAnoFormacao, $where, $alunos=null)
+    private function selectAlunosFrad($idAnoFormacao, $where, $alunos = null)
     {
-        if(isset($alunos)){
-            return $alunos->whereHas('lancamento_fo', function($query){
-                        $query->where('fatd', 'S')->orWhere('frad', 'S');
-                    })->groupBy('alunos.id')->orderBy('alunos.numero')->get();
-        }else{
+        if (isset($alunos)) {
+            return $alunos->whereHas('lancamento_fo', function ($query) {
+                $query->where('fatd', 'S')->orWhere('frad', 'S');
+            })->groupBy('alunos.id')->orderBy('alunos.numero')->get();
+        } else {
             return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
                         FROM alunos
                         INNER JOIN lancamento_fo ON (lancamento_fo.aluno_id = alunos.id)
@@ -466,18 +466,18 @@ class RelatorioAlunoController extends Controller
                             AND ( lancamento_fo.fatd = 'S' OR lancamento_fo.frad = 'S')
                         GROUP BY alunos.id
                         ORDER BY alunos.numero");
-                    }
-        
+        }
     }
 
-    public function ViewRelacaoRodAlunos(Request $request){
+    public function ViewRelacaoRodAlunos(Request $request)
+    {
         $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
 
         $rota = 'relatorios.relacao-rod-aluno';
 
         $rotaGeral = 'relatorios.relacao-rod-geral';
-        
-        if(session()->has('login.qmsID')){
+
+        if (session()->has('login.qmsID')) {
             $idUeteCurso = $request->qmsID;
 
             $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id);
@@ -485,80 +485,80 @@ class RelatorioAlunoController extends Controller
             if ($request->qmsID != 'todas_qmss') {
                 $alunos = $alunos->where('qms_id', $request->qmsID);
             }
-    
+
             if (isset($request->numero_aluno)) {
                 $alunos = $alunos->where('numero', $request->numero_aluno);
             }
-    
+
             if (isset($request->nome_aluno)) {
-                $alunos = $alunos->where('nome_completo', 'like', '%'.strtoupper($request->nome_aluno).'%');
+                $alunos = $alunos->where('nome_completo', 'like', '%' . strtoupper($request->nome_aluno) . '%');
             }
 
             //Faz o Join para verificar se existe informacao para a FRAD
             $alunos = $this->selectAlunosRod($anoFormacao->id, null, $alunos);
-
-        }else{
+        } else {
             $idUeteCurso = $request->omctID;
 
             $where = '';
             if ($request->omctID != 'todas_omct') {
                 $where .= ' AND alunos.omcts_id = ' . $request->omctID;
             }
-    
+
             if (isset($request->numero_aluno)) {
                 $where .= ' AND alunos.numero = ' . $request->numero_aluno;
             }
-    
+
             if (isset($request->nome_aluno)) {
                 $where .= " AND alunos.nome_completo LIKE '%$request->nome_aluno%'";
             }
-           
+
             $alunos = $this->selectAlunosRod($anoFormacao->id, $where);
         }
-        
+
         return view('relatorios/ficha-rod-do-aluno', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idUeteCurso'));
     }
 
-    private function selectAlunosRod($idAnoFormacao, $where, $alunos=null)
+    private function selectAlunosRod($idAnoFormacao, $where, $alunos = null)
     {
-        
-        if(isset($alunos)){
-            return $alunos->whereHas('lancamento_fo', function($query) use($idAnoFormacao){
-                        $query->whereRaw($this->whereConteudoRod($idAnoFormacao, true));
-                    })->groupBy('alunos.id')->get();
-        }else{
+
+        if (isset($alunos)) {
+            return $alunos->whereHas('lancamento_fo', function ($query) use ($idAnoFormacao) {
+                $query->whereRaw($this->whereConteudoRod($idAnoFormacao, true));
+            })->groupBy('alunos.id')->get();
+        } else {
             return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
                                         FROM alunos
                                         INNER JOIN lancamento_fo ON (lancamento_fo.aluno_id = alunos.id)
                                             WHERE alunos.data_matricula = $idAnoFormacao
                                             $where
-                                            ".$this->whereConteudoRod($idAnoFormacao)."
+                                            " . $this->whereConteudoRod($idAnoFormacao) . "
                                         GROUP BY alunos.id");
         }
     }
 
-    private function whereConteudoRod($idAnoFormacao, $esa=false){
+    private function whereConteudoRod($idAnoFormacao, $esa = false)
+    {
         $parametros = Parametros::where('ano_formacao_id', $idAnoFormacao)->first();
 
         $conteudoAtitudinal = json_decode($parametros->conteudo_atitudinal_rod);
-        
-        if(is_null($conteudoAtitudinal)){
+
+        if (is_null($conteudoAtitudinal)) {
             $conteudoAtitudinal = [0];
         }
 
-        $whereRod = ($esa) ? ' ( ' : ' AND ( ';    
-        
+        $whereRod = ($esa) ? ' ( ' : ' AND ( ';
+
         $i = 0;
-        foreach($conteudoAtitudinal as $key => $item){
-            if($i > 0){
+        foreach ($conteudoAtitudinal as $key => $item) {
+            if ($i > 0) {
                 $whereRod .= ' OR ';
             }
-            $whereRod .= 'JSON_CONTAINS(lancamento_fo.conteudo_atitudinal, \''.$item.'\', \'$\')';
+            $whereRod .= 'JSON_CONTAINS(lancamento_fo.conteudo_atitudinal, \'' . $item . '\', \'$\')';
             $i++;
         }
-       
+
         $whereRod .= ' ) ';
-        
+
         return $whereRod;
     }
 
@@ -599,34 +599,33 @@ class RelatorioAlunoController extends Controller
 
         $alunos = array();
         if (isset($request->UeteCurso)) {
-            $ueteCursos = array('todas_omct','todas_qmss');
+            $ueteCursos = array('todas_omct', 'todas_qmss');
             $where = '';
 
-            if(session()->has('login.qmsID')){
+            if (session()->has('login.qmsID')) {
                 $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id);
-                
+
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $alunos = $alunos->where('qms_id', $request->UeteCurso);
                 }
                 //Faz o Join para verificar se existe informacao para a FRAD
                 $alunos = $this->selectAlunosFrad(null, null, $alunos);
-            }else{
+            } else {
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $where .= ' AND alunos.omcts_id = ' . $request->UeteCurso;
                 }
                 $alunos = $this->selectAlunosFrad($anoFormacao->id, $where);
             }
-
         } else {
             array_push($alunos, (object) array('id' => $request->aluno));
         }
 
         $conteudoAtitudinal = ConteudoAtitudinal::all();
 
-        if($request->relacao == 'excel'){
+        if ($request->relacao == 'excel') {
 
             return view('relatorios.relacao-ficha-registro-acompanhamento-discente', compact('alunos', 'anoFormacao', 'conteudoAtitudinal'))->with('relacao', $request->relacao);
-        }else{
+        } else {
             $pdf = new PDF('L');
             $pdf->SetAutoPageBreak(false);
 
@@ -650,17 +649,17 @@ class RelatorioAlunoController extends Controller
 
                 $pdf->Rect(250, 5, 25.2, 30.2);
 
-                if(is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))){
+                if (is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))) {
                     $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 250, 5, 25, 30);
-                }else{
+                } else {
                     $pdf->Image(public_path() . '/storage/imagens_aluno/no-image.jpg', 250, 5, 25, 30);
                 }
-                    
+
 
                 //Cria a Borda
                 $pdf->Rect(10, 41, 278, 23);
 
-                $pdf->Cell(0, 4, utf8_decode( ((session()->has('login.qmsID')) ? null: $aluno->omct->omct)  ), 0, 1, 'C', false);
+                $pdf->Cell(0, 4, utf8_decode(((session()->has('login.qmsID')) ? null : $aluno->omct->omct)), 0, 1, 'C', false);
 
                 $pdf->SetFont('Times', 'B', 12);
                 $pdf->ln(5);
@@ -674,9 +673,9 @@ class RelatorioAlunoController extends Controller
                 $pdf->SetXY(160, 46);
                 $pdf->Cell(48, 8, utf8_decode('Número: ' . $aluno->numero), 'B', 1, 'L', false);
                 $pdf->SetXY(210, 46);
-                $pdf->Cell(78, 8, utf8_decode('Curso: '. $aluno->qms->qms), 'B', 1, 'L', false);
+                $pdf->Cell(78, 8, utf8_decode('Curso: ' . $aluno->qms->qms), 'B', 1, 'L', false);
 
-                $pdf->Cell(78, 8, utf8_decode('Pel/Turma: ' . ( session()->has('login.qmsID') ? $aluno->turmaEsa->turma : $aluno->turma->turma )), 'B', 1, 'L', false);
+                $pdf->Cell(78, 8, utf8_decode('Pel/Turma: ' . (session()->has('login.qmsID') ? $aluno->turmaEsa->turma : $aluno->turma->turma)), 'B', 1, 'L', false);
 
                 //$pdf->Line(10, 65, 288, 65);
 
@@ -706,18 +705,18 @@ class RelatorioAlunoController extends Controller
                     }
 
                     $conteudo_atitudinal = substr($conteudo_atitudinal, 0, (strlen($conteudo_atitudinal) - 2));
-                    if($frad->cancelado == 'S'){
+                    if ($frad->cancelado == 'S') {
                         $pdf->SetTextColor(255, 165, 0);
-                    }elseif (isset($frad->fatdLancada)) {
+                    } elseif (isset($frad->fatdLancada)) {
                         $pdf->SetTextColor(255, 0, 0);
                     }
 
-                    if($frad->cancelado == 'S'){
+                    if ($frad->cancelado == 'S') {
                         $pdf->Row(array(FuncoesController::formatDateEntoBr($frad->data_obs), utf8_decode($frad->cancelado_motivo), 'Cancelado', 'Cancelado', 'Cancelado', utf8_decode($frad->operadorCancelado->postograd->postograd_abrev . ' ' . $frad->operadorCancelado->nome_guerra)));
-                    }else{
+                    } else {
                         $pdf->Row(array(FuncoesController::formatDateEntoBr($frad->data_obs), utf8_decode($frad->observacao), utf8_decode($conteudo_atitudinal), utf8_decode($frad->providencia), $fo, utf8_decode($frad->operador->postograd->postograd_abrev . ' ' . $frad->operador->nome_guerra)));
                     }
-                    
+
                     $pdf->SetTextColor(0, 0, 0);
                 }
             }
@@ -735,30 +734,29 @@ class RelatorioAlunoController extends Controller
         }
 
         $alunos = array();
-        
+
         if (isset($request->UeteCurso)) {
-            $ueteCursos = array('todas_omct','todas_qmss');
+            $ueteCursos = array('todas_omct', 'todas_qmss');
             $where = '';
-       
-            if(session()->has('login.qmsID')){
+
+            if (session()->has('login.qmsID')) {
                 $alunos = Alunos::retornaAlunosComQmsESAGeral($request->idAnoFormacao);
-                
+
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $alunos = $alunos->where('qms_id', $request->UeteCurso);
                 }
                 //Faz o Join para verificar se existe informacao para a FRAD
                 $alunos = $this->selectAlunosRod($request->idAnoFormacao, null, $alunos);
-            }else{
+            } else {
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $where .= ' AND alunos.omcts_id = ' . $request->UeteCurso;
                 }
                 $alunos = $this->selectAlunosRod($request->idAnoFormacao, $where);
             }
-
         } else {
             array_push($alunos, (object) array('id' => $request->aluno));
         }
-        
+
         $parametros = Parametros::where('ano_formacao_id', $request->idAnoFormacao)->first();
 
         $conteudoAtitudinal = json_decode($parametros->conteudo_atitudinal_rod);
@@ -771,27 +769,27 @@ class RelatorioAlunoController extends Controller
         $pdf->setTitle(utf8_decode('Relatório de Observação do Discente'));
 
         $limiteQuebra = 160;
-        
+
         foreach ($alunos as $key) {
 
             $aluno = Alunos::find($key->id);
 
             $pdf->setAluno($aluno);
-            
-            $aluno->load(['lancamento_fo' => function ($relation) use ($conteudoAtitudinal){
+
+            $aluno->load(['lancamento_fo' => function ($relation) use ($conteudoAtitudinal) {
 
                 $i = 0;
                 foreach ($conteudoAtitudinal as $conteudo) {
-                    if($i > 0){
+                    if ($i > 0) {
                         $relation->orWhereJsonContains('conteudo_atitudinal', $conteudo->id)->where([['cancelado', '=', 'N']]);
-                    }else{
+                    } else {
                         $relation->WhereJsonContains('conteudo_atitudinal', $conteudo->id)->where([['cancelado', '=', 'N']]);
                     }
                     $i++;
                 }
             }]);
 
-            
+
             $pdf->AddPage();
 
             $pdf->SetFont('Times', 'B', 10);
@@ -805,34 +803,34 @@ class RelatorioAlunoController extends Controller
 
             $pdf->Rect(250, 5, 25.2, 30.2);
 
-            $pdf->Cell(0, 4, utf8_decode( ((session()->has('login.qmsID')) ? null: $aluno->omct->omct)  ), 0, 1, 'C');
+            $pdf->Cell(0, 4, utf8_decode(((session()->has('login.qmsID')) ? null : $aluno->omct->omct)), 0, 1, 'C');
             $pdf->SetFont('Times', 'B', 12);
             $pdf->ln(5);
             $pdf->Cell(0, 4, utf8_decode('RELATÓRIO DE OBSERVAÇÃO DO DISCENTE'), 0, 1, 'C');
 
-            if(is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))){
+            if (is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))) {
                 $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 250, 5, 25, 30);
-            }else{
+            } else {
                 $pdf->Image(public_path() . '/storage/imagens_aluno/no-image.jpg', 250, 5, 25, 30);
             }
-            
+
 
             $pdf->SetXY(200, $pdf->getHorizontal());
 
             foreach ($conteudoAtitudinal as $conteudo) {
-                
-                if($pdf->getY() > 160){
+
+                if ($pdf->getY() > 160) {
                     $pdf->AddPage();
                 }
 
                 $pdf->SetFont('Times', 'B', 10);
                 $pdf->ln(5);
 
-                $pdf->SetFillColor(211,211,211);
+                $pdf->SetFillColor(211, 211, 211);
                 $pdf->Cell(278, 7, utf8_decode($conteudo->descricao), 1, 1, 'C', true);
 
                 $pdf->SetFont('Times', 'B', 8);
-                
+
                 $pdf->Cell(23, 7, 'Data', 1, 0, 'C');
                 $pdf->Cell(23, 7, 'FO', 1, 0, 'C');
                 $pdf->Cell(187, 7, utf8_decode('Situação a Ser Relatada/Observação Relevante'), 1, 0, 'C');
@@ -844,24 +842,24 @@ class RelatorioAlunoController extends Controller
                 $pdf->SetAligns(array('C', 'C', 'C'));
 
                 foreach ($aluno->lancamento_fo as $lancamento) {
-                    if(in_array($conteudo->id, json_decode($lancamento->conteudo_atitudinal))){
+                    if (in_array($conteudo->id, json_decode($lancamento->conteudo_atitudinal))) {
 
-                        if($pdf->getY() > 180){
+                        if ($pdf->getY() > 180) {
                             $pdf->AddPage();
                         }
 
                         $pdf->SetTextColor(0, 0, 0);
-                        if($lancamento->tipo == 0){
+                        if ($lancamento->tipo == 0) {
                             $pdf->SetTextColor(255, 0, 0);
                         }
 
-                        $pdf->Row(array(FuncoesController::formatDateEntoBr($lancamento->data_obs), ($lancamento->tipo == 0 ? 'NEGATIVO' : (($lancamento->tipo == 1) ? 'NEUTRO': 'POSITIVO')), utf8_decode($lancamento->observacao), null), 8);
+                        $pdf->Row(array(FuncoesController::formatDateEntoBr($lancamento->data_obs), ($lancamento->tipo == 0 ? 'NEGATIVO' : (($lancamento->tipo == 1) ? 'NEUTRO' : 'POSITIVO')), utf8_decode($lancamento->observacao), null), 8);
                     }
                 }
                 $pdf->SetTextColor(0, 0, 0);
             }
 
-            if((190 - $pdf->getY()) < 88){// se o final da folha menos a posição atual vertical seja menor que 88 adiciona página...
+            if ((190 - $pdf->getY()) < 88) { // se o final da folha menos a posição atual vertical seja menor que 88 adiciona página...
                 $pdf->AddPage();
             }
 
@@ -874,7 +872,7 @@ class RelatorioAlunoController extends Controller
             $pdf->SetFont('Times', 'U', 10);
 
             $pdf->Cell(245, 20, str_pad('', 150, ' '), 'L', 0, 'C');
-            
+
             $pdf->SetFont('Times', '', 10);
 
             $pdf->Cell(33, 10, '', 'L,R', 1, 'C');
@@ -887,8 +885,8 @@ class RelatorioAlunoController extends Controller
             $pdf->Cell(92.66, 8, utf8_decode('Nome e Assinatura do Adjunto de Pelotão'), 1, 0, 'C', true);
             $pdf->Cell(92.66, 8, utf8_decode('Nome e Assinatura do Comandante de Pelotão'), 1, 0, 'C', true);
             $pdf->Cell(92.66, 8, 'Nome e Assinatura do Instrutor Chefe do Curso/Companhia', 1, 1, 'C', true);
-            
-            
+
+
             $pdf->SetFont('Times', 'U', 10);
 
             $pdf->Cell(92.66, 20, str_pad('', 80, ' '), 'L,R', 0, 'C');
@@ -918,7 +916,7 @@ class RelatorioAlunoController extends Controller
         $rota = 'relatorios.ficha-disciplinar-aluno';
         $rotaGeral = 'relatorios.ficha-disciplinar-geral';
 
-        if(session()->has('login.qmsID')){
+        if (session()->has('login.qmsID')) {
             $idUeteCurso = $request->qmsID;
 
             $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id);
@@ -926,18 +924,18 @@ class RelatorioAlunoController extends Controller
             if ($request->qmsID != 'todas_qmss') {
                 $alunos = $alunos->where('qms_id', $request->qmsID);
             }
-    
+
             if (isset($request->numero_aluno)) {
                 $alunos = $alunos->where('numero', $request->numero_aluno);
             }
-    
+
             if (isset($request->nome_aluno)) {
-                $alunos = $alunos->where('nome_completo', 'like', '%'.strtoupper($request->nome_aluno).'%');
+                $alunos = $alunos->where('nome_completo', 'like', '%' . strtoupper($request->nome_aluno) . '%');
             }
 
             //Faz o Join para verificar se existe informacao para a FRAD
             $alunos = $this->selectAlunosFichaDisciplinar(null, null, $alunos);
-        }else{
+        } else {
             $idUeteCurso = $request->omctID;
 
             $where = '';
@@ -955,13 +953,13 @@ class RelatorioAlunoController extends Controller
 
             $alunos = $this->selectAlunosFichaDisciplinar($request->ano_formacao_id, $where);
         }
-        
+
         return view('admin/consulta/relacao-ficha-disciplinar', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idUeteCurso'));
     }
 
     public function ViewAudienciaFO(Request $request)
     {
-        
+
         $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
 
         $cursos = FuncoesController::retornaCursoPerfilAnoFormacao($anoFormacao);
@@ -974,11 +972,11 @@ class RelatorioAlunoController extends Controller
 
     public function ViewAlunoSemFoto(Request $request)
     {
-        
+
         $anoFormacao = AnoFormacao::whereId($request->id_ano_formacao)->get()->first();
 
         $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id)->doesntHave('imagem_aluno')->get()->sortBy('qms_id');
-        
+
         return view('admin.consulta.view-alunos-sem-foto', compact('anoFormacao', 'alunos'));
     }
 
@@ -992,29 +990,28 @@ class RelatorioAlunoController extends Controller
 
         $anoFormacao = AnoFormacao::find($request->idAnoFormacao);
         if (isset($request->UeteCurso)) {
-            $ueteCursos = array('todas_omct','todas_qmss');
+            $ueteCursos = array('todas_omct', 'todas_qmss');
             $where = '';
-       
-            if(session()->has('login.qmsID')){
+
+            if (session()->has('login.qmsID')) {
                 $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id);
-                
+
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $alunos = $alunos->where('qms_id', $request->UeteCurso);
                 }
                 //Faz o Join para verificar se existe informacao para a FRAD
                 $alunos = $this->selectAlunosFichaDisciplinar(null, null, $alunos);
-            }else{
+            } else {
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $where .= ' AND alunos.omcts_id = ' . $request->UeteCurso;
                 }
                 $alunos = $this->selectAlunosFichaDisciplinar($anoFormacao->id, $where);
             }
-
-        }else{
+        } else {
             array_push($alunos, (object) array('id' => $request->aluno));
         }
 
-        if($request->relacao == 'excel'){
+        if ($request->relacao == 'excel') {
 
             foreach ($alunos as $key) {
                 $fatds = Fatd::whereHas('lancamentoFo', function ($query) use ($key) {
@@ -1025,55 +1022,54 @@ class RelatorioAlunoController extends Controller
             }
 
             return view('relatorios.relacao-ficha-disciplinar-individual', compact('alunos', 'anoFormacao'))->with('relacao', $request->relacao);
-
-        }else{
+        } else {
             $pdf = new PDF_Footer('L');
             $pdf->SetAutoPageBreak(true, 25);
             $pdf->AliasNbPages();
             //$pdf->SetMargins();
-    
+
             foreach ($alunos as $key) {
-    
+
                 //$aluno = Alunos::find($key->id);
-    
+
                 $fatds = Fatd::whereHas('lancamentoFo', function ($query) use ($key) {
                     $query->where(['aluno_id' => $key->id]);
                 })->with('lancamentoFo')->get();
-    
+
                 $aluno = $fatds[0]->lancamentoFo->aluno;
-    
+
                 $pdf->AddPage();
-    
+
                 $pdf->SetFont('Times', 'B', 10);
-    
+
                 $pdf->SetXY(10, 11);
                 $pdf->Cell(0, 4, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
                 $pdf->Cell(0, 4, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
                 $pdf->Cell(0, 4, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
                 $pdf->Cell(0, 4, '(ESCOLA SARGENTO MAX WOLFF FILHO)', 0, 1, 'C', false);
                 $pdf->SetFont('Times', 'B', 8);
-    
+
                 $pdf->Rect(229.6, 56.9, 36.0, 40.5);
-    
-                if(is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))){
-                    $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 230, 57, 35, 40);    
-                }else{
+
+                if (is_file(public_path() . '/storage/imagens_aluno/' . ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo))) {
+                    $pdf->Image(public_path() . '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12) ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo) : 'no-image.jpg'), 230, 57, 35, 40);
+                } else {
                     $pdf->Image(public_path() . '/storage/imagens_aluno/no-image.jpg', 230, 57, 35, 40);
                 }
-                
-    
-                $pdf->Cell(0, 4, utf8_decode( ((session()->has('login.qmsID')) ? null: $aluno->omct->omct)  ), 0, 1, 'C', false);
-    
+
+
+                $pdf->Cell(0, 4, utf8_decode(((session()->has('login.qmsID')) ? null : $aluno->omct->omct)), 0, 1, 'C', false);
+
                 $pdf->SetFont('Times', 'B', 12);
                 $pdf->ln(5);
                 $pdf->Cell(0, 4, utf8_decode('FICHA DISCIPLINAR INDIVIDUAL'), 0, 1, 'C', false);
-    
+
                 $pdf->SetFont('Times', 'B', 10);
-    
+
                 $pdf->ln(10);
-    
+
                 $pdf->Cell(0, 4, utf8_decode('1. IDENTIFICAÇÃO DO MILITAR'), 0, 1, 'L', false);
-    
+
                 $pdf->ln(5);
                 $pdf->SetFillColor(230, 230, 230);
                 $pdf->Cell(40, 6, utf8_decode('Número do Aluno'), 1, 0, 'L', true);
@@ -1099,57 +1095,63 @@ class RelatorioAlunoController extends Controller
                 /*$pdf->Cell(40, 6, utf8_decode('Prec-CP'), 1, 0, 'L', true);
                 $pdf->SetFont('Times', '', 10);
                 $pdf->Cell(120, 6, utf8_decode($aluno->doc_preccp), 1, 1, 'L', true);*/
-    
+
                 $pdf->ln(10);
-    
+
                 $pdf->SetFont('Times', 'B', 10);
                 $pdf->Cell(0, 4, utf8_decode('2. PUNIÇÕES DISCIPLINARES'), 0, 1, 'L', false);
-    
+
                 $pdf->SetFont('Times', 'B', 8);
                 $pdf->ln(5);
                 $pdf->Cell(14, 7, utf8_decode('Nr Punição'), 1, 0, 'C');
                 $pdf->Cell(13, 7, utf8_decode('Data'), 1, 0, 'C');
                 $pdf->Cell(40, 7, utf8_decode('Punição (art.24 do RDE)'), 1, 0, 'C');
                 $pdf->Cell(10, 7, utf8_decode('Nr Dias'), 1, 0, 'C');
-                $pdf->Cell(100, 7, utf8_decode('Enquadramento (Anexo I do RDE)'), 1, 0, 'C');
+                $pdf->Cell(100, 7, utf8_decode('Descrição do Fato e Enquadramento (Anexo I do RDE)'), 1, 0, 'C');
                 $pdf->Cell(70, 7, utf8_decode('BI e OM'), 1, 0, 'C');
                 $pdf->Cell(25, 7, utf8_decode('Comportamento'), 1, 1, 'C');
-    
+
                 $pdf->SetFont('Times', '', 6);
-    
+
                 $pdf->SetWidths(array(14, 13, 40, 10, 100, 70, 25));
                 $pdf->SetAligns(array('C', 'L', 'C', 'C', 'L', 'L', 'C'));
-    
+
                 foreach ($fatds as $fatd) {
-    
+
                     $justificado = (($fatd->justificado == 'N') ? 'Não' : (($fatd->justificado == 'S') ? 'Sim' : null));
-    
+
                     $pdf->Row(array(
-                        $fatd->nr_processo, FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs), utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)), utf8_decode((isset($fatd->nr_dias) ? $fatd->nr_dias : 0)), utf8_decode($fatd->enquadramento), utf8_decode($fatd->bi_desc), utf8_decode((isset($fatd->comportamento) ? $fatd->comportamento->comportamento : null))
+                        $fatd->nr_processo,
+                        FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs),
+                        utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)),
+                        utf8_decode((isset($fatd->nr_dias) ? $fatd->nr_dias : 0)), 
+                        utf8_decode($fatd->lancamentoFo->observacao.chr(10).'-------------------------------------------------------------------------------------------------------------------------------------------'.$fatd->enquadramento),
+                        utf8_decode($fatd->bi_desc),
+                        utf8_decode((isset($fatd->comportamento) ? $fatd->comportamento->comportamento : null))
                     ));
                 }
-    
+
                 $pdf->ln(10);
-    
+
                 $pdf->SetFont('Times', 'B', 10);
                 $pdf->Cell(0, 4, utf8_decode('3. ANULAÇÃO OU CANCELAMENTO DE PUNIÇÕES DISCIPLINARES'), 0, 1, 'L', false);
                 $pdf->SetFont('Times', '', 10);
                 $pdf->ln(3);
                 $pdf->Cell(0, 4, utf8_decode((isset($aluno->anulacaoCancelamento) ? $aluno->anulacaoCancelamento : 'Sem alterações ou cancelamentos de punições disciplinares')), 1, 1, 'L', false);
                 $pdf->SetFont('Times', 'B', 8);
-    
-    
+
+
                 $pdf->ln(10);
-    
+
                 $pdf->SetFont('Times', 'B', 10);
                 $pdf->Cell(0, 4, utf8_decode('4. RECURSOS DISCIPLINARES'), 0, 1, 'L', false);
                 $pdf->SetFont('Times', '', 10);
                 $pdf->ln(3);
                 $pdf->Cell(0, 4, utf8_decode((isset($aluno->recursosDisciplinares) ? $aluno->recursosDisciplinares : 'Sem recursos disciplinares')), 1, 1, 'L', false);
                 $pdf->SetFont('Times', 'B', 8);
-    
+
                 $pdf->ln(10);
-    
+
                 $pdf->SetFont('Times', 'B', 10);
                 $pdf->Cell(0, 4, utf8_decode('5. RECOMPENSAS'), 0, 1, 'L', false);
                 $pdf->SetFont('Times', '', 10);
@@ -1159,11 +1161,11 @@ class RelatorioAlunoController extends Controller
 
                 $pdf->SetFont('Times', '', 12);
                 $pdf->ln(15); //$pdf->SetXY(0, 100);
-                $pdf->WriteHTML(utf8_decode('<p align="center">'.str_pad(' ',(strlen($aluno->nome_completo)+strlen($aluno->ano_formacao->ano_cfs)+strlen( ' - Aluno(a) CFGS/' )+10),"_").'</p>'));
+                $pdf->WriteHTML(utf8_decode('<p align="center">' . str_pad(' ', (strlen($aluno->nome_completo) + strlen($aluno->ano_formacao->ano_cfs) + strlen(' - Aluno(a) CFGS/') + 10), "_") . '</p>'));
                 $pdf->WriteHTML('<p align="center">' . strtoupper(utf8_decode(trim($aluno->nome_completo))) . ' - Aluno(a) CFGS/' . $aluno->ano_formacao->ano_cfs . '</p>');
                 //$pdf->SetXY(0, 300); //275
                 //$pdf->WriteHTML('<b><p align="center">Arrolado(a)</p></b>');
-                
+
             }
 
             //$pdffooter = new PDF_Footer();
@@ -1173,21 +1175,19 @@ class RelatorioAlunoController extends Controller
             //$pdf->SetFont('Times','',12);
 
             $pdf->Output('I', 'Ficha_Disciplinar.pdf');
-    
+
             exit();
         }
-
     }
 
-    private function selectAlunosFichaDisciplinar($idAnoFormacao, $where, $alunos=null)
+    private function selectAlunosFichaDisciplinar($idAnoFormacao, $where, $alunos = null)
     {
-        
-        if(isset($alunos)){
-            return $alunos->whereHas('lancamento_fo', function($query) {
-                        $query->whereHas('fatdLancada', function($query2){
-                        });
-                    })->groupBy('alunos.id')->orderBy('alunos.numero')->get();
-        }else{
+
+        if (isset($alunos)) {
+            return $alunos->whereHas('lancamento_fo', function ($query) {
+                $query->whereHas('fatdLancada', function ($query2) {});
+            })->groupBy('alunos.id')->orderBy('alunos.numero')->get();
+        } else {
             return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
                                     FROM alunos
                                     INNER JOIN lancamento_fo ON (lancamento_fo.aluno_id = alunos.id)
@@ -1214,14 +1214,14 @@ class RelatorioAlunoController extends Controller
         $rotaGeral = 'relatorios.ficha-aluno-punido-geral';
         $dadosRota = (object) array('punido' => $request->punicao, 'comportamento' => $request->comportamento);
 
-        if(isset($request->qmsID)){
+        if (isset($request->qmsID)) {
             $idCurso = $request->qmsID;
 
             $where = '';
             if ($idCurso != 'todas_qmss') {
                 $where .= ' AND alunos.qms_id = ' . $idCurso;
             }
-        }else{
+        } else {
             $idOmct = $request->omctID;
 
             $where = '';
@@ -1248,12 +1248,11 @@ class RelatorioAlunoController extends Controller
 
         $alunos = $this->selectAlunosFichaDisciplinar($request->ano_formacao_id, $where);
 
-        if(isset($idCurso)){
+        if (isset($idCurso)) {
             return view('admin/consulta/relacao-ficha-punido', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idCurso', 'dadosRota'));
-        }else{
+        } else {
             return view('admin/consulta/relacao-ficha-punido', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idOmct', 'dadosRota'));
         }
-        
     }
 
     public function ViewRelacaoAlunoReprovado(Request $request)
@@ -1261,41 +1260,41 @@ class RelatorioAlunoController extends Controller
 
         /*if ($this->ownauthcontroller->PermissaoCheck(1)) {*/
 
-            $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
+        $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
 
-            $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
+        $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);
 
-            foreach($uetes as $uete){
-                $ueteIds[] = $uete->id;
-            }
-            // SELECIONANDO TODAS AS AREAS
-            $areas = Areas::whereNotIn('id', [4, 5])->get();
+        foreach ($uetes as $uete) {
+            $ueteIds[] = $uete->id;
+        }
+        // SELECIONANDO TODAS AS AREAS
+        $areas = Areas::whereNotIn('id', [4, 5])->get();
 
-            // SELECIONANDO DISCIPLINAS
-            $disciplinas = Disciplinas::where('ano_formacao_id', $anoFormacao->id)->get();
+        // SELECIONANDO DISCIPLINAS
+        $disciplinas = Disciplinas::where('ano_formacao_id', $anoFormacao->id)->get();
 
-            $param['anoFormacao'] = $anoFormacao;
-            $param['uetes'] = $ueteIds;
+        $param['anoFormacao'] = $anoFormacao;
+        $param['uetes'] = $ueteIds;
 
-            $alunosClassificacao = AlunosClassificacao::where([['reprovado', '=', 'S']])->whereHas('aluno', function ($q) use ($param) {
-                $q->where([['data_matricula', '=', $param['anoFormacao']->id]])
-                    ->whereIn('omcts_id', $param['uetes']);
-            })->orderBy('nota_final', 'desc')->get();
+        $alunosClassificacao = AlunosClassificacao::where([['reprovado', '=', 'S']])->whereHas('aluno', function ($q) use ($param) {
+            $q->where([['data_matricula', '=', $param['anoFormacao']->id]])
+                ->whereIn('omcts_id', $param['uetes']);
+        })->orderBy('nota_final', 'desc')->get();
 
-            foreach($alunosClassificacao as $nota){
+        foreach ($alunosClassificacao as $nota) {
 
-                $notas_array[] = ''.$nota->nota_final.'';
-                $notas_data_array[$nota->aluno_id] = array(
-                    "NPB" => $nota->nota_final,
-                    "data_demonstrativo" => unserialize($nota->data_demonstrativo)
-                ); 
-            }
+            $notas_array[] = '' . $nota->nota_final . '';
+            $notas_data_array[$nota->aluno_id] = array(
+                "NPB" => $nota->nota_final,
+                "data_demonstrativo" => unserialize($nota->data_demonstrativo)
+            );
+        }
 
-            $mencoes = Mencoes::get();
+        $mencoes = Mencoes::get();
 
-            $this->classLog->RegistrarLog('Acessou o Relatório de Alunos Reprovados.', auth()->user()->email);
+        $this->classLog->RegistrarLog('Acessou o Relatório de Alunos Reprovados.', auth()->user()->email);
 
-            return view('relatorios/relacao-aluno-reprovado', compact('anoFormacao', 'alunosClassificacao', 'areas', 'disciplinas', 'mencoes', 'notas_data_array'));
+        return view('relatorios/relacao-aluno-reprovado', compact('anoFormacao', 'alunosClassificacao', 'areas', 'disciplinas', 'mencoes', 'notas_data_array'));
 
         /*} else {
             $this->classLog->RegistrarLog('Teve acesso negado ao tenter acessar o Relatório de Alunos Reprovados.', auth()->user()->email);
@@ -1312,32 +1311,32 @@ class RelatorioAlunoController extends Controller
 
         $alunos = array();
 
-        if(isset($request->omct) || isset($request->idCurso)){
+        if (isset($request->omct) || isset($request->idCurso)) {
             if (isset($request->omct)) {
                 $where = '';
                 if ($request->omct != 'todas_omct') {
                     $where .= ' AND alunos.omcts_id = ' . $request->omct;
-                } 
-            }else{
+                }
+            } else {
                 $where = '';
                 if ($request->idCurso != 'todas_qmss') {
                     $where .= ' AND alunos.qms_id = ' . $request->idCurso;
-                } 
+                }
             }
 
             if (isset($request->punido)) {
                 $where .= ' AND fatd.enquadramento_id = ' . $request->punido;
             }
-    
+
             if (isset($request->comportamento)) {
                 $where .= ' AND fatd.comportamento_id = ' . $request->comportamento;
             }
 
             $alunos = $this->selectAlunosFichaDisciplinar($request->idAnoFormacao, $where);
-        }else{
+        } else {
             array_push($alunos, (object) array('id' => $request->aluno));
         }
-        
+
         $pdf = new PDF('L');
         $pdf->SetAutoPageBreak(true);
         $pdf->AddPage();
@@ -1352,13 +1351,13 @@ class RelatorioAlunoController extends Controller
 
         $pdf->SetFont('Times', 'B', 12);
         $pdf->ln(5);
-        $pdf->Cell(0, 4, utf8_decode('RELATÓRIO DE PUNIÇÕES DE ALUNOS NO PERÍODO '.((isset($request->idCurso)) ? 'QUALIFICAÇÃO': 'BÁSICO').' DO CFGS'), 0, 1, 'C', false);
+        $pdf->Cell(0, 4, utf8_decode('RELATÓRIO DE PUNIÇÕES DE ALUNOS NO PERÍODO ' . ((isset($request->idCurso)) ? 'QUALIFICAÇÃO' : 'BÁSICO') . ' DO CFGS'), 0, 1, 'C', false);
 
         $pdf->SetFont('Times', 'B', 6);
         $pdf->ln(5);
         $pdf->SetFillColor(230, 230, 230);
         $pdf->Cell(14, 7, utf8_decode('Data'), 1, 0, 'C', 1);
-        if(isset($request->idCurso)){
+        if (isset($request->idCurso)) {
             $pdf->Cell(15, 7, utf8_decode('Curso'), 1, 0, 'C', 1);
         }
         $pdf->Cell(13, 7, utf8_decode('UETE'), 1, 0, 'C', 1);
@@ -1373,14 +1372,14 @@ class RelatorioAlunoController extends Controller
 
         $pdf->SetFont('Times', '', 6);
 
-        if(isset($request->idCurso)){
+        if (isset($request->idCurso)) {
             $pdf->SetWidths(array(14, 15, 13, 10, 30, 75, 20, 10, 60, 10, 20));
             $pdf->SetAligns(array('C', 'C', 'C', 'C', 'C', 'C'));
-        }else{
+        } else {
             $pdf->SetWidths(array(14, 13, 10, 30, 75, 20, 10, 60, 10, 20));
             $pdf->SetAligns(array('C', 'C', 'C', 'C', 'L', 'C'));
         }
-        
+
         $where = array();
 
         if (isset($request->punido)) {
@@ -1392,21 +1391,40 @@ class RelatorioAlunoController extends Controller
         }
 
         foreach ($alunos as $key) {
-           
+
             $fatds = Fatd::where($where)->whereHas('lancamentoFo', function ($query) use ($key) {
                 $query->where(['aluno_id' => $key->id]);
             })->with('lancamentoFo')->get();
-            
+
             $aluno = $fatds[0]->lancamentoFo->aluno;
-            
+
             foreach ($fatds as $fatd) {
-                if(isset($request->idCurso)){
+                if (isset($request->idCurso)) {
                     $pdf->Row(array(
-                        FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs), $aluno->qms->qms, utf8_decode($aluno->omct->sigla_omct), $aluno->numero, utf8_decode($aluno->nome_guerra), utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)), null, $fatd->nr_dias, utf8_decode($fatd->enquadramento), utf8_decode($fatd->bi_desc), utf8_decode((isset($fatd->comportamento_id) ? $fatd->comportamento->comportamento : null))
+                        FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs),
+                        $aluno->qms->qms,
+                        utf8_decode($aluno->omct->sigla_omct),
+                        $aluno->numero,
+                        utf8_decode($aluno->nome_guerra),
+                        utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)),
+                        null,
+                        $fatd->nr_dias,
+                        utf8_decode($fatd->enquadramento),
+                        utf8_decode($fatd->bi_desc),
+                        utf8_decode((isset($fatd->comportamento_id) ? $fatd->comportamento->comportamento : null))
                     ));
-                }else{
+                } else {
                     $pdf->Row(array(
-                        FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs), utf8_decode($aluno->omct->sigla_omct), $aluno->numero, utf8_decode($aluno->nome_guerra), utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)), null, $fatd->nr_dias, utf8_decode($fatd->enquadramento), utf8_decode($fatd->bi_desc), utf8_decode((isset($fatd->comportamento_id) ? $fatd->comportamento->comportamento : null))
+                        FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs),
+                        utf8_decode($aluno->omct->sigla_omct),
+                        $aluno->numero,
+                        utf8_decode($aluno->nome_guerra),
+                        utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)),
+                        null,
+                        $fatd->nr_dias,
+                        utf8_decode($fatd->enquadramento),
+                        utf8_decode($fatd->bi_desc),
+                        utf8_decode((isset($fatd->comportamento_id) ? $fatd->comportamento->comportamento : null))
                     ));
                 }
             }
@@ -1416,9 +1434,10 @@ class RelatorioAlunoController extends Controller
         exit();
     }
 
-    public function Download(Request $request){
+    public function Download(Request $request)
+    {
 
-        $file= storage_path('app/public/temp/').$request->arquivo;
+        $file = storage_path('app/public/temp/') . $request->arquivo;
 
         return response()->download($file, $request->arquivo, [], 'inline');
     }
