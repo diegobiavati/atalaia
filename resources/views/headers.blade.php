@@ -68,5 +68,18 @@
 
 </script>
 
+<!-- Footer -->
+<footer class="page-footer">
+    <div class="footer-copyright py-3">
+
+        <div class="footer-center">
+            <span class="badge badge-secondary">© ESA / DE</span>
+            <span class="badge badge-dark"> 2020 / {{ date('Y') }} </span>
+        </div>
+
+        <span class="badge badge-info">Desenvolvido pelo 1º Ten João Victor</span>
+    </div>
+</footer>
+<!-- Footer -->
 </body>
 </html>

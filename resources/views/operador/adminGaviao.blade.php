@@ -56,6 +56,28 @@
         background-color: {{$backgroundVisaoGeral}};
     }
 
+    footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        z-index: 10;
+        background: {{ $backgroundColor }}
+    }
+
+    .footer-copyright {
+        display: flex;
+        justify-content: space-between; /* Mantém o espaçamento entre os elementos */
+        align-items: center; /* Centraliza verticalmente */
+        text-align: center;
+    }
+
+    .footer-center {
+        flex: 1; /* Ocupa todo o espaço disponível */
+        text-align: center; /* Centraliza o texto */
+    }
+
 </style>
 
 @if($ownauthcontroller->PermissaoCheck(1))
