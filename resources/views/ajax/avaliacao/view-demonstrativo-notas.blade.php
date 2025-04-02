@@ -1,4 +1,6 @@
-@include('ajax.componenteSelectUeteCurso')
+<div style="padding: 0px 180px; margin-bottom: 10px;">
+    @include('ajax.componenteSelectUeteCurso')
+</div>
 
 <div style="margin: 32px auto; text-align: center; ">
     <button id="submit-demonstrativo" type="button" class="btn btn-primary" style="display: none;">Visualizar Demonstrativo</button>

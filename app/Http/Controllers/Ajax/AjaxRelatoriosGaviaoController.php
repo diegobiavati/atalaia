@@ -63,8 +63,11 @@ class AjaxRelatoriosGaviaoController extends Controller
 
         $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($idAnoFormacao));
 
-        $urlVisualizacao = 'ajax/relatorios/demonstrativo-notas/' . $idAnoFormacao . '/';
+        $urlVisualizacao = 'ajax/relatorios/demonstrativo-notas/';
 
+        return view('ajax.avaliacao.view-demonstrativo-notas', compact('ownauthcontroller', 'cursos', 'urlVisualizacao'));
+
+        /*
         $capitaniMSAccess = CapitaniMSAccess::whereHas('aluno', function ($q) use ($idAnoFormacao) {
             $q->where([['data_matricula', '=', $idAnoFormacao]])->orWhere([['ano_formacao_reintegr_id', '=', $idAnoFormacao]]);
         })->get();
@@ -73,7 +76,7 @@ class AjaxRelatoriosGaviaoController extends Controller
             return view('ajax.avaliacao.view-demonstrativo-notas', compact('ownauthcontroller', 'cursos', 'urlVisualizacao'));
         } else {
             return '<div>Sem Notas de Alunos Nesse Período</div>';
-        }
+        }*/
     }
 
     public function analiseResultadoProva()

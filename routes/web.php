@@ -462,7 +462,8 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('download-pdf/{arquivo}', 'Relatorios\RelatorioAlunoController@Download');
 
         //SSAA
-        Route::post('demonstrativo-notas/{id_ano_formacao}/{curso_id}/', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
+        //Route::post('demonstrativo-notas/{id_ano_formacao}/{curso_id}/', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
+        Route::post('demonstrativo-notas/{curso_id}', 'Ajax\AjaxAdminGaviaoController@DemonstrativoNotasGaviao');
         Route::get('analise-resultado-prova/{avaliacaoID}', 'Relatorios\RelatoriosSSAAController@analiseResultadoProvas');
         Route::get('avaliacao-recuperacao/{disciplinaID}', 'Relatorios\RelatoriosSSAAController@AvaliacoesRecuperacao');
         Route::get('assinatura/{id_assinatura}', 'Relatorios\RelatoriosSSAAController@mostrarAssinatura')->name('assinatura.mostrar');

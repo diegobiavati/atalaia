@@ -444,7 +444,7 @@ class AjaxAdminGaviaoController extends Controller
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
         } else {
             $relatorioSSAA = new RelatoriosSSAAController($request, $ownauthcontroller);
-            return $relatorioSSAA->DemonstrativoNotasGaviao($request->id_ano_formacao, $request->curso_id);
+            return $relatorioSSAA->DemonstrativoNotasGaviao($request->curso_id);
         }
     }
 

@@ -12,7 +12,8 @@ class QMS extends Model
 
     public $timestamps = false;
 
-    public function escolhaQms(){
+    public function escolhaQms()
+    {
         return $this->hasOne('App\Models\EscolhaQMS', 'id', 'escolha_qms_id');
     }
 
@@ -26,10 +27,15 @@ class QMS extends Model
         return $this->belongsTo('App\Models\QMSMatriz', 'qms_matriz_id', 'id');
     }
 
-    public function consultaTurmas(){
+    public function alunos() {
+        return $this->hasMany('App\Models\Alunos', 'qms_id', 'id');
+    }
+
+    public function consultaTurmas()
+    {
         return TurmasEsa::whereHas('alunos', function ($query) {
             $anoFormacao = $this->escolhaQms->anoFormacao;
-            $query->where(['qms_id' => $this->id])->where(function($query) use ($anoFormacao){
+            $query->where(['qms_id' => $this->id])->where(function ($query) use ($anoFormacao) {
                 return $query->where([['data_matricula', '=', $anoFormacao->id]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacao->id]]);
             });
         })->get();

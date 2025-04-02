@@ -9,12 +9,12 @@ class EsaDisciplinas extends Model
     protected $connection = 'mysql_ssaa';
     protected $table = 'esa_disciplinas';
     protected $fillable = ['id_qms', 'nome_disciplina', 'nome_disciplina_abrev', 'carga_horaria', 'tipo_disciplina', 'tfm'];
-    
+
     private $_tipos_disciplinas = null;
 
     public function __construct()
     {
-        $this->_tipos_disciplinas = collect([(object)['id' => 'C', 'descricao' => 'Comum'], (object)['id' => 'E', 'descricao' => 'Específicas']]);
+        $this->_tipos_disciplinas = collect([(object)['id' => 'C', 'descricao' => 'Comum'], (object)['id' => 'E', 'descricao' => 'Específicas'], (object)['id' => 'A', 'descricao' => 'Acadêmicas']]);
     }
 
     public function qms()
@@ -34,6 +34,8 @@ class EsaDisciplinas extends Model
                 return '(Comum)';
             case 'E':
                 return '(Específicas)';
+            case 'A':
+                return '(Acadêmicas)';
         }
     }
 
@@ -52,7 +54,8 @@ class EsaDisciplinas extends Model
         return $this->_tipos_disciplinas;
     }
 
-    public function esaAvaliacoesDemonstrativos(){
+    public function esaAvaliacoesDemonstrativos()
+    {
         return $this->hasMany(EsaAvaliacoesDemonstrativo::class, 'id_esa_disciplinas', 'id');
     }
 }

@@ -35,7 +35,9 @@ class ControllerCalendario extends Controller
             $mesportuguese = $this->portuguese_month($mes);
             $mes = $data['month'];
 
-            $this->_request->session()->flash('url_mes_calendario', $this->_request->url());
+            $this->_request->session()->forget('url_mes_calendario');
+            $this->_request->session()->put('url_mes_calendario', $this->_request->url());
+            //$this->_request->session()->flash('url_mes_calendario', $this->_request->url());
             
             return view("ssaa.calendario.calendario", [
                 'data' => $data,

@@ -4,16 +4,12 @@ namespace App\Http\Controllers\SSAA\Avaliacao;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
-use App\Http\Controllers\Utilitarios\FuncoesController;
-use App\Models\AnoFormacao;
-use App\Models\Avaliacoes;
 use App\Models\EsaAvaliacoes;
 use App\Models\EsaAvaliacoesDemonstrativo;
 use App\Models\EsaDisciplinas;
-use App\Models\EscolhaQMS;
-use App\Models\QMS;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
+
 use Illuminate\Support\Facades\Log;
 
 class ControllerResultados extends Controller
@@ -49,7 +45,8 @@ class ControllerResultados extends Controller
 
         $esaDisciplinas = EsaDisciplinas::find($this->_request->disciplinaID);
 
-        $esaAvaliacoes = $esaDisciplinas->esaAvaliacoes->whereNotIn('nome_avaliacao', $param);
+        //$esaAvaliacoes = $esaDisciplinas->esaAvaliacoes->whereNotIn('nome_avaliacao', $param);
+        $esaAvaliacoes = $esaDisciplinas->esaAvaliacoes;
 
         $turmaAlunoAvaliacao = [];
 
@@ -84,17 +81,23 @@ class ControllerResultados extends Controller
 
                         $avaliacoes_resultados['avaliacoes'][] = ['id_esa_avaliacao' => $avaliacao->id_esa_avaliacoes, 'nota' => (float)$avaliacao->nota, 'peso' => (float)0.0];
                     } else {
-                        $arrayCalc[$avaliacao->esaAvaliacoes->nome_avaliacao][] = ($avaliacao->nota * $avaliacao->esaAvaliacoes->peso);
+
+                        if (in_array($avaliacao->esaAvaliacoes->nome_avaliacao, $aas)) {
+                            $arrayCalc['AA'][] = ($avaliacao->nota * $avaliacao->esaAvaliacoes->peso);
+                        } else if (in_array($avaliacao->esaAvaliacoes->nome_avaliacao, $acs)) {
+                            $arrayCalc['AC'][] = ($avaliacao->nota * $avaliacao->esaAvaliacoes->peso);
+                        }
+
                         $arrayCalc['peso'] = $arrayCalc['peso'] + $avaliacao->esaAvaliacoes->peso;
 
                         $avaliacoes_resultados['avaliacoes'][] = ['id_esa_avaliacao' => $avaliacao->id_esa_avaliacoes, 'nota' => (float)$avaliacao->nota, 'peso' => (float)$avaliacao->esaAvaliacoes->peso];
                     }
                 }
 
-                if ($avaliacao_recuperacao){
+                if ($avaliacao_recuperacao) {
                     $avaliacoes_resultados['ND_AR'] = number_format((array_sum($arrayCalc['AR']) >= 5 ? 5.0 : array_sum($arrayCalc['AR'])), 3);
                 }
-                
+
                 $avaliacoes_resultados['ND'] = (float) number_format((array_sum($arrayCalc['AA']) + array_sum($arrayCalc['AC'])) / $arrayCalc['peso'], 3);
 
                 EsaAvaliacoesDemonstrativo::updateOrCreate(
@@ -132,5 +135,63 @@ class ControllerResultados extends Controller
             ]);
 
         return $filtro;
+    }
+
+    public static function getResultadosDemonstrativo($json)
+    {
+        $json = json_decode($json, true);
+
+        $retorno = collect();
+
+        $retorno->put('NDC', (isset($json['ND_AR']) ? $json['ND_AR'] : $json['ND']));
+        $retorno->put('NDF', $retorno['NDC']);
+
+        collect($json['avaliacoes'])->each(function ($valor, $chave) use ($retorno) {
+            $avaliacao = EsaAvaliacoes::find($valor['id_esa_avaliacao']);
+
+            switch ($avaliacao->nome_avaliacao) {
+                case 'AA':
+                    $retorno->put('AA_A1', $valor['nota']);
+                    break;
+                case 'AA1':
+                    $retorno->put('AA_A1', $valor['nota']);
+                    break;
+                case 'AA2':
+                    $retorno->put('AA2', $valor['nota']);
+                    break;
+                case 'AA3':
+                    $retorno->put('AA3', $valor['nota']);
+                    break;
+                case 'AF':
+                    $retorno->put('AF1', $valor['nota']);
+                    break;
+                case 'AF1':
+                    $retorno->put('AF1', $valor['nota']);
+                    break;
+                case 'AF2':
+                    $retorno->put('AF2', $valor['nota']);
+                    break;
+                case 'AC':
+                    $retorno->put('AC_AI', $valor['nota']);
+                    break;
+                case 'AC1':
+                    $retorno->put('AC_AI', $valor['nota']);
+                    break;
+                case 'AC2':
+                    $retorno->put('AC2', $valor['nota']);
+                    break;
+                case 'AR':
+                    $retorno->put('AR', $valor['nota']);
+                    break;
+                case 'AI':
+                    $retorno->put('AC_AI', $valor['nota']);
+                    break;
+                case 'AD':
+                    $retorno->put('AD', $valor['nota']);
+                    break;
+            }
+        });
+
+        return (object)$retorno->all();
     }
 }

@@ -281,6 +281,10 @@ class Alunos extends Model
         return $this->hasMany('App\Models\CapitaniMSAccess', 'aluno_id', 'id');
     }
 
+    public function esaAvaliacoesDemonstrativo(){
+        return $this->hasMany('App\Models\EsaAvaliacoesDemonstrativo', 'id_aluno', 'id');
+    }
+
     public function nascimento()
     {
         if ($this->data_nascimento) {
