@@ -327,7 +327,7 @@ FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $
                 }
             }
 
-            $mapaEfetivo[$i]->em_total = ((($mapaEfetivo[$i]->em_1mtcl + $mapaEfetivo[$i]->em_mtcl_adiam) + $mapaEfetivo[$i]->em_2mtcl) + $mapaEfetivo[$i]->em_mtcl_ord_jud);
+            $mapaEfetivo[$i]->em_total = ((($mapaEfetivo[$i]->em_1mtcl + $mapaEfetivo[$i]->em_mtcl_adiam) + $mapaEfetivo[$i]->em_2mtcl) + $mapaEfetivo[$i]->em_mtcl_ord_jud) + $mapaEfetivo[$i]->em_repetente;
             $mapaEfetivo[$i]->ed_total = ((($mapaEfetivo[$i]->desl_apedido + $mapaEfetivo[$i]->desl_ExOf) + $mapaEfetivo[$i]->tranc_apedido) + $mapaEfetivo[$i]->tranc_ExOf);
 
             $mapaEfetivo[$i]->qtdade_pqessa = 0;
