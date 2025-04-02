@@ -16,6 +16,30 @@
     <link rel="shortcut icon" href="/images/favicon.png" type="image/x-icon" /> 
     <title>@yield('title')</title>
     @yield('css-styles-includes')
+
+    <style type="text/css">
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 10;
+            background-color: #E6E6E6;
+        }
+
+        .footer-copyright {
+            display: flex;
+            justify-content: space-between; /* Mantém o espaçamento entre os elementos */
+            align-items: center; /* Centraliza verticalmente */
+            text-align: center;
+        }
+
+        .footer-center {
+            flex: 1; /* Ocupa todo o espaço disponível */
+            text-align: center; /* Centraliza o texto */
+        }
+    </style>
 </head>
 
 <body>
@@ -71,13 +95,19 @@
 <!-- Footer -->
 <footer class="page-footer">
     <div class="footer-copyright py-3">
+        
+        <!-- Espaço reservado à esquerda (vazio para alinhamento) -->
+        <div style="width: 100px;"></div>
 
+        <!-- Elementos centralizados -->
         <div class="footer-center">
             <span class="badge badge-secondary">© ESA / DE</span>
             <span class="badge badge-dark"> 2020 / {{ date('Y') }} </span>
         </div>
 
+        <!-- Elemento alinhado à direita -->
         <span class="badge badge-info">Desenvolvido pelo 1º Ten João Victor</span>
+
     </div>
 </footer>
 <!-- Footer -->

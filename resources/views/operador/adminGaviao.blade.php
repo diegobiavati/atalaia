@@ -57,25 +57,7 @@
     }
 
     footer {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        text-align: center;
-        z-index: 10;
-        background: {{ $backgroundColor }}
-    }
-
-    .footer-copyright {
-        display: flex;
-        justify-content: space-between; /* Mantém o espaçamento entre os elementos */
-        align-items: center; /* Centraliza verticalmente */
-        text-align: center;
-    }
-
-    .footer-center {
-        flex: 1; /* Ocupa todo o espaço disponível */
-        text-align: center; /* Centraliza o texto */
+        background: {{ $backgroundColor }};
     }
 
 </style>
@@ -180,7 +162,8 @@
 
     </div>
     
-    <div class="box-ul-menu scroll_style_01" style="color: #fff; overflow-y: auto;">
+    <div class="box-ul-menu scroll_style_01" style="color: #fff; overflow-y: auto;max-height: min(80vh, calc(100vh - 470px));">
+    <!--<div class="box-ul-menu scroll_style_01" style="color: #fff; overflow-y: auto;">-->
         <ul class="list-group list-group-flush">
 
             @if($ownauthcontroller->PermissaoCheck(1))

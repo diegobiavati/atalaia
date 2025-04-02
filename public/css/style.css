@@ -28,11 +28,11 @@ div#back_to_top{
     height: 46px;
     text-align: center;
     border-radius: 50%;
-    top: 100%;
+    top: 95%;
     left: 100%;
     margin-left: -64px;
     margin-top: -64px;
-    z-index: 10;
+    z-index: 15;
     cursor: pointer;
     box-shadow: 2px 2px 5px #888888;
 }

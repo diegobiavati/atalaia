@@ -140,7 +140,7 @@ function onMessageArrived(message) {
 
     </div>
     
-    <div class="box-ul-menu scroll_style_01" style="color: #fff; overflow-y: auto;">
+    <div class="box-ul-menu scroll_style_01" style="color: #fff; overflow-y: auto;max-height: min(80vh, calc(100vh - 470px));">
         <ul class="list-group list-group-flush">
 
             @if($ownauthcontroller->PermissaoCheck(1))
