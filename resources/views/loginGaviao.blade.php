@@ -106,6 +106,10 @@ h4{
   font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
+footer{
+  background-color: #FFF0!important;
+}
+
 </style>
 @stop
 @section('content')

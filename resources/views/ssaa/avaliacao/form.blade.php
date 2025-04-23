@@ -1,4 +1,10 @@
 <style>
+  select[readonly] {
+    background: initial!important;
+    font-size: initial!important;
+    text-align: initial!important;
+  }
+
   div#form-avaliacao label {
     margin-bottom: 0.3rem;
     margin-top: 0.5rem;
@@ -12,7 +18,7 @@
     font-weight: bold;
   }
 
-  .nav-link h4{
+  .nav-link h4 {
     color: rgba(255, 0, 0, 0.9);
   }
 </style>
@@ -25,18 +31,21 @@
   <div class="alert alertas-avaliacoes" role="alert" style="margin:10px;width:100%;"></div>
   @isset($rapLancadas)
   <div style="background-color: #e3f2fd;">
-      <nav class="navbar flex-row navbar-expand-lg navbar-light" style="padding: .5rem 1rem 0rem 1rem;">
-        <span class="navbar-brand text-muted" href="#">Turma(s) com lançamento do RAP: </span>
-        <!--<div class="collapse navbar-collapse">-->
-          <ul class="navbar-nav mr-auto">
-            @foreach($rapLancadas as $rap)
-            <li class="nav-item active">
-              <a class="nav-link h4" target="_blank" href="{{asset('gaviao/ajax/relatorio-rap/'.encrypt(session('_token').'-'.$rap->id_esa_avaliacoes.'-'.$rap->id_turmas_esa) )}}"><span class="badge badge-pill badge-info" style="padding: .5rem 1rem; color: #d2fd00;">{{ $rap->esaTurma->turma }}</span></a>
-            </li>
-            @endforeach
-          </ul>
-        <!--</div>-->
-      </nav>
+    <nav class="navbar flex-row navbar-expand-lg navbar-light" style="padding: .5rem 1rem 0rem 1rem;">
+      <span class="navbar-brand text-muted" href="#">Turma(s) com lançamento do RAP: </span>
+      <!--<div class="collapse navbar-collapse">-->
+      <ul class="navbar-nav mr-auto">
+        @foreach($rapLancadas as $rap)
+        <li class="nav-item active">
+          <a class="nav-link h4" target="_blank"
+            href="{{asset('gaviao/ajax/relatorio-rap/'.encrypt(session('_token').'-'.$rap->id_esa_avaliacoes.'-'.$rap->id_turmas_esa) )}}"><span
+              class="badge badge-pill badge-info"
+              style="padding: .5rem 1rem; color: #d2fd00;">{{ $rap->esaTurma->turma }}</span></a>
+        </li>
+        @endforeach
+      </ul>
+      <!--</div>-->
+    </nav>
   </div>
   @endisset
 
@@ -82,7 +91,8 @@
       },
       error: function(jqxhr) {
         $('div.alertas-avaliacoes').addClass('alert-danger').empty();
-        $('div.alertas-avaliacoes').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+        $('div.alertas-avaliacoes').html('<strong>ATENÇÃO: </strong> Houve um erro interno')
+          .slideDown();
       }
     });
   });

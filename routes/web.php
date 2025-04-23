@@ -360,14 +360,6 @@ Route::get('notify-offline-user/{id}', 'MQTTController@NotifyOfflineUser');
 //Lembrar de passar os parâmetros
 //Route::get('eslog/{ano_formacao_id}/{escolhaQMS}', 'EslogController@retornaAlunos');
 
-Route::get('pdfTeste', function(){
-    Fpdf::AddPage();
-    Fpdf::SetFont('Courier', 'B', 18);
-    Fpdf::Cell(50, 25, 'Hello World!');
-    Fpdf::Output();
-    exit();
-})->name('pdfTeste');
-
 Route::get('testeMail', 'Ajax\ImportacaoController@verificaNomeBoletim');
 Route::get('pdfDomTeste', 'Relatorios\RelatoriosSSAAController@analiseResultadoProvas');
 

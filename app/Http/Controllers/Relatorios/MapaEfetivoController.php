@@ -12,6 +12,7 @@ use App\Models\AlunosSitDiv;
 use App\Models\AnoFormacao;
 use App\Models\MapaOutrosDados;
 use App\Models\Parametros;
+use Illuminate\Support\Facades\Log;
 use Khill\Lavacharts\Lavacharts;
 
 class MapaEfetivoController extends Controller
@@ -198,7 +199,7 @@ FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $
 
         $resumoUetes = array();
         foreach ($alunosSituacoesDiversas as $value) {
-
+            Log::channel('gaviao')->info("Gerou Mapa Efetivo Desligamento.", ['value' => $value]);  
             $data = unserialize($value->situacaoDivHistorico->data);
 
             //Senão tiver turma no segundo ano

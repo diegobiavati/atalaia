@@ -185,9 +185,9 @@ class AlunoSitDiversasController extends Controller
                         $aluno_data['cadastro'][$key] = $value;
                     }
                     $aluno_data['cadastro']['ano_formacao'] = $alunoSitDiv->ano_formacao->formacao;
-                    $aluno_data['cadastro']['turma'] = $aluno->turma->turma;
+                    $aluno_data['cadastro']['turma'] =  optional($aluno->turma)->turma;
                     $aluno_data['cadastro']['omct'] = $alunoSitDiv->omct->sigla_omct;
-                    $aluno_data['cadastro']['area'] = $alunoSitDiv->area->area;
+                    $aluno_data['cadastro']['area'] =  optional($alunoSitDiv->area)->area;
                     $aluno_data['cadastro']['atleta'] = $aluno->atleta_marexaer;
                     $aluno_data['cadastro']['voluntario_aviacao'] = $volunt_av;
 

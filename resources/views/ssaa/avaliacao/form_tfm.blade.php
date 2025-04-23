@@ -1,4 +1,14 @@
 <style>
+  
+  select[readonly] {
+    /*
+    background: initial!important;
+    font-size: initial!important;
+    text-align: initial!important;
+    */
+    all:initial!important;
+  }
+
   div#form-avaliacao label {
     margin-bottom: 0.3rem;
     margin-top: 0.5rem;
@@ -19,7 +29,7 @@
 <div class="container" id="form-avaliacao">
   <div style="height:50px"></div>
   <p class="lead">
-  <h3>Cadastro de Avaliação</h3>
+  <h3>Cadastro de Avaliação TFM</h3>
 
   <hr>
   <div class="alert alertas-avaliacoes" role="alert" style="margin:10px;width:100%;"></div>
