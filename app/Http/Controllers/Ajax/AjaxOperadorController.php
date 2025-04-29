@@ -424,7 +424,8 @@ class AjaxOperadorController extends Controller
                 }
                 //$total_alunos = count($alunos);
                 
-                $resul[] = view('ajax.avaliacao.notas.view-lanca-grau', compact('avaliacao', 'alunos', 'nota', 'request'));
+                //$resul[] = view('ajax.avaliacao.notas.view-lanca-grau', compact('avaliacao', 'alunos', 'nota', 'request'));
+                $resul[] = view('ajax.avaliacao.notas.view-lanca-grau', compact('avaliacao', 'alunos', 'request'));
 
                 /*$resul[] = ' <div style="margin-top: 64px; text-align: center; color: #696969;">
                                 <h5>'.(($avaliacao->disciplinas->tfm == 'S') ? 'LANÇAMENTO DE NOTAS DE TFM INDIVIDUAL' : 'LANÇAMENTO DO GRAU ESCOLAR INDIVIDUAL').'<h5>
