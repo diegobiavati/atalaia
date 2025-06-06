@@ -1927,8 +1927,6 @@ class AjaxRelatoriosController extends Controller
                                                 $avaliacao_rec_nota = null;
                                                 $avaliacao_rec_id = Avaliacoes::where('disciplinas_id', $avaliacao['disciplina_id'])->where('avaliacao_recuperacao', 1)->first();
 
-                                                
-
                                                 if($avaliacao_rec_id){
                                                     $avaliacao_rec_nota = AvaliacoesNotas::where('alunos_id', $alunoID)->where('avaliacao_id', $avaliacao_rec_id->id)->first();
 
@@ -1957,7 +1955,7 @@ class AjaxRelatoriosController extends Controller
                                                     $k[$alunoID][$key][$key_aval]['avaliacoes']['CE'] = 'APROVADO';
                                                     $discAprovConselhoEnsino[] = $k[$alunoID][$key][$key_aval]['disciplina_id'];
                                                     $k[$alunoID][$key][$key_aval]['media'] = $media_tfm;
-                                                } 
+                                                }
 
                                                 /********************************************************
                                                 ***********      Fim Recuperação de TFM     *************

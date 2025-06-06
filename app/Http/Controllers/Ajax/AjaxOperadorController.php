@@ -317,6 +317,7 @@ class AjaxOperadorController extends Controller
                 $faltas[] = $falta->aluno_id;
             }
 
+            $nota = array();
             /* GUARDANDO NUM ARRAY AS NOTAS NA AVALIAÇÃO */
             $avaliacoes_notas = AvaliacoesNotas::where('avaliacao_id', $request->id)->get();
             foreach ($avaliacoes_notas as $notas) {

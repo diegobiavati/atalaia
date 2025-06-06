@@ -5,6 +5,12 @@
     text-align: initial!important;
   }
 
+  div#form-avaliacao {
+    position: relative;
+    z-index: 20;
+    margin-bottom: 80px;
+  }
+
   div#form-avaliacao label {
     margin-bottom: 0.3rem;
     margin-top: 0.5rem;
