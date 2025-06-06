@@ -1,0 +1,1092 @@
+warning: CRLF will be replaced by LF in .env.example.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in .gitattributes.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in .gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in .vscode/extensions.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in .vscode/launch.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in .vscode/settings.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Console/Kernel.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Exceptions/Handler.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Exports/AlunosDiplomaExport.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Exports/AlunosNotasExport.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxAdminController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxAdminGaviaoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxAvaliacoesController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxChatAlunoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxEscolhaDeQMSAlunoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxImplantarAlunoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxOperadorController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxRelatoriosController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxRelatoriosGaviaoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AjaxUploadsController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/AssistenteInstalacaoAppController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/Diploma/DiplomaController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/ImportacaoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/LancamentosController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Ajax/ParametrosController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Aluno/AlunoApiController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Aluno/AlunoSitDiversasController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Aluno/PainelAlunoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Auth/ForgotPasswordController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Auth/LoginController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Auth/RegisterController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Auth/ResetPasswordController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Controller.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/EditableGrid/EditableGrid.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/EslogController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Exportar/ExportarImpressaoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Exportar/ExportarNotasController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/FileController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/HomeController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/MQTTController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Operador/AdminOpController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/OwnAuthController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Relatorios/AnalisesNotasController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Relatorios/DadosEstatisticosGeraisController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Relatorios/MapaEfetivoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Relatorios/RelatorioAlunoController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Relatorios/RelatoriosController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Relatorios/RelatoriosSSAAController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/SSAA/Avaliacao/ControllerIndiceDificuldades.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/SSAA/Avaliacao/ControllerLancamentoGBO.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/SSAA/Avaliacao/ControllerResultados.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/SSAA/Calendario/ControllerAvaliacao.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/SSAA/Calendario/ControllerCalendario.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/SSAA/ControllerDisciplinas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/StandardApiController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/TelegramSendPostController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/TesteController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Utilitarios/Chip_download.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Utilitarios/FuncoesController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Utilitarios/ImportadorController.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Controllers/Utilitarios/SmbClientPhp.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/FPDF/PDF.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/FPDF/PDF_AUD_FO.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/FPDF/PDF_DEM_NOTAS.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/FPDF/PDF_Footer.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/FPDF/ROD_PDF.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Kernel.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Middleware/CheckAuth.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Middleware/EncryptCookies.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Middleware/RedirectIfAuthenticated.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Middleware/TrimStrings.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Middleware/TrustProxies.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Middleware/VerifyCsrfToken.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/OwnClasses/ClassLog.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/OwnClasses/EscolhaQMSLoader.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/OwnClasses/OwnValidator.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/OwnClasses/phpMQTT.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Requests/AtualizaMeuPerfilRequest.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Requests/AvaliacoesRequest.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Requests/DisciplinasRequest.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Http/Requests/OperadoresRequest.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Imports/AlunosCursoImport.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Imports/AlunosDependenteImport.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Imports/AlunosImport.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Imports/AlunosImportInsert.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Mail/BemVindo.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Mail/VerificaBoletim.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Alunos.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AlunosClassificacao.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AlunosConselhoEscolar.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AlunosCurso.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AlunosDependente.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AlunosNFEI.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AlunosSitDiv.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AlunosSitDivHistorico.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AlunosVoluntAv.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AnoFormacao.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Areas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AvaliacaoTaf.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Avaliacoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AvaliacoesMostra.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AvaliacoesMostrasRespostas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AvaliacoesNotas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AvaliacoesProntoFaltas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/AvaliacoesProntoFaltasStatus.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Banco.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/CapitaniMSAccess.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Comportamento.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/ConfDemonstrativos.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/ConfLancaTaf.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Contato.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/ConteudoAtitudinal.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Disciplinas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Enquadramentos.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaAssinaturas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaAvaliacoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaAvaliacoesDemonstrativo.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaAvaliacoesGbo.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaAvaliacoesIndices.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaAvaliacoesRap.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaAvaliacoesRapTfm.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaAvaliacoesResultados.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaDisciplinas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EsaMotivosFaltas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Escolaridade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EscolaridadeSuperior.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EscolhaAviacaoStatus.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EscolhaQMS.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EscolhaQMSAlunosOpcoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/EstadoCivil.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Fatd.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/ImagemAluno.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Imagens.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Instrumentos.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/LancamentoFo.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/MapaOutrosDados.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Mencoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Militar.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/ModeloNotasCapitani.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Motivos.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Napd.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/OMCT.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Operadores.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/OperadoresPermissoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/OperadoresTipo.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Parametros.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Parentesco.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Permissoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Portaria.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/PostoGrad.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Profissao.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/QMS.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/QMSMatriz.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Raca.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/RelatoriosConfiguracoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Religiao.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Renda.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/SituacaoAnterior.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/SituacaoAtual.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/SituacaoMatricula.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/SituacoesDiversas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TafAbdominal.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TafBonusAtletas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TafConfiguracoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TafCorrida.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TafFlexaoBarra.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TafFlexaoBraco.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TafPortarias.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TelegramAlunoAuth.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TelegramMsgEnviadas.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Teste.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TurmasEsa.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/TurmasPB.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Uf.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/Users.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Models/UsersTopicMQTT.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Notifications/MailResetPasswordToken.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Providers/AppServiceProvider.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Providers/AuthServiceProvider.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Providers/BroadcastServiceProvider.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Providers/EventServiceProvider.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Providers/RouteServiceProvider.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Rules/ESANomeAvaliacoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Rules/TipoAvaliacoes.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/Rules/Uppercase.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in app/User.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in artisan.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in bootstrap/app.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in bootstrap/cache/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in composer.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in composer.lock.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/app.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/auth.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/broadcasting.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/cache.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/cors.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/database.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/excel.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/filesystems.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/fpdf.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/hashing.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/logging.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/mail.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/queue.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/services.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/session.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in config/view.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/factories/UserFactory.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_27_133420_create_situacao_anteriors_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_27_145503_create_situacao_matriculas_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_27_153642_create_situacao_atuals_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_28_085259_create_profissaos_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_28_094647_create_racas_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_28_095341_create_religiaos_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_28_100007_create_escolaridades_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_28_100431_create_escolaridade_superiors_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_28_101357_create_rendas_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_28_103121_create_bancos_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_28_105635_create_ufs_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_08_28_111727_create_estado_civils_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_09_06_074555_create_parentescos_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_09_06_144357_create_alunos_dependentes_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_09_29_145232_imagem_aluno_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_10_22_151050_create_alunos_curso_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_10_30_165409_create_mapa_outros_dados_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/migrations/2019_12_02_160507_create_motivos_table.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in database/seeds/DatabaseSeeder.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in package.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in phpunit.xml.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/.htaccess.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/app.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/autocomplete.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/bootstrap-datepicker.min.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/bootstrap-select.min.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/calendar_all.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/calendar_bootstrap.min.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/editablegrid/editablegrid.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/editablegrid/indicesgrid.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/editablegrid/jquery-ui-1.8.16.custom.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/font-exo.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/ionicons.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/ionicons.min.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/menu_style.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/menu_style_gaviao.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/select2.min.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/css/style.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/fonts/ionicons.svg.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/images/loadings/loading_03.svg.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/index.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/app.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/bootstrap-4.0.0.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/bootstrap-5.1.3.min.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/bootstrap-datepicker.min.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/bootstrap-select.min.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/editablegrid/editablegrid.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/editablegrid/editablegrid_editors.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/editablegrid/editablegrid_renderers.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/editablegrid/editablegrid_utils.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/editablegrid/editablegrid_validators.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/editablegrid/indicesNotas/indicesgrid.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/jquery.mask.min.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/jquery/autocomplete.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/jquery/jquery-3.3.1.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/jquery/jquery-3.3.1.min.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/jquery/jquery.tabletojson.min.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/mqttws/mqttws31.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/select2/select2.min.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/js/worker.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/robots.txt.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/css/simplegrid.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/CONTRIBUTING.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/Gruntfile.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/LICENSE.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/README.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/bower.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker-standalone.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/component.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/composer.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/ChangeLog.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/ContributorsGuide.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/Events.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/Extras.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/FAQ.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/Functions.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/Installing.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/Options.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/Version 4 Changelog.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/Version 4 Contributors guide.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/index.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/base.html.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/browserconfig.xml.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/content.html.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/css/base.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/css/prettify-1.0.css.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/js/base.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/js/prettify-1.0.min.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/manifest.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/nav.html.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/docs/theme/toc.html.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/mkdocs.yml.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/package.json.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/src/js/bootstrap-datetimepicker.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/src/less/_bootstrap-datetimepicker.less.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/src/less/bootstrap-datetimepicker-build.less.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/src/nuget/Bootstrap.v3.Datetimepicker.CSS.nuspec.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/src/nuget/Bootstrap.v3.Datetimepicker.nuspec.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/src/nuget/install.ps1.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/src/sass/_bootstrap-datetimepicker.scss.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/src/sass/bootstrap-datetimepicker-build.scss.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/tasks/bump_version.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/publicApiSpec.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/screen-capture/base.html.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/screen-capture/compile.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/screen-capture/index.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/screen-capture/out/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/screen-capture/pic/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/screen-capture/t1.html.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/screen-capture/t2.html.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/screen-capture/t3.html.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/screen-capture/t4.html.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/eonasdan-bootstrap-datetimepicker/test/timezoneDataHelper.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/js/simplegrid.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/vendor/rafwell/simple-grid/moment/moment.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in public/web.config.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in readme.md.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/assets/js/app.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/assets/js/bootstrap.js.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/assets/js/components/ExampleComponent.vue.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/assets/sass/_variables.scss.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/assets/sass/app.scss.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/lang/en/auth.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/lang/en/pagination.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/lang/en/passwords.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/lang/en/validation.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/lang/pt-BR/auth.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/lang/pt-BR/pagination.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/lang/pt-BR/passwords.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/lang/pt-BR/validation.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/aluno/alunoSitDiversas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/aluno/index.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/consulta/consulta-audiencia-fo.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/consulta/consulta-uete-aluno-punido.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/consulta/consulta-uete-aluno-reprovado.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/consulta/consulta-uete-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/consulta/relacao-ficha-disciplinar.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/consulta/relacao-ficha-punido.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/consulta/view-alunos-sem-foto.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/parametros/candidatosAguardandoAprov.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/admin/parametros/parametroROD.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/adicionar-operadores.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/alunos-gaviao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/alunos.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/anos-de-formacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/notas/view-lanca-abdominal.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/notas/view-lanca-grau.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/notas/view-lanca-tfm.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/notas/view-nota-tfm.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/notas/view-suficiencia-abdominal.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/view-adiciona-avaliacao-recuperacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/view-adiciona-avaliacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/view-analise-resultado-prova.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/view-avaliacoes-recuperacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacao/view-demonstrativo-notas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/avaliacoes.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/cadastro/view-ano-formacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/chkbox-ano-qms.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/componenteSelectCiaInfantaria.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/componenteSelectUeteCurso.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/componentes/componenteAlunos.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/componentes/componenteTurma.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/componentes/componenteTurmaAlunos.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/conselho-escolar.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/diploma/view-diploma-periodo.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/diploma/view-diploma.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/editar-operadores.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/erros/view-erro-padrao-centralizado.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/erros/view-erro-padrao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/escolha-de-qms.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/fale-com-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/gerenciar-disciplinas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/gerenciar-operadores.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/indices-taf-atletas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/lancar-taf-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/menu-tfm-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/perfil.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/precedencia-desempate.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/relatorios.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/relatorios/analise-parcial-notas-disciplinas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/relatorios/demonstrativo-notas-gaviao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/relatorios/listagem-alunos-gaviao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/relatorios/listagem-disciplinas-diploma-uete.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/relatorios/opcoes-relatorios-geral-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/relatorios/tipo-visualizacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/ssaa/componenteDisciplinas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/ssaa/componenteDisciplinasProvas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/ssaa/componenteMotivosFaltas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/view-analise-parcial-disciplinas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/view-listagem-aluno-sit-diversas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/view-listagem-turma.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/view-relatorios.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/visao-geral-gaviao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/visao-geral-omct.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/visao-geral.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ajax/voluntarios-para-aviacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/aluno/aluno-erro.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/aluno/dependente.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/aluno/painel-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/aluno/pesquisaAluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/auth/login.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/auth/passwords/email.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/auth/passwords/reset.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/auth/register.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/avaliacoes/avaliacoesListaArquivoMostra.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/avaliacoes/avaliacoesListaArquivoRespostaMostra.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/avaliacoes/revisaoProva.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/emails/bem-vindo.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/emails/verifica-boletim.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/headers.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/home.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/importar/SispbExcelAluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/importar/importadorIndex.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/componenteSelectNASE.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoAlunosFO.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoCancelamentoFO.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoConsultaFATD.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoConsultaFATDSelecaoAno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoConsultaFO.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoConsultaFOSelecaoAno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoConsultaTurma.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoFATD.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoFatoObservado.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoListaFATD.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoListaFatosObservados.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentoSelecaoAno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/lancamentos/lancamentosIndex.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/layouts/app.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/layouts/footer_ssaa.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/login.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/loginGaviao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/menu_admin_operadores.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/menu_admin_operadores_gaviao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/operador/admin.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/operador/adminGaviao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/operador/aviacao/listagem-alunos.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/alunos-atletas-marexaer.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/alunos-em-conselho.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/alunos-em-recuperacao-por-disciplina.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/alunos-em-recuperacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/alunos-sem-cadastro-telegram.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/alunos-sem-escolha-qms.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/analise-resultados-disciplinas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/analise-resultados-npb.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/analise-resultados-provas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/analise-resultados-taf.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/assinatura-demonstrativo-por-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/assinatura-demonstrativo.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/classificacao-geral-qms.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/classificacao-geral.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/comprovante-escolha-qms.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/dados-estatisticos-avaliacoes.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/dados-estatisticos-gerais.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/demonstrativo-notas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/demonstrativo-notas.blade.php.old.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/escolha-qms-aviacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/escolha-qms-comb-log-detalhada.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/escolha-qms-comb-log.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/escolha-qms-por-qms.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/ficha-frad-do-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/ficha-individual-do-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/ficha-rod-do-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/historico-escolar-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/mapa-efetivo-geral.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/modelo-notas-capitani.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/new-relacao-alunos-prontos.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/pronto-de-faltas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/pronto-lancamento-notas-ar.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/pronto-lancamento-notas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/pronto-lancamento-taf.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-aluno-reprovado.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-alunos-prontos.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-alunos-situacoes-diversas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-dados-estatisticos-gerais.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-ficha-disciplinar-individual.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-ficha-individual-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-ficha-registro-acompanhamento-discente.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-frad-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-geral-alunos.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-mapa-efetivo-desligado.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-mapa-efetivo-geral.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-mapa-evasao-escolar.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-rod-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relacao-voluntarios-qms-aviacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/relatorio-ficha-individual-aluno.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/resultado-avaliacao-por-nota.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/template-brasao-esa.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/template-relatorios-sem-brasao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/template-relatorios.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/relatorios/template-requisicao-html-excel.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/avaliacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/componenteAjax.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/form.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/form_tfm.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/indice/form.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/indice/gbo/componente-gbo.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/indice/gbo/erro_gbm.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/indice/gbo/index.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/indice/gbo/mensagem.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/indice/index.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/rap/index.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/avaliacao/rap/index_tfm.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/calendario/calendario.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/calendario/index.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/disciplina/disciplinas.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/disciplina/form.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/disciplina/importar.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/disciplina/index.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/index.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/relatorios/analise-resultado-prova.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/relatorios/avaliacoes-recuperacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/relatorios/cabecalho.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/relatorios/demonstrativo-individual-reservado.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/ssaa/relatorios/ficha-controle-resultado-avaliacao.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/vendor/notifications/email.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/vendor/notifications/email.blade.php.original.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in resources/views/welcome.blade.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in routes/channels.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in routes/console.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in routes/web.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in server.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in storage/app/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in storage/app/public/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in storage/framework/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in storage/framework/cache/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in storage/framework/sessions/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in storage/framework/testing/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in storage/framework/views/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in storage/logs/.gitignore.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in tests/CreatesApplication.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in tests/Feature/ExampleTest.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in tests/TestCase.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in tests/Unit/ExampleTest.php.
+The file will have its original line endings in your working directory.
+warning: CRLF will be replaced by LF in webpack.mix.js.
+The file will have its original line endings in your working directory.
