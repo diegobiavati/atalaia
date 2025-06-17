@@ -285,6 +285,11 @@ class Alunos extends Model
         return $this->hasMany('App\Models\EsaAvaliacoesDemonstrativo', 'id_aluno', 'id');
     }
 
+    public function repetentes()
+    {
+        return ($this->hasMany('App\Models\AlunosSitDiv', 'nome_completo', 'nome_completo')) ?? 'Não Existe Repetentes';
+    }
+
     public function nascimento()
     {
         if ($this->data_nascimento) {

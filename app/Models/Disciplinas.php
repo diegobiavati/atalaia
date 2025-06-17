@@ -104,7 +104,7 @@ class Disciplinas extends Model
                     foreach($item['avaliacoes'] as $k => $avaliacao){
                         if($k == 'ACR'){
                             $nota_recuperacao = $avaliacao;  
-                        }else if(key_exists($avaliacao->indice_notas, $item['notas'])){
+                        }else if(isset($avaliacao->indice_notas) && key_exists($avaliacao->indice_notas, $item['notas'])){
                             $notas[$avaliacao->nome_abrev] = $item['notas'][$avaliacao->indice_notas];
                         }
                     }

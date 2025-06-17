@@ -29,7 +29,7 @@ class AlunoSitDiversasController extends Controller
         $this->request = $request;
         $this->ownauthcontroller = $ownauthcontroller;
         $this->classLog = $classLog;
-        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
+        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
     }
     /**
      * Display a listing of the resource.
@@ -133,7 +133,7 @@ class AlunoSitDiversasController extends Controller
                     if ($aluno = Alunos::find($alunoSitDiv->id)) {
                         $aluno->delete();
                         $this->classLog->RegistrarLog('Adicionou aluno em lista de situações diversas', auth()->user()->email);
-                    } 
+                    }
                     /*Fim Correção*/
 
                     $retorno['status'] = 'ok';
@@ -229,7 +229,7 @@ class AlunoSitDiversasController extends Controller
                             $retorno['status'] = 'ok';
                             array_push($retorno['response'], $aluno->nome_completo . ' agora está enquadrado em situações diversas. Clique na aba correspondente para editar.');
 
-                            $this->classLog->RegistrarLog('Adicionou aluno '. $aluno->numero .'em lista de situações diversas', auth()->user()->email);
+                            $this->classLog->RegistrarLog('Adicionou aluno ' . $aluno->numero . 'em lista de situações diversas', auth()->user()->email);
                         } else {
                             $retorno['status'] = 'err';
                             array_push($retorno['response'], 'Houve um erro ao mover o aluno!');
@@ -296,79 +296,89 @@ class AlunoSitDiversasController extends Controller
     {
 
         $id = isset($request->idaluno) ? $request->idaluno : $id;
-            if($request->requisicao == 'reintegrar'){
-                
-                //Reintegrando o Aluno de Situacao diversas para Aluno no Ano Letivo
-                $alunoSitDiv = AlunosSitDiv::find($id);
-                if(isset($alunoSitDiv->id)){
+        if ($request->requisicao == 'reintegrar') {
+            //Reintegrando o Aluno de Situacao diversas para Aluno no Ano Letivo
+            $alunoSitDiv = AlunosSitDiv::find($id);
+            if (isset($alunoSitDiv->id)) {
                 $idAluno = $alunoSitDiv->id;
                 $aluno = new Alunos;
 
-                    $alunoSitDivHistorico = \App\Models\AlunosSitDivHistorico::where('aluno_id', $idAluno)->first();
+                $alunoSitDivHistorico = \App\Models\AlunosSitDivHistorico::where('aluno_id', $idAluno)->first();
 
-                    $data = unserialize($alunoSitDivHistorico->data);
+                $data = unserialize($alunoSitDivHistorico->data);
 
-                    $aluno->id = $idAluno;
-                    foreach($data['cadastro'] as $key => $valor){
-                            $aluno->$key = $valor;
-                    }
+                $aluno->id = $idAluno;
+                foreach ($data['cadastro'] as $key => $valor) {
+                    $aluno->$key = $valor;
+                }
 
-                    if($request->sistema == 'gaviao'){
-                        //Informa o ano que ele será integrado
-                        $anoFormacao = AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
-                        $aluno->ano_formacao_reintegr_id = $anoFormacao->id;
-                        $aluno->qms_id = null;
-                        $aluno->turma_esa_id = null;
-                    }else{
-                        $aluno->ano_formacao_reintegr_id = null;
-                    }
-                    
-                    unset($aluno->ano_formacao);
-                    unset($aluno->turma);
-                    unset($aluno->omct);
-                    unset($aluno->area);
-                    unset($aluno->atleta);
-                    unset($aluno->voluntario_aviacao);
+                if ($request->sistema == 'gaviao') {
+                    //Informa o ano que ele será integrado
+                    $anoFormacao = AnoFormacao::where('per_ativo_qualificacao', 'S')->first();
+                    $aluno->ano_formacao_reintegr_id = $anoFormacao->id;
+                    $aluno->qms_id = null;
+                    $aluno->turma_esa_id = null;
+                } else {
+                    $aluno->ano_formacao_reintegr_id = null;
+                }
 
-                    try{
-                        $aluno->update();
-                        $aluno->save();
-                    }catch(Exception $ex){
-                        $aluno->save();
-                    }
-                    
+                unset($aluno->ano_formacao);
+                unset($aluno->turma);
+                unset($aluno->omct);
+                unset($aluno->area);
+                unset($aluno->atleta);
+                unset($aluno->voluntario_aviacao);
 
-                    \App\Models\AlunosNFEI::where('alunos_situacoes_diversas_id', $idAluno)->update(['alunos_id' => $idAluno]);
-                    \App\Models\AlunosVoluntAv::where('alunos_situacoes_diversas_id', $idAluno)->update(['alunos_id' => $idAluno]);
-                    \App\Models\AvaliacoesNotas::where('alunos_situacoes_diversas_id', $idAluno)->update(['alunos_id' => $idAluno]);
-                    \App\Models\LancamentoFo::where('alunos_situacoes_diversas_id', $idAluno)->update(['aluno_id' => $idAluno, 'alunos_situacoes_diversas_id' => null]);
+                try {
+                    $aluno->update();
+                    $aluno->save();
+                } catch (Exception $ex) {
+                    $aluno->save();
+                }
 
-        
-                    if(isset($data['avaliacoes']['taf'])){
-                        $avaliacaoTaf = new AvaliacaoTaf;
-                        $avaliacaoTaf->corrida_nota = $data['avaliacoes']['taf']['corrida'];
-                        $avaliacaoTaf->flexao_braco_nota = $data['avaliacoes']['taf']['flex_bra'];
-                        $avaliacaoTaf->flexao_barra_nota = $data['avaliacoes']['taf']['flex_bar'];
-                        $avaliacaoTaf->abdominal_suficiencia = $data['avaliacoes']['taf']['abdom'];
-                        $avaliacaoTaf->media = $data['avaliacoes']['taf']['ND'];
 
-                        $avaliacaoTaf->save();
-                    }
-                    
-                
-                if($alunoSitDiv->delete() && $alunoSitDivHistorico->delete()){
+                \App\Models\AlunosNFEI::where('alunos_situacoes_diversas_id', $idAluno)->update(['alunos_id' => $idAluno]);
+                \App\Models\AlunosVoluntAv::where('alunos_situacoes_diversas_id', $idAluno)->update(['alunos_id' => $idAluno]);
+                \App\Models\AvaliacoesNotas::where('alunos_situacoes_diversas_id', $idAluno)->update(['alunos_id' => $idAluno]);
+                \App\Models\LancamentoFo::where('alunos_situacoes_diversas_id', $idAluno)->update(['aluno_id' => $idAluno, 'alunos_situacoes_diversas_id' => null]);
+
+
+                if (isset($data['avaliacoes']['taf'])) {
+                    $avaliacaoTaf = new AvaliacaoTaf;
+                    $avaliacaoTaf->corrida_nota = $data['avaliacoes']['taf']['corrida'];
+                    $avaliacaoTaf->flexao_braco_nota = $data['avaliacoes']['taf']['flex_bra'];
+                    $avaliacaoTaf->flexao_barra_nota = $data['avaliacoes']['taf']['flex_bar'];
+                    $avaliacaoTaf->abdominal_suficiencia = $data['avaliacoes']['taf']['abdom'];
+                    $avaliacaoTaf->media = $data['avaliacoes']['taf']['ND'];
+
+                    $avaliacaoTaf->save();
+                }
+
+
+                if ($alunoSitDiv->delete() && $alunoSitDivHistorico->delete()) {
                     $retorno['status'] = 'ok';
                     $retorno['response'] = '<td colspan="7" style="text-align: center; background-color: #BCF5A9; color: #696969;"><b>' . $aluno->nome_completo . ' agora está reintegrado no ' . $aluno->omct->sigla_omct . '.</b></td>';
-        
-                $this->classLog->RegistrarLog('Reintegrou o aluno '.$aluno->nome_completo.' que estava em situações diversas', auth()->user()->email);
-                return $retorno;
+
+                    $this->classLog->RegistrarLog('Reintegrou o aluno ' . $aluno->nome_completo . ' que estava em situações diversas', auth()->user()->email);
+                    return $retorno;
                 }
             }
-            
-        }else{
+        } else if ($request->requisicao == 'repetentes') {
+
+            if ($request->sistema == 'atalaia') {
+                $aluno = Alunos::with('repetentes')->find($request->idaluno);
+
+                if ($aluno->relationLoaded('repetentes') && count($aluno->repetentes) > 0) {
+
+                    foreach ($aluno->repetentes as $repetente) {
+                        dd($repetente->situacaoDivHistorico, $repetente->situacao);
+                    }
+                }
+            }
+        } else {
             $retorno['status'] = 'err';
             $retorno['response'] = '<td colspan="7" style="text-align: center; background-color: #BCF5A9; color: #696969;"><b>Solicitacao Invalida</b></td>';
-            return ;
+            return;
         }
     }
 
