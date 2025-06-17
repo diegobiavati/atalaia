@@ -70,7 +70,10 @@ class AnalisesNotasController extends Controller
 
         
         if($alunosIDs){
-            
+            $avaliacao_data['media_aritmetica'] = 0;
+            $avaliacao_data['efetivo'] = 0;
+            $avaliacao_data['maior'] = 0;
+            $avaliacao_data['menor'] = 0;
             // CONTANDO ALUNOS QUE FALTARAM ESTA AVALIAÇÃO
             $avaliacao_data['faltas'] = AvaliacoesProntoFaltas::whereIn('aluno_id', $alunosIDs)->where('avaliacao_id', $request->avaliacaoID)->count();
 
