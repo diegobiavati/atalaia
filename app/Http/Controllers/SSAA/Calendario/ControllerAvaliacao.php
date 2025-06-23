@@ -157,12 +157,14 @@ class ControllerAvaliacao extends Controller
 
             $readOnly = ($this->_ownauthcontroller->PermissaoCheck([33])) ? null : 'readOnly';
 
+
             $disciplinas = EsaDisciplinas::where(['id_qms' => $cursoSelecionado->id])->get();
 
             if ($esaAvaliacoes->esadisciplinas->tfm == 'S') {
                 $rapLancadas = $esaAvaliacoes->esaAvaliacoesRapTfm;
 
                 $turmasRapPendente = $rapLancadas->isEmpty() ? collect(1) : collect();
+                $readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'readOnly' : $readOnly;
 
                 return view('ssaa.avaliacao.form_tfm', compact('cursos', 'cursoSelecionado', 'rapLancadas', 'turmasRapPendente', 'disciplinas', 'esaAvaliacoes', 'readOnly'))
                     ->with('ownauthcontroller', $this->_ownauthcontroller)
@@ -179,6 +181,8 @@ class ControllerAvaliacao extends Controller
                 } else {
                     $turmasRapPendente = $cursoSelecionado->consultaTurmas()->whereNotIn('id', $esaAvaliacoes->esaAvaliacoesRap->pluck('id_turmas_esa')->toArray());
                 }
+
+                $readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'readOnly' : $readOnly;
 
                 return view('ssaa.avaliacao.form', compact('cursos', 'cursoSelecionado', 'rapLancadas', 'turmasRapPendente', 'disciplinas', 'esaAvaliacoes', 'readOnly'))
                     ->with('ownauthcontroller', $this->_ownauthcontroller)
@@ -469,7 +473,7 @@ class ControllerAvaliacao extends Controller
     {
         $colecao = collect();
 
-        $collection->each(function ($item, $key) use ($colecao){
+        $collection->each(function ($item, $key) use ($colecao) {
             $colecao->push($item->aluno);
         });
 
