@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        \App\Console\Commands\ExportDatabaseBackup::class,
     ];
 
     /**
@@ -25,38 +25,17 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // Exporta o banco de dados inteiro para um arquivo .sql com CREATE TABLE e INSERT INTO
+        $schedule->command('backup:multi-sql')->dailyAt('02:00')->withoutOverlapping()->runInBackground()->sendOutputTo(storage_path('logs/backup.log'))->before(function () {
+            ini_set('memory_limit', '2048M');
+        });
 
-        /*$schedule->call(function () {
-            ImportacaoController::ImportaMSAccessCapitaniMysql();
-        })->weekdays()->hourly()->between('7:00', '18:00');*/
-
-        
-        //})->weekdays()->everyMinute()->between('7:00', '18:00')
-        //->emailOutputTo('jvgs_o.o@live.com');
-
-
-		//$schedule->call(function () {
-          //  echo ImportacaoController::verificaNomeBoletim();
-        //})->weekdays()->hourly()->between('7:00', '18:00')
-        //})->weekdays()
-		//->hourly()
-		//->everyMinute()
-		//->everyFiveMinutes()
-		//->between('16:00', '19:00');
-		
-        //$schedule->command('App\Http\Controllers\Ajax\ImportacaoController@verificaNomeBoletim')
-		$schedule->call(function () {
-			ImportacaoController::verificaNomeBoletim();
-		})->weekdays()
-        ->hourly()
-        //->everyMinute()
-        ->between('14:00', '18:00');
-        //})->weekdays()->hourly()->between('7:00', '18:00')
-        
-		//->name("Citado em Boletim Interno")
-		//->sendOutputTo(storage_path('logs/teste.log'))
-        //->emailOutputTo('jvgs_o.o@live.com');
-
+        $schedule->call(function () {
+            ImportacaoController::verificaNomeBoletim();
+        })->weekdays()
+            ->hourly()
+            //->everyMinute()
+            ->between('14:00', '18:00');
     }
 
     /**
@@ -66,7 +45,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands()
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
     }
