@@ -117,7 +117,19 @@ class ExportDatabaseBackup extends Command
 
         $filename = 'backups/multibackup_' . now()->format('dmY_His') . '.sql';
         Storage::put($filename, $sqlDump);
+        $this->info("✅ Backup .sql salvo em: storage/app/public/$filename");
 
-        $this->info("✅ Backup final salvo em: storage/app/$filename");
+        // Comprimir em .gz
+        $originalPath = storage_path("app/public/$filename");
+        $gzPath = $originalPath . '.gz';
+
+        $gz = gzopen($gzPath, 'w9');
+        gzwrite($gz, file_get_contents($originalPath));
+        gzclose($gz);
+
+        // (Opcional) remover o .sql original
+        unlink($originalPath);
+
+        $this->info("📦 Backup comprimido: $gzPath");
     }
 }
