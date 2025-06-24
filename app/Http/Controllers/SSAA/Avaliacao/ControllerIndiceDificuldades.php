@@ -134,7 +134,8 @@ class ControllerIndiceDificuldades extends Controller
 
             $cursoSelecionado = $disciplinas[0]->qms;
 
-            return view('ssaa.avaliacao.indice.form', compact('cursos', 'cursoSelecionado', 'disciplinas', 'disciplinaSelecionada'))
+            //return view('ssaa.avaliacao.indice.form', compact('cursos', 'cursoSelecionado', 'disciplinas', 'disciplinaSelecionada'))
+            return view('ssaa.avaliacao.indice.form', compact('cursos', 'cursoSelecionado', 'disciplinas'))
                 ->with('ownauthcontroller', $this->_ownauthcontroller)
                 ->with('urlIndice', $this->_urlIndice)
                 ->with('urlIndiceDisciplinas', $this->_urlIndiceDisciplinas)

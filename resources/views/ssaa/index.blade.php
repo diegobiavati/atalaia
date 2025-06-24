@@ -51,6 +51,17 @@
     </div>
     @endif
 
+    @if($ownauthcontroller->PermissaoCheck(34))
+    <div class="box-option-menu-docs-rels">
+        <a href="javascript: void(0);" class="no-style" id="gerenciador-ped">
+            <div style="border-radius: 36px; width: 84px; height: 84px; background-color: {{$backgroundVisaoGeral}} margin: 0 auto; margin-bottom: 6px; line-height: 86px; box-shadow: 2px 2px 5px #888888; color: #ffffff;">
+                <i class="ion-podium" style="font-size: 44px;"></i>
+            </div>
+            <span>PED</span>
+        </a>
+    </div>
+    @endif
+
 </div>
 
 <div id="temp" style="width: 70%; margin: 22px auto; text-align: center;"></div>
@@ -92,6 +103,11 @@
         $('#indice-dificuldades').click(function(evt) {
             evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
             carregaOpcaoAjaxContent('indice-dificuldades', '', 'Modal');
+        });
+
+        $('#gerenciador-ped').click(function(evt) {
+            evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
+            carregaOpcaoAjaxContent('ssaa/gerenciador-ped', '', 'Modal');
         });
     });
 

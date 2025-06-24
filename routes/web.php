@@ -515,6 +515,8 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::group(['prefix' => 'ssaa', 'as' => 'ssaa.'], function () {
             Route::get('avaliacoes-recuperacao/{id_ano_formacao}', 'Ajax\AjaxRelatoriosGaviaoController@AvaliacaoRecuperacao')->name('avaliacoes-recuperacao');
             //Route::get('avaliacoes-por-disciplina/{id_ano_formacao?}', 'SSAA\Avaliacao\ControllerResultados@getAvaliacoesDisciplinas')->name('avaliacoes-por-disciplina');
+
+            Route::resource('gerenciador-ped', 'SSAA\ControllerGerenciadorPed');
         });
     //Fim SSAA
 
