@@ -115,7 +115,7 @@ class ExportDatabaseBackup extends Command
             $sqlDump .= "SET FOREIGN_KEY_CHECKS = 1;\n\n";
         }
 
-        $filename = 'backups/multibackup_' . now()->format('dmY_His') . '.sql';
+        $filename = 'backups/'.date('Y').'/'.date('m').'/multibackup_' . now()->format('dmY_His') . '.sql';
         Storage::put($filename, $sqlDump);
         $this->info("✅ Backup .sql salvo em: storage/app/public/$filename");
 

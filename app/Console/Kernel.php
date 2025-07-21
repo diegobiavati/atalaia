@@ -30,12 +30,12 @@ class Kernel extends ConsoleKernel
             ini_set('memory_limit', '2048M');
         });
 
-        $schedule->call(function () {
+        /*$schedule->call(function () {
             ImportacaoController::verificaNomeBoletim();
         })->weekdays()
             ->hourly()
             //->everyMinute()
-            ->between('14:00', '18:00');
+            ->between('14:00', '18:00');*/
     }
 
     /**
