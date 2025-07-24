@@ -18,7 +18,7 @@
                     <td>{{$aluno->numero}}</td>
                     <td style="text-align: left;">{{$aluno->nome_guerra}}</td>
                     <td style="text-align: left;">{{$aluno->nome_completo}}</td>
-                    <td><a href="javascript: void(0);" class="no-style" title="Visualizar ROD do Aluno" onclick="abrirRodIndividual('{{route($rota)}}', '{{$aluno->id}}', '{{$anoFormacao->id}}');"><i class="ion-android-clipboard" style="font-size: 22px;"></i></a></td>
+                    <td><a href="javascript: void(0);" class="no-style" title="Visualizar ROD do Aluno" onclick="abrirRodIndividual('{{route($rota, $paramRota)}}', '{{$aluno->id}}', '{{$anoFormacao->id}}');"><i class="ion-android-clipboard" style="font-size: 22px;"></i></a></td>
                 </tr>
                 @endforeach
 
@@ -26,15 +26,15 @@
         </table>
     </div>
     <div style="margin-top: 24px;">
-        <button id="btn-rod-geral" type="button" class="btn btn-primary" onclick="abrirRodGeral('{{route($rotaGeral)}}', '{{$idUeteCurso}}', '{{$anoFormacao->id}}');">Visualizar ROD (Geral)</button>
+        <button id="btn-rod-geral" type="button" class="btn btn-primary" onclick="abrirRodGeral('{{route($rotaGeral, $paramRota)}}', '{{$idUeteCurso}}', '{{$anoFormacao->id}}');">Visualizar ROD (Geral)</button>
     </div>
 </form>
 <script>
     function abrirRodIndividual(rota, aluno, idAnoFormacao) {
-        window.open(rota + '?aluno=' + aluno +'&idAnoFormacao=' + idAnoFormacao);
+        window.open(rota + '&aluno=' + aluno +'&idAnoFormacao=' + idAnoFormacao);
     }
 
     function abrirRodGeral(rota, idUeteCurso, idAnoFormacao) {
-        window.open(rota + '?UeteCurso=' + idUeteCurso +'&idAnoFormacao=' + idAnoFormacao);
+        window.open(rota + '&UeteCurso=' + idUeteCurso +'&idAnoFormacao=' + idAnoFormacao);
     }
 </script>

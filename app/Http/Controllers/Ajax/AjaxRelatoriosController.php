@@ -1963,8 +1963,11 @@ class AjaxRelatoriosController extends Controller
  
                                                 if(isset($avaliacao['tfm_abdominal']) && $avaliacao['tfm_abdominal'] == 'N'){                                                
                                                     /** Faz a Soma das Médias para Gerar a ND Final **/
-                                                    //Alterado 04-06-2025
-                                                    $soma += (0 + ($k[$alunoID][$key][$key_aval]['media'] == '-') ? $k[$alunoID][$key][$key_aval]['media_sem_peso'] : $k[$alunoID][$key][$key_aval]['media']);
+                                                    $soma += (0 + ($k[$alunoID][$key][$key_aval]['media'] == '-') 
+                                                    ? (isset($k[$alunoID][$key][$key_aval]['media_sem_peso']) 
+                                                        ? $k[$alunoID][$key][$key_aval]['media_sem_peso'] 
+                                                        : 0) 
+                                                    : $k[$alunoID][$key][$key_aval]['media']);
                                                     $soma_avaliacoes++;    
 
                                                     if($k[$alunoID][$key][$key_aval]['media'] < 5 

@@ -9,6 +9,9 @@
 
     <div style="width: 90%; margin: 22px auto; text-align: left; border-bottom: 1px solid #ccc;">
         <h4 style="text-align: center; margin-bottom: 12px;">Consulta de ROD(s)</h4>
+
+        @include('ajax.componenteDataInicialDataFinal')
+
         <div class="custom-control" style="display: inline-block; margin: 0 10px 12px 0;">
             <label class="labelDescricao" for="numero_aluno">Número do Aluno</label>
             <input class="no-style" style="width: 30%;margin-top:10px;margin-left: 10px;border-bottom: 1px solid #ccc;" type="text" pattern="[0-9]+$" id="numero_aluno" name="numero_aluno" type="text" autocomplete="off" placeholder="" />
@@ -18,6 +21,7 @@
             <label class="labelDescricao" for="nome_aluno">Nome do Aluno</label>
             <input class="no-style" style="width: 50%;margin-top:10px;margin-left: 10px;border-bottom: 1px solid #ccc;" id="nome_aluno" name="nome_aluno" type="text" autocomplete="off" placeholder="" />
         </div>
+        
     </div>
 
     <div style="margin-top: 24px;">

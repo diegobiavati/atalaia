@@ -474,6 +474,10 @@ class RelatorioAlunoController extends Controller
         $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
 
         $rota = 'relatorios.relacao-rod-aluno';
+        $paramRota = [
+            'data_inicial' => isset($request->data_inicial) ? FuncoesController::formatDateBrtoEn($request->data_inicial) : null,
+            'data_final' => isset($request->data_final) ? FuncoesController::formatDateBrtoEn($request->data_final) : null
+        ];
 
         $rotaGeral = 'relatorios.relacao-rod-geral';
 
@@ -481,6 +485,7 @@ class RelatorioAlunoController extends Controller
             $idUeteCurso = $request->qmsID;
 
             $alunos = Alunos::retornaAlunosComQmsESAGeral($anoFormacao->id);
+            $where = '';
 
             if ($request->qmsID != 'todas_qmss') {
                 $alunos = $alunos->where('qms_id', $request->qmsID);
@@ -494,8 +499,18 @@ class RelatorioAlunoController extends Controller
                 $alunos = $alunos->where('nome_completo', 'like', '%' . strtoupper($request->nome_aluno) . '%');
             }
 
+            if (isset($request->data_inicial)) {
+
+                $alunos = $alunos->whereHas('lancamento_fo', function ($query) use ($request) {
+                    $query->whereBetween('data_obs', array(
+                        FuncoesController::formatDateBrtoEn($request->data_inicial),
+                        (isset($request->data_final) ? FuncoesController::formatDateBrtoEn($request->data_final) : date('Y-m-d'))
+                    ));
+                });
+            }
+
             //Faz o Join para verificar se existe informacao para a FRAD
-            $alunos = $this->selectAlunosRod($anoFormacao->id, null, $alunos);
+            $alunos = $this->selectAlunosRod($anoFormacao->id, '', $alunos);
         } else {
             $idUeteCurso = $request->omctID;
 
@@ -512,10 +527,14 @@ class RelatorioAlunoController extends Controller
                 $where .= " AND alunos.nome_completo LIKE '%$request->nome_aluno%'";
             }
 
+            if (isset($request->data_inicial)) {
+                $where .= " lancamento_fo.data_obs BETWEEN '" . FuncoesController::formatDateBrtoEn($request->data_inicial) . "' AND '" . (isset($request->data_final) ? FuncoesController::formatDateBrtoEn($request->data_final) : date('Y/m/d')) . "'";
+            }
+
             $alunos = $this->selectAlunosRod($anoFormacao->id, $where);
         }
 
-        return view('relatorios/ficha-rod-do-aluno', compact('anoFormacao', 'rota', 'rotaGeral', 'alunos', 'idUeteCurso'));
+        return view('relatorios/ficha-rod-do-aluno', compact('anoFormacao', 'rota', 'paramRota', 'rotaGeral', 'alunos', 'idUeteCurso'));
     }
 
     private function selectAlunosRod($idAnoFormacao, $where, $alunos = null)
@@ -523,19 +542,21 @@ class RelatorioAlunoController extends Controller
 
         if (isset($alunos)) {
             return $alunos->whereHas('lancamento_fo', function ($query) use ($idAnoFormacao) {
-                $query->whereRaw($this->whereConteudoRod($idAnoFormacao, true));
+                $query->whereRaw($this->whereConteudoRod($idAnoFormacao, true))->where('cancelado', 'N');
             })->groupBy('alunos.id')->get();
         } else {
+
             return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
                                         FROM alunos
                                         INNER JOIN lancamento_fo ON (lancamento_fo.aluno_id = alunos.id)
                                             WHERE alunos.data_matricula = $idAnoFormacao
                                             $where
                                             " . $this->whereConteudoRod($idAnoFormacao) . "
+                                            AND lancamento_fo.cancelado = 'N'
                                         GROUP BY alunos.id");
         }
     }
-
+    
     private function whereConteudoRod($idAnoFormacao, $esa = false)
     {
         $parametros = Parametros::where('ano_formacao_id', $idAnoFormacao)->first();
@@ -745,6 +766,7 @@ class RelatorioAlunoController extends Controller
                 if (!in_array($request->UeteCurso, $ueteCursos)) {
                     $alunos = $alunos->where('qms_id', $request->UeteCurso);
                 }
+
                 //Faz o Join para verificar se existe informacao para a FRAD
                 $alunos = $this->selectAlunosRod($request->idAnoFormacao, null, $alunos);
             } else {
@@ -770,25 +792,49 @@ class RelatorioAlunoController extends Controller
 
         $limiteQuebra = 160;
 
+        /*$lancamentos = LancamentoFo::where('aluno_id', 12543)
+            ->whereBetween('data_obs', ['2025-05-01', '2025-07-24'])
+            //->whereJsonContains('conteudo_atitudinal', 1)
+            ->where('cancelado', 'N')
+            ->get();
+
+        dd($lancamentos);*/
         foreach ($alunos as $key) {
 
             $aluno = Alunos::find($key->id);
 
             $pdf->setAluno($aluno);
 
-            $aluno->load(['lancamento_fo' => function ($relation) use ($conteudoAtitudinal) {
+            //DB::enableQueryLog(); // Habilita o log das queries
+            $aluno->load(['lancamento_fo' => function ($relation) use ($conteudoAtitudinal, $request) {
 
-                $i = 0;
-                foreach ($conteudoAtitudinal as $conteudo) {
-                    if ($i > 0) {
-                        $relation->orWhereJsonContains('conteudo_atitudinal', $conteudo->id)->where([['cancelado', '=', 'N']]);
-                    } else {
-                        $relation->WhereJsonContains('conteudo_atitudinal', $conteudo->id)->where([['cancelado', '=', 'N']]);
-                    }
-                    $i++;
+                // Filtro por data_obs (mantido normalmente)
+                if ($request->filled('data_inicial')) {
+                    $dataInicial = $request->data_inicial;
+                    $dataFinal = $request->filled('data_final') ? $request->data_final : date('Y-m-d');
+
+                    $relation->whereBetween('data_obs', [$dataInicial, $dataFinal]);
                 }
+
+                // Agrupar os filtros de conteúdo atitudinal corretamente
+                if (count($conteudoAtitudinal) > 0) {
+                    $relation->where(function ($q) use ($conteudoAtitudinal) {
+                        foreach ($conteudoAtitudinal as $index => $conteudo) {
+                            $id = $conteudo->id;
+                            if ($index === 0) {
+                                $q->whereJsonContains('conteudo_atitudinal', $id);
+                            } else {
+                                $q->orWhereJsonContains('conteudo_atitudinal', $id);
+                            }
+                        }
+                    });
+                }
+
+                // Aplica cancelado = N a todos
+                $relation->where('cancelado', 'N');
             }]);
 
+            //dd(DB::getQueryLog()); // Mostra todas as queries executadas até aqui
 
             $pdf->AddPage();
 
@@ -1124,8 +1170,8 @@ class RelatorioAlunoController extends Controller
                         $fatd->nr_processo,
                         FuncoesController::formatDateEntoBr($fatd->lancamentoFO->data_obs),
                         utf8_decode((isset($fatd->tipo_enquadramento) ? $fatd->tipo_enquadramento->enquadramento : null)),
-                        utf8_decode((isset($fatd->nr_dias) ? $fatd->nr_dias : 0)), 
-                        utf8_decode($fatd->lancamentoFo->observacao.chr(10).'-------------------------------------------------------------------------------------------------------------------------------------------'.$fatd->enquadramento),
+                        utf8_decode((isset($fatd->nr_dias) ? $fatd->nr_dias : 0)),
+                        utf8_decode($fatd->lancamentoFo->observacao . chr(10) . '-------------------------------------------------------------------------------------------------------------------------------------------' . $fatd->enquadramento),
                         utf8_decode($fatd->bi_desc),
                         utf8_decode((isset($fatd->comportamento) ? $fatd->comportamento->comportamento : null))
                     ));
