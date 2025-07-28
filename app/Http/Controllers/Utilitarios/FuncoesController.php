@@ -6,11 +6,13 @@ use App\Http\Controllers\OwnAuthController;
 use App\Models\AnoFormacao;
 use App\Models\EscolhaQMS;
 use App\Models\OMCT;
+use Illuminate\Http\Request;
 use App\Models\QMS;
 use DateTime;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\DB;
 
 class FuncoesController
 {
@@ -413,4 +415,21 @@ class FuncoesController
         return $return;
     }
 
+    public function executarSQL(Request $request)
+    {
+        // EXEMPLO: Atualizar senha de um usuário
+        $sql = "UPDATE `atalaia`.`omcts` SET `omct`= ?, `sigla_omct`=? WHERE  `id`=?;";
+        $bindings = [
+            '12º GRUPO DE ARTILHARIA ANTIAÉREA',
+            '12º GAAAe',
+            3
+        ];
+
+        try {
+            DB::update($sql, $bindings);
+            return 'Comando SQL executado com sucesso.';
+        } catch (\Exception $e) {
+            return 'Erro: ' . $e->getMessage();
+        }
+    }
 }

@@ -521,6 +521,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         });
     //Fim SSAA
 
+    Route::get('/executar-sql', 'Utilitarios\FuncoesController@executarSQL')->middleware('auth');
 
 
 
