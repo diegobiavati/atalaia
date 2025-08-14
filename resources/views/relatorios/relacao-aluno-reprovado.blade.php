@@ -44,11 +44,11 @@
                         
                             @foreach ($notas_data_array[$aluno->aluno_id]['data_demonstrativo'] as $item)
                                 @if(isset($item['disciplina_id']) && $item['disciplina_id']==$disciplina->id)                                           
-                                    {{ number_format($item['media'], '3', ',', '') }}
+                                    {{ number_format(floatval($item['media']), '3', ',', '') }}
                                 @endif
                                 @if(isset($item['disciplina_id']) && $item['disciplina_id']==99999)
                                     @php    
-                                        $media_tfm=number_format($item['media'], '3', ',', '');
+                                        $media_tfm=number_format(floatval($item['media']), '3', ',', '');
                                     @endphp
                                 @endif
                             @endforeach

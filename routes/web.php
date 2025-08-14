@@ -534,9 +534,6 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('exportaAlunoDiploma', ['as' => 'exportaAlunoDiploma', 'uses' => 'Ajax\Diploma\DiplomaController@exportAlunos'])->middleware('checkauth');
     });
 
-    
-
-    
     //Route::get('correcao-comandanteCurso', 'Ajax\LancamentosController@CorrecaoComandante');
 });
 

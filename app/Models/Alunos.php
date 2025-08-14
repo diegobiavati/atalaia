@@ -269,19 +269,23 @@ class Alunos extends Model
         ]);
     }
 
-    public function conselhoEscolar(){
+    public function conselhoEscolar()
+    {
         return $this->hasMany('App\Models\AlunosConselhoEscolar', 'aluno_id', 'id');
     }
 
-    public function lancamento_fo(){
+    public function lancamento_fo()
+    {
         return $this->hasMany('App\Models\LancamentoFo', 'aluno_id', 'id');
     }
-    
-    public function capitaniNotas(){
+
+    public function capitaniNotas()
+    {
         return $this->hasMany('App\Models\CapitaniMSAccess', 'aluno_id', 'id');
     }
 
-    public function esaAvaliacoesDemonstrativo(){
+    public function esaAvaliacoesDemonstrativo()
+    {
         return $this->hasMany('App\Models\EsaAvaliacoesDemonstrativo', 'id_aluno', 'id');
     }
 
@@ -302,10 +306,11 @@ class Alunos extends Model
         return $data_nascimento;
     }
 
-    public function formacao(){
-        if(isset($this->ano_formacao_reintegr_id)){
+    public function formacao()
+    {
+        if (isset($this->ano_formacao_reintegr_id)) {
             return $this->ano_formacao_rematr;
-        }else{
+        } else {
             return $this->ano_formacao;
         }
     }
@@ -377,7 +382,7 @@ class Alunos extends Model
                 $unserialize = unserialize($alunoSitDiv->situacaoDivHistorico->data);
 
                 $aluno = new Alunos($unserialize['cadastro']);
-                
+
                 $aluno->id = $alunoSitDiv->situacaoDivHistorico->aluno_id;
 
                 $aluno->data_matricula = $alunoSitDiv->data_matricula;
@@ -386,73 +391,91 @@ class Alunos extends Model
                 $aluno->area_id = $alunoSitDiv->area_id;
                 $aluno->situacoes_diversas_id = $alunoSitDiv->situacoes_diversas_id;
                 $aluno->situacoes_diversas_obs = preg_replace('/(\'|")/', '”', $alunoSitDiv->situacoes_diversas_obs);
-                
+
                 $alunos->push($aluno);
             }
         }
         return $alunos;
     }
 
-    private static function retornaAlunosComQms($anoFormacaoID=0){
-        
-        $aluno = Alunos::whereNotNull('qms_id')->orderBy('numero');
+    public static function retornaAlunosUETE($anoFormacaoID = 0, $area, $segmento)
+    {
 
-        if($anoFormacaoID > 0){
-            //return $aluno->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
+        $aluno = Alunos::whereNull('qms_id')->where('sexo', $segmento)->where('area_id', $area)->orderBy('numero');
+
+        if ($anoFormacaoID > 0) {
             //Passa a Pegar os alunos que foram integrados
-            return $aluno->where(function($query) use ($anoFormacaoID){
+            return $aluno->where(function ($query) use ($anoFormacaoID) {
                 return $query->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
             });
-            
+        }
+
+        return $aluno;
+    }
+
+    private static function retornaAlunosComQms($anoFormacaoID = 0)
+    {
+
+        $aluno = Alunos::whereNotNull('qms_id')->orderBy('numero');
+
+        if ($anoFormacaoID > 0) {
+            //return $aluno->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
+            //Passa a Pegar os alunos que foram integrados
+            return $aluno->where(function ($query) use ($anoFormacaoID) {
+                return $query->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
+            });
         }
 
         return $aluno->with('qms');
     }
 
-    public static function retornaAlunosComQmsESA($anoFormacaoID=0, $colunas=[]){
-        
-        $aluno = Alunos::retornaAlunosComQmsESAGeral($anoFormacaoID);
-      
-        if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
+    public static function retornaAlunosComQmsESA($anoFormacaoID = 0, $colunas = [])
+    {
 
-            $aluno->whereHas('qms', function($q){
+        $aluno = Alunos::retornaAlunosComQmsESAGeral($anoFormacaoID);
+
+        if (session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)) {
+
+            $aluno->whereHas('qms', function ($q) {
                 $q->where('qms_matriz_id', '=', session()->get('qms_selecionada'));
             });
-            
-        }else if(!in_array('9999', session()->get('login.perfil'))
-                && !in_array('9003', session()->get('login.perfil'))
-                && !in_array('9004', session()->get('login.perfil'))
-                && !in_array('9005', session()->get('login.perfil'))
-                //&& !in_array('9006', session()->get('login.perfil'))
-                && !in_array('9007', session()->get('login.perfil'))
-        ){
-            if($anoFormacaoID > 0){
+        } else if (
+            !in_array('9999', session()->get('login.perfil'))
+            && !in_array('9003', session()->get('login.perfil'))
+            && !in_array('9004', session()->get('login.perfil'))
+            && !in_array('9005', session()->get('login.perfil'))
+            //&& !in_array('9006', session()->get('login.perfil'))
+            && !in_array('9007', session()->get('login.perfil'))
+        ) {
+            if ($anoFormacaoID > 0) {
                 $aluno->where('qms_id', QMS::where([
                     ['escolha_qms_id', '=', EscolhaQMS::where('ano_formacao_id', $anoFormacaoID)->first()->id],
                     ['qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id')]
-                ])->first()->id );
+                ])->first()->id);
             }
-        }                
+        }
 
-        if(count($colunas) == 0){
+        if (count($colunas) == 0) {
             $colunas = null;
         }
 
         return $aluno->get($colunas);
     }
 
-    public static function retornaAlunosComQmsESAGeral($anoFormacaoID=0){
+    public static function retornaAlunosComQmsESAGeral($anoFormacaoID = 0)
+    {
         $qms_alias_esa = ['infantaria', 'cavalaria', 'artilharia', 'engenharia', 'comunicacoes'];
 
         $aluno = Alunos::retornaAlunosComQms($anoFormacaoID)
-                ->whereHas('qms', function($query) use($qms_alias_esa) {
-                    $query->whereIn('qms_alias', $qms_alias_esa);
-                });
-                
+            ->whereHas('qms', function ($query) use ($qms_alias_esa) {
+                $query->whereIn('qms_alias', $qms_alias_esa);
+            });
+
         return $aluno;
     }
 
-    public static function retornaAlunosComQmsEspecifica($anoFormacaoID, $arrayIdQms){
+    public static function retornaAlunosComQmsEspecifica($anoFormacaoID, $arrayIdQms)
+    {
         return Alunos::retornaAlunosComQms($anoFormacaoID)->whereIn('qms_id', $arrayIdQms);
     }
 
@@ -514,7 +537,7 @@ class Alunos extends Model
 
     public function regrasEsa()
     {
-        
+
         return [
             'numero' => 'required|numeric',
             'nome_completo' => 'required',
@@ -588,7 +611,7 @@ class Alunos extends Model
             'habilidades' => 'Habilidades',
             'sexo' => 'Segmento',
             'email' => ' E-mail',
-            
+
             //'precedencia' => '(Definir)',
             'data_cadastro' => 'Data de Cadastro',
             'al_inscricao' => 'Número Inscrição',

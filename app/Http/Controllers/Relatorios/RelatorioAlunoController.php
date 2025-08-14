@@ -1303,9 +1303,6 @@ class RelatorioAlunoController extends Controller
 
     public function ViewRelacaoAlunoReprovado(Request $request)
     {
-
-        /*if ($this->ownauthcontroller->PermissaoCheck(1)) {*/
-
         $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
 
         $uetes = FuncoesController::retornaUetePerfil($this->ownauthcontroller);

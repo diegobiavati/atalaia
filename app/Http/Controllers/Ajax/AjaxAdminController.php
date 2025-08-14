@@ -716,8 +716,10 @@ class AjaxAdminController extends Controller
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
         $id_ano_corrente = ($ano_corrente->id) ?? 0;
 
-        $total_geral_alunos = Alunos::where('data_matricula', $id_ano_corrente)->where('sexo', 'M')->where('area_id', 1)->get(['id']);
-        $total_geral_alunas = Alunos::where('data_matricula', $id_ano_corrente)->where('sexo', 'F')->where('area_id', 1)->get(['id']);
+        //$total_geral_alunos = Alunos::where('data_matricula', $id_ano_corrente)->where('sexo', 'M')->where('area_id', 1)->get(['id']);
+        //$total_geral_alunas = Alunos::where('data_matricula', $id_ano_corrente)->where('sexo', 'F')->where('area_id', 1)->get(['id']);
+        $total_geral_alunos = Alunos::retornaAlunosUETE($id_ano_corrente, 1, 'M')->get(['id']);
+        $total_geral_alunas = Alunos::retornaAlunosUETE($id_ano_corrente, 1, 'F')->get(['id']);
 
         foreach ($total_geral_alunos as $item) {
             $alunosIds[] = $item->id;
@@ -743,7 +745,6 @@ class AjaxAdminController extends Controller
                 }
             }
         }
-
 
         $total_alunos_aptos = (isset($total_alunos_aptos_array)) ? array_sum($total_alunos_aptos_array) : '---';
         $total_alunas_aptas = (isset($total_alunas_aptas_array)) ? array_sum($total_alunas_aptas_array) : '---';
