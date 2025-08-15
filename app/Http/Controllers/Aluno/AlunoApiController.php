@@ -743,5 +743,10 @@ class AlunoApiController extends Controller
                     'password' => bcrypt($aluno->doc_cpf) // defina a senha padrão
                 ]);
         }
+
+        return response()->json([
+            'status' => 'ok',
+            'message' => 'Cadastro de alunos corrigido com sucesso!'
+        ]);
     }
 }
