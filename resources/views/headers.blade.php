@@ -33,9 +33,9 @@
             background-color: #E6E6E6;
             z-index: 10;
             text-align: center;
-            height: 60px;
+            height: 40px;
             /* defina uma altura clara */
-            line-height: 60px;
+            line-height: 20px;
             /* centraliza verticalmente o conteúdo */
         }
 

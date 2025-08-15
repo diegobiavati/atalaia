@@ -65,7 +65,7 @@ a.no-style2:hover{
       @endif
       a área do aluno no Sistema Atalaia     
     </h3>
-    <div style="text-align: center; margin-top: 36px;">
+    <!--<div style="text-align: center; margin-top: 36px;">
       <button type="button" class="btn btn-primary" onclick="comecarAssistenteInstalacaoApp({{auth()->id()}});">Assistente de instalação do Telegram</button>
     </div>
     <div style="text-align: center; margin-top: 36px;">
@@ -74,7 +74,7 @@ a.no-style2:hover{
         <span class="hide-passaport" style="display: none;">Esconder passaporte</span>
         <span class="passaport" style="display: none;"><br />{{(isset($aluno->passaporte) ? $aluno->passaporte->passaport : null)}}</span>
       </button>
-    </div>
+    </div>-->
     <h3 style="text-align: center; margin-top: 44px;">Para fazer a escolha de QMS, clique no botão abaixo</h3>
     <div style="text-align: center; margin-top: 36px;">
       <button type="button" class="btn btn-warning" onclick="DialogescolhaDeQMS({{$aluno->id}}, {{auth()->id()}});">

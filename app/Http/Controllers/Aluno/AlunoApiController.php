@@ -42,6 +42,8 @@ use App\Models\OMCT;
 use App\Models\SituacoesDiversas;
 use App\Models\TurmasEsa;
 use App\Models\Users;
+use App\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AlunoApiController extends Controller
@@ -711,5 +713,35 @@ class AlunoApiController extends Controller
         $this->classLog->RegistrarLog('Acessou modelo de notas capitani', auth()->user()->email);
         //return view('relatorios.modelo-notas-capitani', compact('mencoes', 'disciplinas', 'disciplinas_capitani', 'alunos_classif'));
         return view('relatorios.modelo-notas-capitani', compact('lista_colunas', 'lista_retorno'));
+    }
+
+    public function CorrigirCadastroAluno()
+    {
+        $alunos = Alunos::whereNotExists(function ($query) {
+            $query->select(DB::raw(1))
+                ->from('users as u')
+                ->whereRaw('u.email = alunos.email');
+        })->get();
+
+        foreach ($alunos as $aluno) {
+            User::create([
+                'email'    => $aluno->email,
+                'password' => bcrypt($aluno->doc_cpf) // defina a senha padrão
+            ]);
+        }
+
+        // Pega último ano de formação
+        $ultimoAno = AnoFormacao::orderBy('formacao', 'desc')->first();
+
+        // Busca todos os alunos M e F de uma vez
+        $alunos = Alunos::retornaAlunosUETE($ultimoAno, 1, 'M')
+            ->merge(Alunos::retornaAlunosUETE($ultimoAno, 1, 'F'));
+
+        foreach ($alunos as $aluno) {
+            User::where('email', $aluno->email)
+                ->update([
+                    'password' => bcrypt($aluno->doc_cpf) // defina a senha padrão
+                ]);
+        }
     }
 }

@@ -21,6 +21,8 @@ Route::group(['prefix' => 'download', 'as' => 'download.'], function () {
 
 Route::group(['prefix' => 'ajax', 'as' => 'ajax.', 'middleware' => ['checkauth']], function () {
 
+    Route::get('corrigir-cadastro-aluno', ['as' => 'corrigir-cadastro-aluno', 'uses' => 'Aluno\AlunoApiController@CorrigirCadastroAluno']);
+
     /* ROTAS PARA SUPER ADMINISTRADORES E OPERADORES (MENU PRINCIPAL)*/
     Route::get('gerenciar-operadores', ['as' => 'gerenciar-operadores', 'uses' => 'Ajax\AjaxAdminController@GerenciarOperadores']);
     
@@ -522,8 +524,6 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
     //Fim SSAA
 
     Route::get('/executar-sql', 'Utilitarios\FuncoesController@executarSQL')->middleware('auth');
-
-
 
     /* Rotas Para Diploma Digital */
     Route::get('view-diploma', ['as' => 'view-diploma', 'uses' => 'Ajax\AjaxAdminGaviaoController@DiplomaDigital']);

@@ -74,7 +74,6 @@ class EscolhaQMSLoader
         } else if (!is_null($id) && is_array($id)) {
 
             // $segmento SERÁ IGNORADO
-
             $opcoes_data = $this->alunos_opcoes->whereIn('aluno_id', $id)->where('escolha_qms_id', $this->escolha_qms_id)->get();
             foreach ($opcoes_data as $res) {
                 if (!is_null($res->opcoes)) {
@@ -364,11 +363,8 @@ class EscolhaQMSLoader
             }
     
             $alunos_class = ($alunos_class) ?? array(0);
-            //dd(implode(',', $alunos_class));
             // SELECIONANDO TODOS OS ALUNOS DO SEGMENTO SELECIONADO (aprovados menos os já designados para aviação)
     
-            //$alunos = $this->alunos->where('sexo', $segmento)->whereIn('id', $alunos_aprovados)->whereNotIn('id', $alunos_aviacao_ID)->orderBy($this->alunos->classificacao(), 'asc')->get();
-            
             $alunos = DB::select("SELECT alunos.*, alunos_classificacao.classificacao, alunos_classificacao.classificacao_por_area, alunos_classificacao.nota_final_arredondada FROM alunos
                                     INNER JOIN alunos_classificacao ON alunos.id=alunos_classificacao.aluno_id
                                     WHERE sexo='" . $segmento . "'
@@ -425,7 +421,7 @@ class EscolhaQMSLoader
                             $info = json_decode($alunos_opcoes[$item->id]['info']);
                             
                             EscolhaQMSAlunosOpcoes::where([['id', '=', $info->id]])->update(['opcoes' => serialize($alunos_opcoes_new)]);
-                            dd($alunos_opcoes[$item->id], $item->numero, $opcao);
+                            //dd($alunos_opcoes[$item->id], $item->numero, $opcao);
                             //Fim Remover
                         }                        
                     }

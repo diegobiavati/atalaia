@@ -157,7 +157,7 @@ class RelatoriosController extends Controller
         
     }
 
-    public function RelatoriosEscolhaQMS (OwnAuthController $ownauthcontroller, Request $request, EscolhaQMSLoader $escolhaQMS) {
+    public function RelatoriosEscolhaQMS(OwnAuthController $ownauthcontroller, Request $request, EscolhaQMSLoader $escolhaQMS) {
         
         $valida = FuncoesController::validaSessao();
 
