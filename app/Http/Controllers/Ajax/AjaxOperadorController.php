@@ -737,7 +737,7 @@ class AjaxOperadorController extends Controller
         $omcts_ids = ($omcts_ids) ?? array();
 
         $alunos = Alunos::where([['data_matricula', '=', $ano_corrente->id]])
-            ->whereHas('aluno_voluntario_aviacao')->get();
+            ->whereHas('aluno_voluntario_aviacao')->orderBy('numero', 'asc')->get();
 
         $exameAviacao = true;
             
