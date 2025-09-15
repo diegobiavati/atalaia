@@ -218,12 +218,9 @@ class FuncoesController
 
                 $indice_avaliacao = $nota->avaliacao->nome_abrev . ' - ' . $nota->avaliacao->chamada . 'ª chamada';
                 $avaliacao = (object) array(
-                    'indice_notas' => array_key_last($aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['notas'])
-                    ,
-                    'nota' => $getNota
-                    ,
-                    'nome_abrev' => $nota->avaliacao->nome_abrev
-                    ,
+                    'indice_notas' => array_key_last($aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['notas']),
+                    'nota' => $getNota,
+                    'nome_abrev' => $nota->avaliacao->nome_abrev,
                     'peso' => $nota->avaliacao->peso
                 );
 
@@ -290,14 +287,13 @@ class FuncoesController
                         $aluno_notas[$disciplina_id][$aluno_id]['media'] = array_sum($aluno_notas[$disciplina_id][$aluno_id]['notas']) / $quantidadeAvaliacao;
 
                         $aluno_notas[$disciplina_id]['max_disciplina'] = ($aluno_notas[$disciplina_id][$aluno_id]['media'] > $aluno_notas[$disciplina_id]['max_disciplina']
-                        ? $aluno_notas[$disciplina_id][$aluno_id]['media']
-                        : $aluno_notas[$disciplina_id]['max_disciplina']);
+                            ? $aluno_notas[$disciplina_id][$aluno_id]['media']
+                            : $aluno_notas[$disciplina_id]['max_disciplina']);
 
                         $aluno_notas[$disciplina_id]['min_disciplina'] = ((($aluno_notas[$disciplina_id][$aluno_id]['media'] < $aluno_notas[$disciplina_id]['min_disciplina'])
                             || ($aluno_notas[$disciplina_id]['min_disciplina'] == 0))
                             ? $aluno_notas[$disciplina_id][$aluno_id]['media']
                             : $aluno_notas[$disciplina_id]['min_disciplina']);
-                            
                     } else {
                         $aluno_notas[$disciplina_id][$aluno_id]['media'] = 0;
                         $aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso'] = array_sum($aluno_notas[$disciplina_id][$aluno_id]['notas_sem_peso']) / count($aluno_notas[$disciplina_id][$aluno_id]['notas_sem_peso']);
@@ -305,8 +301,8 @@ class FuncoesController
                         $aluno_notas[$disciplina_id]['media_disciplina_s_peso'] += $aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso'];
 
                         $aluno_notas[$disciplina_id]['max_disciplina_s_peso'] = ($aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso'] > $aluno_notas[$disciplina_id]['max_disciplina_s_peso']
-                        ? $aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso']
-                        : $aluno_notas[$disciplina_id]['max_disciplina_s_peso']);
+                            ? $aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso']
+                            : $aluno_notas[$disciplina_id]['max_disciplina_s_peso']);
 
                         $aluno_notas[$disciplina_id]['min_disciplina_s_peso'] = ((($aluno_notas[$disciplina_id][$aluno_id]['media_sem_peso'] < $aluno_notas[$disciplina_id]['min_disciplina_s_peso'])
                             || ($aluno_notas[$disciplina_id]['min_disciplina_s_peso'] == 0))
@@ -417,17 +413,19 @@ class FuncoesController
 
     public function executarSQL(Request $request)
     {
-        // EXEMPLO: Atualizar senha de um usuário
-        $sql = "UPDATE `atalaia`.`omcts` SET `omct`= ?, `sigla_omct`=? WHERE  `id`=?;";
-        $bindings = [
-            '12º GRUPO DE ARTILHARIA ANTIAÉREA',
-            '12º GAAAe',
-            3
+        $updates = [
+            13740 => 'gabrielalvesmoreira.1605@gmail.com',
+            13741 => 'ricardolaceheras@gmail.com',
         ];
 
         try {
-            DB::update($sql, $bindings);
-            return 'Comando SQL executado com sucesso.';
+            foreach ($updates as $id => $email) {
+                DB::update(
+                    "UPDATE alunos SET email = ? WHERE id = ?",
+                    [$email, $id]
+                );
+            }
+            return 'Comandos SQL executados com sucesso.';
         } catch (\Exception $e) {
             return 'Erro: ' . $e->getMessage();
         }
