@@ -375,7 +375,7 @@ class AlunoApiController extends Controller
             }
 
             $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
-
+            
             if (
                 trim($dados['nome_guerra']) <> trim($aluno->nome_guerra)
                 || ($dados['data_matricula'] <> $aluno->data_matricula)
@@ -399,9 +399,13 @@ class AlunoApiController extends Controller
                 $dados['bonificacao_atleta'] = ((isset($dados['atleta_marexaer']) && $dados['atleta_marexaer'] == 'S') ? $dados['bonificacao_atleta'] : null);
 
                 if (trim($aluno->email) <> trim($dados['email'])) {
-                    Users::where(['email' => $aluno->email])->update(['email' => $dados['email']]);
+                    if (!Users::where('email', $dados['email'])->exists()) {
+                        Users::where('email', $aluno->email)
+                            ->update(['email' => $dados['email']]);
+                    }
+                    //Users::where(['email' => $aluno->email])->update(['email' => $dados['email']]);
                 }
-
+                
                 $update = $aluno->update($dados);
 
                 if ($update) {
@@ -734,8 +738,11 @@ class AlunoApiController extends Controller
         $ultimoAno = AnoFormacao::orderBy('formacao', 'desc')->first();
 
         // Busca todos os alunos M e F de uma vez
-        $alunos = Alunos::retornaAlunosUETE($ultimoAno, 1, 'M')
-            ->merge(Alunos::retornaAlunosUETE($ultimoAno, 1, 'F'));
+
+        $alunosM = Alunos::retornaAlunosUETE($ultimoAno->id, 1, 'M')->get();
+        $alunosF = Alunos::retornaAlunosUETE($ultimoAno->id, 1, 'F')->get();
+
+        $alunos = $alunosM->merge($alunosF);
 
         foreach ($alunos as $aluno) {
             User::where('email', $aluno->email)
