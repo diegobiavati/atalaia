@@ -209,31 +209,4 @@
         }
     });
 
-    /*$(document).ready(function() {
-        $('#input_busca_rapida_aluno').autocomplete({
-            source: function(request, response) {
-                $.ajax({
-                    url: "{{ route('ajax.alunos.busca-ajax') }}",
-                    data: {
-                        termo: request.term
-                    },
-                    success: function(data) {
-                        response(data.map(function(aluno) {
-                            return {
-                                label: aluno.numero + " - " + aluno.nome_completo,
-                                value: aluno.nome_completo,
-                                id: aluno.id
-                            };
-                        }));
-                    }
-                });
-            },
-            minLength: 0,
-            select: function(event, ui) {
-                loadAdminAjaxContent('admin/aluno/' + ui.item.id);  
-            }
-        }).focus(function() {
-            $(this).autocomplete("search", ""); // abre igual datalist ao focar
-        });
-    });*/
 </script>

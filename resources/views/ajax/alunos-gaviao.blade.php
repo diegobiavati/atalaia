@@ -15,19 +15,8 @@
     <div class="card-header">
         <i class="ion-ios-calendar-outline"></i><strong>Alunos</strong>
         <div style="float: right">
-            <div class="box-pesquisar-in-card-title" style="display: inline-block; padding:0; height: 36px;">
-                <input id="input_busca_rapida_aluno" class="pesquisar-in-card-title" type="text" placeholder="Busca rápida" list="alunos_list" style="width: 300px;" />
-                <datalist id="alunos_list">
-                    @foreach($alunos as $aluno)
-                        <option value="{{$aluno->id.' - '.$aluno->nome_completo}}" style="background-color: #ccc;">
-                            <a href"#">Al {{$aluno->numero}} {{$aluno->nome_completo}} {{$aluno->omct->sigla_omct or ''}}</a>
-                        </option>
-                    @endforeach
-                </datalist>                
-                <a class="no-style" href="javascript: void(0);">
-                    <i class="ion-android-search" style="color: #696969;"></i>
-                </a>
-            </div>
+            @include('aluno.pesquisaAluno')
+            
             @if($ownauthcontroller->PermissaoCheck(8))
                 <a href="javascript: void(0);" data-toggle="popover" data-container="body" data-placement="bottom" data-html="true" style="margin-left: 12px;">
                     <i class="ion-android-more-vertical" style="color: #696969;"></i>

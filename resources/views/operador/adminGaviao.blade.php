@@ -3,6 +3,7 @@
 
 <script src="/js/jquery.mask.min.js"></script>
 <script src="/js/bootstrap-4.0.0.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
 @stop
 @section('css-includes')
@@ -11,7 +12,7 @@
 <link href="/css/menu_style_gaviao.css" rel="stylesheet" type="text/css" />
 <link href="/css/style.css" rel="stylesheet" type="text/css" />
 <link href="/css/font-exo.css" rel="stylesheet" type="text/css" />
-
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <?php
     $backgroundColor = session()->get('backgroundColor');
     $backgroundVisaoGeral = session()->get('backgroundVisaoGeral');
