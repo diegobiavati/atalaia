@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\Alunos;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth', 'prefix' => 'operador', 'as' => 'operador.'], function () {
@@ -267,6 +269,10 @@ Route::group(['prefix' => 'ajax', 'as' => 'ajax.', 'middleware' => ['checkauth']
     Route::get('escolha-de-qms-aluno/{alunoID}/{userID}', 'Ajax\AjaxEscolhaDeQMSAlunoController@DialogEscolhadeQMSAluno');
     Route::post('gravar-opcoes-aluno', 'Ajax\AjaxEscolhaDeQMSAlunoController@GravarOpcoesAluno');
     Route::get('limpar-opcoes-aluno/{escolha_qms_id}/{aluno_id}', 'Ajax\AjaxEscolhaDeQMSAlunoController@LimparOpcoesAluno');
+    Route::resource('troca-arquivos', 'Ajax\TrocaArquivosController');
+
+    Route::get('alunos/busca-ajax', 'Aluno\AlunoApiController@BuscaAjax')->name('alunos.busca-ajax');
+    
 });
 
 /* ROTAS PARA SUBMIT DE RELATÓRIOS */
@@ -537,4 +543,4 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
     //Route::get('correcao-comandanteCurso', 'Ajax\LancamentosController@CorrecaoComandante');
 });
 
-Route::get('consulta-bi', 'Utilitarios\FuncoesController@consultaBI');
+//Route::get('consulta-bi', 'Utilitarios\FuncoesController@consultaBI');

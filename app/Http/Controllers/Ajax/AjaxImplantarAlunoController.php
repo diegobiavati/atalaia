@@ -854,7 +854,7 @@ class AjaxImplantarAlunoController extends Controller
 
             $user = new User;
             $user->email = $email;
-            $user->password = bcrypt(uniqid());
+            $user->password = bcrypt($aluno->doc_cpf);
 
             $aluno->al_inscricao = $request->al_inscricao;
             $aluno->nasc_cidade = $request->nasc_cidade;

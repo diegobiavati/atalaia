@@ -4815,12 +4815,12 @@ class AjaxAdminController extends Controller
                 "cadastro_al_pendente" => $cadastro_al_pendente
             );
         }
-
+        
         //$alunos['list'] = Alunos::get();
-        $alunos['list'] = Alunos::carregaAlunosVsAlunosSitDiv();
+        //$alunos['list'] = Alunos::carregaAlunosVsAlunosSitDiv();
 
         return view('ajax.alunos')->with('ownauthcontroller', $ownauthcontroller)
-            ->with('alunos', $alunos)
+            //->with('alunos', $alunos)
             ->with('omcts', $omcts)
             ->with('areas', $areas)
             ->with('anos_formacao', $anos_formacao)
@@ -5100,7 +5100,7 @@ class AjaxAdminController extends Controller
 
             $user = new User;
             $user->email = $email;
-            $user->password = bcrypt(uniqid());
+            $user->password = bcrypt($aluno->doc_cpf);
 
 
             if ($aluno->save() && $user->save()) {
@@ -6018,7 +6018,7 @@ class AjaxAdminController extends Controller
             $user = new User;
 
             $user->email = $alunoSitDiv->email;
-            $user->password = $alunoSitDiv->email;
+            $user->password = bcrypt($aluno->doc_cpf);
 
             // $user->save();
 

@@ -50,6 +50,8 @@ class AlunoApiController extends Controller
 {
     protected $classLog;
     protected $ownauthcontroller;
+    protected $request;
+    protected $aluno;
 
     public function __construct(Alunos $aluno, Request $request, ClassLog $classLog, OwnAuthController $ownauthcontroller)
     {
@@ -755,5 +757,15 @@ class AlunoApiController extends Controller
             'status' => 'ok',
             'message' => 'Cadastro de alunos corrigido com sucesso!'
         ]);
+    }
+
+    public function BuscaAjax(){
+
+        $termo = $this->request->get('termo');
+
+        return Alunos::where('nome_guerra', 'like', '%'.$termo.'%')
+            ->orWhere('nome_completo', 'like', '%'.$termo.'%')
+            ->limit(10)
+            ->get(['id', 'numero', 'nome_guerra', 'nome_completo', 'doc_cpf']);
     }
 }

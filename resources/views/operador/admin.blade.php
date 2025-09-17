@@ -1,6 +1,10 @@
 @extends('headers')
 @section('js-includes')
 <script src="/js/jquery.mask.min.js"></script>
+
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.js" type="text/javascript"></script>
 <script>
 
@@ -2182,7 +2186,7 @@ function onMessageArrived(message) {
 
         /* CHAMA EDIÇÃO DO ALUNO APOS PRESSIONAR ENTER NO INPUT */
 
-        $(document).on('keypress', 'input#input_busca_rapida_aluno', function(e) {
+        /*$(document).on('keypress', 'input#input_busca_rapida_aluno', function(e) {
             if (e.which==13) {
                 //var alunoNome = $(this).val();
                 var alunoId = $(this).val();
@@ -2191,7 +2195,7 @@ function onMessageArrived(message) {
                 //Original Julião...
                 //dialogEditarCadastroAluno(alunoNome, 'byName');       
             }
-        });
+        });*/
         
         /* FUNÇÃO AJAX QUE CHAMA MODAL PARA EDIÇÃO DOS DADOS DO ALUNO  */
 
