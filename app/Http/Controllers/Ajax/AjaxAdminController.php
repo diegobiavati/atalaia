@@ -67,6 +67,7 @@ class AjaxAdminController extends Controller
 {
     protected $lancarTaf;
     protected $classLog;
+    protected $request;
     public $user_info;
     protected $ownauthcontroller;
 
@@ -83,7 +84,9 @@ class AjaxAdminController extends Controller
     {
 
         if ($this->ownauthcontroller->PermissaoCheck(1)) {
-            $operadores = Operadores::whereNotNull('omcts_id')->where([['ativo', '=', 'S']])->orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
+            $operadores = Operadores::whereNotNull('omcts_id')->whereNull('qms_matriz_id')
+            //->where([['ativo', '=', 'S']])
+            ->orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
         } else {
             $operadores = Operadores::where([['omcts_id', '=', session()->get('login.omctID')], ['ativo', '=', 'S']])->orderBy('postograd_id', 'asc')->get();
         }

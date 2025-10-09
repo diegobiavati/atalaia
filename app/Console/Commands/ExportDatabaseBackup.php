@@ -10,50 +10,43 @@ use Illuminate\Support\Facades\Storage;
 class ExportDatabaseBackup extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Nome e assinatura do comando.
      *
      * @var string
      */
     protected $signature = 'backup:multi-sql';
 
     /**
-     * The console command description.
+     * Descrição do comando.
      *
      * @var string
      */
-    protected $description = 'Exporta múltiplos bancos de dados (tabelas + views) para um único arquivo .sql';
+    protected $description = 'Exporta múltiplos bancos de dados (tabelas + views) para um único arquivo .sql compatível entre MySQL 5.6–8.0';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * Execute the console command.
-     *
-     * @return mixed
+     * Executa o comando.
      */
     public function handle()
     {
         $connections = [
-            'mysql' => env('DB_DATABASE'),        // conexão principal
-            'mysql_ssaa'  => env('DB_DATABASE_SSAA'),   // conexão adicional
+            'mysql'       => env('DB_DATABASE'),         // conexão principal
+            'mysql_ssaa'  => env('DB_DATABASE_SSAA'),    // conexão adicional
         ];
 
         $sqlDump = "-- Backup de múltiplos bancos\n";
         $sqlDump .= "-- Gerado em: " . now() . "\n\n";
 
         foreach ($connections as $connName => $dbName) {
+            if (!$dbName) {
+                $this->warn("⚠️ Conexão '$connName' ignorada — banco não definido no .env");
+                continue;
+            }
+
             $this->info("🎯 Exportando banco: $dbName (conexão: $connName)");
 
             $tableKey = 'Tables_in_' . $dbName;
 
-            // Executa SHOW TABLES/VIEW após trocar de banco
+            // Listar tabelas e views
             $tables = DB::connection($connName)->select('SHOW FULL TABLES WHERE Table_type = "BASE TABLE"');
             $views  = DB::connection($connName)->select('SHOW FULL TABLES WHERE Table_type = "VIEW"');
 
@@ -61,7 +54,10 @@ class ExportDatabaseBackup extends Command
             $sqlDump .= "CREATE DATABASE IF NOT EXISTS `$dbName`;\nUSE `$dbName`;\n";
             $sqlDump .= "SET FOREIGN_KEY_CHECKS = 0;\n\n";
 
-            // ▶️ Tabelas
+            // Desativar logs de queries para desempenho
+            DB::connection($connName)->disableQueryLog();
+
+            // ▶️ Exportar tabelas
             foreach ($tables as $tableObj) {
                 $table = $tableObj->$tableKey;
                 $this->info("📦 Tabela: $table");
@@ -74,27 +70,46 @@ class ExportDatabaseBackup extends Command
                     continue;
                 }
 
+                // Corrigir collations incompatíveis
+                $createSql = preg_replace('/utf8mb4_0900_ai_ci/i', 'utf8mb4_unicode_ci', $createSql);
+                $createSql = preg_replace('/utf8mb4_0900_as_ci/i', 'utf8mb4_unicode_ci', $createSql);
+
                 $sqlDump .= "-- Estrutura da tabela `$table`\n";
                 $sqlDump .= "DROP TABLE IF EXISTS `$table`;\n";
                 $sqlDump .= $createSql . ";\n\n";
 
-                $columns = Schema::connection($connName)->getColumnListing($table);
+                // Obter colunas corretamente (SHOW COLUMNS é mais estável)
+                $columns = collect(DB::connection($connName)->select("SHOW COLUMNS FROM `$table`"))
+                    ->pluck('Field')
+                    ->toArray();
 
-                DB::connection($connName)->table($table)->orderBy($columns[0])->chunk(500, function ($rows) use (&$sqlDump, $columns, $table) {
-                    foreach ($rows as $row) {
-                        $values = array_map(function ($col) use ($row) {
-                            $v = $row->$col;
-                            return is_null($v) ? 'NULL' : "'" . addslashes($v) . "'";
-                        }, $columns);
+                $hashSet = [];
 
-                        $sqlDump .= "INSERT INTO `$table` (`" . implode('`,`', $columns) . "`) VALUES (" . implode(',', $values) . ");\n";
-                    }
-                });
+                DB::connection($connName)
+                    ->table($table)
+                    ->orderBy($columns[0])
+                    ->chunk(500, function ($rows) use (&$sqlDump, $columns, $table, &$hashSet) {
+                        foreach ($rows as $row) {
+                            $values = array_map(function ($col) use ($row) {
+                                $v = $row->$col;
+                                return is_null($v) ? 'NULL' : "'" . addslashes($v) . "'";
+                            }, $columns);
+
+                            $line = "INSERT IGNORE INTO `$table` (`" . implode('`,`', $columns) . "`) VALUES (" . implode(',', $values) . ");";
+                            $hash = md5($line);
+
+                            // Evita registros duplicados no dump
+                            if (!isset($hashSet[$hash])) {
+                                $hashSet[$hash] = true;
+                                $sqlDump .= $line . "\n";
+                            }
+                        }
+                    });
 
                 $sqlDump .= "\n\n";
             }
 
-            // ▶️ Views
+            // ▶️ Exportar views
             foreach ($views as $viewObj) {
                 $view = $viewObj->$tableKey;
                 $this->info("🪟 View: $view");
@@ -107,6 +122,10 @@ class ExportDatabaseBackup extends Command
                     continue;
                 }
 
+                // Corrigir collations
+                $createView = preg_replace('/utf8mb4_0900_ai_ci/i', 'utf8mb4_unicode_ci', $createView);
+                $createView = preg_replace('/utf8mb4_0900_as_ci/i', 'utf8mb4_unicode_ci', $createView);
+
                 $sqlDump .= "-- View `$view`\n";
                 $sqlDump .= "DROP VIEW IF EXISTS `$view`;\n";
                 $sqlDump .= $createView . ";\n\n";
@@ -115,11 +134,16 @@ class ExportDatabaseBackup extends Command
             $sqlDump .= "SET FOREIGN_KEY_CHECKS = 1;\n\n";
         }
 
-        $filename = 'backups/'.date('Y').'/'.date('m').'/multibackup_' . now()->format('dmY_His') . '.sql';
+        // Caminho e nome do arquivo
+        $filename = 'backups/' . date('Y') . '/' . date('m') . '/multibackup_' . now()->format('dmY_His') . '.sql';
+
+        // Cria diretórios se necessário
+        Storage::makeDirectory(dirname($filename));
+
         Storage::put($filename, $sqlDump);
         $this->info("✅ Backup .sql salvo em: storage/app/public/$filename");
 
-        // Comprimir em .gz
+        // Compactar em .gz
         $originalPath = storage_path("app/public/$filename");
         $gzPath = $originalPath . '.gz';
 
@@ -127,9 +151,9 @@ class ExportDatabaseBackup extends Command
         gzwrite($gz, file_get_contents($originalPath));
         gzclose($gz);
 
-        // (Opcional) remover o .sql original
+        // Remove o SQL original
         unlink($originalPath);
 
-        $this->info("📦 Backup comprimido: $gzPath");
+        $this->info("📦 Backup comprimido: $gzPath (" . round(filesize($gzPath)/1024/1024, 2) . " MB)");
     }
 }
