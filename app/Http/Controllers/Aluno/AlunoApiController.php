@@ -765,6 +765,7 @@ class AlunoApiController extends Controller
 
         return Alunos::where('nome_guerra', 'like', '%'.$termo.'%')
             ->orWhere('nome_completo', 'like', '%'.$termo.'%')
+            ->orWhere('numero', 'like', '%'.$termo.'%')
             ->limit(10)
             ->get(['id', 'numero', 'nome_guerra', 'nome_completo', 'doc_cpf']);
     }
