@@ -57,7 +57,8 @@ class AjaxAdminGaviaoController extends Controller
     {
         //if(in_array('9999', session()->get('login.perfil'))){//Caso seja o Administrador
         if($ownauthcontroller->PerfilCheck([9999])){//Caso seja o Administrador
-            $operadores = Operadores::whereNotNull('qms_matriz_id')->where([['ativo', '=', 'S']])
+            $operadores = Operadores::whereNotNull('qms_matriz_id')
+            //->where([['ativo', '=', 'S']])
             ->orderBy('qms_matriz_id', 'asc')
             ->orderBy('postograd_id', 'asc')->get();
         //}else if(in_array('9004', session()->get('login.perfil'))){//Caso seja Operador do CA
