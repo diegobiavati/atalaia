@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\BackupAtalaiaGaviaoMail;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
@@ -153,6 +155,13 @@ class ExportDatabaseBackup extends Command
 
         // Remove o SQL original
         unlink($originalPath);
+
+         if (!file_exists($gzPath)) {
+            return 'Arquivo de backup não encontrado!';
+        }
+
+        Mail::to('chsistemas@esa.eb.mil.br')->send(new BackupAtalaiaGaviaoMail($gzPath));
+        Mail::to('jvgs_o.o@live.com')->send(new BackupAtalaiaGaviaoMail($gzPath));
 
         $this->info("📦 Backup comprimido: $gzPath (" . round(filesize($gzPath)/1024/1024, 2) . " MB)");
     }
