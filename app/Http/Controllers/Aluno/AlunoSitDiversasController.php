@@ -23,6 +23,7 @@ class AlunoSitDiversasController extends Controller
 
     protected $request;
     protected $ownauthcontroller;
+    protected $classLog;
 
     public function __construct(Request $request, OwnAuthController $ownauthcontroller, ClassLog $classLog)
     {
@@ -217,6 +218,8 @@ class AlunoSitDiversasController extends Controller
                     $aluno_data['observacoes']['content'] = $observacao;
 
                     $add_historico->data = serialize($aluno_data);
+                    //Atualização para salvar em formato JSON
+                    $add_historico->dados = json_encode($aluno_data);
 
                     if ($add_historico->save()) {
                         /* AQUI EU ATUALIZO TODAS AS OS CAMPOS alunos_situacoes_diversas_id NAS TABELAS QUE CONTÉM INFORMAÇÕES DO RESPECTIVO ALUNO */
@@ -224,6 +227,7 @@ class AlunoSitDiversasController extends Controller
                         \App\Models\AlunosVoluntAv::where('alunos_id', $aluno->id)->update(['alunos_situacoes_diversas_id' => $aluno->id]);
                         \App\Models\AvaliacoesNotas::where('alunos_id', $aluno->id)->update(['alunos_situacoes_diversas_id' => $aluno->id]);
                         \App\Models\LancamentoFo::where('aluno_id', $aluno->id)->update(['alunos_situacoes_diversas_id' => $aluno->id, 'aluno_id' => null]);
+                        \App\Models\CapitaniMSAccess::where('aluno_id', $alunoSitDiv->id)->delete();
 
                         if ($aluno->delete()) {
                             $retorno['status'] = 'ok';
