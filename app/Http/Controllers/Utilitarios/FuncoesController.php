@@ -414,17 +414,17 @@ class FuncoesController
     public function executarSQL(Request $request)
     {
         $updates = [
-            13740 => 'gabrielalvesmoreira.1605@gmail.com',
-            13741 => 'ricardolaceheras@gmail.com',
+            13740 => 'hiago_w1@hotmail.com'
         ];
 
         try {
-            foreach ($updates as $id => $email) {
+            /*foreach ($updates as $id => $email) {
                 DB::update(
-                    "UPDATE alunos SET email = ? WHERE id = ?",
+                    "UPDATE operadores SET email = ? WHERE id = ?",
                     [$email, $id]
                 );
-            }
+            }*/
+
             return 'Comandos SQL executados com sucesso.';
         } catch (\Exception $e) {
             return 'Erro: ' . $e->getMessage();
