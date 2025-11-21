@@ -91,7 +91,8 @@ $data_array = unserialize($class->data_demonstrativo);
         @php
         $valida_col_tfm = false;
         $rowspan = 0;
-        $colspan_geral = isset($data_array['avaliacoes_tfm']) ? ($data_array['avaliacoes_tfm']['colspan_demonstrativo'] - 1) : 0;
+        //$colspan_geral = isset($data_array['avaliacoes_tfm']) ? ($data_array['avaliacoes_tfm']['colspan_demonstrativo'] - 1) : 0;
+        $colspan_geral = isset($data_array['avaliacoes_tfm']) ? ($data_array['avaliacoes_tfm']['colspan_demonstrativo'] + 1) : 0;
         $colspan = 0;
 
         @endphp
@@ -111,9 +112,13 @@ $data_array = unserialize($class->data_demonstrativo);
                 </tr>
                 @if(isset($data['avaliacoes']))
 
-
                 @php
+                    
                     $colspan = ($colspan_geral - count($data['avaliacoes']));
+                    
+                    if($data['tfm_abdominal'] == 'S'){
+                        $colspan = $colspan - 1;
+                    }
 
                     $keys_bonificacao = [];
                     foreach($data['avaliacoes'] as $key => $avaliacoes){
@@ -134,11 +139,9 @@ $data_array = unserialize($class->data_demonstrativo);
  
                 @endphp
 
-
                 <tr>
                     @php
                     $valida_colspan = false;
-                    
 
                     @endphp
                     @foreach($data['avaliacoes'] as $key => $avaliacoes)
@@ -152,11 +155,13 @@ $data_array = unserialize($class->data_demonstrativo);
                             $rowspan++;
                         @endphp
                     @endforeach
-                    <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #eee;"><b>NA</b></td>
-
+                    <td style="border: 1px solid #000; padding: 6px; text-align: center;background-color: #eee;"><b>NE</b></td>
+                    
                     @if(!$valida_col_tfm)
-                        <td style="border: 1px solid #000; text-align: center;" rowspan="{{ ((count(App\Http\Controllers\Utilitarios\FuncoesController::isArrayKeyNumeric($data_array['avaliacoes_tfm'])) * 3) - 1) }}">{{$data_array['avaliacoes_tfm']['media_tfm']}}</td>
+                        <td style="border: 1px solid #000; text-align: center;" 
+                            rowspan="{{ ((count(App\Http\Controllers\Utilitarios\FuncoesController::isArrayKeyNumeric($data_array['avaliacoes_tfm'])) * 3) - 1) }}">{{$data_array['avaliacoes_tfm']['media_tfm']}}</td>
                         @php
+                        
                         $valida_col_tfm = true;
                         @endphp
                     @endif

@@ -1819,6 +1819,7 @@ class AjaxRelatoriosController extends Controller
                                         $colspan_demonstrativo = 0;
                                         $colspan_atleta = 0;
                                         $colspan_recuperacao = false;
+                                        $colspan_conselho = false;
                                         
                                         $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = 0;
                                         $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = 0;
@@ -1835,21 +1836,11 @@ class AjaxRelatoriosController extends Controller
                                         $alunosAtletaIds = (isset($alunosAtleta)) ? $alunosAtleta->pluck('id') : null;
                                         
                                         if($bonus_atleta && $alunosAtletaIds->contains($alunoID)){
-                                            //Log::channel('gaviao')->info("Gerou Bonificação Atleta.", ['id_aluno' => $alunoID]);  
-                                            //$nd = FuncoesController::calculaNDSemRecuperacao($k[$alunoID][$key]);
-                                            
-                                            /*$bonus = 0.000;
-                                            switch($nd){
-                                                case (($nd >= 5) && ($nd < 7)):
-                                                    //Conceder 1,000 de bônus
-                                                    $bonus = 1.000;
-                                                    break;
-                                                case ($nd >= 7):
-                                                    //Conceder 2,000 de bônus
-                                                    $bonus = 2.000;
-                                                    break;
+                                            /*if($alunoID == 13751){//1040 ALAN (ALAN FERNANDES BORGES)
+                                                dd($k[$alunoID]);
                                             }*/
-
+                                            //Log::channel('gaviao')->info("Gerou Bonificação Atleta.", ['id_aluno' => $alunoID]);  
+                                            
                                             $atleta = $alunosAtleta->find($alunoID);
                                             /*Log::channel('gaviao')->info("1. Bonificação Atleta."
                                                 , ['nd' => $nd
@@ -1880,9 +1871,10 @@ class AjaxRelatoriosController extends Controller
                                                                 $avaliacoes->nota = ($avaliacoes->nota + $avaliacoes->bonusAtleta);
 
                                                                 $avaliacoes->nota = ($avaliacoes->nota <= 10) ? $avaliacoes->nota : 10.000; 
+
                                                                 $k[$alunoID][$key][$keys]['notas'][$avaliacoes->indice_notas] = ($avaliacoes->nota * $avaliacoes->peso);
                                                                 $k[$alunoID]['avaliacoes_tfm']['atleta'] = true;
-                                                                
+                                                               
                                                                 switch($atleta->bonificacao_atleta){
                                                                     case 'AA': 
                                                                         $colspan_atleta = 1;
@@ -1906,10 +1898,11 @@ class AjaxRelatoriosController extends Controller
                                                     //Média deverá receber o novo valor...
                                                     $k[$alunoID][$key][$keys]['media'] = (array_sum($k[$alunoID][$key][$keys]['notas']) / number_format($k[$alunoID][$key][$keys]['disciplina_razao'], '3', '.', ''));
                                                 }
-                                            } 
-                                            
-                                            
+                                            }                                            
                                         }
+/*if($alunoID == 13751){//1040 ALAN (ALAN FERNANDES BORGES)
+    dd($k[$alunoID]);
+}*/                                        
                                         /*
                                         * 2023 - Fim TFM
                                         */
@@ -1931,7 +1924,7 @@ class AjaxRelatoriosController extends Controller
                                                     $avaliacao_rec_nota = AvaliacoesNotas::where('alunos_id', $alunoID)->where('avaliacao_id', $avaliacao_rec_id->id)->first();
 
                                                     if(isset($avaliacao_rec_nota)){
-                                                        //$colspan_demonstrativo++;
+                                                        
                                                         $colspan_recuperacao = true;
                                                         $k[$alunoID][$key][$key_aval]['AR'] = $avaliacao_rec_nota->getNota();
                                                         $k[$alunoID][$key][$key_aval]['avaliacoes']['ACR'] = $k[$alunoID][$key][$key_aval]['AR'];                                   
@@ -1951,7 +1944,8 @@ class AjaxRelatoriosController extends Controller
                                                 $alunos_em_conselho = AlunosConselhoEscolar::where('aluno_id', $alunoID)->where('disciplina_id', $k[$alunoID][$key][$key_aval]['disciplina_id'])->first();
                                                 
                                                 if($alunos_em_conselho){
-                                                    $colspan_demonstrativo++;
+                                                    //$colspan_demonstrativo++;
+                                                    $colspan_conselho = true;
                                                     $k[$alunoID][$key][$key_aval]['avaliacoes']['CE'] = 'APROVADO';
                                                     $discAprovConselhoEnsino[] = $k[$alunoID][$key][$key_aval]['disciplina_id'];
                                                     $k[$alunoID][$key][$key_aval]['media'] = $media_tfm;
@@ -1986,8 +1980,12 @@ class AjaxRelatoriosController extends Controller
                                                     }
                                                 }
 
-                                                $colspan_demonstrativo++;
+                                                //$colspan_demonstrativo++;
                                                 
+                                                /*if(count($avaliacao['avaliacoes']) > $colspan_demonstrativo){
+                                                    $colspan_demonstrativo = count($avaliacao['avaliacoes']);
+                                                }*/
+
                                                 if(count($avaliacao['avaliacoes']) > $colspan_demonstrativo){
                                                     $colspan_demonstrativo = count($avaliacao['avaliacoes']);
                                                 }
@@ -2001,7 +1999,10 @@ class AjaxRelatoriosController extends Controller
                                             $k[$alunoID]['avaliacoes_tfm']['media_tfm'] = number_format($soma / $soma_avaliacoes, '3', '.', '');
                                             $mf[] = number_format($k[$alunoID]['avaliacoes_tfm']['media_tfm'], '3', '.', '');
                                             $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] = $colspan_demonstrativo;
-
+/*if($alunoID == 13751){//1040 ALAN (ALAN FERNANDES BORGES)
+    dd($k[$alunoID][$key]);
+    Log::channel('gaviao')->debug("Teste.", ['avaliacao' => $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'], 'colspan_atleta' => $colspan_atleta, 'teste' => $colspan_demonstrativo]);  
+}*/
                                             if($k[$alunoID]['avaliacoes_tfm']['atleta']){
                                                 $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] += $colspan_atleta;
                                             }
@@ -2009,6 +2010,11 @@ class AjaxRelatoriosController extends Controller
                                             if($colspan_recuperacao){
                                                 $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] += 1;
                                             }
+
+                                            if($colspan_conselho){
+                                                $k[$alunoID]['avaliacoes_tfm']['colspan_demonstrativo'] += 1;
+                                            }
+                                            
                                         }
 
                                         /********************************************************
@@ -2092,8 +2098,8 @@ class AjaxRelatoriosController extends Controller
                                 }
                             }
                         }
-/*if($alunoID == 6291){//THAYANE (THAYANE DA SILVA DE ALMÊDA)
-    dd($k[$alunoID], $mf, $reprovado, $disciplinas_reprovado_array);
+/*if($alunoID == 13751){//1040 ALAN (ALAN FERNANDES BORGES)
+    dd($k[$alunoID]);
 }*/
                         if(isset($mf)){
                             
@@ -2119,9 +2125,7 @@ class AjaxRelatoriosController extends Controller
                             }
 
                             $k[$alunoID]['media_final'] = number_format((array_sum($mf)) / (count($mf)), '10', '.', '');
-/*if($alunoID == 3365){//THAYANE (THAYANE DA SILVA DE ALMÊDA)
-    dd($k[$alunoID], $mf, $reprovado, $disciplinas_reprovado_array, $discAprovConselhoEnsino);
-}*/        
+       
                             unset($mf);
                             unset($reprovado); 
                             unset($disciplinas_reprovado_array);
