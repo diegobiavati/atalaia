@@ -987,7 +987,7 @@ class RelatoriosController extends Controller
     }
 
     public function DemonstrativoNotas(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
-
+        
         if(!$ownauthcontroller->PermissaoCheck(1) && $request->omctID!=session()->get('login.omctID')){
 
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';

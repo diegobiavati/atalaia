@@ -10,6 +10,7 @@ class AvaliacoesProntoFaltasStatus extends Model
     public $timestamps = false;
 
     public function uete(){
-        return $this->hasOne('App\Models\OMCT', 'id', 'omcts_id'); 
+        //return $this->hasOne('App\Models\OMCT', 'id', 'omcts_id'); 
+        return $this->belongsTo('App\Models\OMCT', 'omcts_id', 'id'); 
     }
 }
