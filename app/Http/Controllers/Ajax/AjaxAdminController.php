@@ -59,6 +59,7 @@ use App\Models\AvaliacoesProntoFaltas;
 use App\Models\Comportamento;
 use App\Models\Enquadramentos;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 setlocale(LC_ALL, "pt_BR.utf8");
 //date_default_timezone_set('America/Sao_Paulo');
@@ -76,7 +77,7 @@ class AjaxAdminController extends Controller
         $this->lancarTaf = $avaliacaTaf;
         $this->request = $request;
         $this->classLog = $classLog;
-        $this->classLog->ip = $request->ip();      
+        $this->classLog->ip = $request->ip();
         $this->ownauthcontroller = $ownauthcontroller;
     }
 
@@ -85,8 +86,8 @@ class AjaxAdminController extends Controller
 
         if ($this->ownauthcontroller->PermissaoCheck(1)) {
             $operadores = Operadores::whereNotNull('omcts_id')->whereNull('qms_matriz_id')
-            //->where([['ativo', '=', 'S']])
-            ->orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
+                //->where([['ativo', '=', 'S']])
+                ->orderBy('omcts_id', 'asc')->orderBy('postograd_id', 'asc')->get();
         } else {
             $operadores = Operadores::where([['omcts_id', '=', session()->get('login.omctID')], ['ativo', '=', 'S']])->orderBy('postograd_id', 'asc')->get();
         }
@@ -1378,7 +1379,7 @@ class AjaxAdminController extends Controller
             $alunosAviacao = AlunosVoluntAv::whereHas('aluno', function ($q) use ($param) {
                 $q->where([['data_matricula', '=', $param['anoCorrente']->id]]);
             })->where([['selecionado_exame', '=', 'S']]);
-            
+
             $alunosAviacao->update(['apto_is' => 'N', 'apto_avi' => 'N']);
 
             //$alunosAviacao->whereIn('id', $request->alunos_aptos_is)->update(['apto_is' => 'S']);
@@ -1435,11 +1436,11 @@ class AjaxAdminController extends Controller
             ->orderBy('data', 'asc')->get();
 
         $mostras_resolvidas = AvaliacoesMostrasRespostas::join('atalaia.avaliacoes', 'atalaia.avaliacoes_mostras_respostas.avaliacoes_id', 'atalaia.avaliacoes.id')
-        ->join('atalaia.disciplinas', 'atalaia.avaliacoes.disciplinas_id', 'atalaia.disciplinas.id')
-        ->where([['atalaia.disciplinas.ano_formacao_id', '=', $ano_corrente->id], ['visualizado', '=', 'N']])
-        ->select('atalaia.avaliacoes_mostras_respostas.*')
-        ->get();
-    
+            ->join('atalaia.disciplinas', 'atalaia.avaliacoes.disciplinas_id', 'atalaia.disciplinas.id')
+            ->where([['atalaia.disciplinas.ano_formacao_id', '=', $ano_corrente->id], ['visualizado', '=', 'N']])
+            ->select('atalaia.avaliacoes_mostras_respostas.*')
+            ->get();
+
         return  view('ajax.visao-geral')->with('total_operadores', Operadores::count())
             ->with('mostras_pendentes', AvaliacoesMostra::whereIn('status', array('P', 'A'))->get())
             ->with('mostras_resolvidas', $mostras_resolvidas)
@@ -1651,18 +1652,19 @@ class AjaxAdminController extends Controller
         return $data;
     }
 
-    public function GravarInstrutorChefeCurso(Request $request){
+    public function GravarInstrutorChefeCurso(Request $request)
+    {
 
         $dados = explode('_', $request->instrutorID);
 
         $retorno['response'] = false;
         $retorno['message'] = '!!!Algo de Errado Aconteceu!!!';
 
-        if(Qms::find($dados[0])->update(['comandante_operador_id' => $dados[1]])){
+        if (Qms::find($dados[0])->update(['comandante_operador_id' => $dados[1]])) {
             $retorno['response'] = true;
             $retorno['message'] = 'Alterado Com Sucesso!!!';
         }
-     
+
         return response()->json($retorno);
     }
 
@@ -1678,23 +1680,23 @@ class AjaxAdminController extends Controller
 
         $rotaGravarInstrutor = '/gaviao/ajax/gravar-intrutor-chefe';
 
-        if(session()->has('login.qmsID')){
-            $qmss = QMS::whereIn('qms_matriz_id', array(1,2,3,4,5))
-            ->whereHas('escolhaQms', function($q) use ($ano_formacao){
-                $q->where('ano_formacao_id', $ano_formacao->id);
-            })->get();
-            
-            $operadoresAtivos = Operadores::whereIn('qms_matriz_id', array(1,2,3,4,5))->where('ativo', 'S')->get();
-    
-            foreach($operadoresAtivos as $operador){
+        if (session()->has('login.qmsID')) {
+            $qmss = QMS::whereIn('qms_matriz_id', array(1, 2, 3, 4, 5))
+                ->whereHas('escolhaQms', function ($q) use ($ano_formacao) {
+                    $q->where('ano_formacao_id', $ano_formacao->id);
+                })->get();
+
+            $operadoresAtivos = Operadores::whereIn('qms_matriz_id', array(1, 2, 3, 4, 5))->where('ativo', 'S')->get();
+
+            foreach ($operadoresAtivos as $operador) {
                 $funcaoOperador = explode(',', $operador->id_funcao_operador);
-    
-                if(in_array(9001, $funcaoOperador)){
+
+                if (in_array(9001, $funcaoOperador)) {
                     $comandantesCurso[] = $operador;
                 }
             }
         }
-                
+
         return view('ajax.cadastro.view-ano-formacao', compact('checked', 'ano_formacao', 'qmss', 'comandantesCurso', 'rotaGravarInstrutor'));
     }
 
@@ -1715,7 +1717,7 @@ class AjaxAdminController extends Controller
         return view('ajax.avaliacao.view-adiciona-avaliacao-recuperacao', compact('disciplinas'));
 
 
-       /* $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
+        /* $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
         $disciplinas = Disciplinas::orderBy('id', 'desc')->where('ano_formacao_id', '=', $ano_corrente->id)->get();
         $options_disciplinas[] = '<option value="0">Selecione uma disciplina</option>';
         foreach ($disciplinas as $disciplina) {
@@ -1814,7 +1816,7 @@ class AjaxAdminController extends Controller
             $avaliacao->limite_dias_pedido = $request->limite_dias_pedido;
         }
         $peso = ($request->peso == '') ? 1 : $request->peso;
-        if(isset($request->abdominal)){
+        if (isset($request->abdominal)) {
             $peso = 0;
         }
 
@@ -1896,7 +1898,7 @@ class AjaxAdminController extends Controller
         } else {
             $avaliacao->gbm = $request->gbm;
         }
-        
+
         $avaliacao->prazo_nota = $request->prazo_nota;
         $avaliacao->observacao = (empty($request->observacao)) ? '' : $request->observacao;
         $avaliacao->chamada_refer_id = $request->chamada_refer_id ?? 0;
@@ -1904,7 +1906,7 @@ class AjaxAdminController extends Controller
         if (is_array(@explode('/', $request->data_prova)) && strtotime($request->hora_prova)) {
             $data_prova = explode('/', $request->data_prova);
             $data_hora_prova = $data_prova[2] . '-' . $data_prova[1] . '-' . $data_prova[0] . ' ' . $request->hora_prova . ':00';
-           
+
             if (strtotime($data_hora_prova) > strtotime("+ 365 days ", time())) {
                 $data['data_prova'] = 'err1';
             } else {
@@ -1948,7 +1950,6 @@ class AjaxAdminController extends Controller
 
             //Parei Aqui
             return view('ajax.avaliacao.view-adiciona-avaliacao', compact('avaliacao', 'disciplinas'));
-
         } else {
 
 
@@ -2125,7 +2126,7 @@ class AjaxAdminController extends Controller
         if ($avaliacao->avaliacao_recuperacao == 1) {
             $avaliacao->peso = 0;
         }
-        
+
         if (is_array(@explode('/', $request->data_prova)) && strtotime($request->hora_prova)) {
             $data_prova = explode('/', $request->data_prova);
             $data_hora_prova = $data_prova[2] . '-' . $data_prova[1] . '-' . $data_prova[0] . ' ' . $request->hora_prova . ':00';
@@ -2185,7 +2186,7 @@ class AjaxAdminController extends Controller
         if (isset($request->avaliacao)) {
             $avaliacoes = Avaliacoes::find($request->avaliacao);
         }
-        
+
         if (count($avaliacoes_chamada) > 0) {
 
             $options_chamada[] = '';
@@ -2251,7 +2252,7 @@ class AjaxAdminController extends Controller
                         </div>';
 
         if ($disciplina->tfm == 'S') {
-            
+
             $checked = null;
             $checkedBarra = null;
             $disabled = null;
@@ -2273,7 +2274,7 @@ class AjaxAdminController extends Controller
                                     </div>
                                 </div>';
 
-            $data['gbm'] = ((isset($disciplina->avaliacao->tfm_abdominal) && $disciplina->avaliacao->tfm_abdominal == 'S') ? '': $data['peso']);
+            $data['gbm'] = ((isset($disciplina->avaliacao->tfm_abdominal) && $disciplina->avaliacao->tfm_abdominal == 'S') ? '' : $data['peso']);
             $data['mostra'] = '';
         } else {
             $data['abdominal'] = '';
@@ -2286,7 +2287,7 @@ class AjaxAdminController extends Controller
                                     <input class="no-style" style="width: 100%;" name="gbm" type="text" value="' . ((isset($request->avaliacao)) ? $avaliacoes->gbm : '') . '" maxlength="4" autocomplete="off" placeholder="GBM" />
                                 </div>
                                 <div class="clear"></div>
-                            </div>'.$data['peso'];
+                            </div>' . $data['peso'];
 
             $data['mostra'] = '<div style="margin: 14px auto; width: 70%; max-width: 380px;" data-toggle="tooltip" data-placement="right" title="Data da Mostra">
                                     <div style="float: left;">
@@ -2563,18 +2564,18 @@ class AjaxAdminController extends Controller
         $options = array('N' => 'Nota', 'C' => 'Conceito', 'S' => 'Situação');
 
         $options_avaliacao[] = '<option value="0">Selecione um Tipo de Avaliação</option>';
-        foreach($options as $key => $option){
-            $options_avaliacao[] = '<option value="'.$key.'" '.(($key == $disciplina->tipo_avaliacao) ? 'selected': '').'>'.$option.'</option>';
+        foreach ($options as $key => $option) {
+            $options_avaliacao[] = '<option value="' . $key . '" ' . (($key == $disciplina->tipo_avaliacao) ? 'selected' : '') . '>' . $option . '</option>';
         }
 
         $options = array('OB' => 'Obrigatória', 'EL' => 'Eletiva', 'OP' => 'Optativa');
 
         $options_disciplina[] = '<option value="0">Selecione um Tipo de Avaliação</option>';
-        foreach($options as $key => $option){
-            $options_disciplina[] = '<option value="'.$key.'" '.(($key == $disciplina->tipo_disciplina) ? 'selected': '').'>'.$option.'</option>';
+        foreach ($options as $key => $option) {
+            $options_disciplina[] = '<option value="' . $key . '" ' . (($key == $disciplina->tipo_disciplina) ? 'selected' : '') . '>' . $option . '</option>';
         }
-        
-        
+
+
         $data['header'] = '<i class="ion-android-create" style="vertical-align: middle; font-size: 24px; margin-right: 10px;"></i> Editar disciplina';
         $data['body'] = '   <div class="alert alert-danger errors-adicionar-disciplinas" role="alert"></div>
                                     <form id="editar_disciplina">
@@ -4543,7 +4544,7 @@ class AjaxAdminController extends Controller
         $operador->tel_pronto_atendimento = $request->tel_pronto_atendimento;
         $operador->email = $request->email;
         $request->tipo_operador_check = array_map('intval', $request->tipo_operador_check);
-        
+
         if (!in_array(1, session()->get('login.perfil'))) { //Valida se não é perfil ESA...
 
             if (in_array(4, explode(',', $operador->id_funcao_operador))) { //Verifica se o Operador é Sargenteante...
@@ -4558,36 +4559,36 @@ class AjaxAdminController extends Controller
             }
         }
 
-        if($this->ownauthcontroller->PerfilCheck([1, 4, 9999])){
-            if(session()->get('login.qmsID') !== null){
+        if ($this->ownauthcontroller->PerfilCheck([1, 4, 9999])) {
+            if (session()->get('login.qmsID') !== null) {
                 $operador_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get()->pluck('id')->toArray();
-            }else{
+            } else {
                 $operador_tipo = OperadoresTipo::where([['id', '<=', 8999]])->get()->pluck('id')->toArray();
             }
-        }else if($this->ownauthcontroller->PerfilCheck([9004])){
-            $operador_tipo = [9000,9001,9002,9003,9004];
-        }else if($this->ownauthcontroller->PerfilCheck([9005])){
-            $operador_tipo = [9000,9001,9002,9005,9006];
-        }else{
-            $operador_tipo = [9000,9001,9002];
+        } else if ($this->ownauthcontroller->PerfilCheck([9004])) {
+            $operador_tipo = [9000, 9001, 9002, 9003, 9004];
+        } else if ($this->ownauthcontroller->PerfilCheck([9005])) {
+            $operador_tipo = [9000, 9001, 9002, 9005, 9006];
+        } else {
+            $operador_tipo = [9000, 9001, 9002];
         }
 
         $operador_request = (is_array($request->tipo_operador_check) ? $request->tipo_operador_check : []);
         $operador_gravado = ((isset($operador->id_funcao_operador) && (trim($operador->id_funcao_operador) != '')) ? explode(',', $operador->id_funcao_operador) : []);
-        
+
         $nao_selecionado = array_diff($operador_tipo, $operador_request);
         $selecionado = array_intersect($operador_tipo, $operador_request);
         //$operador->id_funcao_operador = implode(',', array_values(array_unique(array_merge($diferenca, $operador_gravado), SORT_NUMERIC)));
-        
+
         $permissao = array_unique(array_merge(array_diff($operador_gravado, $nao_selecionado), $selecionado), SORT_NUMERIC);
         sort($permissao);
 
-        if(isset($request->qms_id) && !array_intersect(range(9000, 9002), $permissao)){
+        if (isset($request->qms_id) && !array_intersect(range(9000, 9002), $permissao)) {
             $operador->qms_matriz_id = 9999;
         }
 
         $operador->id_funcao_operador = implode(',', $permissao);
-        
+
         /*if ($request->tipo_operador_check) {
             $operador->id_funcao_operador = implode(',', $request->tipo_operador_check);
         } else {
@@ -4671,7 +4672,7 @@ class AjaxAdminController extends Controller
             }
 
             unset($data);
-            
+
             if ($usr->imagens_id == null) {
                 $img_perfil = Imagens::find(1);
             } else {
@@ -4729,7 +4730,7 @@ class AjaxAdminController extends Controller
 
             $style_back_ground = ($aluno->sexo == 'M') ? 'background-color: #0B6138; color: #fff;' : 'background-color: #F8E0EC; color: #696969;';
             $style_ion_close = ($aluno->sexo == 'M') ? 'color: #ffffff;' : 'color: #696969;';
-            
+
             /*if ($usr->imagens_id == null) {
                 $img_perfil = Imagens::find(1);
             } else {
@@ -4738,14 +4739,14 @@ class AjaxAdminController extends Controller
             $img_perfil = '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12)
                 ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo)
                 : 'no-image.jpg');
-            
+
             $data['body'] = '   <div style="position: absolute; top: 5px; left: 95%">
                                     <a class="no-style" href="javascript: void(0);" data-dismiss="modal"><i class="ion-close" style="font-size: 20px; ' . $style_ion_close . '"></i></a>
                                 </div>
                                 <div style="' . $style_back_ground . '">
                                     <div style="padding: 22px;">
                                         <div style="float: left; width: 130px;">
-                                            <div class="imagem_perfil_info" style="background: url(\''.$img_perfil.'\') no-repeat center center; background-size: cover;"></div>                                        
+                                            <div class="imagem_perfil_info" style="background: url(\'' . $img_perfil . '\') no-repeat center center; background-size: cover;"></div>                                        
                                         </div>
                                         <div style="margin-top: 18px;">
                                             <h5>AL ' . $aluno->numero . ' ' . $aluno->nome_guerra . '</h5>
@@ -4818,7 +4819,7 @@ class AjaxAdminController extends Controller
                 "cadastro_al_pendente" => $cadastro_al_pendente
             );
         }
-        
+
         //$alunos['list'] = Alunos::get();
         //$alunos['list'] = Alunos::carregaAlunosVsAlunosSitDiv();
 
@@ -6100,6 +6101,101 @@ class AjaxAdminController extends Controller
         $avaliacao = Avaliacoes::find($request->id);
 
         if (!isset($request->id_uete)) {
+            return response()->json([
+                'status' => 'err',
+                'response' => [
+                    '<li style="color:red">Selecione a UETE.</li>'
+                ]
+            ]);
+        }
+
+        $param = $request->id_uete;
+
+        $retorno = [
+            'status' => 'success',
+            'response' => [
+                '<li style="color:blue">Prontos e Notas Removidos.</li>'
+            ]
+        ];
+
+        try {
+
+            DB::beginTransaction();
+
+            // --------------------------------------
+            // REMOVER NOTAS
+            // --------------------------------------
+            $delNotas = AvaliacoesNotas::where('avaliacao_id', $avaliacao->id)
+                ->whereHas('aluno', function ($q) use ($param) {
+                    $q->where('omcts_id', $param);
+                })
+                ->delete();
+
+            if ($delNotas === 0) {
+                $retorno['status'] = 'err';
+                $retorno['response'][] = '<li style="color:red">Nenhuma Nota encontrada para remover.</li>';
+                Log::channel('gaviao')->warning("Nenhuma nota removida na avaliação {$avaliacao->id} para a UETE {$param}");
+            }
+
+            // --------------------------------------
+            // REMOVER PRONTO/FALTAS
+            // --------------------------------------
+            $delProntos = AvaliacoesProntoFaltas::where('avaliacao_id', $avaliacao->id)
+                ->whereHas('aluno', function ($q) use ($param) {
+                    $q->where('omcts_id', $param);
+                })
+                ->delete();
+
+            if ($delProntos === 0) {
+                $retorno['status'] = 'err';
+                $retorno['response'][] = '<li style="color:red">Nenhum registro de Pronto/Faltas encontrado.</li>';
+                Log::channel('gaviao')->warning("Nenhum pronto/falta removido na avaliação {$avaliacao->id} para a UETE {$param}");
+            }
+
+            // --------------------------------------
+            // REMOVER STATUS
+            // --------------------------------------
+            $delStatus = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $avaliacao->id)
+                ->whereHas('uete', function ($q) use ($param) {
+                    $q->where('id', $param);
+                })
+                ->delete();
+
+            if ($delStatus === 0) {
+                $retorno['status'] = 'err';
+                $retorno['response'][] = '<li style="color:red">Nenhum Status encontrado para remover.</li>';
+                Log::channel('gaviao')->warning("Nenhum status removido na avaliação {$avaliacao->id} para a UETE {$param}");
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            Log::channel('gaviao')->error('Erro ao remover Prontos e Notas', [
+                'erro' => $e->getMessage(),
+                'avaliacao_id' => $avaliacao->id,
+                'uete_id' => $param,
+                'arquivo' => $e->getFile(),
+                'linha' => $e->getLine()
+            ]);
+
+            return response()->json([
+                'status' => 'err',
+                'response' => [
+                    '<li style="color:red">Erro interno ao remover registros.</li>'
+                ]
+            ]);
+        }
+
+        return response()->json($retorno);
+    }
+
+    /*public function RemoverProntoFaltas(Request $request)
+    {
+        $avaliacao = Avaliacoes::find($request->id);
+
+        if (!isset($request->id_uete)) {
             $retorno['status'] = 'err';
             $retorno['response'][] = '<li style="color:rgb(255,0,0)">Selecione a UETE.</li>';
             return response()->json($retorno);
@@ -6116,7 +6212,7 @@ class AjaxAdminController extends Controller
             $retorno['status'] = 'err';
             $retorno['response'][] = '<li style="color:rgb(255,0,0)">Erro ao Remover Notas de Avaliações.</li>';
         }
-
+        
         if (AvaliacoesProntoFaltas::where('avaliacao_id', '=', $avaliacao->id)->whereHas('aluno', function ($q) use ($param) {
             $q->where('omcts_id', '=', $param);
         })->delete() < 0) {
@@ -6132,7 +6228,7 @@ class AjaxAdminController extends Controller
         }
 
         return response()->json($retorno);
-    }
+    }*/
 
     public function AplicaEscolhaQms(Request $request)
     {
@@ -6196,11 +6292,14 @@ class AjaxAdminController extends Controller
             $info = unserialize((($request->segmento == 'M' ? $select->first()->escolha_qms_masculino : $select->first()->escolha_qms_feminino)));
 
             Alunos::where([
-                ['data_matricula', '=', $request->ano_formacao], ['sexo', '=', ($request->segmento == 'M' ? 'M' : 'F')]
+                ['data_matricula', '=', $request->ano_formacao],
+                ['sexo', '=', ($request->segmento == 'M' ? 'M' : 'F')]
             ])->update(['periodo_cfs' => 'PB', 'qms_id' => null]);
 
             $qms_aviacao = QMS::where([
-                ['segmento', '=', ($request->segmento == 'M' ? 'M' : 'F')], ['qms_alias', '=', ($request->segmento == 'M' ? 'aviacao' : 'aviacao_feminino')], ['escolha_qms_id', '=', $select->first()->id]
+                ['segmento', '=', ($request->segmento == 'M' ? 'M' : 'F')],
+                ['qms_alias', '=', ($request->segmento == 'M' ? 'aviacao' : 'aviacao_feminino')],
+                ['escolha_qms_id', '=', $select->first()->id]
             ])->first();
 
             //Transfere o Aluno para o 2º Ano de Aviação
