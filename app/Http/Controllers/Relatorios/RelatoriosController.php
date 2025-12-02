@@ -376,12 +376,12 @@ class RelatoriosController extends Controller
          *  Caso seja avaliação de segunda chamada, vefifico a avaliação de referencia
          */
 
-        if($avaliacao->chamada==2){
+        /*if($avaliacao->chamada==2){
             // AVALIAÇAO DE REFERENCIA
             $ava_ref = Avaliacoes::find($avaliacao->chamada_refer_id);
             $status_pronto_faltas_av_ref = AvaliacoesProntoFaltasStatus::whereNotIn('omcts_id', $status_pronto_faltas->pluck('omcts_id')->toArray())->where(['avaliacao_id' => $ava_ref->id, 'status' => 0])->get();
             $pronto_faltas_av_ref = AvaliacoesProntoFaltas::whereIn('omcts_id', $status_pronto_faltas_av_ref->pluck('omcts_id')->toArray())->where(['avaliacao_id' => $avaliacao->chamada_refer_id])->get();
-        }
+        }*/
 
         $status_pronto_faltas_av_ref = ($status_pronto_faltas_av_ref)??[];
         $pronto_faltas_av_ref = ($pronto_faltas_av_ref)??[];
