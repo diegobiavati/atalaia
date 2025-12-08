@@ -141,21 +141,14 @@ $data_array = unserialize($class->data_demonstrativo);
 
                 <tr>
                     @php
-                    $valida_colspan = false;
-
+                        $valida_colspan = false;
                     @endphp
                     @foreach($data['avaliacoes'] as $key => $avaliacoes)
                         
-                        @if(!$valida_colspan)
-                            <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee;" {{ (isset($avaliacoes->colpan_demonstrativo) ? "colspan=$avaliacoes->colpan_demonstrativo" : ((isset($keys_bonificacao[$data['disciplina_id']])) ? null : "colspan=$colspan") ) }} >
-                                <b>{{$key}}</b>
-                            </td>
-                        @else
-                            <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee;">
-                                <b>{{$key}}</b>
-                            </td>
-                        @endif
-                        
+                        <td style="border: 1px solid #000; padding: 6px; text-align: center; background-color: #eee; "{{ (isset($avaliacoes->colpan_demonstrativo) ? "colspan=$avaliacoes->colpan_demonstrativo" : ((isset($keys_bonificacao[$data['disciplina_id']])) ? null : "colspan=$colspan")) }}>
+                            <b>{{$key}}</b>
+                        </td>
+                       
                         @php
                             $valida_colspan = true;
                             $rowspan++;
@@ -179,8 +172,13 @@ $data_array = unserialize($class->data_demonstrativo);
                     @endphp
                     
                     @foreach($data['avaliacoes'] as $key => $avaliacoes)
+                    @php
+                    if($data['tfm'] == 'S' && $data['tfm_abdominal'] == 'S'){
+                        $valida_colspan = false;
+                    }
+                    @endphp
                     <td style="border: 1px solid #000; padding: 6px; text-align: center;" {{ ((isset($keys_bonificacao[$data['disciplina_id']])) ? null : (!$valida_colspan) ? "colspan=$colspan" : null) }}>
-
+                    
                         @if((isset($avaliacoes->nota) && is_numeric($avaliacoes->nota)))
                             @if(isset($avaliacoes->nota_sem_bonus))
                                 {{ number_format($avaliacoes->nota_sem_bonus, '3', ',', '') }}
