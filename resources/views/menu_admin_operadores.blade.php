@@ -98,6 +98,13 @@
 </li>
 <!--Alteração Ten João Victor-->
 <li class="list-group-item justify-content-between align-items-center menu-list-01">
+    <a id="troca-arquivos" href="javascript: void(0);">                
+        <i class="ion-archive"></i>
+        Envio de Arquivos
+        <span class="badge badge-primary badge-pill"></span>
+    </a>
+</li>
+<li class="list-group-item justify-content-between align-items-center menu-list-01">
     <a id="importacoes" href="javascript: void(0);">                
         <i class="ion-android-archive"></i>
         Paramêtros & Importações

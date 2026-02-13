@@ -1,4 +1,3 @@
-
 <div class="card-footer" style="background-color: #fff; color:black">
     <form id="listaArquivoMostra">
         <input type="hidden" name="_token" value="{{csrf_token()}}">

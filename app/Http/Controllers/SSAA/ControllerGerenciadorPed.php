@@ -19,10 +19,26 @@ class ControllerGerenciadorPed extends Controller
 
     public function index()
     {
+        
+        $esaPedAno = \App\Models\EsaPedAnos::all();
+
         return view('ssaa.ped.form', [
             'ownauthcontroller' => $this->_ownauthcontroller,
-            'urlIndiceDisciplinas' => route('gaviao.ajax.ssaa.gerenciador-ped.index'),
-            'urlIndiceDisciplinasProvas' => route('gaviao.ajax.ssaa.gerenciador-ped.index')
+            'esaPedAno' => $esaPedAno,
+            'criptografia' => true,
+
+            'urlPedExercicio' => route('gaviao.ajax.ssaa.get-ped-exercicios', [
+                'id_ped' => null,
+            ]),
         ]);
+    }
+
+    public function getPedExercicios(Request $request)
+    {
+        $idPed = explode('_', decrypt($request->id_ped))[1];
+        
+        $pedExercicios = \App\Models\EsaPedAnos::where('id', $idPed)->first();
+
+        return response()->json($pedExercicios->esapedexercicio);
     }
 }
