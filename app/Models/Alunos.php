@@ -551,7 +551,8 @@ class Alunos extends Model
             'email' => 'required|unique:alunos,email,' . $this->id,
             'al_inscricao' => 'required|numeric',
             'nasc_cidade' => 'required',
-            'nasc_pais' => 'required'
+            'nasc_pais' => 'required',
+            'doc_idt_militar' => 'required|digits:10|regidt_eb'
         ];
     }
 

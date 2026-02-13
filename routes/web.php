@@ -4,6 +4,10 @@ use App\Models\Alunos;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/pma', function () {
+    return redirect('/phpMyAdmin');
+})->middleware('checkauth');
+
 Route::group(['middleware' => 'auth', 'prefix' => 'operador', 'as' => 'operador.'], function () {
     Route::get('/', ['as' => 'admin', 'uses' => 'Operador\AdminOpController@ShowHome']);
 });
@@ -529,7 +533,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         });
     //Fim SSAA
 
-    Route::get('/executar-sql', 'Utilitarios\FuncoesController@executarSQL')->middleware('auth');
+    //Route::get('/executar-sql', 'Utilitarios\FuncoesController@executarSQL')->middleware('auth');
 
     /* Rotas Para Diploma Digital */
     Route::get('view-diploma', ['as' => 'view-diploma', 'uses' => 'Ajax\AjaxAdminGaviaoController@DiplomaDigital']);

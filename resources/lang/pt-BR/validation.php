@@ -145,6 +145,8 @@ return [
     |
     */
 
-    'attributes' => [],
+    'attributes' => [
+        'doc_idt_militar' => 'Nº Identidade Militar',
+    ],
 
 ];
