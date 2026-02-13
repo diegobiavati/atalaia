@@ -16,8 +16,9 @@ $(document).ready(function() {
                 },
                 success: function(data) {
                     response(data.map(function(aluno) {
+                        console.log(aluno);
                         return {
-                            label: aluno.numero + " - " + aluno
+                            label: aluno.numero + " / " + aluno.ano_formacao.formacao + " - " + aluno
                                 .nome_completo,
                             value: aluno.nome_completo,
                             id: aluno.id

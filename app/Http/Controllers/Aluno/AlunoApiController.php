@@ -761,12 +761,32 @@ class AlunoApiController extends Controller
 
     public function BuscaAjax(){
 
-        $termo = $this->request->get('termo');
+        $termo = trim($this->request->get('termo'));
 
-        return Alunos::where('nome_guerra', 'like', '%'.$termo.'%')
-            ->orWhere('nome_completo', 'like', '%'.$termo.'%')
-            ->orWhere('numero', 'like', '%'.$termo.'%')
+        if (empty($termo)) {
+            return response()->json([]);
+        }
+
+        $alunos = Alunos::query()
+            ->where(function ($query) use ($termo) {
+                $query->where('nome_guerra', 'like', "%{$termo}%")
+                    ->orWhere('nome_completo', 'like', "%{$termo}%")
+                    ->orWhere('numero', 'like', "%{$termo}%");
+            })
             ->limit(10)
-            ->get(['id', 'numero', 'nome_guerra', 'nome_completo', 'doc_cpf']);
+            ->get()
+            ->map(function ($a) {
+                return [
+                    'id' => $a->id,
+                    'numero' => $a->numero,
+                    'nome_guerra' => $a->nome_guerra,
+                    'nome_completo' => $a->nome_completo,
+                    'doc_cpf' => $a->doc_cpf,
+                    'ano_formacao' => $a->ano_formacao_final, // já unificado
+                ];
+            });
+            
+
+        return response()->json($alunos);    
     }
 }

@@ -15,6 +15,8 @@ class Alunos extends Model
     protected $table = 'alunos';
     public $timestamps = true;
 
+    protected $appends = ['ano_formacao_final'];
+
     protected $fillable = [
         'id',
         'periodo_cfs',
@@ -169,12 +171,18 @@ class Alunos extends Model
 
     public function ano_formacao()
     {
-        return $this->belongsTo('App\Models\AnoFormacao', 'data_matricula', 'id');
+        return $this->belongsTo(\App\Models\AnoFormacao::class, 'data_matricula', 'id');
     }
 
     public function ano_formacao_rematr()
     {
-        return $this->belongsTo('App\Models\AnoFormacao', 'ano_formacao_reintegr_id', 'id');
+        return $this->belongsTo(\App\Models\AnoFormacao::class, 'ano_formacao_reintegr_id', 'id');
+    }
+
+    public function getAnoFormacaoFinalAttribute()
+    {
+        // se rematr existir, usa ela; senão usa a normal
+        return $this->ano_formacao_rematr ?: $this->ano_formacao;
     }
 
     public function user()
