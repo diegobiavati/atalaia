@@ -25,6 +25,8 @@ Route::group(['prefix' => 'download', 'as' => 'download.'], function () {
     Route::get('reposta-mostra/{id}/{hash}', ['as' => 'reposta-mostra', 'uses' => 'Ajax\AjaxAvaliacoesController@downloadArquivoRespostaMostra']);
 });
 
+Route::get('send-mail/{email}/{militar}', ['as' => 'send-mail', 'uses' => 'Ajax\ImportacaoController@enviarEmailMilitar']);
+
 Route::group(['prefix' => 'ajax', 'as' => 'ajax.', 'middleware' => ['checkauth']], function () {
 
     Route::get('corrigir-cadastro-aluno', ['as' => 'corrigir-cadastro-aluno', 'uses' => 'Aluno\AlunoApiController@CorrigirCadastroAluno']);

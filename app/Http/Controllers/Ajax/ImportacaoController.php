@@ -196,4 +196,23 @@ class ImportacaoController extends Controller
 
         return false;
     }
+
+    public static function enviarEmailMilitar($email, $nome)
+    {
+        if (empty($email) || empty($nome)) {
+            return false;
+        }
+
+        try {
+
+            Mail::send(new VerificaBoletim($nome));
+
+            return true;
+
+        } catch (\Exception $e) {
+
+            Log::error('Erro ao enviar email militar: '.$e->getMessage());
+            return false;
+        }
+    }
 }

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Ajax;
 
 //use Request;
+
+use App\Http\Controllers\Aluno\AlunoApiController;
 use Illuminate\Http\Request;
 use App\User;
 use App\Http\Requests\OperadoresRequest;
@@ -4712,7 +4714,13 @@ class AjaxAdminController extends Controller
 
             $usr = User::find($request->id);
             $aluno = Alunos::where('email', $usr->email)->first();
-            $turma = ($aluno->turma->turma) ?? 'Não informada';
+
+            //Teste
+            $dados = app(AlunoApiController::class)->show($aluno->id);
+            $data['body'] = $dados->render();
+            //Fim Teste
+            
+            /*$turma = ($aluno->turma->turma) ?? 'Não informada';
             if ($aluno->data_nascimento) {
                 list($ano, $mes, $dia) = explode('-', $aluno->data_nascimento);
                 $data_nascimento = $dia . '/' . $mes . '/' . $ano;
@@ -4731,11 +4739,6 @@ class AjaxAdminController extends Controller
             $style_back_ground = ($aluno->sexo == 'M') ? 'background-color: #0B6138; color: #fff;' : 'background-color: #F8E0EC; color: #696969;';
             $style_ion_close = ($aluno->sexo == 'M') ? 'color: #ffffff;' : 'color: #696969;';
 
-            /*if ($usr->imagens_id == null) {
-                $img_perfil = Imagens::find(1);
-            } else {
-                $img_perfil = Imagens::find($usr->imagens_id);
-            }*/
             $img_perfil = '/storage/imagens_aluno/' . ((isset($aluno) && strlen($aluno->imagem_aluno->nome_arquivo) > 12)
                 ? ($aluno->ano_formacao->formacao . '/' . $aluno->imagem_aluno->nome_arquivo)
                 : 'no-image.jpg');
@@ -4774,7 +4777,7 @@ class AjaxAdminController extends Controller
                                     <div style="width: 60%; margin: 18px auto; border-bottom: 1px solid #ccc; padding: 8px 6px;">
                                         <i class="ion-email" style="font-size: 24px; color: #696969; vertical-align: -4px; margin-right: 6px;"></i> <b>Email</b><br />' . $aluno->email . '
                                     </div>
-                                </div><br />';
+                                </div><br />';*/
         }
 
         return $data;
