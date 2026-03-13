@@ -848,6 +848,9 @@ class LancamentosController extends Controller
             $fatd = Fatd::where(['lancamento_fo_id' => $id])->first();
 
             $fatd->operador_id = session()->get('login')['operadorID'];
+            //Atualiza o Comandante de Curso
+            $fatd->lancamentoFo->comandante_operador_id = $fatd->lancamentoFo->aluno->qms->comandanteCurso->id;
+            $fatd->lancamentoFo->save();
             $fatd->justificado = isset($request->justificado) ? $request->justificado : $fatd->justificado;
 
             if ($fatd->justificado == 'N') {
@@ -896,7 +899,7 @@ class LancamentosController extends Controller
         }
     }
 
-    function CorrecaoComandante(){
+    /*function CorrecaoComandante(){
 
         $alunosIds = Alunos::retornaAlunosComQmsESAGeral(4)->pluck('id')->toArray();
 
@@ -918,5 +921,5 @@ class LancamentosController extends Controller
             }
             
         }
-    }
+    }*/
 }
