@@ -292,11 +292,11 @@ class LancamentosController extends Controller
                             $q->where('ano_formacao_id', AnoFormacao::find($explode[1])->id);
                         })->get();
 
-                        return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'funcaoOperador', 'readOnly', 'napds'))
+                        return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'rotaTurma', 'funcaoOperador', 'readOnly', 'napds'))
                             ->with('ownauthcontroller', $this->_ownauthcontroller);
                     }
 
-                    return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'funcaoOperador', 'readOnly'))
+                    return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'rotaTurma', 'funcaoOperador', 'readOnly'))
                         ->with('ownauthcontroller', $this->_ownauthcontroller);
                 case 'viewConsultarFO':
 
