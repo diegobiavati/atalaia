@@ -7,7 +7,7 @@
     <title>Bem-vindo</title>
 </head>
 <body>
-    <h4>Bem-vindo ao Sistema Atalaia</h4>
+    <h4>O seu nome saiu no BI</h4>
     <p>
         Esta é uma mensagem automática, por favor não responda.<br />
     </p>

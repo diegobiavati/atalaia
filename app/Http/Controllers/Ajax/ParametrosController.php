@@ -6,12 +6,15 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
+use App\Mail\VerificaBoletim;
 use App\Models\AnoFormacao;
 use App\Models\Areas;
 use App\Models\ConteudoAtitudinal;
 use App\Models\MapaOutrosDados;
 use App\Models\OMCT;
 use App\Models\Parametros;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ParametrosController extends Controller
 {
@@ -472,5 +475,25 @@ class ParametrosController extends Controller
         $mapaOutrosDados->delete();
 
         return response()->json($mapaOutrosDados);
+    }
+    
+    public function sendMailBoletim(){
+        
+        $email = $this->request->email;
+        $militar = $this->request->militar;
+
+        if (empty($email) || empty($militar)) {
+            return false;
+        }
+        
+        try {
+            Mail::to($email)->send(new VerificaBoletim($militar));
+            return true;
+
+        } catch (\Exception $e) {
+
+            Log::error('Erro ao enviar email militar: '.$e->getMessage());
+            return false;
+        }
     }
 }
