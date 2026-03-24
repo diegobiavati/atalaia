@@ -3,7 +3,7 @@
 
 <script src="/js/jquery.mask.min.js"></script>
 <script src="/js/bootstrap-4.0.0.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="/js/jquery/jquery-ui.min.js"></script>
 
 @stop
 @section('css-includes')
@@ -12,7 +12,7 @@
 <link href="/css/menu_style_gaviao.css" rel="stylesheet" type="text/css" />
 <link href="/css/style.css" rel="stylesheet" type="text/css" />
 <link href="/css/font-exo.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<link rel="stylesheet" href="/css/jquery-ui.css">
 <?php
     $backgroundColor = session()->get('backgroundColor');
     $backgroundVisaoGeral = session()->get('backgroundVisaoGeral');
@@ -61,6 +61,12 @@
         background: {{ $backgroundColor }};
     }
 
+    .bg-homolog {
+        background-image: url('/images/bg_homologacao_incolor.png');
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
+    }
 </style>
 
 @if($ownauthcontroller->PermissaoCheck(1))
@@ -246,23 +252,22 @@
 
 <div id="hack_top"></div>
 
-<div id="content">
+<div id="content" class="@if(!app()->environment('production')) bg-homolog @endif">
     <div class="inside-content"></div>
 </div>
 
 <!-- MODALS CONTENTE DINAMICA-->
     
     <div class="modal fade" id="modalDinamica" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-              <div class="modal-content">
-                <div class="modal-header" style="background-color: {{ $backgroundColor }}">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+            <div class="modal-header" style="background-color: {{ $backgroundColor }}">
                 <h5 class="modal-title" id="exampleModalLongTitle"></h5>
-                </div>
-                <div class="modal-body"></div>
-                <div class="modal-footer" style="text-align: right;">
-                </div>
-              </div>
             </div>
+            <div class="modal-body"></div>
+                <div class="modal-footer" style="text-align: right;"></div>
+            </div>
+        </div>
     </div>
     
 <!-- FINAL MODAL CONTENTE DINAMICA-->
@@ -344,6 +349,8 @@
             var docWidth = $(document).width();
             var menuWidth = $('#menu-lateral').width();
             $('#content').width(docWidth - menuWidth).fadeIn();
+
+            
 
             // SCROLL AUTO DO MENU
             var lateral_top_height =  $('#lateral-top').height();

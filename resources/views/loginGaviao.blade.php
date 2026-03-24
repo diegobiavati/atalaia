@@ -5,11 +5,17 @@
 @stop
 @section('title', 'Gavião :: Login no Sistema')
 @section('css-styles-includes')
+
+@php
+    $bg = app()->environment('production')
+        ? "#f5f5f5 url('/images/" . rand(1,30) . ".jpeg') no-repeat"
+        : "#f5f5f5 url('/images/bg_homologacao.png') no-repeat";
+@endphp
+
 <style>
-
 body {
-
-  background: #f5f5f5 url('/images/{{rand(1,30)}}.jpeg') no-repeat;
+  
+  background: {!! $bg !!};
   background-size: cover;
 
 }
