@@ -60,6 +60,7 @@ use App\Models\AvaliacoesMostrasRespostas;
 use App\Models\AvaliacoesProntoFaltas;
 use App\Models\Comportamento;
 use App\Models\Enquadramentos;
+use App\Models\Users;
 use Exception;
 use Illuminate\Support\Facades\Log;
 
@@ -5588,6 +5589,12 @@ class AjaxAdminController extends Controller
             foreach ($omcts as $omct) {
 
                 foreach ($alunos as $aluno) {
+
+                    $aluno->user->firstOrCreate(
+                        ['email' => $aluno->email],
+                        ['password' => bcrypt($aluno->doc_cpf)]
+                    );
+
                     if ($aluno->omcts_id == $omct) {
 
                         /* BUSCANDO POR PENDÊNCIAS */
