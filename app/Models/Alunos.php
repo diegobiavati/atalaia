@@ -136,7 +136,8 @@ class Alunos extends Model
         'anulacaoCancelamento',
         'recursosDisciplinares',
         'recompensas',
-        'obs_psicopedagogia'
+        'obs_psicopedagogia',
+        'colegio_militar',
     ];
 
     public function getNomeGuerraAttribute($value)
@@ -560,13 +561,15 @@ class Alunos extends Model
             'al_inscricao' => 'required|numeric',
             'nasc_cidade' => 'required',
             'nasc_pais' => 'required',
-            'doc_idt_militar' => 'required|digits:10|regidt_eb'
+            'doc_idt_militar' => 'required|digits:10|regidt_eb',
+            'colegio_militar' => 'required',
         ];
     }
 
     public function regras()
     {
 
+        //Se já estudou em Colégio Militar - Não, Integral ou Parcialmente
         return [
             'numero' => 'required|numeric',
             'nome_completo' => 'required',
@@ -580,7 +583,13 @@ class Alunos extends Model
             'email' => 'required|unique:alunos,email,' . $this->id,
             'al_inscricao' => 'required|numeric',
             'nasc_cidade' => 'required',
-            'nasc_pais' => 'required'
+            'nasc_pais' => 'required',
+            'doc_idt_militar' => 'required|digits:10|regidt_eb',
+            'doc_idt_militar_o_exp' => 'required',
+            'doc_cpf' => 'required',
+            'doc_preccp' => 'required',
+            'id_situacao_anterior' => 'required',
+            'colegio_militar' => 'required'
         ];
     }
 
@@ -710,7 +719,8 @@ class Alunos extends Model
             'farda_tam_gandola' => 'Gandola',
             'farda_tam_calca' => 'Calça',
             'farda_tam_coturno' => 'Coturno',
-            'turma_esa_id' => 'Turma(ESA)'
+            'turma_esa_id' => 'Turma(ESA)',
+            'colegio_militar' => 'Colégio Militar',
         ];
     }
 

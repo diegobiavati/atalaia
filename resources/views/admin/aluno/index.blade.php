@@ -92,6 +92,16 @@
                         <label class="labelDescricao">Nome Completo</label>
                         <input class="no-style text-uppercase" style="width: 100%;margin-top:10px;" name="nome_completo" value="{{ $aluno->nome_completo or old('nome_completo') }}" type="text" autocomplete="off" placeholder="" />
                     </div>
+                    <div class="divImplantarAluno" style="border-bottom:none; margin-left:20px;">
+                        <i class="ion-person-stalker" style="font-size: 15px; color: #696969; margin-right: 5px;"></i>
+                        <label class="labelDescricao">Colégio Militar</label>
+                        <select class="custom-select" name="colegio_militar" style="margin-top:5px;">
+                            <option value="0" disabled selected hidden>Estudou?</option>
+                            <option value="N" {{ isset($aluno) && $aluno->colegio_militar == 'N' ? 'selected' : ''}}>Não</option>
+                            <option value="I" {{ isset($aluno) && $aluno->colegio_militar == 'I' ? 'selected' : ''}}>Integral</option>
+                            <option value="P" {{ isset($aluno) && $aluno->colegio_militar == 'P' ? 'selected' : ''}}>Parcialmente</option>
+                        </select>
+                    </div>
 
                     <div class="clear"></div>
 

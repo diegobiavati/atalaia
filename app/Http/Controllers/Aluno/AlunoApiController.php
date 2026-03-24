@@ -9,7 +9,6 @@ use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\SSAA\Avaliacao\ControllerResultados;
 use App\Http\Controllers\SSAA\Calendario\ControllerAvaliacao;
 use App\Http\Controllers\Utilitarios\FuncoesController;
-use App\Http\Controllers\Utilitarios\SmbClientPhp;
 use App\Http\OwnClasses\ClassLog;
 
 use App\Models\AlunosDependente;
@@ -32,7 +31,6 @@ use App\Models\AlunosCurso;
 use App\Models\AlunosSitDiv;
 use App\Models\Areas;
 use App\Models\AnoFormacao;
-use App\Models\Avaliacoes;
 use App\Models\Disciplinas;
 use App\Models\EsaAvaliacoes;
 use App\Models\Instrumentos;
