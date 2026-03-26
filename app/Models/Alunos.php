@@ -745,8 +745,6 @@ class Alunos extends Model
             }
         }
 
-
-
         return $return;
     }
 

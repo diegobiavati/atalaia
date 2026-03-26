@@ -147,6 +147,7 @@ $readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'rea
         });
     });
 
+    @if(isset($esaAvaliacoes) && (!isset($readOnly)))
     $('form#form-avaliacoes button.btn.btn-danger.float-right').click(function(evt) {
         $(document).confirmAcao('Para remover este item certifique-se que a avaliação não está vinculada com nenhum <strong>lançamento</strong>.<p>Deseja realmente excluir esta <i>Avaliação</i>?</p>', function() {
             $.ajax({
@@ -162,12 +163,12 @@ $readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'rea
                     $('div.alert.alertas-avaliacoes').removeClass('alert-danger').empty();
                 },
                 success: function(data) {
-                    if (data.status == 'ok') {
+                    if (data.status == 'success') {
                         $('div.alert.alertas-avaliacoes').addClass('alert-success').empty().slideDown();
                         setTimeout(function() {
                             $('div.alert.alertas-avaliacoes').slideUp(200, function() {
-                                $('#form-avaliacao .btn.btn-warning').click();
-
+                                
+                                $('div.container_calendario').empty();
                                 //Ativa o gatilho para o carregamento do calendário...
                                 carregaContainerCalendario("{{ asset('gaviao/ajax/calendario/index/'.$cursoSelecionado->escolhaQms->anoFormacao->id) }}");
                             });
@@ -183,6 +184,7 @@ $readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'rea
             });
         });
     });
+    @endif
 
     $('form#form-avaliacoes button.btn.btn.btn-success').click(function(evt) {
         evt.stopImmediatePropagation(); //Não deixa duplicar os eventos
@@ -223,7 +225,7 @@ $readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'rea
                         $('div.alert.alertas-avaliacoes').append('<li>' + value + '</li>');
                     });
 
-                    $('form#form-avaliacoes button.btn.btn btn-success').show();
+                    $('form#form-avaliacoes button.btn.btn.btn-success').show();
                 }
 
             },
