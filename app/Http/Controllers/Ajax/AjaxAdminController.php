@@ -4716,12 +4716,12 @@ class AjaxAdminController extends Controller
             $usr = User::find($request->id);
             $aluno = Alunos::where('email', $usr->email)->first();
 
-            //Teste
+            /*//Teste
             $dados = app(AlunoApiController::class)->show($aluno->id);
             $data['body'] = $dados->render();
-            //Fim Teste
+            //Fim Teste*/
             
-            /*$turma = ($aluno->turma->turma) ?? 'Não informada';
+            $turma = ($aluno->turma->turma) ?? 'Não informada';
             if ($aluno->data_nascimento) {
                 list($ano, $mes, $dia) = explode('-', $aluno->data_nascimento);
                 $data_nascimento = $dia . '/' . $mes . '/' . $ano;
@@ -4778,7 +4778,7 @@ class AjaxAdminController extends Controller
                                     <div style="width: 60%; margin: 18px auto; border-bottom: 1px solid #ccc; padding: 8px 6px;">
                                         <i class="ion-email" style="font-size: 24px; color: #696969; vertical-align: -4px; margin-right: 6px;"></i> <b>Email</b><br />' . $aluno->email . '
                                     </div>
-                                </div><br />';*/
+                                </div><br />';
         }
 
         return $data;

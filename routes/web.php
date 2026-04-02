@@ -389,11 +389,10 @@ Route::resource('importar-excel-sispb-alunos', 'Utilitarios\ImportadorController
 
 
 /************************************************************************************************************
-*                              INICIO DE ROTAS REFERENTE AO SISTEMA GAVIÃO                                  *
 *                                                                                                           *
-*                                                                                                           * 
+*                              INICIO DE ROTAS REFERENTE AO SISTEMA GAVIÃO                                  * 
 *                                                                                                           *
-**************************************************************************************************************/
+*************************************************************************************************************/
 
 /* AUTENTICAÇÃO ROTAS GAVIÃO */
 Route::get('/gaviao', ['as' => 'gaviao', 'uses' => 'OwnAuthController@UserLogin']);

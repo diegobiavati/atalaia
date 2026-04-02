@@ -132,7 +132,8 @@ class AlunoApiController extends Controller
 
         $qms = array();
         // Repassando para a view
-        return view('admin.aluno.index', $compact)
+        //return view('admin.aluno.index', $compact)
+        return view('aluno.form', $compact)
             ->with('ownauthcontroller', $this->ownauthcontroller)
             ->with('qms', $qms);
     }
@@ -314,7 +315,8 @@ class AlunoApiController extends Controller
 
         // Repassando para a view
         if (isset($aluno)) {
-            return view('admin.aluno.index', $compact)
+            //return view('admin.aluno.index', $compact)
+            return view('aluno.form', $compact)
                 ->with('ownauthcontroller', $this->ownauthcontroller)
                 ->with('aluno', $aluno)
                 ->with('qms', $qms);
