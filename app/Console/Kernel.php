@@ -30,7 +30,7 @@ class Kernel extends ConsoleKernel
             ini_set('memory_limit', '2048M');
         });
 
-        $schedule->command('bi:converter-json')->everyFiveMinutes();
+        $schedule->command('bi:converter-json')->everyFiveMinutes()->withoutOverlapping();
 
     }
 

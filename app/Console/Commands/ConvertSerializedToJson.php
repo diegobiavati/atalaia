@@ -15,7 +15,7 @@ class ConvertSerializedToJson extends Command
     {
         $registros = DB::table('alunos_classificacao')
             ->whereNull('data_demonstrativo_json')
-            ->limit(100) //  importante para performance
+            ->limit(500) //  importante para performance
             ->orderBy('id', 'DESC')
             ->get();
 
