@@ -210,7 +210,7 @@ class LancamentosController extends Controller
             foreach ($listaAlunos as $idAluno) {
                 $lancamentoFo = new LancamentoFo();
                 $lancamentoFo->aluno_id = $idAluno;
-                $lancamentoFo->operador_id = session()->get('login')['operadorID'];
+                $lancamentoFo->operador_id = $request->observador_id ?? session()->get('login')['operadorID'];
                 $lancamentoFo->tipo = $request->radioTipoFO;
                 $lancamentoFo->observacao = $request->textAreaObservacaoFO;
                 $lancamentoFo->comandante_operador_id = $comandanteCurso->id;
@@ -284,6 +284,16 @@ class LancamentosController extends Controller
 
                     $operadores = Operadores::find(session()->get('login')['operadorID']);
                     $funcaoOperador = explode(',', $operadores->id_funcao_operador);
+                    // Busca operadores para o select de Observador (perfil SGTE)
+                    $operadoresObservador = Operadores::where('ativo', 'S')
+                    ->when(session()->has('login.qmsID'), function($query) {
+                    $query->whereNotNull('qms_matriz_id');
+                    }, function($query) {
+                    $query->where('omcts_id', session()->get('login.omctID'));
+                    })
+                        ->with('posto')
+                        ->orderBy('nome_guerra')
+                        ->get();
 
                     if(session()->has('login.qmsID')){
                         //$cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
@@ -292,11 +302,11 @@ class LancamentosController extends Controller
                             $q->where('ano_formacao_id', AnoFormacao::find($explode[1])->id);
                         })->get();
 
-                        return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'rotaTurma', 'funcaoOperador', 'readOnly', 'napds'))
+                        return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'rotaTurma', 'funcaoOperador', 'readOnly', 'napds', 'operadoresObservador'))
                             ->with('ownauthcontroller', $this->_ownauthcontroller);
                     }
 
-                    return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'rotaTurma', 'funcaoOperador', 'readOnly'))
+                    return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'rotaTurma', 'funcaoOperador', 'readOnly', 'operadoresObservador'))
                         ->with('ownauthcontroller', $this->_ownauthcontroller);
                 case 'viewConsultarFO':
 
