@@ -1,3 +1,16 @@
+@if(isset($relacao) && $relacao == 'excel')
+<?php
+    $fileName = 'relacao_alunos_' . date('Y-m-d_His') . '.xls';
+    header("Content-Description: PHP Generated Data");
+    header("Content-Type: application/vnd.ms-excel");
+    header("Content-Disposition: attachment; filename=\"{$fileName}\"");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Pragma: no-cache");
+?>
+
+@endif
+
 @extends('relatorios.template-relatorios')
 
 @section('title', 'Atalaia :: Relatório::Relação de Alunos Prontos')
@@ -223,19 +236,6 @@
     </div>
     
     @endforeach
-@endif
-
-@if($relacao == 'excel')
-
-{{ $fileName = bcrypt(date('Y-m-d H:i:s')).'.ods' }}
-
-{{header("Content-Description: PHP Generated Data")}}
-{{header("Content-Type: application/x-msexcel")}}
-{{header("Content-Disposition: attachment; filename=\"{$fileName}\"")}}
-{{header("Expires: 0")}}
-{{header("Cache-Control: must-revalidate, post-check=0, pre-check=0")}}
-{{header("Pragma: no-cache")}}
-
 @endif
 
 <div style="display: flex; justify-content: right; align-items: right;">

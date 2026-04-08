@@ -40,8 +40,22 @@
         <div style="margin-bottom: 15px;">
             <label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
                 <font style="color:rgb(255, 255, 255);">Observador</font>
-                <input class="form-control" style="display:block; text-align:center;" name="observador" value="{{ (isset($lancamentoFo->operador) ? $lancamentoFo->operador->posto->postograd_abrev.' '.$lancamentoFo->operador->nome_guerra : session()->get('nomeOperador'))  }}" autocomplete="off" readonly />
             </label>
+            
+           @if(count(array_intersect([4, 9002], session()->get('login.perfil'))) > 0)
+            <select name="observador_id" class="custom-select">
+                <option value="" disabled selected hidden>Selecione um Observador</option>
+                @if(isset($operadoresObservador))
+                @foreach($operadoresObservador as $op)
+                <option value="{{ $op->id }}" {{ (session()->get('login.operadorID') == $op->id) ? 'selected' : '' }}>
+                    {{ $op->posto->postograd_abrev }} {{ $op->nome_guerra }}
+                </option>
+                @endforeach
+                @endif
+            </select>
+            @else
+            <input class="form-control" style="display:block; text-align:center;" name="observador" value="{{ (isset($lancamentoFo->operador) ? $lancamentoFo->operador->posto->postograd_abrev.' '.$lancamentoFo->operador->nome_guerra : session()->get('nomeOperador')) }}" autocomplete="off" readonly />
+            @endif
         </div>
         <div style="margin-bottom: 15px;">
             <div><label class="custom-control-label" style="padding: 5px;width: 100%;background-color:rgb(121, 161, 212);">
