@@ -2134,12 +2134,13 @@ class AjaxRelatoriosController extends Controller
                         if(!is_null($alunoID)){
 
                             try{
+                                $mediaFinal = $k[$alunoID]['media_final'] ?? 0;
                                 $class = new AlunosClassificacao;
                                 $class->aluno_id = $alunoID;
-                                $class->nota_final = $k[$alunoID]['media_final'];
-                                $class->nota_final_arredondada = number_format($k[$alunoID]['media_final'], '3', '.', '');
+                                $class->nota_final = $mediaFinal;
+                                $class->nota_final_arredondada = number_format($mediaFinal, 3, '.', '');
                                 $class->data_demonstrativo = serialize($k[$alunoID]);
-                                $class->reprovado = $k[$alunoID]['reprovado'];
+                                $class->reprovado = $k[$alunoID]['reprovado'] ?? 'N';
                                 $class->disciplinas_reprovado = $disciplinas_reprovado;
                                 $class->ano_formacao_id = $id_ano_corrente;
                                 $class->save();

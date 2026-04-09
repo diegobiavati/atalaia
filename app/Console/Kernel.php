@@ -30,7 +30,8 @@ class Kernel extends ConsoleKernel
             ini_set('memory_limit', '2048M');
         });
 
-        $schedule->command('bi:converter-json')->everyFiveMinutes()->withoutOverlapping();
+        // Converte para JSON os dados de alunos, turmas, disciplinas, notas, faltas e outras informações para serem consumidos pelo Power BI
+        $schedule->command('bi:converter-json')->everyMinute()->withoutOverlapping();
 
     }
 
