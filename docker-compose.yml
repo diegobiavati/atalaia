@@ -1,0 +1,56 @@
+# docker-compose.yml
+services:
+
+  # PHP Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: atalaia-app
+    container_name: atalaia-app
+    restart: unless-stopped
+    tty: true
+    environment:
+      SERVICE_NAME: app
+      SERVICE_TAGS: dev
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    networks:
+      - atalaia-network
+
+  # Nginx Service
+  web:
+    image: nginx:alpine
+    container_name: atalaia-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
+      - ./.docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - atalaia-network
+
+  # Database Service (MySQL 5.7 para compatibilidade)
+  db:
+    image: mysql:5.7
+    container_name: atalaia-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - ./docker-data/mysql:/var/lib/mysql
+    networks:
+      - atalaia-network
+
+networks:
+  atalaia-network:
+    driver: bridge
