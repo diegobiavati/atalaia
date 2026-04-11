@@ -1,9 +1,0 @@
-{
-    "githubPullRequests.remotes": [
-        "origin",
-        "upstream",
-        "atalaia"
-    ],
-    "php.version": "v7.4",
-    "liveServer.settings.port": 5501
-}
