@@ -4586,9 +4586,9 @@ class AjaxAdminController extends Controller
         $permissao = array_unique(array_merge(array_diff($operador_gravado, $nao_selecionado), $selecionado), SORT_NUMERIC);
         sort($permissao);
 
-        if (isset($request->qms_id) && !array_intersect(range(9000, 9002), $permissao)) {
+        /*if (isset($request->qms_id) && !array_intersect(range(9000, 9002), $permissao)) {
             $operador->qms_matriz_id = 9999;
-        }
+        }*/
 
         $operador->id_funcao_operador = implode(',', $permissao);
 
@@ -4597,7 +4597,7 @@ class AjaxAdminController extends Controller
         } else {
             $operador->id_funcao_operador = '';
         }*/
-
+        
         if ($operador->save() && $email != $request->email) {
             User::where('email', '=', $email)->update(['email' => $request->email]);
         }
