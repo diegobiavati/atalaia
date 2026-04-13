@@ -12,17 +12,25 @@ tr:nth-child(even) {
             <i class="ion-ios-people"></i><strong>Gerenciar Operadores</strong>
             <div style="float: right">
                 <div class="box-pesquisar-in-card-title" style="display: inline-block; padding:0; height: 36px;">
-                    <input class="pesquisar-in-card-title busca-operador" type="text" placeholder="Busca" />
-                    <a class="no-style" href="javascript: void(0);">
-                        <i class="ion-android-search" style="color: #696969;"></i>
-                    </a>
-                </div>
-                <!--a class="no-style" href="javascript: void(0);" onclick="" placement="bottom" style="margin-left: 6px;"-->
-                <a href="javascript: void(0);" data-toggle="popover" data-container="body" data-placement="bottom"
-                    data-html="true" style="margin-left: 12px;">
-                    <i class="ion-android-more-vertical" style="color: #696969;"></i>
-                </a>
-                <div id="popover-content" style="display: none;">
+            <input class="pesquisar-in-card-title busca-operador" type="text" placeholder="Busca" />
+            <a class="no-style" href="javascript: void(0);">
+                <i class="ion-android-search" style="color: #696969;"></i>
+            </a>
+        </div>
+
+        @if(isset($ownauthcontroller) && $ownauthcontroller->PermissaoCheck(1))
+        <div style="display: inline-block; margin-left: 15px; vertical-align: middle;">
+            <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="switchInativos" {{ (isset($mostrarInativos) && $mostrarInativos == 'S') ? 'checked' : '' }}>
+                <label class="custom-control-label" for="switchInativos" style="font-size: 12px; cursor: pointer; color: #696969;"><strong>Mostrar Inativos</strong></label>
+            </div>
+        </div>
+        @endif 
+        <a href="javascript: void(0);" data-toggle="popover" data-container="body" data-placement="bottom"
+           data-html="true" style="margin-left: 12px;">
+            <i class="ion-android-more-vertical" style="color: #696969;"></i>
+        </a>
+        <div id="popover-content" style="display: none;">
                     <div class="menu_inside_popover">
                         <i class="ion-android-person-add"></i><a href="javascript: void(0);"
                             onclick="dialogAdicionarOperador();">Adicionar operador</a><br />
@@ -154,6 +162,20 @@ function dialogEditarOperador(id) {
         }
     });
 }
+
+$(document).off('change', '#switchInativos').on('change', '#switchInativos', function() {
+    let status = $(this).is(':checked') ? 'S' : 'N';
+    let urlListagem = '{{ session()->get("login.omctID") ? "/ajax/gerenciar-operadores" : "/gaviao/ajax/gerenciar-operadores-gaviao" }}';
+    
+    $.ajax({
+        type: 'GET',
+        url: urlListagem,
+        data: { mostrar_inativos: status },
+        success: function(data) {
+            $('.inside-content').html(data); 
+        }
+    });
+});
 
 // MOSTRA DIALOGO ADICIONAR OPERADORES /          
 function dialogAdicionarOperador() {

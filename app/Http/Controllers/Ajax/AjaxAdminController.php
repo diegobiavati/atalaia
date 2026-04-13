@@ -84,7 +84,53 @@ class AjaxAdminController extends Controller
         $this->ownauthcontroller = $ownauthcontroller;
     }
 
-    public function GerenciarOperadores(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
+
+        public function GerenciarOperadores(\App\Http\Controllers\OwnAuthController $ownauthcontroller, \Illuminate\Http\Request $request)
+{
+    // 1. Verificamos se o usuário marcou o filtro de inativos na tela
+    $mostrarInativos = $request->get('mostrar_inativos', 'N'); 
+
+    // 2. Pegamos o perfil do usuário logado (perfil 1 ou 9999 tem super poder)
+    $perfilUsuario = auth()->user()->perfil;
+
+    if ($this->ownauthcontroller->PermissaoCheck(1)) {
+        $query = Operadores::whereNotNull('omcts_id')->whereNull('qms_matriz_id');
+
+        // Se NÃO marcou para mostrar inativos, filtramos apenas os ativos 'S'
+        // Se marcou 'S' no filtro, ele ignora esse WHERE e traz todo mundo
+        if ($mostrarInativos !== 'S') {
+            $query->where('ativo', 'S');
+        }
+
+        $operadores = $query->orderBy('omcts_id', 'asc')
+                            ->orderBy('postograd_id', 'asc')
+                            ->get();
+    } else {
+        // Para quem não é admin (perfil comum), mantemos a regra de ver apenas os ativos da sua OM
+        $operadores = Operadores::where([
+                ['omcts_id', '=', session()->get('login.omctID')], 
+                ['ativo', '=', 'S']
+            ])
+            ->orderBy('postograd_id', 'asc')
+            ->get();
+    }
+
+    // Parte das funções (mantém igual)
+    $funcoesOperadores = OperadoresTipo::get();
+    foreach ($funcoesOperadores as $funcao) {
+        $data[$funcao->id] = $funcao->funcao_abrev;
+    }
+
+    $this->classLog->RegistrarLog('Acesso ao menu para gerenciamento de operadores', auth()->user()->email);
+    
+    return view('ajax.gerenciar-operadores')
+        ->with('operadores', $operadores)
+        ->with('data', $data)
+        ->with('ownauthcontroller', $ownauthcontroller)
+        ->with('mostrarInativos', $mostrarInativos); // Enviamos o estado do filtro de volta para a tela
+}
+
+    /* public function GerenciarOperadores(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
 
         if ($this->ownauthcontroller->PermissaoCheck(1)) {
@@ -103,7 +149,7 @@ class AjaxAdminController extends Controller
 
         $this->classLog->RegistrarLog('Acesso ao menu para gerenciamento de operadores', auth()->user()->email);
         return view('ajax.gerenciar-operadores')->with('operadores', $operadores)->with('data', $data)->with('ownauthcontroller', $ownauthcontroller);
-    }
+    }  */
 
     public function GerenciarOperadoresGaviao(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {

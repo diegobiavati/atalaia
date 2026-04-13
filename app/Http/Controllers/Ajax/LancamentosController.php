@@ -661,7 +661,25 @@ class LancamentosController extends Controller
         $pdf->Cell(0, 4, utf8_decode('RELATO DO FATO'), 0, 1, 'C', false);
 
         $pdf->SetFont('Times', '', 10);
+        
+        
+        $dataFormatada = date('d/m/Y', strtotime($fatd->lancamentoFo->data_obs));
+        
+       
+        $pdf->WriteHTML(utf8_decode('<b>Data do Fato:</b> ' . $dataFormatada));
+        
+       
+        $pdf->Ln(5);
+        
+        
         $pdf->WriteHTML(utf8_decode($fatd->lancamentoFo->observacao));
+
+        /*$pdf->SetFont('Times', 'B', 12);
+        $pdf->SetXY(10, 110);
+        $pdf->Cell(0, 4, utf8_decode('RELATO DO FATO'), 0, 1, 'C', false);
+
+        $pdf->SetFont('Times', '', 10);
+        $pdf->WriteHTML(utf8_decode($fatd->lancamentoFo->observacao));*/
 
         $pdf->SetXY(10, 190);
         
