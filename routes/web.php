@@ -497,6 +497,7 @@ Route::group(['prefix' => 'gaviao/ajax', 'as' => 'gaviao.ajax.', 'middleware' =>
         Route::get('gerenciar-avaliacao/turma/{id_turma}', 'SSAA\Calendario\ControllerAvaliacao@viewListagemTurma');
         Route::get('gerenciar-avaliacao/curso/{id_curso}', 'SSAA\Calendario\ControllerAvaliacao@viewListagemCurso');
         Route::post('gerenciar-avaliacao/rap/', 'SSAA\Calendario\ControllerAvaliacao@salvaRap');
+        Route::delete('gerenciar-avaliacao/rap/', 'SSAA\Calendario\ControllerAvaliacao@removeRap');
         Route::get('gerenciar-avaliacao/motivoFalta/{id_aluno}', 'SSAA\Calendario\ControllerAvaliacao@viewMotivoFalta');
         Route::resource('gerenciar-avaliacao','SSAA\Calendario\ControllerAvaliacao');
         

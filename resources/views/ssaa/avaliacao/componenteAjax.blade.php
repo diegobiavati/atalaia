@@ -83,7 +83,7 @@ $readOnly = (isset($turmasRapPendente) && count($turmasRapPendente) == 0) ? 'rea
     <button type="button" class="btn btn btn-success" onclick="javascript:void(0);">{{ isset($esaAvaliacoes) ? 'Modificar' : 'Salvar' }}</button>
     @endif
 
-    @if($ownauthcontroller->PerfilCheck([9006]) && (isset($turmasRapPendente) && count($turmasRapPendente) > 0) )
+    @if($ownauthcontroller->PerfilCheck([9005,9009]) && (isset($turmasRapPendente) && count($turmasRapPendente) > 0) )
     <!-- Libera Lançar a RAP -->
     @if(!isset($colecaoFaltas) || $colecaoFaltas->count() > 0)
     <button type="button" class="btn btn btn-primary" onclick="javascript:void(0);">Lançar o RAP</button>

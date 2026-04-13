@@ -9,7 +9,6 @@ use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Models\Alunos;
 use App\Models\AnoFormacao;
 use App\Models\EsaAvaliacoes;
-use App\Models\EsaAvaliacoesDemonstrativo;
 use App\Models\EsaAvaliacoesGbo;
 use App\Models\EsaAvaliacoesResultados;
 use App\Models\EsaDisciplinas;
@@ -19,6 +18,7 @@ use App\Rules\ESANomeAvaliacoes;
 use App\Rules\TipoAvaliacoes;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -435,6 +435,92 @@ class ControllerAvaliacao extends Controller
         return response()->json($retorno);
     }
 
+    public function removeRap()
+    {
+        $retorno['status'] = 'err';
+        $retorno['response'] = [];
+
+        if (!$this->_ownauthcontroller->PerfilCheck([9005])) {
+            array_push($retorno['response'], 'Você não tem permissão para esta ação.');
+            return response()->json($retorno);
+        }
+
+        try {
+            DB::connection('mysql_ssaa')->transaction(function () use (&$retorno) {
+                $isTfm = $this->_request->get('tipo') === 'tfm';
+                $hashRap = $this->_request->get('hash_rap');
+
+                if (!$hashRap) {
+                    array_push($retorno['response'], 'RAP não informado.');
+                    return;
+                }
+
+                $explode = explode('-', decrypt($hashRap));
+
+                $rap = $isTfm
+                    ? \App\Models\EsaAvaliacoesRapTfm::where('id_esa_avaliacoes', $explode[1] ?? null)->first()
+                    : \App\Models\EsaAvaliacoesRap::where([
+                        ['id_esa_avaliacoes', '=', $explode[1] ?? null],
+                        ['id_turmas_esa', '=', $explode[2] ?? null]
+                    ])->first();
+
+                if (!$rap) {
+                    array_push($retorno['response'], 'RAP não encontrado.');
+                    return;
+                }
+                if ($this->existeLancamentoVinculadoAoRap($rap, $isTfm)) {
+                    array_push($retorno['response'], 'Não é possível remover o RAP, pois existem lançamentos vinculados a ele.');
+                    return;
+                }
+                
+                $deleted = $isTfm
+                    ? \App\Models\EsaAvaliacoesRapTfm::where('id_esa_avaliacoes', $rap->id_esa_avaliacoes)->delete()
+                    : \App\Models\EsaAvaliacoesRap::where([
+                        ['id_esa_avaliacoes', '=', $rap->id_esa_avaliacoes],
+                        ['id_turmas_esa', '=', $rap->id_turmas_esa]
+                    ])->delete();
+
+                if ($deleted) {
+                    $retorno['status'] = 'success';
+                    $retorno['response'] = $isTfm ? 'RAP/TFM removido com sucesso.' : 'RAP removido com sucesso.';
+                } else {
+                    array_push($retorno['response'], 'Ocorreu um erro ao tentar remover o RAP.');
+                }
+            });
+        } catch (\Throwable $th) {
+            array_push($retorno['response'], 'Ocorreu um erro ao tentar remover o RAP.');
+            array_push($retorno['response'], $th->getMessage());
+        }
+
+        return response()->json($retorno);
+    }
+
+    private function existeLancamentoVinculadoAoRap($rap, $isTfm = false)
+    {
+        if ($isTfm) {
+            return EsaAvaliacoesResultados::where('id_esa_avaliacoes', $rap->id_esa_avaliacoes)->exists();
+        }
+
+        $idsAlunosTurma = Alunos::where('turma_esa_id', $rap->id_turmas_esa)->pluck('id');
+
+        if ($idsAlunosTurma->isEmpty()) {
+            return false;
+        }
+
+        if (
+            EsaAvaliacoesResultados::where('id_esa_avaliacoes', $rap->id_esa_avaliacoes)
+                ->whereIn('id_aluno', $idsAlunosTurma)
+                ->exists()
+        ) {
+            return true;
+        }
+
+        return EsaAvaliacoesGbo::join('esa_avaliacoes_indice', 'esa_avaliacoes_gbo.id_esa_avaliacoes_indice', '=', 'esa_avaliacoes_indice.id')
+            ->where('esa_avaliacoes_indice.id_esa_avaliacoes', $rap->id_esa_avaliacoes)
+            ->whereIn('esa_avaliacoes_gbo.id_aluno', $idsAlunosTurma)
+            ->exists();
+    }
+
     public static function getPrimeiraChamadaAvaliacao(EsaAvaliacoes $esaAvaliacoes)
     {
         return $esaAvaliacoes->esaDisciplinas->esaAvaliacoes
@@ -490,72 +576,101 @@ class ControllerAvaliacao extends Controller
         $array_data = array_merge($array_data, array('segundo_discente' => $array_data['segundo_discente'], true));
         $array_data = array_merge($array_data, array('terceiro_discente' => $array_data['terceiro_discente'], true));
 
-        return Validator::make(
-            $array_data,
-            [
-                'id_operador_devolucao' => 'required|numeric|exists:mysql.operadores,id',
-                'id_esa_avaliacoes' => 'required|numeric|exists:mysql_ssaa.esa_avaliacoes,id',
-                'id_turmas_esa' => 'required|numeric|exists:mysql.turmas_esa,id',
-                'alunos_faltas.*.id_aluno' => 'nullable|exists:mysql.alunos,id',
-                'duracao' => 'required|date_format:H:i',
-                'hora_inicio' => 'required|date_format:H:i',
-                'hora_termino' => 'required|date_format:H:i',
-                'local_aplicacao' => 'required|string',
-                'erros_impressao' => 'nullable|string',
-                'erros_interpretacao' => 'nullable|string',
-                'cond_local_adequacao' => ['required', Rule::in(['MB', 'B', 'R', 'I'])],
-                'cond_local_arrumacao' => ['required', Rule::in(['MB', 'B', 'R', 'I'])],
-                'cond_local_silencio' => ['required', Rule::in(['MB', 'B', 'R', 'I'])],
-                'cond_local_iluminacao' => ['required', Rule::in(['MB', 'B', 'R', 'I'])],
-                'fatores_influencia_aplicacao' => 'nullable|string',
-                'efetivo_realizou' => 'required|integer',
-                'efetivo_termino' => 'required|integer',
-                'primeiro_discente.tempo' => 'date_format:H:i',
-                'primeiro_discente.id_aluno' => 'numeric|exists:mysql.alunos,id',
-                'segundo_discente.tempo' => 'date_format:H:i',
-                'segundo_discente.id_aluno' => 'numeric|exists:mysql.alunos,id',
-                'terceiro_discente.tempo' => 'date_format:H:i',
-                'terceiro_discente.id_aluno' => 'numeric|exists:mysql.alunos,id',
-                'maioria_efetivo' => 'required|date_format:H:i',
-                'todo_efetivo' => 'required|date_format:H:i',
-            ],
-            [
-                'id_operador_devolucao.exists' => '<b>Operador não encontrado ou a sessão finalizou.</b>',
-                'id_esa_avaliacoes.required' => '<b>Avaliação não encontrada</b>.',
-                'id_turmas_esa.required' => 'O campo <b>Turma</b> é obrigatório.',
+        //Se for perfil de "Operador SSAA" Não valida alguns campos para agilizar o lançamento e testes.
+        if ($this->_ownauthcontroller->PerfilCheck([9005])) {
+            return Validator::make(
+                $array_data,
+                [
+                    'id_operador_devolucao' => 'required|numeric|exists:mysql.operadores,id',
+                    'id_esa_avaliacoes' => 'required|numeric|exists:mysql_ssaa.esa_avaliacoes,id',
+                    'id_turmas_esa' => 'required|numeric|exists:mysql.turmas_esa,id',
+                    'alunos_faltas.*.id_aluno' => 'nullable|exists:mysql.alunos,id',
+                    'duracao' => 'required|date_format:H:i',
+                    'hora_inicio' => 'required|date_format:H:i',
+                    'hora_termino' => 'required|date_format:H:i',
+                    'local_aplicacao' => 'required|string'
+                ],
+                [
+                    'id_operador_devolucao.exists' => '<b>Operador não encontrado ou a sessão finalizou.</b>',
+                    'id_esa_avaliacoes.required' => '<b>Avaliação não encontrada</b>.',
+                    'id_turmas_esa.required' => 'O campo <b>Turma</b> é obrigatório.',
 
-                'alunos_faltas.*.id_aluno.exists' => 'O aluno informado na falta não existe.',
+                    'alunos_faltas.*.id_aluno.exists' => 'O aluno informado na falta não existe.',
 
-                'duracao.required' => 'O campo <b>Duração prevista</b> é obrigatório.',
-                'hora_inicio.required' => 'O campo <b>Horário de início</b> é obrigatório.',
-                'hora_termino.required' => 'O campo <b>Horário de término</b> é obrigatório.',
-                'local_aplicacao.required' => 'O campo <b>Local de aplicação</b> é obrigatório.',
-                'cond_local_adequacao.required' => 'O campo <b>Condições do local de aplicação (Adequação)</b> é obrigatório.',
-                'cond_local_arrumacao.required' => 'O campo <b>Condições do local de aplicação (Arrumação)</b> é obrigatório.',
-                'cond_local_silencio.required' => 'O campo <b>Condições do local de aplicação (Silêncio)</b> é obrigatório.',
-                'cond_local_iluminacao.required' => 'O campo <b>Condições do local de aplicação (Iluminação)</b> é obrigatório.',
-                'efetivo_realizou.required' => 'O campo <b>Efetivo que realizou a prova</b> é obrigatório.',
-                'efetivo_termino.required' => 'O campo <b>Efetivo na sala ao término do tempo</b> é obrigatório.',
+                    'duracao.required' => 'O campo <b>Duração prevista</b> é obrigatório.',
+                    'hora_inicio.required' => 'O campo <b>Horário de início</b> é obrigatório.',
+                    'hora_termino.required' => 'O campo <b>Horário de término</b> é obrigatório.',
+                    'local_aplicacao.required' => 'O campo <b>Local de aplicação</b> é obrigatório.'
+                ]
+            );
+        } else {
+            return Validator::make(
+                $array_data,
+                [
+                    'id_operador_devolucao' => 'required|numeric|exists:mysql.operadores,id',
+                    'id_esa_avaliacoes' => 'required|numeric|exists:mysql_ssaa.esa_avaliacoes,id',
+                    'id_turmas_esa' => 'required|numeric|exists:mysql.turmas_esa,id',
+                    'alunos_faltas.*.id_aluno' => 'nullable|exists:mysql.alunos,id',
+                    'duracao' => 'required|date_format:H:i',
+                    'hora_inicio' => 'required|date_format:H:i',
+                    'hora_termino' => 'required|date_format:H:i',
+                    'local_aplicacao' => 'required|string',
+                    'erros_impressao' => 'nullable|string',
+                    'erros_interpretacao' => 'nullable|string',
+                    'cond_local_adequacao' => ['required', Rule::in(['MB', 'B', 'R', 'I'])],
+                    'cond_local_arrumacao' => ['required', Rule::in(['MB', 'B', 'R', 'I'])],
+                    'cond_local_silencio' => ['required', Rule::in(['MB', 'B', 'R', 'I'])],
+                    'cond_local_iluminacao' => ['required', Rule::in(['MB', 'B', 'R', 'I'])],
+                    'fatores_influencia_aplicacao' => 'nullable|string',
+                    'efetivo_realizou' => 'required|integer',
+                    'efetivo_termino' => 'required|integer',
+                    'primeiro_discente.tempo' => 'date_format:H:i',
+                    'primeiro_discente.id_aluno' => 'numeric|exists:mysql.alunos,id',
+                    'segundo_discente.tempo' => 'date_format:H:i',
+                    'segundo_discente.id_aluno' => 'numeric|exists:mysql.alunos,id',
+                    'terceiro_discente.tempo' => 'date_format:H:i',
+                    'terceiro_discente.id_aluno' => 'numeric|exists:mysql.alunos,id',
+                    'maioria_efetivo' => 'required|date_format:H:i',
+                    'todo_efetivo' => 'required|date_format:H:i',
+                ],
+                [
+                    'id_operador_devolucao.exists' => '<b>Operador não encontrado ou a sessão finalizou.</b>',
+                    'id_esa_avaliacoes.required' => '<b>Avaliação não encontrada</b>.',
+                    'id_turmas_esa.required' => 'O campo <b>Turma</b> é obrigatório.',
 
-                //'primeiro_discente.id_aluno.required' => 'O campo <b>Primeiro Discente</b> é obrigatório.',
-                'primeiro_discente.id_aluno.numeric' => 'O campo <b>Primeiro Discente</b> deve ser um número.',
-                'primeiro_discente.id_aluno.exists' => 'Informe o aluno no campo <b>Primeiro Discente</b>.',
-                //'primeiro_discente.tempo.required' => 'O campo <b>Tempo</b> do Primeiro Discente é obrigatório.',
+                    'alunos_faltas.*.id_aluno.exists' => 'O aluno informado na falta não existe.',
 
-                //'segundo_discente.id_aluno.required' => 'O campo <b>Segundo Discente</b> é obrigatório.',
-                'segundo_discente.id_aluno.numeric' => 'O campo <b>Segundo Discente</b> deve ser um número.',
-                'segundo_discente.id_aluno.exists' => 'Informe o aluno no campo <b>Segundo Discente</b>.',
-                //'segundo_discente.tempo.required' => 'O campo <b>Tempo</b> do Segundo Discente é obrigatório.',
+                    'duracao.required' => 'O campo <b>Duração prevista</b> é obrigatório.',
+                    'hora_inicio.required' => 'O campo <b>Horário de início</b> é obrigatório.',
+                    'hora_termino.required' => 'O campo <b>Horário de término</b> é obrigatório.',
+                    'local_aplicacao.required' => 'O campo <b>Local de aplicação</b> é obrigatório.',
+                    'cond_local_adequacao.required' => 'O campo <b>Condições do local de aplicação (Adequação)</b> é obrigatório.',
+                    'cond_local_arrumacao.required' => 'O campo <b>Condições do local de aplicação (Arrumação)</b> é obrigatório.',
+                    'cond_local_silencio.required' => 'O campo <b>Condições do local de aplicação (Silêncio)</b> é obrigatório.',
+                    'cond_local_iluminacao.required' => 'O campo <b>Condições do local de aplicação (Iluminação)</b> é obrigatório.',
+                    'efetivo_realizou.required' => 'O campo <b>Efetivo que realizou a prova</b> é obrigatório.',
+                    'efetivo_termino.required' => 'O campo <b>Efetivo na sala ao término do tempo</b> é obrigatório.',
 
-                //'terceiro_discente.id_aluno.required' => 'O campo <b>Terceiro Discente</b> é obrigatório.',
-                'terceiro_discente.id_aluno.numeric' => 'O campo <b>Terceiro Discente</b> deve ser um número.',
-                'terceiro_discente.id_aluno.exists' => 'Informe o aluno no campo <b>Terceiro Discente</b>.',
-                //'terceiro_discente.tempo.required' => 'O campo <b>Tempo</b> do Terceiro Discente é obrigatório.',
+                    //'primeiro_discente.id_aluno.required' => 'O campo <b>Primeiro Discente</b> é obrigatório.',
+                    'primeiro_discente.id_aluno.numeric' => 'O campo <b>Primeiro Discente</b> deve ser um número.',
+                    'primeiro_discente.id_aluno.exists' => 'Informe o aluno no campo <b>Primeiro Discente</b>.',
+                    //'primeiro_discente.tempo.required' => 'O campo <b>Tempo</b> do Primeiro Discente é obrigatório.',
 
-                'maioria_efetivo.required' => 'O campo <b>Maioria (Meta da turma)</b> é obrigatório.',
-                'todo_efetivo.required' => 'O campo <b>Todo o efetivo</b> é obrigatório.',
-            ]
-        );
+                    //'segundo_discente.id_aluno.required' => 'O campo <b>Segundo Discente</b> é obrigatório.',
+                    'segundo_discente.id_aluno.numeric' => 'O campo <b>Segundo Discente</b> deve ser um número.',
+                    'segundo_discente.id_aluno.exists' => 'Informe o aluno no campo <b>Segundo Discente</b>.',
+                    //'segundo_discente.tempo.required' => 'O campo <b>Tempo</b> do Segundo Discente é obrigatório.',
+
+                    //'terceiro_discente.id_aluno.required' => 'O campo <b>Terceiro Discente</b> é obrigatório.',
+                    'terceiro_discente.id_aluno.numeric' => 'O campo <b>Terceiro Discente</b> deve ser um número.',
+                    'terceiro_discente.id_aluno.exists' => 'Informe o aluno no campo <b>Terceiro Discente</b>.',
+                    //'terceiro_discente.tempo.required' => 'O campo <b>Tempo</b> do Terceiro Discente é obrigatório.',
+
+                    'maioria_efetivo.required' => 'O campo <b>Maioria (Meta da turma)</b> é obrigatório.',
+                    'todo_efetivo.required' => 'O campo <b>Todo o efetivo</b> é obrigatório.',
+                ]
+            );
+        }
     }
 
     private function validaRapTFMRequest($array_data)
