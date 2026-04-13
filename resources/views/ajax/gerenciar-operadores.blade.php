@@ -163,7 +163,7 @@ function dialogEditarOperador(id) {
     });
 }
 
-$(document).on('change', '#switchInativos', function() {
+$(document).off('change', '#switchInativos').on('change', '#switchInativos', function() {
     let status = $(this).is(':checked') ? 'S' : 'N';
     let urlListagem = '{{ session()->get("login.omctID") ? "/ajax/gerenciar-operadores" : "/gaviao/ajax/gerenciar-operadores-gaviao" }}';
     
@@ -172,7 +172,6 @@ $(document).on('change', '#switchInativos', function() {
         url: urlListagem,
         data: { mostrar_inativos: status },
         success: function(data) {
-            // Atualiza a div correta que achamos no F12
             $('.inside-content').html(data); 
         }
     });
