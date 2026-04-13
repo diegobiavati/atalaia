@@ -1,8 +1,8 @@
 <style>
   select[readonly] {
-    background: initial!important;
-    font-size: initial!important;
-    text-align: initial!important;
+    background: initial !important;
+    font-size: initial !important;
+    text-align: initial !important;
   }
 
   div#form-avaliacao {
@@ -42,11 +42,35 @@
       <!--<div class="collapse navbar-collapse">-->
       <ul class="navbar-nav mr-auto">
         @foreach($rapLancadas as $rap)
-        <li class="nav-item active">
-          <a class="nav-link h4" target="_blank"
-            href="{{asset('gaviao/ajax/relatorio-rap/'.encrypt(session('_token').'-'.$rap->id_esa_avaliacoes.'-'.$rap->id_turmas_esa) )}}"><span
-              class="badge badge-pill badge-info"
-              style="padding: .5rem 1rem; color: #d2fd00;">{{ $rap->esaTurma->turma }}</span></a>
+        <li class="nav-item active mr-2">
+          <div class="dropdown d-inline-block">
+            <a class="btn btn-info btn-sm dropdown-toggle"
+              href="#"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+              style="border-radius: 20px; color: #d2fd00; font-weight: bold;">
+              {{ $rap->esaTurma->turma }}
+            </a>
+
+            <div class="dropdown-menu">
+              <a class="dropdown-item"
+                target="_blank"
+                href="{{ asset('gaviao/ajax/relatorio-rap/'.encrypt(session('_token').'-'.$rap->id_esa_avaliacoes.'-'.$rap->id_turmas_esa)) }}">
+                Abrir relatório
+              </a>
+
+              <div class="dropdown-divider"></div>
+
+              @if($ownauthcontroller->PerfilCheck([9005]))
+              <a class="dropdown-item text-danger"
+                href="javascript:void(0);"
+                onclick="removerRap('{{ encrypt(session('_token').'-'.$rap->id_esa_avaliacoes.'-'.$rap->id_turmas_esa) }}')">
+                Remover RAP
+              </a>
+              @endif
+            </div>
+          </div>
         </li>
         @endforeach
       </ul>
@@ -102,4 +126,42 @@
       }
     });
   });
+
+  function removerRap(id) {
+    $(document).confirmAcao('Deseja realmente remover este <strong>RAP</strong>?', function() {
+      $.ajax({
+        type: 'DELETE',
+        dataType: 'json',
+        url: "{{ asset('/gaviao/ajax/gerenciar-avaliacao/rap') }}",
+        data: {
+          '_token': '{{ csrf_token() }}',
+          'hash_rap': id
+        },
+        beforeSend: function() {
+          $('div.alertas-avaliacoes').empty().hide();
+          $('div.alertas-avaliacoes').removeClass('alert-success').removeClass('alert-danger');
+        },
+        success: function(data) {
+          if (data.status == 'success') {
+            $('div.alertas-avaliacoes').addClass('alert-success').html('<li>' + data.response + '</li>').slideDown();
+
+            setTimeout(function() {
+              $('div.alertas-avaliacoes').slideUp(200, function() {
+                $('div.container_calendario').empty();
+                carregaContainerCalendario("{{ asset('gaviao/ajax/calendario/index/'.$cursoSelecionado->escolhaQms->anoFormacao->id) }}");
+              });
+            }, 2000);
+          } else {
+            $('div.alertas-avaliacoes').addClass('alert-danger').slideDown();
+            $.each(data.response, function(key, value) {
+              $('div.alertas-avaliacoes').append('<li>' + value + '</li>');
+            });
+          }
+        },
+        error: function() {
+          $('div.alertas-avaliacoes').addClass('alert-danger').html('<strong>ATENÇÃO: </strong> Houve um erro interno').slideDown();
+        }
+      });
+    });
+  }
 </script>

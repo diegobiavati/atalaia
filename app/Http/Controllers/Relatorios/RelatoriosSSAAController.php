@@ -603,11 +603,13 @@ class RelatoriosSSAAController extends Controller
             $motivosFaltas = EsaMotivosFaltas::all();
 
             foreach ($esaAvaliacoesRap->alunos_faltas as $alunofalta) {
-                $i++;
-                if ($i <= 12) {
-                    $motivos[0] .= $i . '. ' . ($motivosFaltas->find($alunofalta['id_motivo'])->descricao) . chr(13) . chr(10) . '(' . $alunofalta['desc_motivo'] . ')' . chr(13) . chr(10);
-                } else {
-                    $motivos[1] .= $i . '. ' . ($motivosFaltas->find($alunofalta['id_motivo'])->descricao) . chr(13) . chr(10) . '(' . $alunofalta['desc_motivo'] . ')' . chr(13) . chr(10);
+                if(isset($alunofalta['id_motivo'])){
+                    $i++;
+                    if ($i <= 12) {
+                        $motivos[0] .= $i . '. ' . ($motivosFaltas->find($alunofalta['id_motivo'])->descricao) . chr(13) . chr(10) . '(' . $alunofalta['desc_motivo'] . ')' . chr(13) . chr(10);
+                    } else {
+                        $motivos[1] .= $i . '. ' . ($motivosFaltas->find($alunofalta['id_motivo'])->descricao) . chr(13) . chr(10) . '(' . $alunofalta['desc_motivo'] . ')' . chr(13) . chr(10);
+                    }
                 }
             }
 
