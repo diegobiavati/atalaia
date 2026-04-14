@@ -8,7 +8,17 @@ class DatabaseSeeder extends Seeder
 {
     public function run()
     {
-        // 1. Postos e Graduações
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        DB::table('operadores')->truncate();
+        DB::table('users')->truncate();
+        DB::table('omcts')->truncate();
+        DB::table('qms_matriz')->truncate();
+        DB::table('postograd')->truncate();
+        DB::table('operadores_tipo')->truncate();
+        DB::table('operadores_permissoes')->truncate();
+
+        // 2. Postos e Graduações
         $postos = [
             ['id' => 1, 'postograd_abrev' => 'Cel', 'postograd' => 'Coronel'],
             ['id' => 2, 'postograd_abrev' => 'Ten Cel', 'postograd' => 'Tenente Coronel'],
@@ -21,56 +31,56 @@ class DatabaseSeeder extends Seeder
             ['id' => 10, 'postograd_abrev' => '2º Sgt', 'postograd' => 'Segundo Sargento'],
             ['id' => 11, 'postograd_abrev' => '3º Sgt', 'postograd' => 'Terceiro Sargento'],
         ];
-        foreach ($postos as $p) DB::table('postograd')->insertIgnore($p);
+        DB::table('postograd')->insert($postos);
 
-        // 2. Unidades (OMCT)
-        DB::table('omcts')->insertIgnore([
-            'id' => 1, 'sigla_omct' => 'ESA', 'omct' => 'Escola de Sargentos das Armas', 'gu' => 'Três Corações-MG', 'status' => 1
+        // 3. Unidades (ESA)
+        DB::table('omcts')->insert([
+            ['id' => 1, 'sigla_omct' => 'ESA', 'omct' => 'Escola de Sargentos das Armas', 'gu' => 'Três Corações-MG', 'status' => 1],
+            ['id' => 99, 'sigla_omct' => 'ESA-ADM', 'omct' => 'ESA Administração', 'gu' => 'Três Corações-MG', 'status' => 1]
         ]);
 
-        // 3. Matriz de Especialidades (QMS)
-        DB::table('qms_matriz')->insertIgnore([
+        // 4. Matriz QMS
+        DB::table('qms_matriz')->insert([
             'id' => 9999, 'qms' => 'ADMINISTRAÇÃO ESA', 'qms_sigla' => 'ADM', 'qms_alias' => 'admin', 'segmento' => 'M', 'img' => '/images/logo_esa.png', 'vagas' => 0, 'gu' => 'Três Corações'
         ]);
 
-        // 4. Tipos de Operadores (Funções Atalaia e Gavião)
-        $tipos = [
+        // 5. Funções
+        DB::table('operadores_tipo')->insert([
             ['id' => 1, 'funcao' => 'SUPER ADMINISTRADOR', 'funcao_abrev' => 'S-ADM', 'alias_funcao' => 'super-admin'],
-            ['id' => 2, 'funcao' => 'COMANDANTE DE UETE', 'funcao_abrev' => 'Cmt UETE', 'alias_funcao' => 'cmt-uete'],
-            ['id' => 4, 'funcao' => 'SARGENTEANTE', 'funcao_abrev' => 'Sgte', 'alias_funcao' => 'sgte'],
-            ['id' => 9001, 'funcao' => 'COMANDANTE DE CIA', 'funcao_abrev' => 'Cmt Cia', 'alias_funcao' => 'cmt-cia'],
-            ['id' => 9005, 'funcao' => 'OPERADOR SSAA', 'funcao_abrev' => 'Op SSAA', 'alias_funcao' => 'op-ssaa'],
             ['id' => 9999, 'funcao' => 'ADMINISTRADOR GAVIÃO', 'funcao_abrev' => 'ADM-G', 'alias_funcao' => 'adm-gaviao'],
-        ];
-        foreach ($tipos as $t) DB::table('operadores_tipo')->insertIgnore($t);
-
-        // 5. Permissões (Vincular Administrador ao acesso total)
-        DB::table('operadores_permissoes')->insertIgnore([
-            'operadores_tipo_id' => 1,
-            'permissoes' => '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41'
         ]);
 
-        // 6. Usuário Admin
-        $email = 'admin@admin.com';
-        if (!DB::table('users')->where('email', $email)->exists()) {
-            $userId = DB::table('users')->insertGetId([
-                'email' => $email,
-                'password' => bcrypt('admin123'),
-                'imagens_id' => 1,
-                'created_at' => now()
-            ]);
+        // 6. Permissões - ADICIONADO PARA AMBAS AS FUNÇÕES
+        $all_perms = '1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41';
+        
+        DB::table('operadores_permissoes')->insert([
+            ['operadores_tipo_id' => 1, 'permissoes' => $all_perms],
+            ['operadores_tipo_id' => 9999, 'permissoes' => $all_perms] // <--- Importante!
+        ]);
 
-            DB::table('operadores')->insert([
-                'nome' => 'ADMINISTRADOR DO SISTEMA',
-                'nome_guerra' => 'ADMIN',
-                'email' => $email,
-                'postograd_id' => 1,
-                'omcts_id' => 1,
-                'qms_matriz_id' => 9999,
-                'id_funcao_operador' => '1,9999',
-                'tel_pronto_atendimento' => '3599999999',
-                'ativo' => 'S'
-            ]);
-        }
+        // 7. Usuário Admin
+        $email = 'admin@admin.com';
+        DB::table('users')->insert([
+            'email' => $email,
+            'password' => bcrypt('admin123'),
+            'imagens_id' => 1,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        DB::table('operadores')->insert([
+            'nome' => 'ADMINISTRADOR DO SISTEMA',
+            'nome_guerra' => 'ADMIN',
+            'email' => $email,
+            'postograd_id' => 1,
+            'omcts_id' => 1,
+            'qms_matriz_id' => 9999,
+            'id_funcao_operador' => '1,9999',
+            'tel_pronto_atendimento' => '3599999999',
+            'ativo' => 'S'
+        ]);
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        $this->command->info('Seed finalizado com sucesso!');
     }
 }

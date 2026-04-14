@@ -1,4 +1,3 @@
-# database/migrations/2024_01_01_000003_create_ssaa_schema.php
 <?php
 
 use Illuminate\Support\Facades\Schema;
@@ -11,6 +10,12 @@ class CreateSsaaSchema extends Migration
 
     public function up()
     {
+        // Limpeza para evitar erro de "Table already exists"
+        Schema::connection($this->connection)->dropIfExists('esa_avaliacoes_gbo');
+        Schema::connection($this->connection)->dropIfExists('esa_avaliacoes_indice');
+        Schema::connection($this->connection)->dropIfExists('esa_avaliacoes');
+        Schema::connection($this->connection)->dropIfExists('esa_disciplinas');
+
         Schema::connection($this->connection)->create('esa_disciplinas', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('id_qms');
@@ -31,7 +36,7 @@ class CreateSsaaSchema extends Migration
             $table->date('realizacao');
             $table->integer('gbm')->nullable();
             $table->timestamps();
-            $table->foreign('id_esa_disciplinas')->references('id')->on('esa_disciplinas');
+            $table->foreign('id_esa_disciplinas')->references('id')->on('esa_disciplinas')->onDelete('cascade');
         });
 
         Schema::connection($this->connection)->create('esa_avaliacoes_indice', function (Blueprint $table) {
@@ -41,12 +46,12 @@ class CreateSsaaSchema extends Migration
             $table->integer('score_total')->unsigned()->default(0);
             $table->enum('tipo_questao', ['BD', 'N'])->default('N');
             $table->timestamps();
-            $table->foreign('id_esa_avaliacoes')->references('id')->on('esa_avaliacoes');
+            $table->foreign('id_esa_avaliacoes')->references('id')->on('esa_avaliacoes')->onDelete('cascade');
         });
 
         Schema::connection($this->connection)->create('esa_avaliacoes_gbo', function (Blueprint $table) {
             $table->integer('id_esa_avaliacoes_indice')->unsigned();
-            $table->integer('id_aluno'); // Sem FK pois Aluno está no outro banco
+            $table->integer('id_aluno'); 
             $table->integer('score_vermelho')->nullable();
             $table->integer('id_operador');
             $table->timestamps();
@@ -54,5 +59,11 @@ class CreateSsaaSchema extends Migration
         });
     }
 
-    public function down() { /* Reverse */ }
+    public function down()
+    {
+        Schema::connection($this->connection)->dropIfExists('esa_avaliacoes_gbo');
+        Schema::connection($this->connection)->dropIfExists('esa_avaliacoes_indice');
+        Schema::connection($this->connection)->dropIfExists('esa_avaliacoes');
+        Schema::connection($this->connection)->dropIfExists('esa_disciplinas');
+    }
 }
