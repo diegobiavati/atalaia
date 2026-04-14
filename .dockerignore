@@ -1,0 +1,18 @@
+# .dockerignore
+# Ignorar dados do banco de dados (Causa o erro de permissão)
+docker-data/
+mysql/
+
+# Ignorar pastas de dependências
+vendor/
+node_modules/
+
+# Ignorar arquivos de ambiente e logs
+.env
+.git
+storage/logs/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Ignorar arquivos temporários do sistema
+storage/app/public/temp/*

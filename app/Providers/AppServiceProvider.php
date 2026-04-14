@@ -37,6 +37,8 @@ class AppServiceProvider extends ServiceProvider
             
             return "O {$label} é inválido (dígito verificador não confere).";
         });
+        
+        Schema::defaultStringLength(191);
     }
 
     /**
