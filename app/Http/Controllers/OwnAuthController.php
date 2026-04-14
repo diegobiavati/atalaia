@@ -255,7 +255,12 @@ class OwnAuthController extends Controller
                     //Após o loop acima, cada função já está com suas permissões gravadas por índices
                     $array_funcoes = explode(',', $operadores->id_funcao_operador);
                     foreach($array_funcoes as $funcaoID){
-                        $permissoes[] = $operador_tipo[$funcaoID];
+                        if (isset($operador_tipo[$funcaoID])) {
+                            $permissoes[] = $operador_tipo[$funcaoID];
+                        } else {
+                            // Registra um log para você saber que falta um dado no banco
+                            Log::warning("A função ID {$funcaoID} não possui permissões configuradas no banco.");
+                        }
                     }
     
                     $permissoes = array_unique(explode(',', implode(',', $permissoes)));

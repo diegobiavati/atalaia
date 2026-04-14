@@ -1,59 +1,123 @@
-<p align="center"><img src="https://laravel.com/assets/img/components/logo-laravel.svg"></p>
+# Sistema de Gestão Acadêmica Militar (Atalaia & Gavião)
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+Este sistema é uma plataforma de gestão acadêmica e administrativa desenvolvida para a Escola de Sargentos das Armas (ESA). Ele automatiza processos desde o Período Básico (Atalaia) até o Período de Qualificação (Gavião/SSAA).
 
-## About Laravel
+## 🚀 Módulos Principais
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as:
+*   **Módulo Atalaia:** Gestão de alunos no Período Básico, controle de UETEs e lançamentos de TFM.
+*   **Módulo Gavião (SSAA):** Supervisão acadêmica, calendário de provas, Relatório de Aplicação de Prova (RAP) e Grade de Brutos e Objetivos (GBO).
+*   **Módulo de Qualificação (QMS):** Processo de escolha de especialidade pelos alunos com base em mérito intelectual.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🛠 Tecnologias Utilizadas
 
-Laravel is accessible, yet powerful, providing tools needed for large, robust applications.
+*   **Framework:** Laravel 5.6
+*   **Linguagem:** PHP 7.3
+*   **Bancos de Dados:** MySQL 5.7 (Bancos: `atalaia` e `ssaa`)
+*   **Ambiente:** Docker (Nginx, PHP-FPM, MySQL)
+*   **Integrações:**
+    *   `smbclient`: Para acesso a servidores de arquivos externos.
+    *   `JRE (Java)`: Para processamento de dados via arquivos `.jar`.
+    *   `MQTT`: Notificações em tempo real.
+    *   `Telegram API`: Comunicação direta com os discentes.
 
-## Learning Laravel
+## 🗄️ Arquitetura de Banco de Dados
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of any modern web application framework, making it a breeze to get started learning the framework.
+O sistema utiliza dois bancos de dados distintos para isolar a gestão administrativa da supervisão acadêmica:
 
-If you're not in the mood to read, [Laracasts](https://laracasts.com) contains over 1100 video tutorials on a range of topics including Laravel, modern PHP, unit testing, JavaScript, and more. Boost the skill level of yourself and your entire team by digging into our comprehensive video library.
+1.  **Banco `atalaia` (Conexão: `mysql`):** Dados de alunos, operadores, unidades (OMCT) e histórico básico.
+2.  **Banco `ssaa` (Conexão: `mysql_ssaa`):** Módulo Gavião, incluindo disciplinas do período de qualificação, índices de provas e GBO.
 
-## Laravel Sponsors
+## 📊 Regras de Negócio Implementadas
+1.  **Cálculo de Notas:** Precisão de 3 casas decimais.
+2.  **Bônus Marexaer:** Atletas possuem acréscimo de pontos na média de TFM baseados na performance (Critério: +1.000 ou +2.000).
+3.  **Escolha de QMS:** Algoritmo de distribuição automática de vagas baseado na classificação decrescente dos alunos e prioridades escolhidas por eles.
+4.  **Disciplina:** Fluxo automatizado de Fato Observado (FO), com conversão para FATD e arquivamento em FRAD/ROD.
 
-We would like to extend our thanks to the following sponsors for helping fund on-going Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell):
+## ⚙️ Automações de Banco de Dados
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[British Software Development](https://www.britishsoftware.co)**
-- [Fragrantica](https://www.fragrantica.com)
-- [SOFTonSOFA](https://softonsofa.com/)
-- [User10](https://user10.com)
-- [Soumettre.fr](https://soumettre.fr/)
-- [CodeBrisk](https://codebrisk.com)
-- [1Forge](https://1forge.com)
-- [TECPRESSO](https://tecpresso.co.jp/)
-- [Pulse Storm](http://www.pulsestorm.net/)
-- [Runtime Converter](http://runtimeconverter.com/)
-- [WebL'Agence](https://weblagence.com/)
+Para otimizar a performance e garantir a integridade dos dados, o sistema utiliza recursos nativos do MySQL:
 
-## Contributing
+### 1. Views
+*   **`vw_alunos_esa`**: Consolida dados de alunos que já possuem QMS definida (Período de Qualificação), unindo informações da tabela `alunos` e `ano_formacao`.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 2. Triggers
+*   **`esa_avaliacoes_indice_after_update`**: Disparado sempre que um item de prova (índice) tem seu valor alterado no banco `ssaa`. Ele soma todos os scores dos itens e atualiza automaticamente o campo `gbm` na tabela de avaliações.
 
-## Security Vulnerabilities
+## 📦 Como Rodar o Projeto (Docker)
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### 1. Pré-requisitos
+*   Docker instalado.
+*   Docker Compose instalado.
 
-## License
+### 2. Configuração Inicial
+Clone o repositório e entre na pasta:
+```bash
+git clone <url-do-repositorio>
+cd <pasta-do-projeto>
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Crie o arquivo de ambiente e configure as senhas e IPs:
+```bash
+cp .env.example .env
+```
+
+### 3. Subindo os Containers
+O comando abaixo criará as imagens e subirá os serviços do servidor web, aplicação e banco de dados:
+```bash
+docker-compose up -d --build
+```
+
+### 4. Instalação de Dependências
+Entre no container da aplicação e instale as bibliotecas via Composer:
+```bash
+docker exec -it atalaia-app composer install
+docker exec -it atalaia-app php artisan key:generate
+```
+
+### 5. Banco de Dados
+Após subir os containers, você deve preparar o banco de dados e as permissões fundamentais:
+
+1. **Migrate e Seed:**
+   ```bash
+   docker exec -it atalaia-app php artisan migrate
+   docker exec -it atalaia-app php artisan db:seed
+   ```
+
+2. **Credenciais de Administrador (Desenvolvimento):**
+   - **Login:** `admin@admin.com`
+   - **Senha:** `admin123`
+   - **Acesso:** Total (Atalaia e Gavião)
+
+> **Nota:** O `db:seed` limpa as tabelas de operadores e permissões para garantir que o acesso mestre seja restaurado. Use com cautela em produção.
+
+## 📂 Estrutura de Pastas Importantes
+
+*   `app/Http/Controllers/Ajax`: Lógica principal das chamadas assíncronas do sistema.
+*   `app/Http/Controllers/Relatorios`: Geração de demonstrativos, fichas disciplinares e mapas de efetivo.
+*   `app/Http/OwnClasses`: Classes customizadas como `ClassLog` e `EscolhaQMSLoader`.
+*   `app/Models`: Modelos de dados e relacionamentos Eloquent.
+
+## ⚙️ Comandos Úteis
+
+*   **Limpar Logs de Sistema:**
+    O sistema gera logs customizados em `public/logs/logsistema/`. Verifique periodicamente o tamanho desta pasta.
+*   **Backup do Banco:**
+    Existe um comando Artisan para backup manual:
+    ```bash
+    docker exec -it atalaia-app php artisan backup:multi-sql
+    ```
+
+## 🔒 Segurança e Logs
+*   Todas as ações críticas (login, alterações de notas, exclusões) são registradas pela classe `ClassLog`.
+*   O middleware `CheckAuth` garante a proteção das rotas e redirecionamento correto entre os módulos Atalaia e Gavião.
+
+## 🧪 Testes
+Para rodar os testes unitários e de integração:
+```bash
+docker exec -it atalaia-app ./vendor/bin/phpunit
+
+---
+**Desenvolvido por:** 1º Ten João Victor  
+**Organização:** Exército Brasileiro - Escola de Sargentos das Armas (ESA)
+
+---
