@@ -20,16 +20,28 @@ Este sistema é uma plataforma de gestão acadêmica e administrativa desenvolvi
     *   `MQTT`: Notificações em tempo real.
     *   `Telegram API`: Comunicação direta com os discentes.
 
-## 🛠 Arquitetura de Dados
-O sistema utiliza uma arquitetura multitenant baseada em dois bancos de dados principais:
-*   **atalaia (Conexão: mysql):** Focado no Período Básico, cadastro mestre de alunos e gestão de UETEs.
-*   **ssaa (Conexão: mysql_ssaa):** Focado na Seção de Supervisão Escolar, contendo índices de provas, GBO e calendários.
+## 🗄️ Arquitetura de Banco de Dados
+
+O sistema utiliza dois bancos de dados distintos para isolar a gestão administrativa da supervisão acadêmica:
+
+1.  **Banco `atalaia` (Conexão: `mysql`):** Dados de alunos, operadores, unidades (OMCT) e histórico básico.
+2.  **Banco `ssaa` (Conexão: `mysql_ssaa`):** Módulo Gavião, incluindo disciplinas do período de qualificação, índices de provas e GBO.
 
 ## 📊 Regras de Negócio Implementadas
 1.  **Cálculo de Notas:** Precisão de 3 casas decimais.
 2.  **Bônus Marexaer:** Atletas possuem acréscimo de pontos na média de TFM baseados na performance (Critério: +1.000 ou +2.000).
 3.  **Escolha de QMS:** Algoritmo de distribuição automática de vagas baseado na classificação decrescente dos alunos e prioridades escolhidas por eles.
 4.  **Disciplina:** Fluxo automatizado de Fato Observado (FO), com conversão para FATD e arquivamento em FRAD/ROD.
+
+## ⚙️ Automações de Banco de Dados
+
+Para otimizar a performance e garantir a integridade dos dados, o sistema utiliza recursos nativos do MySQL:
+
+### 1. Views
+*   **`vw_alunos_esa`**: Consolida dados de alunos que já possuem QMS definida (Período de Qualificação), unindo informações da tabela `alunos` e `ano_formacao`.
+
+### 2. Triggers
+*   **`esa_avaliacoes_indice_after_update`**: Disparado sempre que um item de prova (índice) tem seu valor alterado no banco `ssaa`. Ele soma todos os scores dos itens e atualiza automaticamente o campo `gbm` na tabela de avaliações.
 
 ## 📦 Como Rodar o Projeto (Docker)
 
@@ -63,10 +75,20 @@ docker exec -it atalaia-app php artisan key:generate
 ```
 
 ### 5. Banco de Dados
-Certifique-se de que os arquivos de estrutura (`.sql`) estão na pasta `docker-entrypoint-initdb.d/` para criação automática, ou execute as migrations:
-```bash
-docker exec -it atalaia-app php artisan migrate
-```
+Após subir os containers, você deve preparar o banco de dados e as permissões fundamentais:
+
+1. **Migrate e Seed:**
+   ```bash
+   docker exec -it atalaia-app php artisan migrate
+   docker exec -it atalaia-app php artisan db:seed
+   ```
+
+2. **Credenciais de Administrador (Desenvolvimento):**
+   - **Login:** `admin@admin.com`
+   - **Senha:** `admin123`
+   - **Acesso:** Total (Atalaia e Gavião)
+
+> **Nota:** O `db:seed` limpa as tabelas de operadores e permissões para garantir que o acesso mestre seja restaurado. Use com cautela em produção.
 
 ## 📂 Estrutura de Pastas Importantes
 
