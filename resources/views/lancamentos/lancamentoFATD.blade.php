@@ -1,3 +1,34 @@
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<style>
+    .ui-autocomplete {
+        max-height: 200px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        z-index: 9999;
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .ui-autocomplete {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 9999;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    word-wrap: break-word;
+    white-space: normal;
+}
+    .ui-autocomplete .ui-menu-item-wrapper.ui-state-active {
+        background-color: rgb(121, 161, 212);
+        color: #fff;
+        border: none;
+    }
+</style>
 <form id="lancamentoFATD">
     <input type="hidden" name="_token" value="{{csrf_token()}}" />
 
@@ -84,7 +115,22 @@
             $('div.success-lancamento-fatd').empty().hide();
 
             $('.data_mask').mask('00/00/0000');
+            var enquadramentosNase = @json($enquadramentosNase);
 
+           $('#enquadramento').autocomplete({
+    source: function(request, response) {
+        var results = $.ui.autocomplete.filter(enquadramentosNase, request.term);
+        response(results.slice(0, 10));
+    },
+    minLength: 3,
+    select: function(event, ui) {
+        $('#enquadramento').val(ui.item.value);
+    },
+    open: function() {
+        var width = $('#enquadramento').outerWidth();
+        $('.ui-autocomplete').css('width', width + 'px');
+    }
+});
             $('#btnJustificado .btn').on('click', function(evt) {
                 var val = $(this).find('input').val();
                 if (val == 'N') {

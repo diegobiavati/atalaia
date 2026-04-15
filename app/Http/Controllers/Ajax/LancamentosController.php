@@ -544,6 +544,7 @@ class LancamentosController extends Controller
 
         $comportamentos = Comportamento::all();
         $enquadramentos = Enquadramentos::orderBy('ordem')->get();
+        $enquadramentosNase = DB::table('fatd')->whereNotNull('enquadramento')->distinct()->orderBy('enquadramento')->pluck('enquadramento');
 
         //Registra o Observador na Sessão
         $operadores = Operadores::find(session()->get('login.operadorID'));
@@ -551,7 +552,7 @@ class LancamentosController extends Controller
         if (isset($operadores)) {
             session()->flash('nomeOperador', $operadores->posto->postograd_abrev . ' ' . $operadores->nome_guerra);
 
-            return view('lancamentos.lancamentoFATD', compact('fatd', 'comportamentos', 'enquadramentos'));
+            return view('lancamentos.lancamentoFATD', compact('fatd', 'comportamentos', 'enquadramentos', 'enquadramentosNase'));
         }
     }
 
