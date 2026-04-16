@@ -17,6 +17,7 @@ use App\Models\OperadoresPermissoes;
 use App\Http\Controllers\MQTTController;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\QMS;
+use Illuminate\Support\Facades\Log;
 
 class OwnAuthController extends Controller
 {
