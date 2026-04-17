@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Alunos;
+
 class AvaliacaoTaf extends Model
 {
     protected $table = 'avaliacoes_taf';
@@ -21,6 +22,4 @@ class AvaliacaoTaf extends Model
     {
         return $this->hasOne(Alunos::class, 'id', 'aluno_id');
     }
-
 }
-

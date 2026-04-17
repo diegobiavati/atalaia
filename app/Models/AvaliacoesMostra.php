@@ -8,15 +8,18 @@ class AvaliacoesMostra extends Model
 {
     protected $fillable = ['avaliacoes_id', 'nome_arquivo', 'status', 'operador_id', 'omct_id'];
 
-    public function operadores(){
+    public function operadores()
+    {
         return ($this->belongsTo('App\Models\Operadores', 'operador_id', 'id')) ?? 'Não informada';
     }
 
-    public function omct(){
+    public function omct()
+    {
         return ($this->belongsTo('App\Models\OMCT', 'omct_id', 'id')) ?? 'Não informada';
     }
 
-    public function avaliacoes(){
+    public function avaliacoes()
+    {
         return ($this->belongsTo('App\Models\Avaliacoes', 'avaliacoes_id', 'id')) ?? 'Não informada';
     }
 }

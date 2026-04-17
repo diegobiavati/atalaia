@@ -71,14 +71,12 @@ class ImportacaoController extends Controller
         FuncoesController::LimpaPastaTemp();
 
         if ($request->hasFile('arquivo') && $request->file('arquivo')->isValid()) {
-
             $extension = $request->arquivo->extension();
 
             $name = uniqid('excel_' . date('His'));
             $nameFile = "{$name}.{$extension}";
 
             if ($request->arquivo->storeAs('temp/', $nameFile)) {
-
                 switch ($request->tipo) {
                     case 'aluno':
                         $alunos = new Alunos();
@@ -160,37 +158,45 @@ class ImportacaoController extends Controller
         //
     }
 
-    public static function ImportaMSAccessCapitaniMysql(){
+    public static function ImportaMSAccessCapitaniMysql()
+    {
         $sql = "SELECT AnoQ, Nr_Alu, GUERRA, Grupo, Disciplina, [AA/AA1] as AA_A1, AA2, AA3, AA4, AC_AI, AC2, AR, AF1, AF2, AD, NFC, Bonus, NDC, NPBARRED, NQ, NACP, NAA, NFC, mencao, QR, ClasF, NFC_DIZ FROM 2anocfgs;";
-        
+
         $output = null;
 
-        exec('java -jar '.app_path('Imports/').'SQLMSAccess.jar "'.$sql.'"', $output);
+        exec('java -jar ' . app_path('Imports/') . 'SQLMSAccess.jar "' . $sql . '"', $output);
 
-        if(count($output) > 0){
-            Log::channel('gaviao')->info("Fez Importação de Dados Capitani ", ['retorno' => $output[0]]);   
+        if (count($output) > 0) {
+            Log::channel('gaviao')->info("Fez Importação de Dados Capitani ", ['retorno' => $output[0]]);
         }
         //$classLog = new ClassLog();
         //$classLog->RegistrarLog('Fez Importação de Dados Capitani '.$output[0], 'Sistema');
     }
-	
-	public static function verificaNomeBoletim(){
-	
-        if(($militar = Militar::where([['bol_index', 'like', '%OTT JOÃO VICTOR%']])
-        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
-			Mail::to('jvgs_o.o@live.com')->send(new VerificaBoletim($militar));		
+
+    public static function verificaNomeBoletim()
+    {
+
+        if (
+            ($militar = Militar::where([['bol_index', 'like', '%OTT JOÃO VICTOR%']])
+            ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0
+        ) {
+            Mail::to('jvgs_o.o@live.com')->send(new VerificaBoletim($militar));
             return true;
         }
 
-        if(($militar = Militar::where([['bol_index', 'like', '%JOÃO VICTOR GOMES DA SILVA%']])
-        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
-			Mail::to('jvgs_o.o@live.com')->send(new VerificaBoletim($militar));		
+        if (
+            ($militar = Militar::where([['bol_index', 'like', '%JOÃO VICTOR GOMES DA SILVA%']])
+            ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0
+        ) {
+            Mail::to('jvgs_o.o@live.com')->send(new VerificaBoletim($militar));
             return true;
         }
-        
-        if(($militar = Militar::where([['bol_index', 'like', '%ZAVALHIA%']])
-        ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0){
-            Mail::to('joaovictorgomesdasilva@live.com')->send(new VerificaBoletim($militar));		
+
+        if (
+            ($militar = Militar::where([['bol_index', 'like', '%ZAVALHIA%']])
+            ->whereRaw('data_documento BETWEEN DATE_SUB(NOW(), INTERVAL 5 DAY) AND CURRENT_DATE')->get()) && $militar->count() > 0
+        ) {
+            Mail::to('joaovictorgomesdasilva@live.com')->send(new VerificaBoletim($militar));
             return true;
         }
 
@@ -204,14 +210,11 @@ class ImportacaoController extends Controller
         }
 
         try {
-
             Mail::send(new VerificaBoletim($nome));
 
             return true;
-
         } catch (\Exception $e) {
-
-            Log::error('Erro ao enviar email militar: '.$e->getMessage());
+            Log::error('Erro ao enviar email militar: ' . $e->getMessage());
             return false;
         }
     }

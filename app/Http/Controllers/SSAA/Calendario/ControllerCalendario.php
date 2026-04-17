@@ -12,7 +12,7 @@ class ControllerCalendario extends Controller
 {
     private $_ownauthcontroller = null;
     private $_request = null;
-   
+
     public function __construct(Request $request, OwnAuthController $ownauthcontroller)
     {
         $this->_ownauthcontroller = $ownauthcontroller;
@@ -21,24 +21,24 @@ class ControllerCalendario extends Controller
 
     public function index()
     {
-        if(isset($this->_request->id_ano_formacao)){
+        if (isset($this->_request->id_ano_formacao)) {
             $anoFormacao = AnoFormacao::find($this->_request->id_ano_formacao);
-            
-            $encrypt = encrypt(session('_token').'-'.$anoFormacao->id);
+
+            $encrypt = encrypt(session('_token') . '-' . $anoFormacao->id);
             session()->put('_anoFormacao', $encrypt);
 
-            $month = $anoFormacao->formacao.'-'.date("m");
+            $month = $anoFormacao->formacao . '-' . date("m");
 
             $data = $this->calendar_month($month);
             $mes = $data['month'];
-            
+
             $mesportuguese = $this->portuguese_month($mes);
             $mes = $data['month'];
 
             $this->_request->session()->forget('url_mes_calendario');
             $this->_request->session()->put('url_mes_calendario', $this->_request->url());
             //$this->_request->session()->flash('url_mes_calendario', $this->_request->url());
-            
+
             return view("ssaa.calendario.calendario", [
                 'data' => $data,
                 'mes' => $mes,
@@ -56,7 +56,7 @@ class ControllerCalendario extends Controller
     {
         $anoFormacao = AnoFormacao::find($id_ano_formacao);
 
-        if($anoFormacao->formacao == explode('-', $mes)[0]){
+        if ($anoFormacao->formacao == explode('-', $mes)[0]) {
             $data = $this->calendar_month($mes);
             $mes = $data['month'];
 
@@ -72,7 +72,7 @@ class ControllerCalendario extends Controller
                 'ownauthcontroller' => $ownauthcontroller,
                 'mesportuguese' => $mesportuguese
             ]);
-        }else{
+        } else {
             return redirect(session('url_anterior'));
         }
     }
@@ -128,12 +128,14 @@ class ControllerCalendario extends Controller
                 //$datanew['evento'] = EsaAvaliacoes::where("realizacao", $datafecha)->get();
 
                 $param['datafecha'] = $datafecha;
-                
-                    $datanew['evento'] = $events->filter(function($avaliacao) use($param){
-                        if($avaliacao->esadisciplinas->qms->qms_matriz_id == $param['qms_matriz']
-                                && $avaliacao->realizacao == $param['datafecha']){
+
+                    $datanew['evento'] = $events->filter(function ($avaliacao) use ($param) {
+                        if (
+                            $avaliacao->esadisciplinas->qms->qms_matriz_id == $param['qms_matriz']
+                                && $avaliacao->realizacao == $param['datafecha']
+                        ) {
                             return $avaliacao;
-                        }else if($param['qms_matriz'] == 9999 && $avaliacao->realizacao == $param['datafecha']){
+                        } elseif ($param['qms_matriz'] == 9999 && $avaliacao->realizacao == $param['datafecha']) {
                             return $avaliacao;
                         }
                     });

@@ -37,9 +37,10 @@ class AlunosNotasExport extends DefaultValueBinder implements FromCollection, Re
      */
     private $writerType = Excel::XLSX;
 
-    public function __construct(int $id_ano_formacao){
-        $this->_id_ano_formacao = $id_ano_formacao;    
-    }  
+    public function __construct(int $id_ano_formacao)
+    {
+        $this->_id_ano_formacao = $id_ano_formacao;
+    }
     /**
      * @return \Illuminate\Support\Collection
      */
@@ -51,7 +52,6 @@ class AlunosNotasExport extends DefaultValueBinder implements FromCollection, Re
 
         $collection = new Collection();
         foreach ($alunosClassificacao as $aluno) {
-
             $dataDemonstrativo = unserialize($aluno->data_demonstrativo);
 
             $collection->put($aluno->aluno_id, collect([
@@ -61,20 +61,20 @@ class AlunosNotasExport extends DefaultValueBinder implements FromCollection, Re
                 'OMCT' => $aluno->sigla_omct
             ]));
 
-            foreach($this->_collection as $item){
-                foreach($item->get('avaliacoes') as $avaliacoes){
-                    $identificador = $item->get('nome_disciplina').'-'.$avaliacoes->get('nome_avaliacao_abrev');
+            foreach ($this->_collection as $item) {
+                foreach ($item->get('avaliacoes') as $avaliacoes) {
+                    $identificador = $item->get('nome_disciplina') . '-' . $avaliacoes->get('nome_avaliacao_abrev');
                     $collection->get($aluno->aluno_id)->put($identificador, 0);
-                    foreach($dataDemonstrativo as $info){
-                        if(is_array($info) && isset($info['avaliacoes'])){
-                            foreach($info['avaliacoes'] as $aval){
-                                if($item->get('id_disciplina') == $info['disciplina_id']
-                                    && isset($aval->nome_abrev) && $aval->nome_abrev == $avaliacoes->get('nome_avaliacao_abrev')){
-                                    
-                                    
+                    foreach ($dataDemonstrativo as $info) {
+                        if (is_array($info) && isset($info['avaliacoes'])) {
+                            foreach ($info['avaliacoes'] as $aval) {
+                                if (
+                                    $item->get('id_disciplina') == $info['disciplina_id']
+                                    && isset($aval->nome_abrev) && $aval->nome_abrev == $avaliacoes->get('nome_avaliacao_abrev')
+                                ) {
                                     $collection->get($aluno->aluno_id)->put($identificador, (is_numeric($aval->nota) ? number_format($aval->nota, 3, ',', '.') : $aval->nota ));
                                     //dd($item, $collection->get($aluno->aluno_id));
-                                }   
+                                }
                             }
                         }
                     }
@@ -93,26 +93,26 @@ class AlunosNotasExport extends DefaultValueBinder implements FromCollection, Re
         $configuracaoDemonstrativo = ConfDemonstrativos::first();
 
         $this->_collection = new Collection();
-        foreach(explode(',', $configuracaoDemonstrativo->avaliacoes) as $avaliacao){
+        foreach (explode(',', $configuracaoDemonstrativo->avaliacoes) as $avaliacao) {
             $avaliacoes = Avaliacoes::find($avaliacao);
 
-            if(is_null($this->_collection->get($avaliacoes->disciplinas->id))){
+            if (is_null($this->_collection->get($avaliacoes->disciplinas->id))) {
                 $this->_collection->put($avaliacoes->disciplinas->id, collect([
                     'id_disciplina' => $avaliacoes->disciplinas->id,
                     'nome_disciplina' => $avaliacoes->disciplinas->nome_disciplina_abrev,
                     'avaliacoes' => collect()
                 ]));
             }
-            
+
             $this->_collection->get($avaliacoes->disciplinas->id)->get('avaliacoes')
             ->put($avaliacoes->id, collect(['id_avaliacao' => $avaliacoes->id, 'nome_avaliacao_abrev' => $avaliacoes->nome_abrev]));
         }
-        
+
         $header = ['Número', 'Nome Guerra', 'Segmento', 'OMCT'];
-        
-        foreach($this->_collection as $item){
-            foreach($item->get('avaliacoes') as $avaliacoes){
-                $header[] = $item->get('nome_disciplina').'-'.$avaliacoes->get('nome_avaliacao_abrev');
+
+        foreach ($this->_collection as $item) {
+            foreach ($item->get('avaliacoes') as $avaliacoes) {
+                $header[] = $item->get('nome_disciplina') . '-' . $avaliacoes->get('nome_avaliacao_abrev');
             }
         }
 

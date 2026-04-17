@@ -9,7 +9,8 @@ class TelegramAlunoAuth extends Model
     protected $table = 'telegram_aluno_auth';
     public $timestamps = false;
 
-    public function aluno(){
+    public function aluno()
+    {
         return $this->belongsTo('App\Models\Alunos', 'aluno_id', 'id');
-    }    
+    }
 }

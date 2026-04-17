@@ -18,15 +18,18 @@ class EsaAvaliacoesRapTfm extends Model
         'alunos_faltas' => 'json'
     ];
 
-    public function esaAvaliacoes(){
+    public function esaAvaliacoes()
+    {
         return $this->belongsTo('App\Models\EsaAvaliacoes', 'id_esa_avaliacoes', 'id');
-    } 
+    }
 
-    public function faltas(){
+    public function faltas()
+    {
         return $this->belongsToJson('App\Models\Alunos', 'alunos_faltas[]->id_aluno');
     }
 
-    public function motivoFalta(){
+    public function motivoFalta()
+    {
         return $this->belongsToJson('App\Models\EsaMotivosFaltas', 'alunos_faltas[]->id_motivo');
     }
 }

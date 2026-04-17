@@ -13,15 +13,18 @@ class EsaAvaliacoesDemonstrativo extends Model
     public $incrementing = false;
     protected $fillable = ['id_esa_disciplinas', 'id_aluno', 'avaliacoes_resultados', 'id_operador'];
 
-    public function esaDisciplinas(){
+    public function esaDisciplinas()
+    {
         return $this->belongsTo('App\Models\EsaDisciplinas', 'id_esa_disciplinas', 'id');
     }
 
-    public function operadores(){
+    public function operadores()
+    {
         return ($this->belongsTo('App\Models\Operadores', 'id_operador', 'id')) ?? 'Não informado';
     }
 
-    public function aluno(){
+    public function aluno()
+    {
         return ($this->belongsTo('App\Models\Alunos', 'id_aluno', 'id')) ?? 'Não informado';
     }
 
@@ -34,11 +37,11 @@ class EsaAvaliacoesDemonstrativo extends Model
     protected function setKeysForSaveQuery(Builder $query)
     {
         $keys = $this->getKeyName();
-        if(!is_array($keys)){
+        if (!is_array($keys)) {
             return parent::setKeysForSaveQuery($query);
         }
 
-        foreach($keys as $keyName){
+        foreach ($keys as $keyName) {
             $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
         }
 
@@ -53,7 +56,7 @@ class EsaAvaliacoesDemonstrativo extends Model
      */
     protected function getKeyForSaveQuery($keyName = null)
     {
-        if(is_null($keyName)){
+        if (is_null($keyName)) {
             $keyName = $this->getKeyName();
         }
 

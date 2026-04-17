@@ -8,11 +8,11 @@ use App\Notifications\MailResetPasswordToken;
 
 class User extends Authenticatable
 {
-
-    public function imagens(){
+    public function imagens()
+    {
         return $this->hasOne('\App\Models\Imagens', 'id', 'imagens_id');
     }
-    
+
     use Notifiable;
 
     /**
@@ -21,8 +21,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        //'name', 
-        'email', 
+        //'name',
+        'email',
         'password',
     ];
 
@@ -42,6 +42,5 @@ class User extends Authenticatable
     public function sendPasswordResetNotification($token)
     {
         $this->notify(new MailResetPasswordToken($token));
-    }    
-
+    }
 }

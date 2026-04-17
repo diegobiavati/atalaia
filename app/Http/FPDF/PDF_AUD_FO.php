@@ -14,31 +14,33 @@ class PDF_AUD_FO extends PDF
     protected $dataFinal = 0;
     protected $curso = null;
 
-    function setPeriodos(String $dataInicial, String $dataFinal){
+    function setPeriodos(string $dataInicial, string $dataFinal)
+    {
         $this->dataInicial = $dataInicial;
         $this->dataFinal = $dataFinal;
     }
 
-    function Header(){
+    function Header()
+    {
 
         $this->SetFont('Times', 'B', 8);
 
-        $this->Image(public_path() . '/images/brasao-rfb.jpg', 95, 5, 20, 20);    
+        $this->Image(public_path() . '/images/brasao-rfb.jpg', 95, 5, 20, 20);
 
         $this->SetXY(10, 26);
         $this->Cell(0, 3, utf8_decode('MINISTÉRIO DA DEFESA'), 0, 1, 'C', false);
         $this->Cell(0, 3, utf8_decode('EXÉRCITO BRASILEIRO'), 0, 1, 'C', false);
         $this->Cell(0, 3, 'ESCOLA DE SARGENTOS DAS ARMAS', 0, 1, 'C', false);
         $this->Cell(0, 3, '(ESCOLA SARGENTO MAX WOLFF FILHO)', 0, 1, 'C', false);
-                    
+
         $this->SetFont('Times', 'B', 10);
         $this->ln(5);
         $this->Cell(0, 4, utf8_decode('AUDIÊNCIA DE FATOS OBSERVADOS POR CURSO'), 0, 1, 'C', false);
         $this->SetFont('Times', 'B', 8);
-        $this->Cell(0, 4, utf8_decode('Período: '.$this->dataInicial. ' á '. $this->dataFinal), 0, 1, 'C', false);
+        $this->Cell(0, 4, utf8_decode('Período: ' . $this->dataInicial . ' á ' . $this->dataFinal), 0, 1, 'C', false);
         $this->ln(5);
 
-        
+
         $this->SetFillColor(230, 230, 230);
         $this->Cell(14, 6, utf8_decode('Data'), 0, 0, 'C', true);
         $this->Cell(15, 6, utf8_decode('Tipo de FO'), 0, 0, 'C', true);
@@ -49,13 +51,14 @@ class PDF_AUD_FO extends PDF
         $this->Cell(20, 6, utf8_decode('Ciente do Aluno'), 0, 1, 'C', true);
     }
 
-    function Footer(){
+    function Footer()
+    {
         // Position at 1.5 cm from bottom
         $this->SetY(-10);
         // Arial italic 8
-        $this->SetFont('Arial','I',8);
+        $this->SetFont('Arial', 'I', 8);
         // Page number
-        $this->Cell(0,10,utf8_decode('Página '.$this->PageNo().'/{nb}'),0,0,'C');
+        $this->Cell(0, 10, utf8_decode('Página ' . $this->PageNo() . '/{nb}'), 0, 0, 'C');
     }
 
     function WriteHTML($html)
@@ -66,24 +69,26 @@ class PDF_AUD_FO extends PDF
         foreach ($a as $i => $e) {
             if ($i % 2 == 0) {
                 //Text
-                if ($this->HREF)
+                if ($this->HREF) {
                     $this->PutLink($this->HREF, $e);
-                elseif ($this->ALIGN == 'center')
+                } elseif ($this->ALIGN == 'center') {
                     $this->Cell(0, 5, $e, 0, 1, 'C');
-                else
+                } else {
                     $this->Write(5, $e);
+                }
             } else {
                 //Tag
-                if ($e[0] == '/')
+                if ($e[0] == '/') {
                     $this->CloseTag(strtoupper(substr($e, 1)));
-                else {
+                } else {
                     //Extract properties
                     $a2 = explode(' ', $e);
                     $tag = strtoupper(array_shift($a2));
                     $prop = array();
                     foreach ($a2 as $v) {
-                        if (preg_match('/([^=]*)=["\']?([^"\']*)/', $v, $a3))
+                        if (preg_match('/([^=]*)=["\']?([^"\']*)/', $v, $a3)) {
                             $prop[strtoupper($a3[1])] = $a3[2];
+                        }
                     }
                     $this->OpenTag($tag, $prop);
                 }
@@ -94,19 +99,24 @@ class PDF_AUD_FO extends PDF
     function OpenTag($tag, $prop)
     {
         //Opening tag
-        if ($tag == 'B' || $tag == 'I' || $tag == 'U')
+        if ($tag == 'B' || $tag == 'I' || $tag == 'U') {
             $this->SetStyle($tag, true);
-        if ($tag == 'A')
+        }
+        if ($tag == 'A') {
             $this->HREF = $prop['HREF'];
-        if ($tag == 'BR')
+        }
+        if ($tag == 'BR') {
             $this->Ln(5);
-        if ($tag == 'P')
+        }
+        if ($tag == 'P') {
             $this->ALIGN = $prop['ALIGN'];
+        }
         if ($tag == 'HR') {
-            if (!empty($prop['WIDTH']))
+            if (!empty($prop['WIDTH'])) {
                 $Width = $prop['WIDTH'];
-            else
+            } else {
                 $Width = $this->w - $this->lMargin - $this->rMargin;
+            }
             $this->Ln(2);
             $x = $this->GetX();
             $y = $this->GetY();
@@ -120,12 +130,15 @@ class PDF_AUD_FO extends PDF
     function CloseTag($tag)
     {
         //Closing tag
-        if ($tag == 'B' || $tag == 'I' || $tag == 'U')
+        if ($tag == 'B' || $tag == 'I' || $tag == 'U') {
             $this->SetStyle($tag, false);
-        if ($tag == 'A')
+        }
+        if ($tag == 'A') {
             $this->HREF = '';
-        if ($tag == 'P')
+        }
+        if ($tag == 'P') {
             $this->ALIGN = '';
+        }
     }
 
     function SetStyle($tag, $enable)
@@ -133,9 +146,11 @@ class PDF_AUD_FO extends PDF
         //Modify style and select corresponding font
         $this->$tag += ($enable ? 1 : -1);
         $style = '';
-        foreach (array('B', 'I', 'U') as $s)
-            if ($this->$s > 0)
+        foreach (array('B', 'I', 'U') as $s) {
+            if ($this->$s > 0) {
                 $style .= $s;
+            }
+        }
         $this->SetFont('', $style);
     }
 
@@ -168,12 +183,13 @@ class PDF_AUD_FO extends PDF
         $this->aligns = $a;
     }
 
-    function Row($data, $height=5)
+    function Row($data, $height = 5)
     {
         //Calculate the height of the row
         $nb = 0;
-        for ($i = 0; $i < count($data); $i++)
+        for ($i = 0; $i < count($data); $i++) {
             $nb = max($nb, $this->NbLines($this->widths[$i], $data[$i]));
+        }
         $h = $height * $nb;
 
         //Issue a page break first if needed
@@ -199,7 +215,7 @@ class PDF_AUD_FO extends PDF
     function CheckPageBreak($h)
     {
         //If the height h would cause an overflow, add a new page immediately
-        if ($this->GetY() + $h > $this->PageBreakTrigger){
+        if ($this->GetY() + $h > $this->PageBreakTrigger) {
             $this->AddPage($this->CurOrientation);
         }
     }
@@ -208,13 +224,15 @@ class PDF_AUD_FO extends PDF
     {
         //Computes the number of lines a MultiCell of width w will take
         $cw = &$this->CurrentFont['cw'];
-        if ($w == 0)
+        if ($w == 0) {
             $w = $this->w - $this->rMargin - $this->x;
+        }
         $wmax = ($w - 2 * $this->cMargin) * 1000 / $this->FontSize;
         $s = str_replace("\r", '', $txt);
         $nb = strlen($s);
-        if ($nb > 0 and $s[$nb - 1] == "\n")
+        if ($nb > 0 and $s[$nb - 1] == "\n") {
             $nb--;
+        }
         $sep = -1;
         $i = 0;
         $j = 0;
@@ -230,21 +248,25 @@ class PDF_AUD_FO extends PDF
                 $nl++;
                 continue;
             }
-            if ($c == ' ')
+            if ($c == ' ') {
                 $sep = $i;
+            }
             $l += $cw[$c];
             if ($l > $wmax) {
                 if ($sep == -1) {
-                    if ($i == $j)
+                    if ($i == $j) {
                         $i++;
-                } else
+                    }
+                } else {
                     $i = $sep + 1;
+                }
                 $sep = -1;
                 $j = $i;
                 $l = 0;
                 $nl++;
-            } else
+            } else {
                 $i++;
+            }
         }
         return $nl;
     }

@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 
 class FuncoesController
 {
-
     public static function base64url_encode($data)
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
@@ -139,7 +138,8 @@ class FuncoesController
     }
 
     public static function retornaIdadePelaDataNascimento($dataNascimento)
-    { //Formato Y-m-d
+    {
+ //Formato Y-m-d
 
         $date = new DateTime($dataNascimento);
         $interval = $date->diff(new DateTime(date('Y-m-d')));
@@ -163,9 +163,9 @@ class FuncoesController
 
         if ((session()->has('qms_selecionada') && session()->get('qms_selecionada') == 9999) || (session()->get('login.qmsID.0.qms_matriz_id') == 9999)) { //ESA
             $qmsMatriz = explode(',', env('QMS_ESA_ID'));
-        } else if (session()->has('qms_selecionada')) {
+        } elseif (session()->has('qms_selecionada')) {
             $qmsMatriz = array(session()->get('qms_selecionada'));
-        } else if (session()->has('login.omctID')) {
+        } elseif (session()->has('login.omctID')) {
             $qmsMatriz = array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 100, 101);
         } else {
             $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
@@ -207,9 +207,7 @@ class FuncoesController
     {
 
         foreach ($avaliacoesNotas as $nota) {
-
             if (!is_null($nota->alunos_id)) {
-
                 $alunosID[] = $nota->alunos_id;
 
                 $getNota = $nota->getNota();
@@ -238,7 +236,6 @@ class FuncoesController
                     && $nota->avaliacao->tfm_abdominal == 'S'
                     && in_array($avaliacao->nome_abrev, array('AC'))
                 ) {
-
                     $aluno_notas[$nota->avaliacao->disciplinas_id][$nota->alunos_id]['media_tfm_abdominal'] = $getNota;
                 }
                 /*if($nota->alunos_id == 5045){
@@ -249,7 +246,6 @@ class FuncoesController
 
         if (isset($aluno_notas)) {
             foreach ($aluno_notas as $disciplina_id => $disciplina) {
-
                 $aluno_notas[$disciplina_id]['media_disciplina'] = 0.0;
                 $aluno_notas[$disciplina_id]['media_disciplina_s_peso'] = 0.0;
                 $aluno_notas[$disciplina_id]['max_disciplina'] = 0.0;
@@ -262,13 +258,11 @@ class FuncoesController
                 foreach ($disciplina as $aluno_id => $aluno) {
                     $quantidadeAvaliacao = 0;
                     foreach ($aluno['avaliacoes'] as $key => $aval) {
-
                         $quantidadeAvaliacao += $aval->peso;
                         if (
                             ($aluno_notas[$disciplina_id][$aluno_id]['tfm_abdominal'] == null
                                 || $aluno_notas[$disciplina_id][$aluno_id]['tfm_abdominal'] == 'N') && $aval->peso > 0
                         ) {
-
                             $aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas] = ($aval->nota * $aval->peso);
                             $aluno['notas'][$aval->indice_notas] = $aluno_notas[$disciplina_id][$aluno_id]['notas'][$aval->indice_notas];
                         } else {

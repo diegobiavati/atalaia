@@ -15,6 +15,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 class AlunosCursoImport implements ToModel, WithHeadingRow, WithBatchInserts, WithValidation
 {
     use Importable;
+
     /**
      * @param array $row
      *
@@ -59,9 +60,11 @@ class AlunosCursoImport implements ToModel, WithHeadingRow, WithBatchInserts, Wi
         return [
             '*.inscricao' => function ($attribute, $value, $onFailure) {
 
-                if (count(AlunosCurso::whereHas('alunos', function ($query) use ($value) {
-                    $query->where('al_inscricao', trim($value));
-                })->get()) > 0) {
+                if (
+                    count(AlunosCurso::whereHas('alunos', function ($query) use ($value) {
+                        $query->where('al_inscricao', trim($value));
+                    })->get()) > 0
+                ) {
                     $onFailure('Inscrição Já se Encontra Registrada na Base de Dados.');
                 }
             }

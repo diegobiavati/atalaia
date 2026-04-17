@@ -15,7 +15,6 @@ use App\Http\FPDF\PDF_DEM_NOTAS;
 
 use App\Models\Operadores;
 use App\Models\OperadoresTipo;
-
 use App\Http\OwnClasses\ClassLog;
 use App\Models\Alunos;
 use App\Models\AlunosSitDiv;
@@ -49,42 +48,40 @@ class AjaxAdminGaviaoController extends Controller
     {
         $this->request = $request;
         $this->classLog = $classLog;
-        $this->classLog->ip = $request->ip();      
+        $this->classLog->ip = $request->ip();
         $this->ownauthcontroller = $ownauthcontroller;
     }
 
     public function GerenciarOperadoresGaviao(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
         //if(in_array('9999', session()->get('login.perfil'))){//Caso seja o Administrador
-        if($ownauthcontroller->PerfilCheck([9999])){//Caso seja o Administrador
+        if ($ownauthcontroller->PerfilCheck([9999])) {//Caso seja o Administrador
             $operadores = Operadores::whereNotNull('qms_matriz_id')
             //->where([['ativo', '=', 'S']])
             ->orderBy('qms_matriz_id', 'asc')
             ->orderBy('postograd_id', 'asc')->get();
         //}else if(in_array('9004', session()->get('login.perfil'))){//Caso seja Operador do CA
-        }else if($ownauthcontroller->PerfilCheck([9004,9005])){//Caso seja Operador do CA ou SSAA
-            
+        } elseif ($ownauthcontroller->PerfilCheck([9004,9005])) {//Caso seja Operador do CA ou SSAA
             $operadorNaoPermitido = [9999];
-            
+
             $operadores = Operadores::whereNotNull('qms_matriz_id')
             ->where([['ativo', '=', 'S']])
             ->orderBy('qms_matriz_id', 'asc')
             ->orderBy('postograd_id', 'asc')->get();
-            
+
             //Remove o Perfil Administrador
-            for($i=0;$i<=count($operadores);$i++){
+            for ($i = 0; $i <= count($operadores); $i++) {
                 $operador = $operadores[$i];
 
                 $operador->permissoes = explode(',', $operador->id_funcao_operador);
-                foreach($operadorNaoPermitido as $permitido){
-                    if(in_array($permitido, $operador->permissoes)){
+                foreach ($operadorNaoPermitido as $permitido) {
+                    if (in_array($permitido, $operador->permissoes)) {
                         unset($operador, $operadores[$i]);
                         break;
                     }
                 }
             }
-
-        }else{
+        } else {
             $operadores = Operadores::where([['qms_matriz_id', '=',session()->get('login.qmsID.0.qms_matriz_id')], ['ativo', '=', 'S']])->orderBy('postograd_id', 'asc')->get();
         }
 
@@ -97,12 +94,13 @@ class AjaxAdminGaviaoController extends Controller
         return view('ajax.gerenciar-operadores')->with('operadores', $operadores)->with('data', $data)->with('ownauthcontroller', $ownauthcontroller);
     }
 
-    public function VisaoGeralGaviao(\App\Http\Controllers\OwnAuthController $ownauthcontroller){
+    public function VisaoGeralGaviao(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
+    {
         //Busca o Ano de Formação do Período de Qualificação
         $anoFormacao = FuncoesController::retornaAnoFormacaoAtivoQualificacao();
 
         $anoFormacaoID = ($anoFormacao->id) ?? 0;
-        
+
         $alunosCurso = Alunos::retornaAlunosComQmsESA($anoFormacaoID);
         $alunos['total'] = Alunos::retornaAlunosComQmsESAGeral($anoFormacaoID)->count();
         $alunos['total_curso'] = $alunosCurso->count();
@@ -110,14 +108,14 @@ class AjaxAdminGaviaoController extends Controller
 
         $param['anoFormacao'] = $anoFormacaoID;
         $param['alunosId'] = $alunosCurso->pluck('id')->toArray();
-        
+
         $lancamentoFo = LancamentoFo::whereHas('aluno', function ($query) use ($param) {
             $query->where(['data_matricula' => $param['anoFormacao']])
             ->whereIn('aluno_id', $param['alunosId']);
         })->get();
 
         $fatd = null;
-        if($ownauthcontroller->PerfilCheck(9002)){
+        if ($ownauthcontroller->PerfilCheck(9002)) {
             $fatd = LancamentoFo::whereHas('aluno', function ($query) use ($param) {
                 $query->where(['data_matricula' => $param])
                 ->whereIn('aluno_id', $param['alunosId']);
@@ -125,48 +123,45 @@ class AjaxAdminGaviaoController extends Controller
                 $query->where(['justificado' => null]);
             })->get();
         }
-        
+
         $rapPendentes = collect();
 
-        if($ownauthcontroller->PerfilCheck([9005, 9006])){
-        
+        if ($ownauthcontroller->PerfilCheck([9005, 9006])) {
             $avaliacoes = EsaAvaliacoes::whereDate('realizacao', '<=', date('Y-m-d', \strtotime('+2 month')))
                                     ->join('esa_disciplinas', 'esa_avaliacoes.id_esa_disciplinas', '=', 'esa_disciplinas.id')
                                     ->join('atalaia.qms', 'esa_disciplinas.id_qms', '=', 'atalaia.qms.id');
-            
-                                    
-            if(session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)){
+
+
+            if (session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)) {
                 $avaliacoes->where('atalaia.qms.qms_matriz_id', '=', session()->get('qms_selecionada'));
-            }else if(!$this->ownauthcontroller->PerfilCheck(['9999', '9005', '9004', '9003'])){
+            } elseif (!$this->ownauthcontroller->PerfilCheck(['9999', '9005', '9004', '9003'])) {
                 $avaliacoes->where('atalaia.qms.qms_matriz_id', '=', session()->get('login.qmsID.0.qms_matriz_id'));
             }
 
             $avaliacoes->orderBy('realizacao', 'ASC');
-            
-            $avaliacoes = $avaliacoes->get(['esa_avaliacoes.id', 'esa_avaliacoes.chamada', 'esa_avaliacoes.id_esa_disciplinas', 'esa_avaliacoes.nome_avaliacao', 
-                                            'esa_avaliacoes.realizacao', 'esa_avaliacoes.devolucao', 'esa_disciplinas.id_qms', 'esa_disciplinas.nome_disciplina', 
+
+            $avaliacoes = $avaliacoes->get(['esa_avaliacoes.id', 'esa_avaliacoes.chamada', 'esa_avaliacoes.id_esa_disciplinas', 'esa_avaliacoes.nome_avaliacao',
+                                            'esa_avaliacoes.realizacao', 'esa_avaliacoes.devolucao', 'esa_disciplinas.id_qms', 'esa_disciplinas.nome_disciplina',
                                             'esa_disciplinas.nome_disciplina_abrev']);
 
-            foreach($avaliacoes as $avaliacao){
-                
-                if($avaliacao->esadisciplinas->tfm == 'S'){
+            foreach ($avaliacoes as $avaliacao) {
+                if ($avaliacao->esadisciplinas->tfm == 'S') {
                     $contador = count($avaliacao->esaAvaliacoesRapTfm);
 
-                    if($contador == 0){
+                    if ($contador == 0) {
                         $avaliacao->rapLancadas = $contador;
                         $avaliacao->rapTotal = 1;
 
                         $rapPendentes->push($avaliacao);
                     }
-                }else{
+                } else {
                     $turmas = $avaliacao->esadisciplinas->qms->consultaTurmas();
                     $contador = count($avaliacao->esaAvaliacoesRap);
 
-                    if($contador > 0 && $contador <> count($turmas)){
-
+                    if ($contador > 0 && $contador <> count($turmas)) {
                         $avaliacao->rapLancadas = $contador;
                         $avaliacao->rapTotal = count($turmas);
-                        
+
                         $rapPendentes->push($avaliacao);
                     }
                 }
@@ -186,7 +181,7 @@ class AjaxAdminGaviaoController extends Controller
     {
         $operador = Operadores::find($request->route('id'));
         $user = User::where('email', '=', $operador->email)->first();
-        
+
         $imagens = Imagens::find(($user->imagens_id == null) ? 1 : $user->imagens_id);
 
         $style_display = ($user->imagens_id != 1 && $user->imagens_id != null) ? 'display: block;' : 'display: none;';
@@ -194,23 +189,23 @@ class AjaxAdminGaviaoController extends Controller
         foreach (explode(',', $operador->id_funcao_operador) as $funcao) {
             $funcao_operador[] = $funcao;
         }
-        
-        if($this->ownauthcontroller->PerfilCheck([9999])){
+
+        if ($this->ownauthcontroller->PerfilCheck([9999])) {
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get();
-        }else if($this->ownauthcontroller->PerfilCheck([9004])){
+        } elseif ($this->ownauthcontroller->PerfilCheck([9004])) {
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002,9003,9004])->get();
-        }else if($this->ownauthcontroller->PerfilCheck([9005])){
+        } elseif ($this->ownauthcontroller->PerfilCheck([9005])) {
             $qmsMatriz = array(1,2,3,4,5);
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002,9005,9006])->get();
-        }else{
+        } else {
             $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002])->get();
         }
 
         $cursos = QMSMatriz::whereIn('id', $qmsMatriz)->get();
-        
+
         foreach ($operadores_tipo as $tipo) {
             $attr_checked = (in_array($tipo->id, $funcao_operador)) ? 'checked' : '';
             $tipos[] = '<div class="custom-control custom-checkbox">
@@ -235,16 +230,16 @@ class AjaxAdminGaviaoController extends Controller
 
     public function DialogAdicionarOperadorGaviao(Request $request)
     {
-        if($this->ownauthcontroller->PerfilCheck([9999])){//Administrador
+        if ($this->ownauthcontroller->PerfilCheck([9999])) {//Administrador
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::where([['id', '>=', 9000]])->get();
-        }else if($this->ownauthcontroller->PerfilCheck([9004])){//Operador CA
+        } elseif ($this->ownauthcontroller->PerfilCheck([9004])) {//Operador CA
             $qmsMatriz = array(1,2,3,4,5,9999);
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002,9003,9004])->get();
-        }else if($this->ownauthcontroller->PerfilCheck([9005])){//Operador SSAA
+        } elseif ($this->ownauthcontroller->PerfilCheck([9005])) {//Operador SSAA
             $qmsMatriz = array(9999);
             $operadores_tipo = OperadoresTipo::whereIn('id', [9005])->get();
-        }else{
+        } else {
             $qmsMatriz = array(session()->get('login.qmsID.0.qms_matriz_id'));
             $operadores_tipo = OperadoresTipo::whereIn('id', [9000,9001,9002])->get();
         }
@@ -260,7 +255,7 @@ class AjaxAdminGaviaoController extends Controller
 
         /* LOOP QUE BUSCA OS CURSOS */
         $options_qms[] = '<option value="0">Informe o Curso</option>';
-        
+
         foreach ($cursos as $curso) {
             $options_qms[] = '<option value="' . $curso->id . '">' . $curso->qms  . '</option>';
         }
@@ -275,15 +270,16 @@ class AjaxAdminGaviaoController extends Controller
         return view('ajax.adicionar-operadores', compact('options_postograd', 'options_qms', 'tipos'));
     }
 
-    public function SelecionaQMS(Request $request){
+    public function SelecionaQMS(Request $request)
+    {
 
-        if(auth()->check()){
+        if (auth()->check()) {
             session()->put('qms_selecionada', (int)$request->qms_id);
             $data['success'] = true;
-        }else{
+        } else {
             $data['success'] = false;
         }
-        
+
         return response()->json($data);
     }
 
@@ -291,17 +287,16 @@ class AjaxAdminGaviaoController extends Controller
     {
         $anos_formacao = AnoFormacao::get();
         $ano_corrente_data = FuncoesController::retornaAnoFormacaoAtivoQualificacao();
-        
+
         $alunos = Alunos::retornaAlunosComQmsESA();
         $alunosAnoCorrente = Alunos::retornaAlunosComQmsESA($ano_corrente_data->id);
 
-        foreach($alunos as $aluno){
+        foreach ($alunos as $aluno) {
             $cursos[$aluno->qms->qms_matriz_id] = $aluno->qms;
             $qmss[$aluno->qms->id] = $aluno->qms;
         }
 
-        foreach($qmss as $qms){
-            
+        foreach ($qmss as $qms) {
             $alunos_por_qms = $alunosAnoCorrente->where('qms_id', $qms->id);
 
             $qmss_data[$qms->id] = array(
@@ -321,23 +316,25 @@ class AjaxAdminGaviaoController extends Controller
             ->with('cursos', $cursos);
     }
 
-    public function ShowChkBoxAnoFormacaoQms($idAnoFormacao){
+    public function ShowChkBoxAnoFormacaoQms($idAnoFormacao)
+    {
         $alunosAnoCorrente = Alunos::retornaAlunosComQmsESA($idAnoFormacao);
 
-        foreach($alunosAnoCorrente as $aluno){
+        foreach ($alunosAnoCorrente as $aluno) {
             $qmss[$aluno->qms->id] = $aluno->qms;
         }
 
         return view('ajax.chkbox-ano-qms', compact('qmss'));
     }
 
-    public function ListagemSelecaoAlunosTurma(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request){
-     
+    public function ListagemSelecaoAlunosTurma(\App\Http\Controllers\OwnAuthController $ownauthcontroller, Request $request)
+    {
+
         $anoFormacao = AnoFormacao::find($request->ano_formacao);
         $curso = FuncoesController::retornaCursoAnoFormacao($anoFormacao, $request->curso);
 
         $alunos = Alunos::retornaAlunosComQmsEspecifica($anoFormacao->id, [$curso->id])->get();
-        
+
         $turmas = TurmasEsa::where('qms_id', $curso->id)->get();
 
         return view('ajax.view-listagem-turma', compact('alunos', 'turmas'));
@@ -350,7 +347,7 @@ class AjaxAdminGaviaoController extends Controller
 
         if ($ownauthcontroller->PermissaoCheck(1) && isset($request->anos_de_formacao) && $request->anos_de_formacao == 0) {
             $error[] = 'Pelo menos um ano de formação deve ser selecionado';
-        } else if (!isset($request->anos_de_formacao)) {
+        } elseif (!isset($request->anos_de_formacao)) {
             $id_ano_formacao = ($ano_corrente->id) ?? 0;
         } else {
             $id_ano_formacao = $request->anos_de_formacao;
@@ -358,7 +355,7 @@ class AjaxAdminGaviaoController extends Controller
 
         if ($ownauthcontroller->PermissaoCheck([1, 10, 31]) && !isset($request->qmss)) {
             $error[] = 'Pelo menos uma QMS deve ser selecionada';
-        } else if ($ownauthcontroller->PermissaoCheck([1, 10, 31])) {
+        } elseif ($ownauthcontroller->PermissaoCheck([1, 10, 31])) {
             $qmss = $request->qmss;
         } else {
             $qmss = array(FuncoesController::retornaQMSPerfil($id_ano_formacao)->id);
@@ -376,18 +373,16 @@ class AjaxAdminGaviaoController extends Controller
 
             return $data;
         } else {
-
             $alunos = Alunos::retornaAlunosComQmsESAGeral($id_ano_formacao)
             ->whereIn('qms_id', $qmss)
             ->whereIn('sexo', $segmento)
             ->orderBy('sexo', 'asc')
             ->orderBy('numero', 'asc')->get();
-            
+
             $qmss = QMS::whereIn('id', $qmss)->get();
 
             $sexo['M'] = 'Masculino';
             $sexo['F'] = 'Feminino';
-
         }
 
         return view('ajax.relatorios.listagem-alunos-gaviao', compact('alunos', 'qmss', 'sexo', 'ownauthcontroller'));
@@ -405,7 +400,8 @@ class AjaxAdminGaviaoController extends Controller
         return view('ajax.diploma.view-diploma', compact('ownauthcontroller', 'url_diploma_periodo'));
     }
 
-    public function SelecionaAlunoTurma(){
+    public function SelecionaAlunoTurma()
+    {
 
         $idTurma = $this->request->idTurma;
         $idAluno = $this->request->idAluno;
@@ -413,7 +409,7 @@ class AjaxAdminGaviaoController extends Controller
         $data['status'] = 'err';
         $data['response'] = 'Algo Deu Errado.';
 
-        if(Alunos::find($idAluno)->update(['turma_esa_id' => $idTurma])){
+        if (Alunos::find($idAluno)->update(['turma_esa_id' => $idTurma])) {
             $data['status'] = 'success';
             $data['response'] = 'Gravado com Sucesso.';
         }
@@ -427,7 +423,7 @@ class AjaxAdminGaviaoController extends Controller
             $alunos = AlunosSitDiv::whereNotNull('qms_id')->orderBy('data_matricula', 'desc')->orderBy('qms_id', 'desc')->get();
         } else {
             $ano_corrente_data = FuncoesController::retornaAnoFormacaoAtivoQualificacao();
-            
+
             $alunos = AlunosSitDiv::whereNotNull('qms_id')->orderBy('data_matricula', 'desc')
                 ->where('qms_id', QMS::where([
                 ['escolha_qms_id', '=', EscolhaQMS::where('ano_formacao_id', $ano_corrente_data->id)->first()->id],
@@ -439,9 +435,10 @@ class AjaxAdminGaviaoController extends Controller
         return view('ajax.view-listagem-aluno-sit-diversas', compact('ownauthcontroller', 'alunos'));
     }
 
-    public function DemonstrativoNotasGaviao(OwnAuthController $ownauthcontroller, Request $request){
-       
-        if(!$ownauthcontroller->PermissaoCheck([1,27]) && $request->curso_id!=FuncoesController::retornaQMSPerfil($request->id_ano_formacao)->id){
+    public function DemonstrativoNotasGaviao(OwnAuthController $ownauthcontroller, Request $request)
+    {
+
+        if (!$ownauthcontroller->PermissaoCheck([1,27]) && $request->curso_id != FuncoesController::retornaQMSPerfil($request->id_ano_formacao)->id) {
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
         } else {
             $relatorioSSAA = new RelatoriosSSAAController($request, $ownauthcontroller);
@@ -449,7 +446,8 @@ class AjaxAdminGaviaoController extends Controller
         }
     }
 
-    public function ViewOpcoesSSAA(OwnAuthController $ownauthcontroller){
+    public function ViewOpcoesSSAA(OwnAuthController $ownauthcontroller)
+    {
         return view('ssaa.index')->with('ownauthcontroller', $ownauthcontroller);
     }
 }

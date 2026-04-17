@@ -9,8 +9,8 @@ class PostoGrad extends Model
     protected $table = 'postograd';
     public $timestamps = false;
 
-    public function operadores(){
+    public function operadores()
+    {
         return $this->hasMany('App\Models\Operadores');
     }
-
 }

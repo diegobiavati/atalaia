@@ -18,7 +18,7 @@ class ImportadorController extends Controller
     {
         if (auth()->check()) {
             return view('importar.SispbExcelAluno');
-        }else{
+        } else {
             return "Faça o Login no Sistema";
         }
     }
@@ -31,7 +31,7 @@ class ImportadorController extends Controller
      */
     public function store(Request $request)
     {
-      
+
         $retorno['status'] = 'err';
         $retorno['response'] = 'Houve um Erro';
 
@@ -57,36 +57,31 @@ class ImportadorController extends Controller
         }
 
         if ($request->hasFile('arquivo_excel') && $request->file('arquivo_excel')->isValid()) {
-
             $extension = $request->arquivo_excel->extension();
 
             $name = uniqid('excel_' . date('His'));
             $nameFile = "{$name}.{$extension}";
 
             if ($request->arquivo_excel->storeAs('temp/', $nameFile)) {
-
                 FuncoesController::LimpaPastaTemp();
 
                 //Implementar a importação
-                if(isset($request->radio) && $request->radio == 'alunos'){
+                if (isset($request->radio) && $request->radio == 'alunos') {
                     $alunos = new Alunos();
                     $alunos->import('temp/' . $nameFile);
-                    
+
                     $retorno['status'] = 'ok';
                     $retorno['response'] = 'Alunos Atualizados';
-                }else if(isset($request->radio) && $request->radio == 'dependentes'){
-
+                } elseif (isset($request->radio) && $request->radio == 'dependentes') {
                     $dependentes = new AlunosDependente();
                     $dependentes->import('temp/' . $nameFile);
 
                     $retorno['status'] = 'ok';
                     $retorno['response'] = 'Dependentes Atualizados';
                 }
-                
             }
         }
 
         return response()->json($retorno);
     }
-
 }

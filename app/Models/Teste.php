@@ -31,5 +31,4 @@ class Teste extends Model
     {
         return $this->belongsTo(Portaria::class, 'taf_portarias_id', 'id');
     }
-
 }

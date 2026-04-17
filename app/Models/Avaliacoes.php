@@ -9,20 +9,24 @@ class Avaliacoes extends Model
     protected $table = 'avaliacoes';
     public $timestamps = false;
 
-    public function disciplinas(){
+    public function disciplinas()
+    {
         return $this->belongsTo('App\Models\Disciplinas');
     }
 
-    public function avaliacoesMostra(){
+    public function avaliacoesMostra()
+    {
         return $this->hasMany('App\Models\AvaliacoesMostra');
     }
 
-    public function avaliacoesMostrasRespostas(){
+    public function avaliacoesMostrasRespostas()
+    {
         return $this->hasMany('App\Models\AvaliacoesMostrasRespostas');
     }
 
-    public function getNota($gbo, $type='') {
-        
+    public function getNota($gbo, $type = '')
+    {
+
         /*
             $type PODE SER
 
@@ -33,31 +37,32 @@ class Avaliacoes extends Model
         */
 
         $gbm = $this->gbm;
-        $nota = $gbo*10/$gbm;
-        if($type==''){
+        $nota = $gbo * 10 / $gbm;
+        if ($type == '') {
             $nota = number_format($nota, 3, ',', '');
-        } else if(is_int($type)){
-            $nota = number_format($gbo*10/$gbm, $type, ',', '');
-        } else if($type=='ceil') {
+        } elseif (is_int($type)) {
+            $nota = number_format($gbo * 10 / $gbm, $type, ',', '');
+        } elseif ($type == 'ceil') {
             $nota = ceil($nota);
-        } else if($type=='floor') {
+        } elseif ($type == 'floor') {
             $nota = floor($nota);
         }
 
         return $nota;
     }
 
-    public function getNotaByNota($nota, $separador=',') {
+    public function getNotaByNota($nota, $separador = ',')
+    {
 
-        $nota = number_format($nota, 3, '.', '');        
-        
+        $nota = number_format($nota, 3, '.', '');
+
         $nota = str_replace('.', $separador, $nota);
-        
-        return $nota;
 
+        return $nota;
     }
-    
-    public function pronto(){
+
+    public function pronto()
+    {
         return $this->belongsTo('App\Models\AvaliacoesProntoFaltasStatus', 'id', 'avaliacao_id');
     }
 }

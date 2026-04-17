@@ -28,7 +28,6 @@ use App\Http\Controllers\Controller;
 
 class SmbClientPhp extends Controller
 {
-
     // when doing "safe" puts, how many times are we willing to retry if we
     // fail to send?  And how long (in ms) to wait between retries
     private $_max_safe_retries = 3;
@@ -400,7 +399,9 @@ class SmbClientPhp extends Controller
         );
         $proc = proc_open($this->_cmd, $descriptorspec, $pipes);
 
-        if (!is_resource($proc)) return 255;
+        if (!is_resource($proc)) {
+            return 255;
+        }
 
         fclose($pipes[0]);    //Don't really want to give any input
 

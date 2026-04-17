@@ -13,13 +13,12 @@ class AlunosClassificacao extends Model
     {
         return $this->hasOne(Alunos::class, 'id', 'aluno_id');
         //return $this->belongsTo('App\Models\Alunos', 'id', 'aluno_id');
-                        
     }
 
     public function anoFormacao()
     {
-        return $this->hasOne(AnoFormacao::class, 'id', 'ano_formacao_id');                   
-    }       
+        return $this->hasOne(AnoFormacao::class, 'id', 'ano_formacao_id');
+    }
 
     protected static function boot()
     {

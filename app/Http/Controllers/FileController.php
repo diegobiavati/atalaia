@@ -7,14 +7,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FileController extends Controller
 {
-
     /**
      * Resolve o envio do arquivo.
      *
      * @param Request $request A instância do request.
      * @return Response A instância da response.
      */
-    public function upload(Request $request, $name='file')
+    public function upload(Request $request, $name = 'file')
     {
         /*
          * O campo do form com o arquivo tinha o atributo name="file".
@@ -35,7 +34,7 @@ class FileController extends Controller
         /*
          * Apenas grava o arquivo depois da verificação.
          */
-        $filepath = 'uploads/'.date('Y').'/'.date('m');
+        $filepath = 'uploads/' . date('Y') . '/' . date('m');
         //$filepath = 'uploads';
         $path = $file->store($filepath);
 
@@ -46,7 +45,7 @@ class FileController extends Controller
     /**
      * Compara o conteúdo de dois arquivos para verificar se há diferenças.
      *
-     * Não verifica qual exatamente é a diferença entre os arquivos. Dessa 
+     * Não verifica qual exatamente é a diferença entre os arquivos. Dessa
      * forma, uma diferenção é encontrada, a função para de ler os arquivos.
      *
      * @param SplFileInfo $a O primeiro arquivo para comparar.
@@ -60,7 +59,7 @@ class FileController extends Controller
         $fb = $b->openFile();
 
         /*
-     * Lê o mesmo número de bytes de cada arquivo. Quebra (break) o loop 
+     * Lê o mesmo número de bytes de cada arquivo. Quebra (break) o loop
      * assim que uma diferença for encontrada.
      */
         while (!$fa->eof() && !$fb->eof()) {
@@ -89,7 +88,7 @@ class FileController extends Controller
     /**
      * Verifica se o arquivo passado já foi enviado antes.
      *
-     * Passa de arquivo em arquivo no diretório de uploads, conferindo se algum 
+     * Passa de arquivo em arquivo no diretório de uploads, conferindo se algum
      * pode ser igual ao arquivo sendo enviado.
      *
      * @param SplFileInfo $file O arquivo para verificar.
@@ -119,15 +118,14 @@ class FileController extends Controller
          * Se ambos os arquivos tiverem o mesmo tamanho, compara o conteúdo.
          */
             if (filesize($filePath) === $size) {
-
                 /*
-             * Verifica se há alguma diferença, usando a função que escrevemos 
+             * Verifica se há alguma diferença, usando a função que escrevemos
              * acima.
              */
                 $diff = $this->fileDiff(new \SplFileInfo($filePath), $file);
 
                 /*
-             * Retorna se os arquivos **não** são diferentes, ou seja, iguais. 
+             * Retorna se os arquivos **não** são diferentes, ou seja, iguais.
              * Isso significa que já foi enviado antes.
              */
                 return !$diff;

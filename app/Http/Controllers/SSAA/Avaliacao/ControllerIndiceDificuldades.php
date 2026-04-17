@@ -18,7 +18,6 @@ use Illuminate\Support\Facades\DB;
 
 class ControllerIndiceDificuldades extends Controller
 {
-
     private $_ownauthcontroller = null;
     private $_request = null;
     private $_urlIndice = '/gaviao/ajax/indice-dificuldades';
@@ -56,7 +55,6 @@ class ControllerIndiceDificuldades extends Controller
         session()->forget('encryptData');
         //Verifica se tem permissão de lançamento de indíces
         if ($this->_ownauthcontroller->PermissaoCheck([38])) {
-
             $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($id));
 
             return view('ssaa.avaliacao.indice.form', compact('cursos'))
@@ -73,7 +71,6 @@ class ControllerIndiceDificuldades extends Controller
         $retorno['response'] = 'Informe o Nª do Item';
 
         if ($this->_ownauthcontroller->PermissaoCheck([38]) && session()->has('encryptData')) {
-
             $id_esa_avaliacoes = explode('-', decrypt(session()->get('encryptData')))[3];
 
             if (!isset($this->_request->nr_item)) {
@@ -199,7 +196,6 @@ class ControllerIndiceDificuldades extends Controller
         }
 
         if ($this->_ownauthcontroller->PermissaoCheck([38]) && $id_esa_avaliacoes > 0) {
-
             $this->encryptData();
 
             //Verifica se existe lançamento de escore
@@ -225,7 +221,7 @@ class ControllerIndiceDificuldades extends Controller
             $editableGrid->addColumn("dificuldade_estimada", "Dif. Estimada", "string", array('F' => 'Fácil', 'M' => 'Médio', 'D' => 'Difícil', 'MD' => 'Muito Difícil'), $valida);
             // action column ("html" type), not editable
             if ($valida) {
-                $editableGrid->addColumn("action", "Ações", "html", NULL, false);
+                $editableGrid->addColumn("action", "Ações", "html", null, false);
             }
 
             $data = array();

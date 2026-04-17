@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
-
 /* INJETANDO minha classe que faz validações */
 
 use App\Http\OwnClasses\OwnValidator;
-
 /*
-    Classes utilizadas pelo método reset() que sobrescreve 
+    Classes utilizadas pelo método reset() que sobrescreve
     o método reset em (verdor/laravel/frameworl/src/Illuminate/Auth)
 
 */
@@ -37,7 +35,6 @@ class ResetPasswordController extends Controller
     | explore this trait and override any methods you wish to tweak.
     |
     */
-
     use ResetsPasswords;
 
     /**
@@ -58,7 +55,7 @@ class ResetPasswordController extends Controller
     }
 
     /*
-    
+
         SOBRESCREVI O MÉTODO reset (verdor/laravel/frameworl/src/Illuminate/Auth)
         e injetei no início do arquivo as classes utilizadas pelo método:
         use Illuminate\Http\Request;
@@ -69,19 +66,20 @@ class ResetPasswordController extends Controller
     public function reset(Request $request)
     {
 
-        if(OwnValidator::ValidarPW($request->password)!='ok'){
+        if (OwnValidator::ValidarPW($request->password) != 'ok') {
             $data['status'] = 'err';
             $data['msg'] = OwnValidator::ValidarPW($request->password);
         } else {
             $this->validate($request, $this->rules(), $this->validationErrorMessages());
-    
+
             $response = $this->broker()->reset(
-                $this->credentials($request), function ($user, $password) {
+                $this->credentials($request),
+                function ($user, $password) {
                     $this->resetPassword($user, $password);
                 }
             );
-    
-            if($response==Password::PASSWORD_RESET){
+
+            if ($response == Password::PASSWORD_RESET) {
                 $data['status'] = 'ok';
                 $data['msg'] = 'SENHA ALTERADA COM SUCESSO!';
             } else {
@@ -91,6 +89,5 @@ class ResetPasswordController extends Controller
         }
 
         return $data;
-
-    }    
+    }
 }

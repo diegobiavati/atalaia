@@ -32,7 +32,6 @@ class Kernel extends ConsoleKernel
 
         // Converte para JSON os dados de alunos, turmas, disciplinas, notas, faltas e outras informações para serem consumidos pelo Power BI
         $schedule->command('bi:converter-json')->everyMinute()->withoutOverlapping();
-
     }
 
     /**

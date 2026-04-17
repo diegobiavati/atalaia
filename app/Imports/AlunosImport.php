@@ -18,6 +18,7 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 class AlunosImport implements ToModel, WithHeadingRow, WithValidation
 {
     use Importable;
+
     protected $anoFormacao;
     protected $ufs = array();
     protected $turmas;
@@ -51,7 +52,7 @@ class AlunosImport implements ToModel, WithHeadingRow, WithValidation
 
         /*$param = $row;
         if ($row['al_anoformacao'] > 2019) {
-            
+
             if (isset($row['id_situacao_atual']) && ($row['id_situacao_atual'] != 'null')) {
 
                 $idSituacaoAtual = (int) $row['id_situacao_atual'];

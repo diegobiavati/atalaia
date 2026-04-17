@@ -13,9 +13,7 @@ use App\Models\Areas;
 use App\Models\AnoFormacao;
 use App\Models\Instrumentos;
 use App\Models\OMCT;
-
 use App\Models\TurmasPB;
-
 use App\Http\OwnClasses\OwnValidator;
 use App\Http\OwnClasses\ClassLog;
 use App\Models\AlunosDependente;
@@ -42,7 +40,7 @@ class AjaxImplantarAlunoController extends Controller
     {
         $this->request = $request;
         $this->classLog = $classLog;
-        $classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
+        $classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
     }
 
     public function DialogImplantarAluno(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
@@ -55,7 +53,7 @@ class AjaxImplantarAlunoController extends Controller
         foreach ($omcts as $omct) {
             if ($ownauthcontroller->PermissaoCheck(1)) {
                 $options_omcts[] = '<option value="' . $omct->id . '">' . $omct->omct . '</option>';
-            } else if (session()->get('login.omctID') == $omct->id) {
+            } elseif (session()->get('login.omctID') == $omct->id) {
                 $options_omcts[] = '<option value="' . $omct->id . '">' . $omct->omct . '</option>';
             }
         }
@@ -184,7 +182,7 @@ class AjaxImplantarAlunoController extends Controller
         $dependentes .=              '<label class="labelDescricao">Naturalidade</label>';
         $dependentes .=              '<input class="no-style" name="dep_naturalidade[]" type="text" maxlength="100" autocomplete="off" placeholder="" style="margin-top:10px;width: 100%;"/>';
         $dependentes .=         '</div>';
-        
+
         $dependentes .=         '<div class="clear"></div>';
         $dependentes .=         '<div class="divImplantarAluno" style="width:40%;">';
         $dependentes .=             '<label class="labelDescricao">Endereço</label>';
@@ -202,7 +200,7 @@ class AjaxImplantarAlunoController extends Controller
         $dependentes .=             '<label class="labelDescricao">Escolaridade</label>';
         $dependentes .=             '<select class="custom-select" name="dep_id_escolaridade[]" style="margin-top:5px;">' . implode('', $options_escolaridade) . '</select>';
         $dependentes .=         '</div>';
-        
+
         $dependentes .=         '<div class="clear"></div>';
         $dependentes .=         '<div class="divImplantarAluno" style="width: 30%; border-bottom:none;">';
         $dependentes .=             '<label class="labelDescricao">Profissão</label>';
@@ -836,7 +834,7 @@ class AjaxImplantarAlunoController extends Controller
             $data['status'] = 'err';
             $data['response'] = implode('<br />', $error);
         } else {
-            $aluno = new Alunos;
+            $aluno = new Alunos();
 
             $aluno->numero = $request->numero;
             $aluno->nome_completo = $request->nome_completo;
@@ -852,7 +850,7 @@ class AjaxImplantarAlunoController extends Controller
             $aluno->instrumento_id = $request->instrumento;
             $aluno->email = $email;
 
-            $user = new User;
+            $user = new User();
             $user->email = $email;
             $user->password = bcrypt($aluno->doc_cpf);
 
@@ -946,13 +944,12 @@ class AjaxImplantarAlunoController extends Controller
 
 
             if ($aluno->save() && $user->save()) {
-
                 $aluno = Alunos::where([['email', '=', $aluno->email], ['numero', '=', $aluno->numero], ['doc_cpf', '=', $aluno->doc_cpf]])->first();
                 //Insere Parentes
-                
+
                 if (isset($request->id_parentesco)) {
                     for ($i = 0; $i < sizeof($request->id_parentesco); $i++) {
-                        $alunoDependente = new AlunosDependente;
+                        $alunoDependente = new AlunosDependente();
                         $alunoDependente->id_aluno = $aluno->id;
                         $alunoDependente->id_parentesco = $request->id_parentesco[$i];
                         $alunoDependente->dep_nome_completo = $request->dep_nome_completo[$i];

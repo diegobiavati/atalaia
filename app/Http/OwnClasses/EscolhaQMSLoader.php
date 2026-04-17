@@ -12,10 +12,8 @@ use App\Models\OMCT;
 use Exception;
 use Illuminate\Support\Facades\DB;
 
-
 class EscolhaQMSLoader
 {
-
     private $alunos;
     private $qmEsses;
     private $classificacao;
@@ -38,10 +36,10 @@ class EscolhaQMSLoader
     {
         if ($segmento != 'M' && $segmento != 'F') {
             return false;
-        } else if ($segmento == 'M') {
+        } elseif ($segmento == 'M') {
             $vaga = $this->qmEsses->where('escolha_qms_id', $this->escolha_qms_id)->where('qms_alias', 'aviacao')->first();
             return $vaga->vagas;
-        } else if ($segmento == 'F') {
+        } elseif ($segmento == 'F') {
             $vaga = $this->qmEsses->where('escolha_qms_id', $this->escolha_qms_id)->where('qms_alias', 'aviacao_feminino')->first();
             return $vaga->vagas;
         } else {
@@ -62,7 +60,6 @@ class EscolhaQMSLoader
     {
 
         if (is_null($id) && is_null($segmento)) {
-
             $opcoes_data = $this->alunos_opcoes->where('escolha_qms_id', $this->escolha_qms_id)->get();
             foreach ($opcoes_data as $res) {
                 if (!is_null($res->opcoes)) {
@@ -71,8 +68,7 @@ class EscolhaQMSLoader
             }
 
             return (isset($data)) ? $data : false;
-        } else if (!is_null($id) && is_array($id)) {
-
+        } elseif (!is_null($id) && is_array($id)) {
             // $segmento SERÁ IGNORADO
             $opcoes_data = $this->alunos_opcoes->whereIn('aluno_id', $id)->where('escolha_qms_id', $this->escolha_qms_id)->get();
             foreach ($opcoes_data as $res) {
@@ -83,16 +79,14 @@ class EscolhaQMSLoader
             }
 
             return (isset($data)) ? $data : false;
-        } else if (!is_null($id) && !is_array($id)) {
-           
+        } elseif (!is_null($id) && !is_array($id)) {
             $opcoes_data =  $this->alunos_opcoes->where('aluno_id', $id)->where('escolha_qms_id', $this->escolha_qms_id)->first();
 
             $data[$opcoes_data->aluno_id]['opcoes'] = unserialize($opcoes_data->opcoes);
             $data[$opcoes_data->aluno_id]['info'] = json_encode($opcoes_data);
 
             return $data;
-        } else if (is_null($id) && !is_null($segmento)) {
-
+        } elseif (is_null($id) && !is_null($segmento)) {
             $opcoes_data = $this->alunos_opcoes->where('escolha_qms_id', $this->escolha_qms_id)->get();
             foreach ($opcoes_data as $res) {
                 if ($res->aluno->sexo == $segmento) {
@@ -111,16 +105,15 @@ class EscolhaQMSLoader
         } else {
             $escolhaQmsDesignado = EscolhaQMS::select('escolha_qms_feminino as escolha_qms_final')->where([['id', '=', $this->escolha_qms_id], ['ano_formacao_id', '=', $this->ano_formacao]])->first();
         }
-       
-        if($reprovado == 'N' && $escolhaQmsDesignado->escolha_qms_final != null){
+
+        if ($reprovado == 'N' && $escolhaQmsDesignado->escolha_qms_final != null) {
             $escolha_result = unserialize($escolhaQmsDesignado->escolha_qms_final);
 
             $data = collect();
-            foreach($escolha_result['alunos_aviacao'] as $alunos){
+            foreach ($escolha_result['alunos_aviacao'] as $alunos) {
                 $data->push($alunos->classificacao);
             }
-        }else{
-
+        } else {
             // SELECIONANDO TODOS OS VOLUNTARIOS APTOS PARA AVIAÇÃO
             $volunt_avIDs = $this->voluntarios_aviacao->where('apto', 1)->whereNotNull('alunos_id')->get(['alunos_id']);
 
@@ -139,9 +132,9 @@ class EscolhaQMSLoader
     }
 
     /*
-    
+
         Está última função faz a distribuição dos alunos nas qms escolhidas COMBATENTE E LOGISTICA
-    
+
     */
 
     public function designacaoFinalQMS($segmento, $tipo, $reprovado = 'N')
@@ -156,7 +149,7 @@ class EscolhaQMSLoader
             $escolhaQmsDesignado = EscolhaQMS::select('escolha_qms_feminino as escolha_qms_final')->where([['id', '=', $this->escolha_qms_id], ['ano_formacao_id', '=', $this->ano_formacao]])->first();
         }
         //$escolhaQmsDesignado->escolha_qms_final = null;
-        if($reprovado == 'N' && $escolhaQmsDesignado->escolha_qms_final != null){
+        if ($reprovado == 'N' && $escolhaQmsDesignado->escolha_qms_final != null) {
             $alunos = unserialize($escolhaQmsDesignado->escolha_qms_final)['aluno'];
             $alunos['recuperado'] = true;
 
@@ -186,9 +179,7 @@ class EscolhaQMSLoader
                     }
                 }
             }
-            
-        }else{
-           
+        } else {
             foreach ($qms_data as $item) {
                 $qms_id_vagas[$item->id] = $item->vagas;
                 $qms_id_nome[$item->id] = $item->qms;
@@ -237,7 +228,7 @@ class EscolhaQMSLoader
 
             $alunos_opcoes =  $this->getAlunosOpcoes($alunosIDs);
 
-            // UETEs 
+            // UETEs
 
             $omct = OMCT::get();
             foreach ($omct as $item) {
@@ -278,7 +269,6 @@ class EscolhaQMSLoader
             }
 
             if ($tipo == 'por_qms') {
-
                 foreach ($alunos as $item) {
                     if (isset($alunos_opcoes[$item->id])) {
                         foreach ($alunos_opcoes[$item->id]['opcoes'] as $prioridade) {
@@ -302,7 +292,7 @@ class EscolhaQMSLoader
                         }
                     }
                 }
-                
+
                 //return (isset($escolha_result)) ? $escolha_result : false;
             }
         }
@@ -320,17 +310,17 @@ class EscolhaQMSLoader
             $qms_data = $this->qmEsses->where('escolha_qms_id', $this->escolha_qms_id)->where('segmento', $segmento)->where('qms_alias', '<>', 'aviacao_feminino')->get();
             $escolhaQmsDesignado = EscolhaQMS::select('escolha_qms_feminino as escolha_qms_final')->where([['id', '=', $this->escolha_qms_id], ['ano_formacao_id', '=', $this->ano_formacao]])->first();
         }
-       
-        if($reprovado == 'N' && $escolhaQmsDesignado->escolha_qms_final != null){
+
+        if ($reprovado == 'N' && $escolhaQmsDesignado->escolha_qms_final != null) {
             $escolha_result = unserialize($escolhaQmsDesignado->escolha_qms_final);
-        }else{
+        } else {
             foreach ($qms_data as $item) {
                 $qms_id_vagas[$item->id] = $item->vagas;
                 $qms_id_vagas_fixa[$item->id] = $item->vagas;
                 $qms_id_nome[$item->id] = $item->qms;
                 $qms_id_nome_sigla[$item->id] = $item->qms_sigla;
             }
-    
+
             // SELECIONANDO TODOS OS ALUNOS DESIGNADOS PARA QMS AVIAÇÃO
             $alunos_aviacao = $this->getAlunosAviacao($segmento, $reprovado);
 
@@ -343,35 +333,35 @@ class EscolhaQMSLoader
 
             //Guarda os alunos da aviação
             $escolha_result['alunos_aviacao'] = $alunos_temp;
-    
+
             $alunos_aviacao_ID = ($alunos_aviacao_ID) ?? array(0);
-    
+
             // SELECIONANDO TODOS OS ALUNOS DO CORRENTE ANO DE FORMAÇÃO (reprovado ou nao)
-    
+
             //$alunos_aprovados = $this->classificacao->where('ano_formacao_id', $this->ano_formacao)->get();
-    
+
             if ($reprovado == 'N') {
                 $alunos_class_data = $this->classificacao->where('reprovado', $reprovado)->where('ano_formacao_id', $this->ano_formacao)->get();
             } else {
                 $alunos_class_data = $this->classificacao->where('ano_formacao_id', $this->ano_formacao)->get();
             }
-            
+
             foreach ($alunos_class_data as $item) {
                 if (is_numeric($item->aluno_id)) {
                     $alunos_class[] = $item->aluno_id;
                 }
             }
-    
+
             $alunos_class = ($alunos_class) ?? array(0);
             // SELECIONANDO TODOS OS ALUNOS DO SEGMENTO SELECIONADO (aprovados menos os já designados para aviação)
-    
+
             $alunos = DB::select("SELECT alunos.*, alunos_classificacao.classificacao, alunos_classificacao.classificacao_por_area, alunos_classificacao.nota_final_arredondada FROM alunos
                                     INNER JOIN alunos_classificacao ON alunos.id=alunos_classificacao.aluno_id
                                     WHERE sexo='" . $segmento . "'
                                     AND alunos.id IN(" . implode(',', $alunos_class) . ")
                                     AND alunos.id NOT IN(" . implode(',', $alunos_aviacao_ID) . ")
                                     ORDER BY classificacao ASC");
-  
+
             foreach ($alunos as $item) {
                 $alunosIDs[] = $item->id;
             }
@@ -379,14 +369,14 @@ class EscolhaQMSLoader
             if (isset($alunosIDs)) {
                 $alunos_opcoes =  $this->getAlunosOpcoes($alunosIDs);
             }
-    
-            // UETEs 
+
+            // UETEs
             $omct = OMCT::get();
             foreach ($omct as $item) {
                 $omct_id_nome_abrev[$item->id] = $item->sigla_omct;
                 $omct_id_nome[$item->id] = $item->omct;
             }
-    
+
             for ($i = 1; $i <= count($qms_data); $i++) {
                 $opcao_atendido[$i] = 1;
                 foreach ($qms_data as $item) {
@@ -395,35 +385,30 @@ class EscolhaQMSLoader
                     $opcao_qms[$item->id] = 1;
                 }
             }
-            
+
             foreach ($alunos as $item) {
                 if (isset($alunos_opcoes[$item->id])) {
-
-                    
-                    
                     $i = 0;
                     foreach ($alunos_opcoes[$item->id]['opcoes'] as $prioridade) {
-
-                        try{
+                        try {
                             $i++;
                             $opcao[$i][$prioridade]++;
-                        }catch(Exception $e){//Remover em 2022 -- Corrige a escolha de QMS ESA que foi lancado errado
-
+                        } catch (Exception $e) {//Remover em 2022 -- Corrige a escolha de QMS ESA que foi lancado errado
                             //Remover Depois
                             //Corrige o lançamento de prioridade errado para o Ano de 2022
                             $alunos_opcoes_new = $alunos_opcoes[$item->id]['opcoes'];
-                            for($t = 1; $t <= count($alunos_opcoes_new); $t++){
-                                if(isset($alunos_opcoes_new['prioridade_'.$t]) && $alunos_opcoes_new['prioridade_'.$t] == 102){
-                                    unset($alunos_opcoes_new['prioridade_'.$t]);
+                            for ($t = 1; $t <= count($alunos_opcoes_new); $t++) {
+                                if (isset($alunos_opcoes_new['prioridade_' . $t]) && $alunos_opcoes_new['prioridade_' . $t] == 102) {
+                                    unset($alunos_opcoes_new['prioridade_' . $t]);
                                 }
                             }
-                            
+
                             $info = json_decode($alunos_opcoes[$item->id]['info']);
-                            
+
                             EscolhaQMSAlunosOpcoes::where([['id', '=', $info->id]])->update(['opcoes' => serialize($alunos_opcoes_new)]);
                             //dd($alunos_opcoes[$item->id], $item->numero, $opcao);
                             //Fim Remover
-                        }                        
+                        }
                     }
 
                     $o = 0;
@@ -432,9 +417,9 @@ class EscolhaQMSLoader
                         $o++;
                         if ($qms_id_vagas[$prioridade] > 0) {
                             $qms_id_vagas[$prioridade]--;
-    
+
                             //dd($qms_id_nome[$prioridade], $prioridade);
-    
+
                             $escolha_result['aluno'][$item->id] = array(
                                 "numero" => $item->numero,
                                 "nome" => $item->nome_completo,
@@ -457,11 +442,9 @@ class EscolhaQMSLoader
                             break;
                         }
                     }
-    
-                    
                 }
             }
-    
+
             $escolha_result['qmEsses'] = $qms_data;
             $escolha_result['estatistica']['opcao_atendido'] = $opcao_atendido;
             $escolha_result['estatistica']['opcao'] = $opcao;
@@ -471,5 +454,4 @@ class EscolhaQMSLoader
 
         return (isset($escolha_result)) ? $escolha_result : false;
     }
-
 }

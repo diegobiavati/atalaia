@@ -1,0 +1,12 @@
+# phpstan.neon
+parameters:
+    level: 1
+    paths:
+        - app
+    excludePaths:
+        - vendor
+    bootstrapFiles:
+        - bootstrap/app.php
+    ignoreErrors:
+        # Ignora erros comuns de frameworks antigos
+        - '#Undefined variable: \$this#'

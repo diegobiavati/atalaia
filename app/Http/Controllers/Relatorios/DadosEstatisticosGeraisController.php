@@ -30,7 +30,7 @@ class DadosEstatisticosGeraisController extends Controller
     {
         $this->ownauthcontroller = $ownauthcontroller;
         $this->classLog = $classLog;
-        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
+        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
     }
 
     public function ViewDadosEstatisticosGerais(Request $request)
@@ -71,7 +71,6 @@ class DadosEstatisticosGeraisController extends Controller
         }
 
         foreach ($alunos as $aluno) {
-
             if (isset($aluno->omcts_id)) { //Se existir UETE cadastrado
                 $idSituacaoAnterior = md5($aluno->id_situacao_matricula . '_' . $aluno->id_situacao_anterior);
                 //a. Efetivo total (no ato da matrícula)
@@ -114,7 +113,6 @@ class DadosEstatisticosGeraisController extends Controller
                 $religiao = Religiao::find($aluno->id_religiao);
                 //f. Religião de alunos (no ato da matrícula)
                 if (isset($aluno->id_religiao) && !isset($efetivoReligiao[$religiao->categoria])) {
-
                     $efetivoReligiao[$religiao->categoria] = (object) ['religiao' => $religiao->categoria, 'quantidade' => 0];
                 }
 

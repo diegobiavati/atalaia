@@ -8,7 +8,8 @@ use App\Http\Controllers\Controller;
 
 class ExportarNotasController extends Controller
 {
-    public function exportarNotasAlunos(Request $request){
+    public function exportarNotasAlunos(Request $request)
+    {
         return new AlunosNotasExport($request->id_ano_formacao);
     }
 }

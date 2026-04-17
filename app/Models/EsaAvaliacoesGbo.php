@@ -14,18 +14,21 @@ class EsaAvaliacoesGbo extends Model
 
     protected $fillable = ['id_esa_avaliacoes_indice', 'id_aluno', 'score_vermelho', 'id_operador'];
 
-    public function esaAvaliacoesIndices(){
+    public function esaAvaliacoesIndices()
+    {
         return ($this->belongsTo('App\Models\EsaAvaliacoesIndices', 'id_esa_avaliacoes_indice', 'id')) ?? 'Não informado';
     }
 
-    public function operador(){
+    public function operador()
+    {
         return ($this->belongsTo('App\Models\Operadores', 'id_operador', 'id')) ?? 'Não informado';
     }
 
-    public function aluno(){
+    public function aluno()
+    {
         return ($this->belongsTo('App\Models\Alunos', 'id_aluno', 'id')) ?? 'Não informado';
     }
-    
+
     /**
      * Set the keys for a save update query.
      *
@@ -35,11 +38,11 @@ class EsaAvaliacoesGbo extends Model
     protected function setKeysForSaveQuery(Builder $query)
     {
         $keys = $this->getKeyName();
-        if(!is_array($keys)){
+        if (!is_array($keys)) {
             return parent::setKeysForSaveQuery($query);
         }
 
-        foreach($keys as $keyName){
+        foreach ($keys as $keyName) {
             $query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
         }
 
@@ -54,7 +57,7 @@ class EsaAvaliacoesGbo extends Model
      */
     protected function getKeyForSaveQuery($keyName = null)
     {
-        if(is_null($keyName)){
+        if (is_null($keyName)) {
             $keyName = $this->getKeyName();
         }
 
@@ -64,5 +67,4 @@ class EsaAvaliacoesGbo extends Model
 
         return $this->getAttribute($keyName);
     }
-
 }

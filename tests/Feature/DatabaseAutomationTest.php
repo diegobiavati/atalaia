@@ -59,7 +59,7 @@ class DatabaseAutomationTest extends TestCase
 
         // 4. Verifica se o GBM da avaliação foi para 35 (20 + 15)
         $avaliacao = DB::connection($conn)->table('esa_avaliacoes')->where('id', $avaId)->first();
-        
+
         $this->assertEquals(35, $avaliacao->gbm);
     }
 }

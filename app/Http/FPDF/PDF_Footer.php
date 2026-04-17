@@ -23,14 +23,13 @@ class PDF_Footer extends PDF
 }*/
 
 // Page footer
-function Footer()
-{
-    // Position at 1.5 cm from bottom
-    $this->SetY(-15);
-    // Arial italic 8
-    $this->SetFont('Arial','I',8);
-    // Page number
-    $this->Cell(0,10, utf8_decode(' Três Corações - MG / ESA , ') . date("d-m-Y H:i:s") . utf8_decode(' Página ') .$this->PageNo().'/{nb}',0,0,'C');
-}
-
+    function Footer()
+    {
+        // Position at 1.5 cm from bottom
+        $this->SetY(-15);
+        // Arial italic 8
+        $this->SetFont('Arial', 'I', 8);
+        // Page number
+        $this->Cell(0, 10, utf8_decode(' Três Corações - MG / ESA , ') . date("d-m-Y H:i:s") . utf8_decode(' Página ') . $this->PageNo() . '/{nb}', 0, 0, 'C');
+    }
 }

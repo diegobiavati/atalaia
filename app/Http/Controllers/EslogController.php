@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 
 class EslogController
 {
-
     public function retornaAlunos(Request $request, EscolhaQMSLoader $escolhaQMS)
     {
         $escolhaQMS->ano_formacao = $request->ano_formacao_id;

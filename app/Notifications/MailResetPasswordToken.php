@@ -48,7 +48,7 @@ class MailResetPasswordToken extends Notification
         //$uri = urldecode($this->token.'/'.sha1($notifiable->email));
         $data['link'] = url('password/reset', [$this->token, urldecode(base64_encode($notifiable->email))]);
         $data['contato'] = $contato->contato;
-        return (new MailMessage)->from('atalaia@esa.eb.mil.br', 'Sistema Atalaia')
+        return (new MailMessage())->from('atalaia@esa.eb.mil.br', 'Sistema Atalaia')
                                 ->subject("Redefinir senha")
                                 ->view('vendor.notifications.email', compact('data'));
     }
@@ -66,4 +66,3 @@ class MailResetPasswordToken extends Notification
         ];
     }
 }
-

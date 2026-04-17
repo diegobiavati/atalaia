@@ -12,5 +12,4 @@ class CapitaniMSAccess extends Model
     {
         return $this->belongsTo(Alunos::class, 'aluno_id', 'id');
     }
-
 }

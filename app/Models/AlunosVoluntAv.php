@@ -9,9 +9,8 @@ class AlunosVoluntAv extends Model
     protected $table = 'alunos_voluntarios_aviacao';
     public $timestamps = false;
 
-    public function aluno(){
-        return $this->belongsTo('App\Models\Alunos', 'alunos_id', 'id'); 
+    public function aluno()
+    {
+        return $this->belongsTo('App\Models\Alunos', 'alunos_id', 'id');
     }
-
-
 }

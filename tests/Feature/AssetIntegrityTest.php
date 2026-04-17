@@ -20,10 +20,10 @@ class AssetIntegrityTest extends TestCase
 
         // Acessa a rota que renderiza o lancamentoFATD (ajuste o ID conforme necessário)
         // Como é carregado via AJAX no sistema, podemos testar a view diretamente se houver rota
-        $response = $this->get('/ajax/fatd/1'); 
+        $response = $this->get('/ajax/fatd/1');
 
         $response->assertStatus(200);
-        
+
         // Verifica se NÃO contém o link do CDN
         $response->assertSee('css/jquery/1.13.2/jquery-ui.css');
         $response->assertSee('js/jquery/1.13.2/jquery-ui.min.js');

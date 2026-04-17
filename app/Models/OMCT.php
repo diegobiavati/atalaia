@@ -8,13 +8,15 @@ class OMCT extends Model
 {
     protected $table = 'omcts';
     public $timestamps = false;
-    
-     function operadores(){
-        return $this->hasMany('App\Models\Operadores', 'omcts_id', 'id');
-    }  
 
-    public static function retornaOmctsConcurso(){
-        $retorno = Array();
+    function operadores()
+    {
+        return $this->hasMany('App\Models\Operadores', 'omcts_id', 'id');
+    }
+
+    public static function retornaOmctsConcurso()
+    {
+        $retorno = array();
 
         $retorno[0]['om_sigla'] = 'NE';
         $retorno[0]['cod_no_atalaia'] = 99;
@@ -33,7 +35,7 @@ class OMCT extends Model
 
         $retorno[5]['om_sigla'] = '20º RCB';
         $retorno[5]['cod_no_atalaia'] = 11;
-        
+
         $retorno[6]['om_sigla'] = '51º BIS';
         $retorno[6]['cod_no_atalaia'] = 0;
 

@@ -26,6 +26,7 @@ use PhpOffice\PhpSpreadsheet\Shared\Date;
 class AlunosImportInsert implements ToModel, WithValidation, WithBatchInserts, WithHeadingRow
 {
     use Importable;
+
     protected $anoFormacao;
     protected $ufs = array();
 

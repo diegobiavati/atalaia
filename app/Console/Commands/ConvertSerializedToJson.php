@@ -26,7 +26,6 @@ class ConvertSerializedToJson extends Command
 
         foreach ($registros as $r) {
             try {
-
                 $array = @unserialize($r->data_demonstrativo, ['allowed_classes' => false]);
 
                 if (!$array) {
@@ -39,9 +38,8 @@ class ConvertSerializedToJson extends Command
                         'data_demonstrativo_json' => json_encode($array, JSON_UNESCAPED_UNICODE),
                         'json_processado_at' => now()
                     ]);
-
             } catch (\Exception $e) {
-                Log::channel('daily')->error("Erro ID {$r->id}: " . $e->getMessage());  
+                Log::channel('daily')->error("Erro ID {$r->id}: " . $e->getMessage());
             }
         }
 

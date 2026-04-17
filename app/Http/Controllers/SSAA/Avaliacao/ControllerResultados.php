@@ -9,12 +9,10 @@ use App\Models\EsaAvaliacoesDemonstrativo;
 use App\Models\EsaDisciplinas;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-
 use Illuminate\Support\Facades\Log;
 
 class ControllerResultados extends Controller
 {
-
     private $_ownauthcontroller = null;
     private $_request = null;
 
@@ -24,13 +22,21 @@ class ControllerResultados extends Controller
         $this->_request = $request;
     }
 
-    public function index() {}
+    public function index()
+    {
+    }
 
-    public function show($id) {}
+    public function show($id)
+    {
+    }
 
-    public function update($id) {}
+    public function update($id)
+    {
+    }
 
-    public function destroy($id) {}
+    public function destroy($id)
+    {
+    }
 
     public function gerarND()
     {
@@ -73,7 +79,6 @@ class ControllerResultados extends Controller
                 $avaliacao_recuperacao = false;
 
                 foreach ($avaliacoes as $avaliacao) {
-
                     //Recuperação - AR
                     if ($avaliacao->esaAvaliacoes->nome_avaliacao == 'AR') {
                         $avaliacao_recuperacao = true;
@@ -81,10 +86,9 @@ class ControllerResultados extends Controller
 
                         $avaliacoes_resultados['avaliacoes'][] = ['id_esa_avaliacao' => $avaliacao->id_esa_avaliacoes, 'nota' => (float)$avaliacao->nota, 'peso' => (float)0.0];
                     } else {
-
                         if (in_array($avaliacao->esaAvaliacoes->nome_avaliacao, $aas)) {
                             $arrayCalc['AA'][] = ($avaliacao->nota * $avaliacao->esaAvaliacoes->peso);
-                        } else if (in_array($avaliacao->esaAvaliacoes->nome_avaliacao, $acs)) {
+                        } elseif (in_array($avaliacao->esaAvaliacoes->nome_avaliacao, $acs)) {
                             $arrayCalc['AC'][] = ($avaliacao->nota * $avaliacao->esaAvaliacoes->peso);
                         }
 

@@ -444,11 +444,10 @@ class Alunos extends Model
         $aluno = Alunos::retornaAlunosComQmsESAGeral($anoFormacaoID);
 
         if (session()->has('qms_selecionada') && !(session()->get('qms_selecionada') == 9999)) {
-
             $aluno->whereHas('qms', function ($q) {
                 $q->where('qms_matriz_id', '=', session()->get('qms_selecionada'));
             });
-        } else if (
+        } elseif (
             !in_array('9999', session()->get('login.perfil'))
             && !in_array('9003', session()->get('login.perfil'))
             && !in_array('9004', session()->get('login.perfil'))
@@ -489,7 +488,8 @@ class Alunos extends Model
     }
 
     public static function filtraAlunosOmctAreaSeg($alunos, $omct_id, $area_id, $segmento)
-    { //Lista de Alunos
+    {
+ //Lista de Alunos
 
         $retorno = [];
         $contador = count($alunos);
@@ -506,7 +506,8 @@ class Alunos extends Model
     }
 
     public static function filtraAlunosOmct($alunos, $omct_id)
-    { //Lista de Alunos
+    {
+ //Lista de Alunos
 
         $retorno = [];
         $contador = count($alunos);
@@ -519,7 +520,8 @@ class Alunos extends Model
     }
 
     public static function filtraAlunosNumero($alunos, $numero)
-    { //Lista de Alunos
+    {
+ //Lista de Alunos
 
         $retorno = [];
         $contador = count($alunos);
@@ -532,7 +534,8 @@ class Alunos extends Model
     }
 
     public static function filtraAlunosNome($alunos, $nomeAluno)
-    { //Lista de Alunos
+    {
+ //Lista de Alunos
 
         $retorno = [];
         $contador = count($alunos);
@@ -824,7 +827,6 @@ class Alunos extends Model
             $smbClientePhp->get($source, $destination);
 
             if (is_file($destination)) {
-
                 //Destination
                 $destinationPath = storage_path('app/public/') . 'imagens_aluno/' . $this->ano_formacao->formacao . '/';
 

@@ -35,7 +35,6 @@ class TrocaArquivosController extends Controller
      */
     public function store(Request $request)
     {
-
     }
 
     /**
@@ -46,7 +45,6 @@ class TrocaArquivosController extends Controller
      */
     public function show($id)
     {
-        
     }
 
     /**

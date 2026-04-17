@@ -13,6 +13,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class AlunosDependenteImport implements ToModel, WithHeadingRow, WithBatchInserts
 {
     use Importable;
+
     /**
      * @param array $row
      *
@@ -37,13 +38,11 @@ class AlunosDependenteImport implements ToModel, WithHeadingRow, WithBatchInsert
                 'dep_endereco' => ((isset($row['dep_endereco']) && ($row['dep_endereco'] != 'null')) ? $row['dep_endereco'] : null),
                 'dep_id_profissao' => ((isset($row['dep_cod_profissao']) && ($row['dep_cod_profissao'] != 'null')) ? $row['dep_cod_profissao'] : null),
                 'dep_id_escolaridade' => ((isset($row['dep_cod_escolaridade']) && ($row['dep_cod_escolaridade'] != 'null')) ? $row['dep_cod_escolaridade'] : null),
-                'dep_trabalho_ativo' => ((isset($row['dep_trabalho_ativo']) && ($row['dep_trabalho_ativo'] != 'null')) ? (($row['dep_trabalho_ativo'] == 'Selecionado') ? 'S': 'N') : null),
+                'dep_trabalho_ativo' => ((isset($row['dep_trabalho_ativo']) && ($row['dep_trabalho_ativo'] != 'null')) ? (($row['dep_trabalho_ativo'] == 'Selecionado') ? 'S' : 'N') : null),
                 'dep_trabalho_funcao' => ((isset($row['dep_trabalho_funcao']) && ($row['dep_trabalho_funcao'] != 'null')) ? $row['dep_trabalho_funcao'] : null),
                 'dep_bi_publicacao' => ((isset($row['dep_bi_publicacao']) && ($row['dep_bi_publicacao'] != 'null')) ? $row['dep_bi_publicacao'] : null)
             ]);
         }
-
-        
     }
 
     public function batchSize(): int

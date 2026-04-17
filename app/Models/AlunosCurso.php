@@ -28,7 +28,7 @@ class AlunosCurso extends Model
 
     public function import($nameFile)
     {
-        try { 
+        try {
             $import = new AlunosCursoImport();
             $import->import($nameFile);
 
@@ -44,15 +44,14 @@ class AlunosCurso extends Model
                 $failure->values(); // The values of the row that has failed.
 
                 $retorno['status'] = 'error';
-                $retorno['error'] = '<b>Na linha ' . $failure->row().'</b>';
+                $retorno['error'] = '<b>Na linha ' . $failure->row() . '</b>';
 
-                foreach($failure->errors() as $error){
-                    $retorno['error'] = $retorno['error'].' '.$error.'<BR>';
+                foreach ($failure->errors() as $error) {
+                    $retorno['error'] = $retorno['error'] . ' ' . $error . '<BR>';
                 }
             }
-
         }
-       
+
         return response()->json($retorno);
     }
 }

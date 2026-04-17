@@ -10,6 +10,9 @@ services:
     container_name: atalaia-app
     restart: unless-stopped
     tty: true
+    dns:
+    - 8.8.8.8
+    - 1.1.1.1
     environment:
       SERVICE_NAME: app
       SERVICE_TAGS: dev

@@ -25,7 +25,8 @@ class LancamentoFo extends Model
         return $this->belongsTo('App\Models\Operadores', 'comandante_operador_id', 'id');
     }
 
-    public function operadorCancelado(){
+    public function operadorCancelado()
+    {
         return $this->belongsTo('App\Models\Operadores', 'cancelado_operador_id', 'id');
     }
 

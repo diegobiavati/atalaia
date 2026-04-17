@@ -10,7 +10,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\OwnAuthController;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use Illuminate\Support\Facades\DB;
-
 /* MODELS */
 
 use App\Models\Alunos;
@@ -22,8 +21,6 @@ use App\Models\AvaliacoesProntoFaltasStatus;
 use App\Models\Disciplinas;
 use App\Models\Operadores;
 use App\Models\LancamentoFo;
-
-
 use App\Http\OwnClasses\ClassLog;
 use App\Models\AlunosSitDiv;
 use App\Models\AlunosVoluntAv;
@@ -43,7 +40,7 @@ class AjaxOperadorController extends Controller
     public function __construct(ClassLog $classLog)
     {
         $this->classLog = $classLog;
-        $classLog->ip=(isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);    
+        $classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
     }
 
     public function VisaoGeralOMCT(\App\Http\Controllers\OwnAuthController $ownauthcontroller)
@@ -107,19 +104,16 @@ class AjaxOperadorController extends Controller
         $chamadas = Avaliacoes::find($request->id);
 
         if ($chamadas->chamada > 1) {
-
             // SE FOR 2ª CHAMADA DEVO PEGAR A AVALIAÇÃO DE REFERENCIA E VER SE OS PRONTO DE FALTAS JÁ FORAM ENVIADOS
 
-            // AVALIAÇÃO DE REFERÊNCIA 
+            // AVALIAÇÃO DE REFERÊNCIA
 
             $avaliacao_referencia = $chamadas->chamada_refer_id;
 
             $pronto_faltas_status = AvaliacoesProntoFaltasStatus::where('avaliacao_id', $avaliacao_referencia)->where('omcts_id', session()->get('login.omctID'))->get();
 
             if (count($pronto_faltas_status) > 0) {
-
                 if ($chamadas->chamada == 2) {
-
                     // RELACIONANDO OS MILITARES QUE FALTARAM A 1ª CHAMADA E QUE DEVEM FAZER A SEGUNDA
 
                     $query = DB::select('SELECT * FROM avaliacoes_pronto_faltas WHERE avaliacao_id=? AND omcts_id=?', [$avaliacao_referencia, session()->get('login.omctID')]);
@@ -129,7 +123,7 @@ class AjaxOperadorController extends Controller
 
                     $alunos_faltosos = ($alunos_faltosos) ?? array();
 
-                    //$alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->whereIn('id', $alunos_faltosos)->orderBy('sexo', 'desc')->get();                    
+                    //$alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->whereIn('id', $alunos_faltosos)->orderBy('sexo', 'desc')->get();
                     $alunos = Alunos::where([
                         'omcts_id' => session()->get('login.omctID'),
                         'data_matricula' => $ano_corrente->id
@@ -138,8 +132,7 @@ class AjaxOperadorController extends Controller
             } else {
                 $data[] = '<div style="color: #B40404; text-align:center; margin: 32px;">O pronto de faltas da avaliação de referência não foi enviado!</div>';
             }
-        } else if ($chamadas->chamada == 0 && $chamadas->avaliacao_recuperacao == 1) {
-            
+        } elseif ($chamadas->chamada == 0 && $chamadas->avaliacao_recuperacao == 1) {
             // VERIFICO OS ALUNOS QUE FICARAM COM MÉDIA < 5,00 NA DISCIPLINA
             // ID DA DISCIPLINAS
             $disciplina_id = $chamadas->disciplinas_id;
@@ -164,14 +157,16 @@ class AjaxOperadorController extends Controller
                 foreach ($avaliacoes as $key_aluno => $informacao) {
                     if (!($key == 'alunosID')) {
                         //$media = array_sum($informacao['notas']) / $informacao['disciplina_razao'];
-                        
-                        if (($informacao['tfm_abdominal'] == 'N' || ($informacao['tfm_abdominal'] == null))
-                         && $informacao['media'] < 5) {
+
+                        if (
+                            ($informacao['tfm_abdominal'] == 'N' || ($informacao['tfm_abdominal'] == null))
+                            && $informacao['media'] < 5
+                        ) {
                             $alunosID_recuperacao[] = $key_aluno;
-                        }else if($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'S'){
+                        } elseif ($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'S') {
                             $abdominal = 'S';
-                            foreach($informacao['avaliacoes'] as $avaliacao){
-                                if($avaliacao->nota == 'NS'){
+                            foreach ($informacao['avaliacoes'] as $avaliacao) {
+                                if ($avaliacao->nota == 'NS') {
                                     $abdominal = 'NS';
                                     $alunosID_recuperacao[] = $key_aluno;
                                 }
@@ -183,7 +178,7 @@ class AjaxOperadorController extends Controller
 
             $alunosID_recuperacao = ($alunosID_recuperacao) ?? array();
 
-            //$alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->whereIn('id', $alunosID_recuperacao)->orderBy('sexo', 'desc')->get();                    
+            //$alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->whereIn('id', $alunosID_recuperacao)->orderBy('sexo', 'desc')->get();
             $alunos = Alunos::where([
                 'omcts_id' => session()->get('login.omctID'),
                 'data_matricula' => $ano_corrente->id
@@ -199,12 +194,11 @@ class AjaxOperadorController extends Controller
 
         if (isset($alunos)) {
             //Se for aluno da área de música não listar
-            if($chamadas->tfm_barra == 'S'){
+            if ($chamadas->tfm_barra == 'S') {
                 $alunos = $alunos->whereNotIn('area_id', [3]);
             }
 
             if (count($alunos) > 0) {
-
                 $data[] = ' <div style="margin-top: 64px; text-align: center; color: #696969;">
                                 <h5>PRONTO DE FALTAS<h5>
                                 <p>Selecione SFC os alunos que faltaram a esta avaliação</p>
@@ -245,7 +239,6 @@ class AjaxOperadorController extends Controller
                                 <button type="button" class="btn btn-success" onclick="enviarProntoFaltas(this, ' . $request->id . ');">Enviar pronto de faltas</button>
                             </div>';
             } else {
-
                 $data[] = '<div style="color: #B40404; text-align:center; margin: 32px;">Sem alunos previstos para esta chamada!</div>';
             }
         }
@@ -258,18 +251,19 @@ class AjaxOperadorController extends Controller
     public function EnviarProntoFaltas(Request $request, \App\Http\Controllers\OwnAuthController $ownauthcontroller)
     {
 
-        if (AvaliacoesProntoFaltasStatus::where([
+        if (
+            AvaliacoesProntoFaltasStatus::where([
             ["avaliacao_id", '=', $request->id],
             ["omcts_id", '=', session()->get('login.omctID')],
-        ])->first()) {
-
+            ])->first()
+        ) {
             //if(AvaliacoesProntoFaltasStatus::where('avaliacao_id', $request->id)->where('omcts_id', session()->get('login.omctID'))->count()>0){
 
             $data['response'] = '<span class="badge badge-secondary">Pronto de faltas já enviado</span>';
             $this->classLog->RegistrarLog('Enviou pronto de faltas pela segunda vez', auth()->user()->email);
             return $data;
         } else {
-            $avaliacoes_status = new AvaliacoesProntoFaltasStatus;
+            $avaliacoes_status = new AvaliacoesProntoFaltasStatus();
             $avaliacoes_status->avaliacao_id = $request->id;
             $avaliacoes_status->omcts_id = session()->get('login.omctID');
 
@@ -278,16 +272,16 @@ class AjaxOperadorController extends Controller
 
             if ($request->alunos_faltas) {
                 foreach ($request->alunos_faltas as $falta) {
-                    $avaliacoes_faltas = new AvaliacoesProntoFaltas;
+                    $avaliacoes_faltas = new AvaliacoesProntoFaltas();
                     $avaliacoes_faltas->avaliacao_id = $request->id;
                     $avaliacoes_faltas->omcts_id = session()->get('login.omctID');
                     $avaliacoes_faltas->aluno_id = $falta;
                     $avaliacoes_faltas->save();
 
-                    $requestNotaZero = new Request;
+                    $requestNotaZero = new Request();
                     $requestNotaZero->merge(['id' => $falta]);
                     $requestNotaZero->merge(['avaliacaoID' => $request->id]);
-                    
+
                     $this->RegistraGrauZeroAluno($requestNotaZero, $ownauthcontroller);
                 }
             }
@@ -308,9 +302,8 @@ class AjaxOperadorController extends Controller
         /* PEGANDO OS DADOS DA AVALIAÇÃO */
         $avaliacao = Avaliacoes::find($request->id);
 
-        // VERIFICANDO SE JÁ FOI DADO O PRONTO DE FALTAS 
+        // VERIFICANDO SE JÁ FOI DADO O PRONTO DE FALTAS
         if (AvaliacoesProntoFaltasStatus::where('avaliacao_id', $request->id)->where('omcts_id', session()->get('login.omctID'))->count() > 0) {
-
             // BUSCANDO RELAÇÃO DE ALUNOS QUE FALTARAM A PROVA
             $alunos_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->id)->where('omcts_id', session()->get('login.omctID'))->get();
             foreach ($alunos_faltas as $falta) {
@@ -334,8 +327,10 @@ class AjaxOperadorController extends Controller
                 $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))
                     ->where('data_matricula', $id_ano_corrente)
                     ->whereNotIn('id', $faltas)->orderBy('numero', 'asc')->orderBy('sexo', 'desc')->get();
-            } else if ($avaliacao->chamada == 0
-                        && $avaliacao->avaliacao_recuperacao == 1) {
+            } elseif (
+                $avaliacao->chamada == 0
+                        && $avaliacao->avaliacao_recuperacao == 1
+            ) {
                 // VERIFICO OS ALUNOS QUE FICARAM COM MÉDIA < 5,00 NA DISCIPLINA
                 // ID DA DISCIPLINAS
                 $disciplina_id = $avaliacao->disciplinas_id;
@@ -344,8 +339,7 @@ class AjaxOperadorController extends Controller
                 $avaliacoes2 = Avaliacoes::where('disciplinas_id', $disciplina_id)->where('avaliacao_recuperacao', '<>', 1)->get(['id', 'chamada']);
 
                 foreach ($avaliacoes2 as $avaliacao2) {
-
-                    // FAZENDO UM ARRAY COM TODAS AVALIAÇÕES DA DISCIPLINA EXCETO A AVALIAÇÃO DE RECUPERAÇÃO 
+                    // FAZENDO UM ARRAY COM TODAS AVALIAÇÕES DA DISCIPLINA EXCETO A AVALIAÇÃO DE RECUPERAÇÃO
                     $avaliacoes_array[] = $avaliacao2->id;
                 }
 
@@ -360,15 +354,17 @@ class AjaxOperadorController extends Controller
                     foreach ($avaliacoes as $key_aluno => $informacao) {
                         if (!($key == 'alunosID')) {
                             //$media = array_sum($informacao['notas']) / $informacao['disciplina_razao'];
-                            
+
                             //if (( (($informacao['tfm'] == 'N') || ($informacao['tfm'] == 'S')) && $informacao['tfm_abdominal'] == 'N')
-                            if (($informacao['tfm_abdominal'] == 'N' || ($informacao['tfm_abdominal'] == null))
-                            && $informacao['media'] < 5) {
+                            if (
+                                ($informacao['tfm_abdominal'] == 'N' || ($informacao['tfm_abdominal'] == null))
+                                && $informacao['media'] < 5
+                            ) {
                                 $alunosID_recuperacao[] = $key_aluno;
-                            }else if($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'S'){
+                            } elseif ($informacao['tfm'] == 'S' && $informacao['tfm_abdominal'] == 'S') {
                                 $abdominal = 'S';
-                                foreach($informacao['avaliacoes'] as $aval){
-                                    if($aval->nota == 'NS'){
+                                foreach ($informacao['avaliacoes'] as $aval) {
+                                    if ($aval->nota == 'NS') {
                                         $abdominal = 'NS';
                                         $alunosID_recuperacao[] = $key_aluno;
                                     }
@@ -395,9 +391,7 @@ class AjaxOperadorController extends Controller
                 $array_whereIn_IDs = array_diff($alunosID_recuperacao, $faltas);
 
                 $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->whereIn('id', $array_whereIn_IDs)->orderBy('sexo', 'desc')->get();
-                
             } else {
-
                 /* CASO SEJA 2ª CHAMADA */
 
                 /* VERIFICANDO QUAL FOI A AVALIAÇÃO DE REFERÊNCIA */
@@ -420,11 +414,11 @@ class AjaxOperadorController extends Controller
 
             if (count($alunos) > 0) {
                 //Se for aluno da área de música não listar
-                if($avaliacao->tfm_barra == 'S'){
+                if ($avaliacao->tfm_barra == 'S') {
                     $alunos = $alunos->whereNotIn('area_id', [3]);
                 }
                 //$total_alunos = count($alunos);
-                
+
                 //$resul[] = view('ajax.avaliacao.notas.view-lanca-grau', compact('avaliacao', 'alunos', 'nota', 'request'));
                 $resul[] = view('ajax.avaliacao.notas.view-lanca-grau', compact('avaliacao', 'alunos', 'request', 'nota'));
 
@@ -452,10 +446,10 @@ class AjaxOperadorController extends Controller
                         $td_content_nota_aluno = '  <div style="width: 100%; margin: 0 auto;" data-toggle="tooltip" data-placement="right" title="Clique aqui para retificação do grau">
                                                         <div style="float: left;">
                                                             <span><span style="color: #0B3B0B;"><b>GBO:</span></b> <span style="font-family: Tahoma;">' . $gbo . '</span></span><br />
-                                                            <span><span style="color: #0B3B0B;"><b>NOTA:</span></b> <span style="font-family: Tahoma;">' . $avaliacao->getNota($gbo) . '</span></span>                                                
+                                                            <span><span style="color: #0B3B0B;"><b>NOTA:</span></b> <span style="font-family: Tahoma;">' . $avaliacao->getNota($gbo) . '</span></span>
                                                         </div>
                                                         <div style="float: right; margin: 8px 10px 0 0;">
-                                                            <a href="javascript: void(0);" class="no-style" onclick="editarRegistroGrauAluno(' . $aluno->id . ', ' . $request->id . ');">    
+                                                            <a href="javascript: void(0);" class="no-style" onclick="editarRegistroGrauAluno(' . $aluno->id . ', ' . $request->id . ');">
                                                                 <i class="ion-android-create" style="color: #0B610B; font-size: 18px;"></i>
                                                             </a>
                                                         </div>
@@ -517,32 +511,32 @@ class AjaxOperadorController extends Controller
         return $data;
     }
 
-    public function RegistraGrauZeroAluno(Request $request, \App\Http\Controllers\OwnAuthController $ownauthcontroller){
+    public function RegistraGrauZeroAluno(Request $request, \App\Http\Controllers\OwnAuthController $ownauthcontroller)
+    {
 
-        $classLog = new ClassLog;
-            
+        $classLog = new ClassLog();
+
             $classLog->RegistrarLog('Registrou grau de aluno zerado', auth()->user()->email);
-            if ($ownauthcontroller->PermissaoCheck([1, 3])) {
-                /* VERIFICANDO SE A UETE DO ALUNO É A MESMA DO OPERADOR */
+        if ($ownauthcontroller->PermissaoCheck([1, 3])) {
+            /* VERIFICANDO SE A UETE DO ALUNO É A MESMA DO OPERADOR */
 
-                $aluno = Alunos::find($request->id);
-                $omct_id = session()->get('login.omctID');
-                
-                if ($aluno->omcts_id == $omct_id || $ownauthcontroller->PermissaoCheck(1)) {
-                        $avaliacoes_notas = new AvaliacoesNotas;
-                        $avaliacoes_notas->alunos_id = $request->id;
-                        $avaliacoes_notas->avaliacao_id = $request->avaliacaoID;
-                        $avaliacoes_notas->gbo = 0;
+            $aluno = Alunos::find($request->id);
+            $omct_id = session()->get('login.omctID');
 
-                        //Se for 2ª Chamada deixa lançar 0 OU se for Recuperação
-                        if($avaliacoes_notas->avaliacao->chamada > 1 || $avaliacoes_notas->avaliacao->avaliacao_recuperacao == 1){
-                            return $avaliacoes_notas->save();
-                        }
-                        
-                        return false;
+            if ($aluno->omcts_id == $omct_id || $ownauthcontroller->PermissaoCheck(1)) {
+                    $avaliacoes_notas = new AvaliacoesNotas();
+                    $avaliacoes_notas->alunos_id = $request->id;
+                    $avaliacoes_notas->avaliacao_id = $request->avaliacaoID;
+                    $avaliacoes_notas->gbo = 0;
+
+                    //Se for 2ª Chamada deixa lançar 0 OU se for Recuperação
+                if ($avaliacoes_notas->avaliacao->chamada > 1 || $avaliacoes_notas->avaliacao->avaliacao_recuperacao == 1) {
+                    return $avaliacoes_notas->save();
                 }
+
+                    return false;
             }
-        
+        }
     }
 
     public function RegistrarGrauAluno(Request $request, \App\Http\Controllers\OwnAuthController $ownauthcontroller)
@@ -551,7 +545,6 @@ class AjaxOperadorController extends Controller
         if ($request->ajax()) {
             $this->classLog->RegistrarLog('Registrou grau de aluno', auth()->user()->email);
             if ($ownauthcontroller->PermissaoCheck([1, 3])) {
-
                 /* PEGANDO OS DADOS DA AVALIAÇÃO */
 
                 $avaliacao = Avaliacoes::find($request->avaliacaoID);
@@ -563,37 +556,35 @@ class AjaxOperadorController extends Controller
                 if ($aluno->omcts_id == $omct_id || $ownauthcontroller->PermissaoCheck(1)) {
                     AvaliacoesNotas::where('alunos_id', $request->id)->where('avaliacao_id', $request->avaliacaoID)->delete();
                     //if($request->gbo > 0){
-                        $avaliacoes_notas = new AvaliacoesNotas;
+                        $avaliacoes_notas = new AvaliacoesNotas();
                         $avaliacoes_notas->alunos_id = $request->id;
                         $avaliacoes_notas->avaliacao_id = $request->avaliacaoID;
                         $avaliacoes_notas->gbo = $request->gbo;
-                        if ($request->gbo <= $avaliacao->gbm) {
-    
-                            if ($avaliacoes_notas->save()) {
-    
-                                /* CALCULANDO PORCENTAGEM PREENCHIDA */
-    
-                                $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
-                                $id_ano_corrente = ($ano_corrente->id) ?? 0;
-    
-                                $alunos_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->avaliacaoID)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
-                                foreach ($alunos_faltas as $falta) {
-                                    $faltas[] = $falta->id;
-                                }
-    
-                                $faltas = ($faltas) ?? array();
-    
-                                $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->where('data_matricula', $id_ano_corrente)->whereNotIn('id', $faltas)->get(['id']);
-                                $total_alunos = count($alunos);
-                                foreach ($alunos as $aluno) {
-                                    $alunos_id_array[] = $aluno->id;
-                                }
-    
-                                $total_notas_lancadas = AvaliacoesNotas::whereIn('alunos_id', $alunos_id_array)->where('avaliacao_id', $request->avaliacaoID)->count();
-    
-                                $data['status'] = 'ok';
-                                $data['porcento_preenchido'] = (floor(($total_notas_lancadas * 100) / $total_alunos) > 100) ? 100 : floor(($total_notas_lancadas * 100) / $total_alunos);
-                                $data['response'] = '   <div style="width: 100%; margin: 0 auto;" data-toggle="tooltip" data-placement="right" title="Clique aqui para retificação do grau">
+                    if ($request->gbo <= $avaliacao->gbm) {
+                        if ($avaliacoes_notas->save()) {
+                            /* CALCULANDO PORCENTAGEM PREENCHIDA */
+
+                            $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
+                            $id_ano_corrente = ($ano_corrente->id) ?? 0;
+
+                            $alunos_faltas = AvaliacoesProntoFaltas::where('avaliacao_id', $request->avaliacaoID)->where('omcts_id', session()->get('login.omctID'))->get(['id']);
+                            foreach ($alunos_faltas as $falta) {
+                                $faltas[] = $falta->id;
+                            }
+
+                            $faltas = ($faltas) ?? array();
+
+                            $alunos = Alunos::where('omcts_id', session()->get('login.omctID'))->where('data_matricula', $id_ano_corrente)->whereNotIn('id', $faltas)->get(['id']);
+                            $total_alunos = count($alunos);
+                            foreach ($alunos as $aluno) {
+                                $alunos_id_array[] = $aluno->id;
+                            }
+
+                            $total_notas_lancadas = AvaliacoesNotas::whereIn('alunos_id', $alunos_id_array)->where('avaliacao_id', $request->avaliacaoID)->count();
+
+                            $data['status'] = 'ok';
+                            $data['porcento_preenchido'] = (floor(($total_notas_lancadas * 100) / $total_alunos) > 100) ? 100 : floor(($total_notas_lancadas * 100) / $total_alunos);
+                            $data['response'] = '   <div style="width: 100%; margin: 0 auto;" data-toggle="tooltip" data-placement="right" title="Clique aqui para retificação do grau">
                                                             <div style="float: left;">
                                                                 <span><span style="color: #0B3B0B;"><b>GBO:</span></b> <span style="font-family: Tahoma;">' . $request->gbo . '</span></span><br />
                                                                 <span><span style="color: #0B3B0B;"><b>NOTA:</span></b> <span style="font-family: Tahoma;">' . $avaliacao->getNota($request->gbo) . '</span></span>                                                
@@ -605,9 +596,9 @@ class AjaxOperadorController extends Controller
                                                             </div>
                                                             <div class="clear"></div>
                                                         </div>';
-                            } else {
-                                $data['status'] = 'err';
-                                $data['response'] = '   <div style="padding: 12px 18px; margin-top: 10px; text-transform: uppercase;">
+                        } else {
+                            $data['status'] = 'err';
+                            $data['response'] = '   <div style="padding: 12px 18px; margin-top: 10px; text-transform: uppercase;">
                                                             <b>Houve um erro e o grau não foi registrado!</b>
                                                         </div>
                                                         <div style="padding: 8px 24px; text-align: right;">
@@ -615,10 +606,10 @@ class AjaxOperadorController extends Controller
                                                                 <b>OK</b>
                                                             </a>                                                    
                                                         </div>';
-                            }
-                        } else {
-                            $data['status'] = 'err';
-                            $data['response'] = '   <div style="padding: 12px 18px; margin-top: 10px; text-transform: uppercase;">
+                        }
+                    } else {
+                        $data['status'] = 'err';
+                        $data['response'] = '   <div style="padding: 12px 18px; margin-top: 10px; text-transform: uppercase;">
                                                         <b>O GBO NÃO DEVE SER MAIOR QUE O ATUAL GBM (' . $avaliacao->gbm . ')</b>
                                                     </div>
                                                     <div style="padding: 8px 24px; text-align: right;">
@@ -626,14 +617,13 @@ class AjaxOperadorController extends Controller
                                                             <b>OK</b>
                                                         </a>                                                    
                                                     </div>';
-                        }
+                    }
                     /*}else{
                         $data['status'] = 'ok';
                         $data['response'] = '<input type="text" name="nota_aluno_id_'.$aluno->id.'" value="" style="width: 38px; border: 1px solid #ccc; padding: 3px 4px; text-align: right; margin-top: -10px;" onkeyup="toogleConfirmGrau(this);" autocomplete="off" maxlength="3" /><br />
                                                     <a href="javascript: void(0);" class="badge badge-success" onclick="registrarGrauAluno('.$aluno->id.', '.$request->avaliacaoID.');" style="display: none; margin-top: 8px;">Confirmar</a>
                                                     <span class="badge badge-secondary" style="margin-top: 8px;">Confirma</span>';
                     }*/
-                    
                 } else {
                     $data['status'] = 'err';
                     $data['response'] = '   <div style="padding: 12px 18px; margin-top: 10px; text-transform: uppercase;">
@@ -740,7 +730,7 @@ class AjaxOperadorController extends Controller
             ->whereHas('aluno_voluntario_aviacao')->orderBy('numero', 'asc')->get();
 
         $exameAviacao = true;
-            
+
         return view('operador.aviacao.listagem-alunos', compact('alunos', 'exameAviacao'));
     }
 
@@ -777,28 +767,29 @@ class AjaxOperadorController extends Controller
         return response()->json($data);
     }
 
-    public function SelecaoVoluntariosExameAviacao(Request $request){
-        
+    public function SelecaoVoluntariosExameAviacao(Request $request)
+    {
+
         $ano_corrente = AnoFormacao::orderBy('formacao', 'desc')->first();
 
         $param['anoCorrente'] = $ano_corrente;
 
-        try{
+        try {
             AlunosVoluntAv::whereHas('aluno', function ($q) use ($param) {
                 $q->where([['data_matricula', '=', $param['anoCorrente']->id]]);
             })->update(['selecionado_exame' => 'N']);
-    
+
             AlunosVoluntAv::whereHas('aluno', function ($q) use ($param) {
                 $q->where([['data_matricula', '=', $param['anoCorrente']->id]]);
             })->whereIn('alunos_id', $request->alunos_ids)->update(['selecionado_exame' => 'S']);
 
             $data['status'] = 'ok';
             $data['response']  = 'Alunos Voluntários Para Exame Cadastrados.';
-        }catch(Exception $ex){
+        } catch (Exception $ex) {
             $data['status'] = 'err';
-            $data['response']  = 'Ocorreu um Erro '.$ex;
+            $data['response']  = 'Ocorreu um Erro ' . $ex;
         }
-        
+
         return response()->json($data);
     }
 }

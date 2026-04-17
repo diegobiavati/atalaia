@@ -27,6 +27,30 @@ O sistema utiliza dois bancos de dados distintos para isolar a gestão administr
 1.  **Banco `atalaia` (Conexão: `mysql`):** Dados de alunos, operadores, unidades (OMCT) e histórico básico.
 2.  **Banco `ssaa` (Conexão: `mysql_ssaa`):** Módulo Gavião, incluindo disciplinas do período de qualificação, índices de provas e GBO.
 
+## 🛠 Qualidade de Código e Testes
+
+O projeto utiliza automação para garantir que apenas código validado seja versionado.
+
+### Ferramentas Utilizadas:
+*   **PHPUnit**: Testes de feature e unitários.
+*   **PHP_CodeSniffer**: Linter seguindo o padrão PSR-12.
+*   **PHPStan**: Análise estática de código (Nível 1).
+
+### Como rodar manualmente:
+```bash
+# Linter
+docker exec -it atalaia-app ./vendor/bin/phpcs
+
+# Análise Estática
+docker exec -it atalaia-app ./vendor/bin/phpstan analyze
+
+# Testes
+docker exec -it atalaia-app ./vendor/bin/phpunit
+```
+
+### Git Hooks ###
+Um hook de pre-commit está configurado. Se as verificações falharem, o commit será abortado.
+
 ## 📦 Dependências e Ativos (Assets)
 
 Para garantir o funcionamento do sistema em redes restritas (Intranet), as dependências de Front-end foram localizadas:

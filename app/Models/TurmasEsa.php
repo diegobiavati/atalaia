@@ -15,7 +15,8 @@ class TurmasEsa extends Model
         return $this->hasMany('App\Models\Alunos', 'turma_esa_id');
     }
 
-    public function qms(){
+    public function qms()
+    {
         return $this->belongsTo('App\Models\QMS', 'qms_id');
     }
 }

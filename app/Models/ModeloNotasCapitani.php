@@ -8,5 +8,4 @@ class ModeloNotasCapitani extends Model
 {
     protected $table = 'modelo_notas_capitani';
     public $timestamps = false;
-    
 }

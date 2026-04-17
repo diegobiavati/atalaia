@@ -8,5 +8,4 @@ class Instrumentos extends Model
 {
     protected $table = 'instrumentos';
     public $timestamps = false;
-
 }

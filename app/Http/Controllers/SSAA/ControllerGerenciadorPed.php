@@ -19,7 +19,7 @@ class ControllerGerenciadorPed extends Controller
 
     public function index()
     {
-        
+
         $esaPedAno = \App\Models\EsaPedAnos::all();
 
         return view('ssaa.ped.form', [
@@ -36,7 +36,7 @@ class ControllerGerenciadorPed extends Controller
     public function getPedExercicios(Request $request)
     {
         $idPed = explode('_', decrypt($request->id_ped))[1];
-        
+
         $pedExercicios = \App\Models\EsaPedAnos::where('id', $idPed)->first();
 
         return response()->json($pedExercicios->esapedexercicio);

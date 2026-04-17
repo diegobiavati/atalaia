@@ -27,7 +27,8 @@ class QMS extends Model
         return $this->belongsTo('App\Models\QMSMatriz', 'qms_matriz_id', 'id');
     }
 
-    public function alunos() {
+    public function alunos()
+    {
         return $this->hasMany('App\Models\Alunos', 'qms_id', 'id');
     }
 
