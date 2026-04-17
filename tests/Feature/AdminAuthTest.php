@@ -1,4 +1,3 @@
-# tests/Feature/AdminAuthTest.php
 <?php
 
 namespace Tests\Feature;

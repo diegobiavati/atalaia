@@ -1,4 +1,3 @@
-# tests/Feature/SsaaSchemaTest.php
 <?php
 
 namespace Tests\Feature;

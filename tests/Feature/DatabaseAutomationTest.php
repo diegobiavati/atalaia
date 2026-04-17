@@ -1,4 +1,3 @@
-# tests/Feature/DatabaseAutomationTest.php
 <?php
 
 namespace Tests\Feature;

@@ -1,4 +1,3 @@
-# tests/Feature/HttpsProtocolTest.php
 <?php
 
 namespace Tests\Feature;

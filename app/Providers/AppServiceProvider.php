@@ -1,4 +1,3 @@
-# app/Providers/AppServiceProvider.php
 <?php
 
 namespace App\Providers;

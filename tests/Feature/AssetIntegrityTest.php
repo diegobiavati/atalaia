@@ -1,4 +1,3 @@
-# tests/Feature/AssetIntegrityTest.php
 <?php
 
 namespace Tests\Feature;
