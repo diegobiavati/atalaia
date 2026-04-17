@@ -10,7 +10,6 @@ use App\Http\Controllers\SSAA\Avaliacao\ControllerResultados;
 use App\Http\Controllers\SSAA\Calendario\ControllerAvaliacao;
 use App\Http\Controllers\Utilitarios\FuncoesController;
 use App\Http\OwnClasses\ClassLog;
-
 use App\Models\AlunosDependente;
 use App\Models\Banco;
 use App\Models\Escolaridade;
@@ -68,7 +67,7 @@ class AlunoApiController extends Controller
         foreach ($omcts as $omct) {
             if ($this->ownauthcontroller->PermissaoCheck(1) || session()->has('login.qmsID')) {
                 $options_omcts[] = $omct;
-            } else if (session()->get('login.omctID') == $omct->id) {
+            } elseif (session()->get('login.omctID') == $omct->id) {
                 $options_omcts[] = $omct;
             }
         }
@@ -92,7 +91,7 @@ class AlunoApiController extends Controller
 
         $readOnly = (!$this->ownauthcontroller->PermissaoCheck(1)) ? 'readonly' : '';
 
-        //Para Carregar o datalist 
+        //Para Carregar o datalist
         if (request()->is('gaviao/*')) {
             $alunos['list'] = Alunos::retornaAlunosComQmsESA();
         } else {
@@ -143,7 +142,9 @@ class AlunoApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create() {}
+    public function create()
+    {
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -213,7 +214,6 @@ class AlunoApiController extends Controller
 
                     //Dependentes
                     if (isset($request->id_parentesco)) {
-
                         $alunosDependentes = new AlunosDependente($dados);
 
                         for ($i = 0; $i < sizeof($alunosDependentes->id_parentesco); $i++) {
@@ -353,11 +353,11 @@ class AlunoApiController extends Controller
         $retorno['status'] = 'err';
         $retorno['response'] = ['Nada foi encontrado.', 'Aluno pode se encontrar em situações diversas, por isso não receberá atualizações por essa rotina.'];
 
-        if (!$aluno = $this->aluno->find($id))
+        if (!$aluno = $this->aluno->find($id)) {
             return response()->json($retorno);
+        }
 
         if ($this->ownauthcontroller->PermissaoCheck(10)) {
-
             $dados = $request->all();
 
             $dados['data_nascimento'] = FuncoesController::formatDateBrtoEn($dados['data_nascimento']);
@@ -377,12 +377,11 @@ class AlunoApiController extends Controller
             }
 
             $validador = Validator::make($dados, (($this->ownauthcontroller->PermissaoCheck(1)) ? $aluno->regrasEsa() : $aluno->regras()), [], $this->aluno->atributos());
-            
+
             if (
                 trim($dados['nome_guerra']) <> trim($aluno->nome_guerra)
                 || ($dados['data_matricula'] <> $aluno->data_matricula)
             ) {
-
                 $validaAluno = Alunos::where([['nome_guerra', '=', $dados['nome_guerra']], ['data_matricula', '=', $dados['data_matricula']]])->get();
 
                 if (sizeof($validaAluno) > 0) {
@@ -397,7 +396,6 @@ class AlunoApiController extends Controller
             }
 
             if ($validador->passes()) {
-
                 $dados['bonificacao_atleta'] = ((isset($dados['atleta_marexaer']) && $dados['atleta_marexaer'] == 'S') ? $dados['bonificacao_atleta'] : null);
 
                 if (trim($aluno->email) <> trim($dados['email'])) {
@@ -407,18 +405,15 @@ class AlunoApiController extends Controller
                     }
                     //Users::where(['email' => $aluno->email])->update(['email' => $dados['email']]);
                 }
-                
+
                 $update = $aluno->update($dados);
 
                 if ($update) {
-
                     //Dependentes
                     if (isset($dados['id_parentesco'])) {
-
                         $alunosDependentes = new AlunosDependente($dados);
 
                         for ($i = 0; $i < sizeof($alunosDependentes->id_parentesco); $i++) {
-
                             $isUpdate = false;
                             if (isset($alunosDependentes->id_dependente[$i])) {
                                 $isUpdate = true;
@@ -459,7 +454,7 @@ class AlunoApiController extends Controller
                 $retorno['status'] = 'err';
                 $retorno['response'] = $validador->errors()->all();
             }
-        } else if ($this->ownauthcontroller->PermissaoCheck(37)) { //Psicopedagogia
+        } elseif ($this->ownauthcontroller->PermissaoCheck(37)) { //Psicopedagogia
             $aluno->obs_psicopedagogia = $request->obs_psicopedagogia;
             if ($aluno->save()) {
                 $retorno['status'] = 'ok';
@@ -622,7 +617,6 @@ class AlunoApiController extends Controller
         $lista_colunas = array_unique($lista_colunas);
 
         foreach ($alunos_classif as $class) {
-
             $modeloNotas = new ModeloNotasCapitani();
 
             $modeloNotas->ano_cad = $class->anoFormacao->formacao;
@@ -656,7 +650,6 @@ class AlunoApiController extends Controller
 
             foreach ($disciplinas['TFM-N'] as $keydisc => $disciplina) {
                 foreach ($data_array as $key => $data) {
-
                     if (is_numeric($key)) {
                         if (in_array($data['disciplina_id'], array_keys($disciplina))) {
                             if (isset($data['AR'])) {
@@ -759,7 +752,8 @@ class AlunoApiController extends Controller
         ]);
     }
 
-    public function BuscaAjax(){
+    public function BuscaAjax()
+    {
 
         $termo = trim($this->request->get('termo'));
 
@@ -785,8 +779,8 @@ class AlunoApiController extends Controller
                     'ano_formacao' => $a->ano_formacao_final, // já unificado
                 ];
             });
-            
 
-        return response()->json($alunos);    
+
+        return response()->json($alunos);
     }
 }

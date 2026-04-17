@@ -14,7 +14,6 @@ use Illuminate\Http\Request;
 
 class DiplomaController extends Controller
 {
-
     protected $_ownauthcontroller;
 
     public function __construct(OwnAuthController $ownauthcontroller)
@@ -49,7 +48,6 @@ class DiplomaController extends Controller
      */
     public function edit($id)
     {
-        
     }
 
     /**
@@ -61,7 +59,6 @@ class DiplomaController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
     }
 
     /**
@@ -72,7 +69,6 @@ class DiplomaController extends Controller
      */
     public function store(Request $request)
     {
-        
     }
 
     /**
@@ -83,12 +79,10 @@ class DiplomaController extends Controller
      */
     public function show($id)
     {
-        
-        
     }
 
-    public function exportAlunos(){
+    public function exportAlunos()
+    {
         return AlunosDiplomaExport();//Excel::download(new AlunosDiplomaExport, 'alunosDiploma.xlsx');
     }
 }
-?>

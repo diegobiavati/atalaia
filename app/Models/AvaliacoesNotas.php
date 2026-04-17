@@ -16,13 +16,13 @@ class AvaliacoesNotas extends Model
     public function avaliacao()
     {
         //return $this->hasOne('App\Models\Avaliacoes', 'id', 'avaliacao_id');
-        return $this->belongsTo('App\Models\Avaliacoes', 'avaliacao_id',  'id');
+        return $this->belongsTo('App\Models\Avaliacoes', 'avaliacao_id', 'id');
     }
 
     public function aluno()
     {
         //return $this->hasOne('App\Models\Alunos', 'id', 'alunos_id');
-        return $this->belongsTo('App\Models\Alunos', 'alunos_id',  'id');
+        return $this->belongsTo('App\Models\Alunos', 'alunos_id', 'id');
     }
 
     public function getNota()

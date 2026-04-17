@@ -7,7 +7,8 @@ use App\Http\Controllers\Controller;
 
 class AssistenteInstalacaoAppController extends Controller
 {
-    public function LoadCarouselAssistente(){
+    public function LoadCarouselAssistente()
+    {
 
         $data = '<h3 style="text-align: center;">ASSISTENTE DE CONFIGURAÇÃO</h3>
                  <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" style="margin: 26px;">
@@ -92,7 +93,5 @@ class AssistenteInstalacaoAppController extends Controller
                 </div>';
 
         return $data;
-
     }
-
 }

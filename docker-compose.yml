@@ -10,6 +10,9 @@ services:
     container_name: atalaia-app
     restart: unless-stopped
     tty: true
+    dns:
+    - 8.8.8.8
+    - 1.1.1.1
     environment:
       SERVICE_NAME: app
       SERVICE_TAGS: dev
@@ -26,9 +29,11 @@ services:
     restart: unless-stopped
     ports:
       - "8080:80"
+      - "8443:443" # Porta 8443 no host mapeada para 443 no container
     volumes:
       - ./:/var/www
       - ./.docker/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./.docker/nginx/ssl:/etc/nginx/ssl # Pasta para os certificados
     networks:
       - atalaia-network
 

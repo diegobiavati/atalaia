@@ -9,8 +9,9 @@ class Areas extends Model
     protected $table = 'areas';
     public $timestamps = false;
 
-    public static function retornaAreasConcurso(){
-        $retorno = Array();
+    public static function retornaAreasConcurso()
+    {
+        $retorno = array();
 
         $retorno[0]['area'] = 'Não Especificada';
         $retorno[0]['cod_no_atalaia'] = 5;

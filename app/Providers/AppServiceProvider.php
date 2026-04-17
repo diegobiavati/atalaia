@@ -4,7 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Schema; // <--- ADICIONE ESTA LINHA
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\URL;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -17,6 +18,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Define o comprimento padrão para campos string (importante para MySQL antigo)
         Schema::defaultStringLength(191);
+
+        // Força HTTPS em todos os ambientes (solicitação do gerente)
+        URL::forceScheme('https');
 
         // Validação customizada para Identidade Militar EB
         Validator::extend('regidt_eb', function ($attribute, $value, $parameters, $validator) {

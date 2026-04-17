@@ -31,7 +31,6 @@ use Response;
 
 class RelatoriosSSAAController extends Controller
 {
-
     private $_ownauthcontroller = null;
     private $_request = null;
 
@@ -56,7 +55,6 @@ class RelatoriosSSAAController extends Controller
         $disciplinas = Disciplinas::where('tfm', 'N')->get();
 
         foreach ($alunos as $aluno) {
-
             $pdf->AddPage();
 
             //Cria a Borda Externa
@@ -140,14 +138,13 @@ class RelatoriosSSAAController extends Controller
                 'LID' => null,
                 'ING_I' => null
             ];
-                            
+
 
             foreach ($info_1Ano as $key => $valor) {
                 if (
                     is_numeric($key) && (key_exists('disciplina_id', $valor) && !in_array($valor['disciplina_id'], [99999, 88888]))
                     && $valor['tfm'] == 'N'
                 ) {
-
                     $filtro =  $disciplinas->filter(function ($v, $c) use ($valor) {
                         return ($v->id == $valor['disciplina_id']);
                     })->first();
@@ -229,7 +226,6 @@ class RelatoriosSSAAController extends Controller
             $fill = false;
 
             foreach ($aluno->esaAvaliacoesDemonstrativo as $notas) {
-
                 $demonstrativo = ControllerResultados::getResultadosDemonstrativo($notas->avaliacoes_resultados);
 
                 $pdf->SetX(5);
@@ -603,7 +599,7 @@ class RelatoriosSSAAController extends Controller
             $motivosFaltas = EsaMotivosFaltas::all();
 
             foreach ($esaAvaliacoesRap->alunos_faltas as $alunofalta) {
-                if(isset($alunofalta['id_motivo'])){
+                if (isset($alunofalta['id_motivo'])) {
                     $i++;
                     if ($i <= 12) {
                         $motivos[0] .= $i . '. ' . ($motivosFaltas->find($alunofalta['id_motivo'])->descricao) . chr(13) . chr(10) . '(' . $alunofalta['desc_motivo'] . ')' . chr(13) . chr(10);
@@ -839,7 +835,6 @@ class RelatoriosSSAAController extends Controller
     {
 
         if ($this->_ownauthcontroller->PermissaoCheck(40)) {
-
             $avaliacaoID = explode('_', decrypt($this->_request->avaliacaoID))[1];
 
             $esaAvaliacoes = EsaAvaliacoes::find($avaliacaoID);
@@ -892,8 +887,9 @@ class RelatoriosSSAAController extends Controller
                             $abaixo_media++;
                         }
 
-                        if ($nota < 5)
+                        if ($nota < 5) {
                             $abaixo_5++;
+                        }
 
                         $mencao->setFrequencia($nota, $realizaram);
                     }
@@ -902,7 +898,7 @@ class RelatoriosSSAAController extends Controller
                 $mencao->porcentagem = (($mencao->quantidade / $realizaram) * 100);
             }
 
-            ## Gráfico 
+            ## Gráfico
             $lava = new Lavacharts();
             $dataTable = $lava->DataTable();
             $dataTable->addStringColumn('Teste')
@@ -929,8 +925,9 @@ class RelatoriosSSAAController extends Controller
 
             foreach ($mencoes as $mencao) {
                 foreach ($mencao->getFrequencia()[0] as $item => $frequencia) {
-                    if (($frequencia['freq'] > 0))
+                    if (($frequencia['freq'] > 0)) {
                         $dataTable->addRow([$item, $frequencia['freq']]);
+                    }
                 }
             }
 
@@ -941,7 +938,7 @@ class RelatoriosSSAAController extends Controller
                 'vAxis' => ['gridlines' => ['minSpacing' => 20, 'color' => '#333']],
                 'width' => 650
             ]);
-            ## Fim Gráfico 
+            ## Fim Gráfico
 
             /*$assinatura = EsaAssinaturas::where([['assina_relatorio', '=', 'S']])->first();
             $pdf = DOMPDF::loadView(
@@ -964,7 +961,7 @@ class RelatoriosSSAAController extends Controller
                 )
             );
             //return $pdf->download('pdfview.pdf');
-            
+
             $pdf->save(storage_path('app/public/temp/'.(String)\Illuminate\Support\Str::uuid().'.pdf'));*/
 
             $chefeSSAA = Operadores::where([['id_funcao_operador', 'LIKE', '%9008%'], ['ativo', '=', 'S']])->first();
@@ -996,7 +993,6 @@ class RelatoriosSSAAController extends Controller
     public function AvaliacoesRecuperacao()
     {
         if ($this->_ownauthcontroller->PermissaoCheck(40)) {
-
             $disciplinaID = explode('_', decrypt($this->_request->disciplinaID))[1];
 
             $esaDisciplinas = EsaDisciplinas::find($disciplinaID);

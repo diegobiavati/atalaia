@@ -41,7 +41,6 @@ class AlunosDiplomaExport extends DefaultValueBinder implements FromCollection, 
 
         $collection = new Collection();
         foreach ($alunos as $aluno) {
-
             $collection->push([
                 'CPF' => FuncoesController::removerCaracterEspeciais(trim($aluno->doc_cpf)),
                 'Nome' => trim($aluno->nome_completo),

@@ -10,12 +10,11 @@ namespace App\Http\OwnClasses;
 
 class ClassLog
 {
-
     //protected $root_path = '/atalaia/storage/logs/logsistema/'; // certifique-se que este diretório exista
     protected $root_path = '/app/public/logs/logsistema/'; // certifique-se que este diretório exista
-    /* 
-        EM CONDIÇÕES NORMAIS, A PASTA atalaia acima, deverá ser  omitida, ficando assim /storage/logs/logsistema/ 
-        
+    /*
+        EM CONDIÇÕES NORMAIS, A PASTA atalaia acima, deverá ser  omitida, ficando assim /storage/logs/logsistema/
+
     */
     public $ip;
 
@@ -29,8 +28,8 @@ class ClassLog
         $path_array = array_pop($document_root);
         $path = implode('/', $document_root) . $this->root_path;*/
 
-        $path = storage_path().$this->root_path;
-        
+        $path = storage_path() . $this->root_path;
+
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
@@ -45,7 +44,6 @@ class ClassLog
         }
 
         if (isset($fullname)) {
-
             // MAIOR VALOR DA ARRAY
 
             $max_date = max($date);

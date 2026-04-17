@@ -12,10 +12,11 @@ use Illuminate\Http\Request;
 
 class StandardApiController extends Controller
 {
+    use AuthorizesRequests;
+    use DispatchesJobs;
+    use ValidatesRequests;
 
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
-    
-    
+
     private $path = false;
     private $totalPaginate = 15;
 
@@ -35,7 +36,6 @@ class StandardApiController extends Controller
         $dataForm = $request->all();
 
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
-
             $extension = $request->image->extension();
 
             $name = uniqid(date('d-m-Y-H:i:s-'));
@@ -46,11 +46,9 @@ class StandardApiController extends Controller
 
             if (!$upload) {
                 return response()->json(['error' => 'Falha ao fazer upload'], 500);
-
             } else {
                 $dataForm['image'] = $nameFile;
             }
-
         }
 
         $data = $this->model->create($dataForm);
@@ -69,19 +67,20 @@ class StandardApiController extends Controller
 
     public function update(Request $request, $id)
     {
-        if (!$data = $this->model->find($id))
+        if (!$data = $this->model->find($id)) {
             return response()->json(['error' => $this->name . ' Não encontrada'], 404);
-        
+        }
+
          //Valida os dados
         $this->validate($request, $this->model->rules($id));
 
         $dataForm = $request->all();
 
         if ($request->hasFile('image') && $request->file('image')->isValid()) {
-
             if ($data->image) {
-                if (Storage::exists("{$this->path}/{$data->image}"))
+                if (Storage::exists("{$this->path}/{$data->image}")) {
                     Storage::delete("{$this->path}/{$data->image}");
+                }
             }
             $extension = $request->image->extension();
 
@@ -89,37 +88,35 @@ class StandardApiController extends Controller
 
             $nameFile = "{$name}.{$extension}";
 
-            $pasta = $this->path;            
-    
+            $pasta = $this->path;
+
             /* Quando for no linux, descomenta a linha de baixo! */
             $upload = Image::make($dataForm['image'])->resize(200, 200)->save(storage_path("app/public/{$this->path}/" . $nameFile, 100));
 
             if (!$upload) {
                 return response()->json(['error' => 'Falha ao fazer upload'], 500);
-
             } else {
                 $dataForm['image'] = $nameFile;
             }
-
         }
 
         $data->update($dataForm);
         return response()->json($data);
-
     }
 
     public function destroy($id)
     {
-        if (!$data = $this->model->find($id))
+        if (!$data = $this->model->find($id)) {
             return response()->json(['error' => 'Ops... Isso non eczisteeee!'], 404);
+        }
 
         if ($data->image) {
-            if (Storage::exists("{$this->path}/{$data->image}"))
+            if (Storage::exists("{$this->path}/{$data->image}")) {
                 Storage::delete("{$this->path}/{$data->image}");
+            }
         }
 
         $data->delete();
         return response()->json(['success' => 'Deletado com sucesso']);
-
     }
 }

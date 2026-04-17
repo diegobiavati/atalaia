@@ -9,7 +9,8 @@ class Napd extends Model
     protected $table = 'napd';
     public $timestamps = false;
 
-    public function getDescricao(){
-        return '(Nr: '.$this->numero.', D: '.$this->desdobramento.', Gp: '.$this->grupo.', Clasf: '.$this->classificacao.')-'.$this->especificacao;
+    public function getDescricao()
+    {
+        return '(Nr: ' . $this->numero . ', D: ' . $this->desdobramento . ', Gp: ' . $this->grupo . ', Clasf: ' . $this->classificacao . ')-' . $this->especificacao;
     }
 }

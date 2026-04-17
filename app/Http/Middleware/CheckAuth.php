@@ -22,7 +22,6 @@ class CheckAuth
         session()->put('url_atual', $request->fullUrl());
 
         if (!auth()->check()) {
-
             $host = $request->getHost();
 
             if (strpos($host, 'gaviao') !== false) {

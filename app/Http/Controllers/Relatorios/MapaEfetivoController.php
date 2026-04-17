@@ -24,7 +24,7 @@ class MapaEfetivoController extends Controller
     {
         $this->ownauthcontroller = $ownauthcontroller;
         $this->classLog = $classLog;
-        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR']: null);
+        $this->classLog->ip = (isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null);
     }
 
     public function ViewMapaEfetivoGeral(Request $request)
@@ -174,7 +174,6 @@ class MapaEfetivoController extends Controller
                                                     ->whereNotNull('solicitacao_situacao')
                                                     //->whereNull('qms_id')
                                                     ->orderBy('omcts_id', 'asc')->get();
-
         } else {
             $alunosSituacoesDiversas = AlunosSitDiv::where([['data_matricula', '=', $idAnoFormacao]])
                                                     ->with('omct')
@@ -199,47 +198,47 @@ FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $
 
         $resumoUetes = array();
         foreach ($alunosSituacoesDiversas as $value) {
-            Log::channel('gaviao')->info("Gerou Mapa Efetivo Desligamento.", ['value' => $value]);  
+            Log::channel('gaviao')->info("Gerou Mapa Efetivo Desligamento.", ['value' => $value]);
             $data = unserialize($value->situacaoDivHistorico->data);
 
             //Senão tiver turma no segundo ano
             //if(!isset($data['turma_esa_id'])){
 
-                if (!isset($resumoUetes[$value->omct->id])) {
-                    $resumoUetes[$value->omct->id] = (object) array(
-                        'sigla_uete' => $value->omct->omct,
-                        'desligamentoApedido' => 0,
-                        'desligamentoExOficio' => 0,
-                        'trancamentoApedido' => 0,
-                        'trancamentoExOficio' => 0,
-                        'total' => 0
-                    );
-                }
-    
-                switch ($value->situacoes_diversas_id) {
-                    case 1: //Trancamento
-                        switch ($value->solicitacao_situacao) {
-                            case 'AP': //A pedido
-                                $resumoUetes[$value->omct->id]->trancamentoApedido++;
-                                break;
-                            case 'EO': //Ex Oficio
-                                $resumoUetes[$value->omct->id]->trancamentoExOficio++;
-                                break;
-                        }
-                        break;
-                    case 3: //Desligamento
-                        switch ($value->solicitacao_situacao) {
-                            case 'AP': //A pedido
-                                $resumoUetes[$value->omct->id]->desligamentoApedido++;
-                                break;
-                            case 'EO': //Ex Oficio
-                                $resumoUetes[$value->omct->id]->desligamentoExOficio++;
-                                break;
-                        }
-                        break;
-                }
-    
-                $resumoUetes[$value->omct->id]->total = ((($resumoUetes[$value->omct->id]->trancamentoApedido + $resumoUetes[$value->omct->id]->trancamentoExOficio) + $resumoUetes[$value->omct->id]->desligamentoApedido) + $resumoUetes[$value->omct->id]->desligamentoExOficio);                
+            if (!isset($resumoUetes[$value->omct->id])) {
+                $resumoUetes[$value->omct->id] = (object) array(
+                    'sigla_uete' => $value->omct->omct,
+                    'desligamentoApedido' => 0,
+                    'desligamentoExOficio' => 0,
+                    'trancamentoApedido' => 0,
+                    'trancamentoExOficio' => 0,
+                    'total' => 0
+                );
+            }
+
+            switch ($value->situacoes_diversas_id) {
+                case 1: //Trancamento
+                    switch ($value->solicitacao_situacao) {
+                        case 'AP': //A pedido
+                            $resumoUetes[$value->omct->id]->trancamentoApedido++;
+                            break;
+                        case 'EO': //Ex Oficio
+                            $resumoUetes[$value->omct->id]->trancamentoExOficio++;
+                            break;
+                    }
+                    break;
+                case 3: //Desligamento
+                    switch ($value->solicitacao_situacao) {
+                        case 'AP': //A pedido
+                            $resumoUetes[$value->omct->id]->desligamentoApedido++;
+                            break;
+                        case 'EO': //Ex Oficio
+                            $resumoUetes[$value->omct->id]->desligamentoExOficio++;
+                            break;
+                    }
+                    break;
+            }
+
+                $resumoUetes[$value->omct->id]->total = ((($resumoUetes[$value->omct->id]->trancamentoApedido + $resumoUetes[$value->omct->id]->trancamentoExOficio) + $resumoUetes[$value->omct->id]->desligamentoApedido) + $resumoUetes[$value->omct->id]->desligamentoExOficio);
             //}
         }
 
@@ -262,9 +261,8 @@ FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $
 
         $contador = count($mapaEfetivo);
         for ($i = 0; $i < $contador; $i++) {
-
             $alunosFiltro = Alunos::filtraAlunosOmctAreaSeg($alunos, $mapaEfetivo[$i]->omct_id, $mapaEfetivo[$i]->area_id, $mapaEfetivo[$i]->sexo);
-            
+
             $alunosSituacoesDiversas = AlunosSitDiv::where([['data_matricula', '=', $idAnoFormacao], ['omcts_id', '=', $mapaEfetivo[$i]->omct_id], ['area_id', '=', $mapaEfetivo[$i]->area_id], ['sexo', '=', $mapaEfetivo[$i]->sexo]])->get();
 
             $mapaEfetivo[$i]->pb_om_sigla = $mapaEfetivo[$i]->uete->sigla_omct;

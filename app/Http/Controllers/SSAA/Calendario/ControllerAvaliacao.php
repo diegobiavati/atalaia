@@ -24,7 +24,6 @@ use Illuminate\Validation\Rule;
 
 class ControllerAvaliacao extends Controller
 {
-
     private $_ownauthcontroller = null;
     private $_request = null;
 
@@ -51,7 +50,7 @@ class ControllerAvaliacao extends Controller
         $cursoSelecionado = QMS::find($this->_request->id_curso);
         $disciplinas = EsaDisciplinas::where(['id_qms' => $cursoSelecionado->id])->get();
 
-        $esaAvaliacoes = new EsaAvaliacoes;
+        $esaAvaliacoes = new EsaAvaliacoes();
 
         $readOnly = ($this->_ownauthcontroller->PermissaoCheck([33])) ? null : 'readOnly';
 
@@ -99,7 +98,7 @@ class ControllerAvaliacao extends Controller
             if ($validador->fails()) {
                 $retorno['response'] = $validador->errors()->all();
             } else {
-                $esaAvaliacoes = new EsaAvaliacoes;
+                $esaAvaliacoes = new EsaAvaliacoes();
                 $esaAvaliacoes->fill(
                     [
                         'id_esa_disciplinas' => $this->_request->disciplinaID,
@@ -128,7 +127,6 @@ class ControllerAvaliacao extends Controller
     {
         //Verifica permissão de "Cadastra Avaliação no Calendário SSAA e Visualiza Avaliação SSAA"
         if ($this->_ownauthcontroller->PermissaoCheck([33, 35])) {
-
             $anoFormacao = $this->getAnoFormacao();
 
             if (!$anoFormacao instanceof AnoFormacao) {
@@ -202,7 +200,6 @@ class ControllerAvaliacao extends Controller
         $retorno['response'] = [];
 
         if ($this->_ownauthcontroller->PermissaoCheck([33])) {
-
             $validador = $this->validaRequest();
 
             if ($validador->fails()) {
@@ -239,7 +236,6 @@ class ControllerAvaliacao extends Controller
         $retorno['response'] = [];
 
         if ($this->_ownauthcontroller->PermissaoCheck([33])) {
-
             $esaAvaliacoes = EsaAvaliacoes::find($id);
 
             if ($esaAvaliacoes->delete()) {
@@ -315,7 +311,6 @@ class ControllerAvaliacao extends Controller
         $esaAvaliacoes = EsaAvaliacoes::find(explode("_", decrypt($this->_request->id_avaliacao))[0]);
 
         if ($esaAvaliacoes) {
-
             $json_alunos = null;
             if ($this->_request->checkboxAlunos) {
                 foreach ($this->_request->checkboxAlunos as $aluno) {
@@ -339,10 +334,8 @@ class ControllerAvaliacao extends Controller
             }
 
             if ($esaAvaliacoes->esadisciplinas->tfm == 'S') {
-
                 $json_data_aplicacao = null;
                 if ($this->_request->data_aplicacao) {
-
                     $i = 0;
                     foreach ($this->_request->data_aplicacao as $data) {
                         $json_data_aplicacao[] = ['data_aplicacao' => $data, 'hora_inicio' => $this->_request->hora_inicio[$i], 'hora_termino' => $this->_request->hora_termino[$i]];
@@ -403,7 +396,6 @@ class ControllerAvaliacao extends Controller
             if ($validador->fails()) {
                 $retorno['response'] = $validador->errors()->all();
             } else {
-
                 if ($esaAvaliacoes->esadisciplinas->tfm == 'S') {
                     if ($esaAvaliacoes->esaAvaliacoesRapTfm()->create($data)) {
                         if ($esaAvaliacoes->save()) {
@@ -472,7 +464,7 @@ class ControllerAvaliacao extends Controller
                     array_push($retorno['response'], 'Não é possível remover o RAP, pois existem lançamentos vinculados a ele.');
                     return;
                 }
-                
+
                 $deleted = $isTfm
                     ? \App\Models\EsaAvaliacoesRapTfm::where('id_esa_avaliacoes', $rap->id_esa_avaliacoes)->delete()
                     : \App\Models\EsaAvaliacoesRap::where([
@@ -722,8 +714,8 @@ class ControllerAvaliacao extends Controller
             $this->_request->all(),
             [
                 'disciplinaID' => 'required|numeric|exists:mysql_ssaa.esa_disciplinas,id',
-                'nome_avaliacao' => ['required', new ESANomeAvaliacoes],
-                'tipo_avaliacao' => ['required', new TipoAvaliacoes],
+                'nome_avaliacao' => ['required', new ESANomeAvaliacoes()],
+                'tipo_avaliacao' => ['required', new TipoAvaliacoes()],
                 'chamada' => 'required|integer',
                 'peso' => 'required|numeric',
                 'proposta' => 'required|date',

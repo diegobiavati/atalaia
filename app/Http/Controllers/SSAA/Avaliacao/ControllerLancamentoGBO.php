@@ -13,7 +13,6 @@ use App\Models\Alunos;
 use App\Models\EsaAvaliacoesResultados;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-
 use Illuminate\Support\Collection;
 use App\Models\EsaAvaliacoes;
 use Illuminate\Database\Eloquent\Builder;
@@ -21,7 +20,6 @@ use Illuminate\Support\Facades\Log;
 
 class ControllerLancamentoGBO extends Controller
 {
-
     private $_ownauthcontroller = null;
     private $_request = null;
 
@@ -97,7 +95,6 @@ class ControllerLancamentoGBO extends Controller
         $retorno['response'] = 'Usuário sem Permissão Ou a Sessão está expirada.';
 
         if ($this->_ownauthcontroller->PermissaoCheck([39]) && session()->has('encryptData')) {
-
             $id_indice = (int)explode('_', decrypt($id))[2];
             $id_aluno = (int)explode('_', decrypt($this->_request->id_aluno))[2];
             $score_vermelho = $this->_request->score_vermelho;
@@ -151,13 +148,12 @@ class ControllerLancamentoGBO extends Controller
             $requisicao = $this->_request->requisicao ?? null;
             $item = (!is_null($this->_request->item)) ? explode('_', decrypt($this->_request->item))[2] : null;
             $selecionado = null;
-            
+
             $esaAvaliacoesIndices = new EsaAvaliacoesIndices();
 
             $esaAvaliacoesIndices = $esaAvaliacoesIndices->getAlunoIndicesItens($id_esa_avaliacoes, $id_aluno)->get();
 
             for ($i = 0; $i < $esaAvaliacoesIndices->count(); $i++) {
-
                 if (!is_null($item) && $esaAvaliacoesIndices->get($i)->id == $item) {
                     switch ($requisicao) {
                         case 'anterior':
@@ -275,7 +271,7 @@ class ControllerLancamentoGBO extends Controller
         })->leftJoin('ssaa.esa_avaliacoes_gbo', function ($join) {
                 $join->on('ssaa.esa_avaliacoes_indice.id', '=', 'ssaa.esa_avaliacoes_gbo.id_esa_avaliacoes_indice');
                 $join->on('atalaia.alunos.id', '=', 'ssaa.esa_avaliacoes_gbo.id_aluno');
-            })
+        })
             //->where([['atalaia.alunos.turma_esa_id', '=', $idTurma]])
             ->whereNull('ssaa.esa_avaliacoes_gbo.score_vermelho')
             //->whereNotIn('atalaia.alunos.id', $idAlunosFaltas)

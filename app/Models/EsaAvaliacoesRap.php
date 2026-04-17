@@ -11,7 +11,7 @@ class EsaAvaliacoesRap extends Model
     protected $connection = 'mysql_ssaa';
     protected $table = 'esa_avaliacoes_rap';
     protected $fillable = ['id_esa_avaliacoes', 'id_turmas_esa', 'alunos_faltas', 'duracao', 'hora_inicio', 'hora_termino', 'erros_impressao', 'erros_interpretacao', 'local_aplicacao',
-                             'cond_local_adequacao', 'cond_local_arrumacao', 'cond_local_silencio', 'cond_local_iluminacao', 'fatores_influencia_aplicacao', 'efetivo_realizou', 
+                             'cond_local_adequacao', 'cond_local_arrumacao', 'cond_local_silencio', 'cond_local_iluminacao', 'fatores_influencia_aplicacao', 'efetivo_realizou',
                              'efetivo_termino', 'primeiro_discente', 'segundo_discente', 'terceiro_discente', 'maioria_efetivo', 'todo_efetivo', 'id_operador_devolucao'
                         ];
     protected $casts = [
@@ -21,31 +21,38 @@ class EsaAvaliacoesRap extends Model
         'alunos_faltas' => 'json'
     ];
 
-    public function esaAvaliacoes(){
+    public function esaAvaliacoes()
+    {
         return $this->belongsTo('App\Models\EsaAvaliacoes', 'id_esa_avaliacoes', 'id');
-    } 
+    }
 
-    public function esaTurma(){
+    public function esaTurma()
+    {
         return $this->belongsTo('App\Models\TurmasEsa', 'id_turmas_esa', 'id');
     }
 
-    public function primeiroDiscente(){
+    public function primeiroDiscente()
+    {
         return $this->belongsTo('App\Models\Alunos', 'primeiro_discente->id_aluno', 'id');
     }
 
-    public function segundoDiscente(){
+    public function segundoDiscente()
+    {
         return $this->belongsTo('App\Models\Alunos', 'segundo_discente->id_aluno', 'id');
     }
 
-    public function terceiroDiscente(){
+    public function terceiroDiscente()
+    {
         return $this->belongsTo('App\Models\Alunos', 'terceiro_discente->id_aluno', 'id');
     }
 
-    public function faltas(){
+    public function faltas()
+    {
         return $this->belongsToJson('App\Models\Alunos', 'alunos_faltas[]->id_aluno');
     }
 
-    public function motivoFalta(){
+    public function motivoFalta()
+    {
         return $this->belongsToJson('App\Models\EsaMotivosFaltas', 'alunos_faltas[]->id_motivo');
     }
 }

@@ -7,10 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class MapaOutrosDados extends Model
 {
     protected $fillable = [
-        'omct_id', 
-        'area_id', 
-        'ano_formacao_id', 
-        'sexo', 
+        'omct_id',
+        'area_id',
+        'ano_formacao_id',
+        'sexo',
         'qtdade_previstomtcl',
         'qtdade_designadomtcl',
         'qtdade_adiamentomtcl',
@@ -22,7 +22,7 @@ class MapaOutrosDados extends Model
         'qtdade_pqesslog',
         'qtdade_pqciavex'
     ];
-    
+
     public function uete()
     {
         return ($this->belongsTo('App\Models\OMCT', 'omct_id', 'id')) ?? 'Não informada';

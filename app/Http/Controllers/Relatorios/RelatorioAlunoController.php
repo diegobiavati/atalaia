@@ -32,7 +32,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class RelatorioAlunoController extends Controller
 {
-
     protected $classLog;
     protected $ownauthcontroller;
 
@@ -170,7 +169,6 @@ class RelatorioAlunoController extends Controller
         if (!$this->ownauthcontroller->PermissaoCheck(1) && $request->omctID != session()->get('login.omctID')) {
             return '<div style="text-align: center;">NÃO AUTORIZADO!</div>';
         } else {
-
             $arrayExcessao = ['ano_formacao_id', 'omctID', 'qmsID', 'ordem', 'alteracao', 'ciente', 'relacao'];
             $arrayColunas = [];
 
@@ -200,7 +198,7 @@ class RelatorioAlunoController extends Controller
                     ->orderBy('numero', 'desc')->get();
 
                 switch ($request->qmsID) {
-                    case 'todas_qmss';
+                    case 'todas_qmss':
                         $qmss = FuncoesController::retornaCursoPerfilAnoFormacao($ano_formacao);
                         break;
                     default:
@@ -221,7 +219,7 @@ class RelatorioAlunoController extends Controller
                     ->orderBy('numero', 'desc')->get();
 
                 switch ($request->omctID) {
-                    case 'todas_omct';
+                    case 'todas_omct':
                         $omct = OMCT::where('id', '<>', 1)->get(); //Remove a ESA do select
                         break;
                     default:
@@ -319,7 +317,6 @@ class RelatorioAlunoController extends Controller
         $anoFormacao = AnoFormacao::whereId($request->ano_formacao_id)->get()->first();
 
         if (session()->has('login.qmsID')) {
-
             $lancamentoFo = LancamentoFo::whereHas('aluno', function ($query) use ($anoFormacao) {
                 $query->where('data_matricula', $anoFormacao->id)->orWhere('ano_formacao_reintegr_id', $anoFormacao->id);
             })->whereBetween('data_obs', array(FuncoesController::formatDateBrtoEn($request->data_inicial), FuncoesController::formatDateBrtoEn($request->data_final)))
@@ -352,7 +349,7 @@ class RelatorioAlunoController extends Controller
                         if ($parametros['cia'] == 1) {
                             $query->join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
                                 ->whereIn('turmas_esa.turma', array('I1', 'I2', 'I3')); //Turma I1, I2, I3
-                        } else if ($parametros['cia'] == 2) {
+                        } elseif ($parametros['cia'] == 2) {
                             $query->join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
                                 ->whereIn('turmas_esa.turma', array('I4', 'I5', 'I6')); //Turma I1, I2, I3
                         }
@@ -376,7 +373,6 @@ class RelatorioAlunoController extends Controller
             $pdf->SetFont('Times', '', 7);
 
             foreach ($lancamentosFo as $key) {
-
                 $pdf->Row(array(
                     FuncoesController::formatDateEntoBr($key->data_obs),
                     ($key->tipo == 0 ? 'NEGATIVO' : (($key->tipo == 1) ? 'NEUTRO' : 'POSITIVO')),
@@ -500,7 +496,6 @@ class RelatorioAlunoController extends Controller
             }
 
             if (isset($request->data_inicial)) {
-
                 $alunos = $alunos->whereHas('lancamento_fo', function ($query) use ($request) {
                     $query->whereBetween('data_obs', array(
                         FuncoesController::formatDateBrtoEn($request->data_inicial),
@@ -545,7 +540,6 @@ class RelatorioAlunoController extends Controller
                 $query->whereRaw($this->whereConteudoRod($idAnoFormacao, true))->where('cancelado', 'N');
             })->groupBy('alunos.id')->get();
         } else {
-
             return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
                                         FROM alunos
                                         INNER JOIN lancamento_fo ON (lancamento_fo.aluno_id = alunos.id)
@@ -556,7 +550,7 @@ class RelatorioAlunoController extends Controller
                                         GROUP BY alunos.id");
         }
     }
-    
+
     private function whereConteudoRod($idAnoFormacao, $esa = false)
     {
         $parametros = Parametros::where('ano_formacao_id', $idAnoFormacao)->first();
@@ -644,14 +638,12 @@ class RelatorioAlunoController extends Controller
         $conteudoAtitudinal = ConteudoAtitudinal::all();
 
         if ($request->relacao == 'excel') {
-
             return view('relatorios.relacao-ficha-registro-acompanhamento-discente', compact('alunos', 'anoFormacao', 'conteudoAtitudinal'))->with('relacao', $request->relacao);
         } else {
             $pdf = new PDF('L');
             $pdf->SetAutoPageBreak(false);
 
             foreach ($alunos as $key) {
-
                 $aluno = Alunos::find($key->id);
 
                 //Carrega os Lancamentos de FO
@@ -800,7 +792,6 @@ class RelatorioAlunoController extends Controller
 
         dd($lancamentos);*/
         foreach ($alunos as $key) {
-
             $aluno = Alunos::find($key->id);
 
             $pdf->setAluno($aluno);
@@ -864,7 +855,6 @@ class RelatorioAlunoController extends Controller
             $pdf->SetXY(200, $pdf->getHorizontal());
 
             foreach ($conteudoAtitudinal as $conteudo) {
-
                 if ($pdf->getY() > 160) {
                     $pdf->AddPage();
                 }
@@ -889,7 +879,6 @@ class RelatorioAlunoController extends Controller
 
                 foreach ($aluno->lancamento_fo as $lancamento) {
                     if (in_array($conteudo->id, json_decode($lancamento->conteudo_atitudinal))) {
-
                         if ($pdf->getY() > 180) {
                             $pdf->AddPage();
                         }
@@ -1058,7 +1047,6 @@ class RelatorioAlunoController extends Controller
         }
 
         if ($request->relacao == 'excel') {
-
             foreach ($alunos as $key) {
                 $fatds = Fatd::whereHas('lancamentoFo', function ($query) use ($key) {
                     $query->where(['aluno_id' => $key->id]);
@@ -1075,7 +1063,6 @@ class RelatorioAlunoController extends Controller
             //$pdf->SetMargins();
 
             foreach ($alunos as $key) {
-
                 //$aluno = Alunos::find($key->id);
 
                 $fatds = Fatd::whereHas('lancamentoFo', function ($query) use ($key) {
@@ -1163,7 +1150,6 @@ class RelatorioAlunoController extends Controller
                 $pdf->SetAligns(array('C', 'L', 'C', 'C', 'L', 'L', 'C'));
 
                 foreach ($fatds as $fatd) {
-
                     $justificado = (($fatd->justificado == 'N') ? 'Não' : (($fatd->justificado == 'S') ? 'Sim' : null));
 
                     $pdf->Row(array(
@@ -1211,7 +1197,6 @@ class RelatorioAlunoController extends Controller
                 $pdf->WriteHTML('<p align="center">' . strtoupper(utf8_decode(trim($aluno->nome_completo))) . ' - Aluno(a) CFGS/' . $aluno->ano_formacao->ano_cfs . '</p>');
                 //$pdf->SetXY(0, 300); //275
                 //$pdf->WriteHTML('<b><p align="center">Arrolado(a)</p></b>');
-
             }
 
             //$pdffooter = new PDF_Footer();
@@ -1231,7 +1216,8 @@ class RelatorioAlunoController extends Controller
 
         if (isset($alunos)) {
             return $alunos->whereHas('lancamento_fo', function ($query) {
-                $query->whereHas('fatdLancada', function ($query2) {});
+                $query->whereHas('fatdLancada', function ($query2) {
+                });
             })->groupBy('alunos.id')->orderBy('alunos.numero')->get();
         } else {
             return DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra, alunos.nome_completo, alunos.data_matricula 
@@ -1325,7 +1311,6 @@ class RelatorioAlunoController extends Controller
         })->orderBy('nota_final', 'desc')->get();
 
         foreach ($alunosClassificacao as $nota) {
-
             $notas_array[] = '' . $nota->nota_final . '';
             $notas_data_array[$nota->aluno_id] = array(
                 "NPB" => $nota->nota_final,
@@ -1434,7 +1419,6 @@ class RelatorioAlunoController extends Controller
         }
 
         foreach ($alunos as $key) {
-
             $fatds = Fatd::where($where)->whereHas('lancamentoFo', function ($query) use ($key) {
                 $query->where(['aluno_id' => $key->id]);
             })->with('lancamentoFo')->get();

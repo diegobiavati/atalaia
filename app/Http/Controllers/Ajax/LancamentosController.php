@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\Validator;
 
 class LancamentosController extends Controller
 {
-
     protected $_ownauthcontroller;
 
     public function __construct(OwnAuthController $ownauthcontroller)
@@ -66,7 +65,7 @@ class LancamentosController extends Controller
         } else {
             $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
         }*/
-        
+
         $lancamentoFo = LancamentoFo::find($id);
         $ano_formacao = $lancamentoFo->aluno->data_matricula;
 
@@ -80,28 +79,26 @@ class LancamentosController extends Controller
         //$funcaoOperador = session()->get('login.perfil');
 
         $readOnly = 'readOnly';
-        if(session()->get('login.omctID') || !isset($lancamentoFo->aluno->turma_esa_id)){
+        if (session()->get('login.omctID') || !isset($lancamentoFo->aluno->turma_esa_id)) {
             $uetes = array($lancamentoFo->aluno->omct);
 
             $turmas = array($lancamentoFo->aluno->turma);
 
             return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly', 'napds'))
             ->with('ownauthcontroller', $this->_ownauthcontroller);
-        }else{
+        } else {
             $cursos = array($lancamentoFo->aluno->qms);
 
             $turmas = array($lancamentoFo->aluno->turmaEsa);
 
-            if(isset($lancamentoFo->aluno->turmaEsa)){
+            if (isset($lancamentoFo->aluno->turmaEsa)) {
                 return view('lancamentos.lancamentoFatoObservado', compact('cursos', 'conteudoAtitudinal', 'turmas', 'rotaTurma', 'lancamentoFo', 'ano_formacao', 'readOnly', 'napds'))
                 ->with('ownauthcontroller', $this->_ownauthcontroller);
-            }else{
+            } else {
                 $mensagem = 'Selecione a Turma do Aluno no Período ESA';
                 return view('ajax.erros.view-erro-padrao-centralizado', compact('mensagem'));
             }
-            
         }
-
     }
 
     /**
@@ -124,39 +121,38 @@ class LancamentosController extends Controller
         }*/
         //$lancamentoFo = LancamentoFo::find($id);
 
-        if(isset($request->napd)){
+        if (isset($request->napd)) {
             $lancamentoFo = LancamentoFo::find($id);
 
             $lancamentoFo->update(['napd_id' => $request->napd]);
         }
 
         //Se for cancelamento de FO
-        if(isset($request->textAreaCancelamento)){
+        if (isset($request->textAreaCancelamento)) {
             if ($this->CancelarFO($request, $id)) {
                 $retorno['status'] = 'success';
                 $retorno['response'] = 'Cancelamento de FO Efetuado Com Sucesso.';
-            }else{
+            } else {
                 $retorno['status'] = 'err';
                 $retorno['response'] = 'Erro ao Tentar Cancelar FO.';
             }
-        }else{
-
-            if($request->textAreaProvidencias == null){
+        } else {
+            if ($request->textAreaProvidencias == null) {
                 $retorno['status'] = 'err';
                 $retorno['response'] = 'Informe a Providência.';
-    
+
                 return response()->json($retorno);
             }
-            
+
             if ($this->LancarProvidencia($request, $id)) {
                 $retorno['status'] = 'success';
                 $retorno['response'] = 'Providência Lançada Com Sucesso.';
-            }else{
+            } else {
                 $retorno['status'] = 'err';
                 $retorno['response'] = 'Usuário sem Previlégios.';
             }
         }
-    
+
         return response()->json($retorno);
     }
 
@@ -176,7 +172,7 @@ class LancamentosController extends Controller
         }
 
         $dataFO = (is_null($request->dataFO) ? date('Y/m/d') : date('Y/m/d', strtotime($request->dataFO)));
-        
+
         $listaAtitudinal = [];
         $listaAlunos = [];
         foreach ($request->all() as $parametros => $value) {
@@ -187,25 +183,25 @@ class LancamentosController extends Controller
             }
         }
 
-        if(session()->get('login.qmsID')){
+        if (session()->get('login.qmsID')) {
             $comandanteCurso = QMS::find($request->qmsID)->comandanteCurso;
-        }else{
+        } else {
             $operadoresAtivos = Operadores::where([['omcts_id', '=', $request->omctID], ['ativo', '=', 'S']])->get();
-            
-            foreach($operadoresAtivos as $operador){
+
+            foreach ($operadoresAtivos as $operador) {
                 $funcaoOperador = explode(',', $operador->id_funcao_operador);
 
-                if(in_array(2, $funcaoOperador)){
+                if (in_array(2, $funcaoOperador)) {
                     $comandanteCurso = $operador;
                     break;
                 }
             }
         }
 
-        if(!isset($comandanteCurso)){
+        if (!isset($comandanteCurso)) {
             $retorno['status'] = 'err';
             $retorno['response'] = session()->get('login.qmsID') ? 'Cadastre o CMT de Curso no Sistema.' : 'Cadastre o CMT de UETE no Sistema.';
-        }else{
+        } else {
             $invalidaOperacao = false;
             foreach ($listaAlunos as $idAluno) {
                 $lancamentoFo = new LancamentoFo();
@@ -214,25 +210,25 @@ class LancamentosController extends Controller
                 $lancamentoFo->tipo = $request->radioTipoFO;
                 $lancamentoFo->observacao = $request->textAreaObservacaoFO;
                 $lancamentoFo->comandante_operador_id = $comandanteCurso->id;
-    
+
                 //if($request->textAreaProvidencias != null && $this->_ownauthcontroller->PerfilCheck([2,9001])){
-                if($request->textAreaProvidencias != null){
+                if ($request->textAreaProvidencias != null) {
                     $lancamentoFo->providencia = $request->textAreaProvidencias;
                     $lancamentoFo->frad = 'S';
                 }
-    
+
                 $lancamentoFo->data_obs = $dataFO;
                 $lancamentoFo->napd_id = $request->napd;
-    
+
                 $lancamentoFo->conteudo_atitudinal = json_encode($listaAtitudinal);
-    
+
                 if (!$lancamentoFo->save()) {
                     $invalidaOperacao = true;
                 } else {
                     $this->LancarProvidencia($request, $lancamentoFo->id);
                 }
             }
-    
+
             if (!$invalidaOperacao) {
                 $retorno['status'] = 'success';
                 $retorno['response'] = 'Fato Observado Registrado.';
@@ -240,7 +236,7 @@ class LancamentosController extends Controller
                 $retorno['response'] = 'Ocorreu um Erro Ao Salvar o Registro!!';
             }
         }
-        
+
         return response()->json($retorno);
     }
 
@@ -252,15 +248,15 @@ class LancamentosController extends Controller
      */
     public function show($id)
     {
-        
-        if(!session()->has('login.qmsID')){
+
+        if (!session()->has('login.qmsID')) {
             if ($this->_ownauthcontroller->PermissaoCheck(1)) {
                 $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
             } else {
                 $uetes = OMCT::where('id', session()->get('login.omctID'))->get();
             }
         }
-        
+
         //Registra o Observador na Sessão
         $operadores = Operadores::find(session()->get('login.operadorID'));
 
@@ -272,8 +268,8 @@ class LancamentosController extends Controller
             switch ($explode[0]) {
                 case 'lancarFO':
                     $readOnly = null;
-                    
-                    if(count($explode) == 1){
+
+                    if (count($explode) == 1) {
                         return view('lancamentos.lancamentoSelecaoAno');
                     }
 
@@ -286,16 +282,16 @@ class LancamentosController extends Controller
                     $funcaoOperador = explode(',', $operadores->id_funcao_operador);
                     // Busca operadores para o select de Observador (perfil SGTE)
                     $operadoresObservador = Operadores::where('ativo', 'S')
-                    ->when(session()->has('login.qmsID'), function($query) {
-                    $query->whereNotNull('qms_matriz_id');
-                    }, function($query) {
-                    $query->where('omcts_id', session()->get('login.omctID'));
+                    ->when(session()->has('login.qmsID'), function ($query) {
+                        $query->whereNotNull('qms_matriz_id');
+                    }, function ($query) {
+                        $query->where('omcts_id', session()->get('login.omctID'));
                     })
                         ->with('posto')
                         ->orderBy('nome_guerra')
                         ->get();
 
-                    if(session()->has('login.qmsID')){
+                    if (session()->has('login.qmsID')) {
                         //$cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
                         $qmsMatriz = array(1, 2, 3, 4, 5);
                         $cursos = QMS::whereIn('qms_matriz_id', $qmsMatriz)->whereHas('escolhaQms', function ($q) use ($explode) {
@@ -309,47 +305,46 @@ class LancamentosController extends Controller
                     return view('lancamentos.lancamentoFatoObservado', compact('uetes', 'conteudoAtitudinal', 'rotaTurma', 'funcaoOperador', 'readOnly', 'operadoresObservador'))
                         ->with('ownauthcontroller', $this->_ownauthcontroller);
                 case 'viewConsultarFO':
-
                     $rotaConsulta = '/ajax/listaFatosObservados';
                     $rotaConsultaCia = '/gaviao/ajax/carregaSelectCurso';
 
-                    if(count($explode) == 1){
+                    if (count($explode) == 1) {
                         return view('lancamentos.lancamentoConsultaFOSelecaoAno');
                     }
 
-                    if(session()->has('login.qmsID')){
+                    if (session()->has('login.qmsID')) {
                         $anoFormacao = AnoFormacao::find($explode[1]);
                         $alunos = Alunos::retornaAlunosComQmsESA($anoFormacao->id);
-                        
-                        if($alunos->isEmpty()){
+
+                        if ($alunos->isEmpty()) {
                             $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
 
                             return view('lancamentos.lancamentoConsultaFO', compact('uetes', 'rotaConsulta', 'rotaConsultaCia'))->with('ownauthcontroller', $this->_ownauthcontroller);
                         }
 
                         $cursos = FuncoesController::retornaCursoPerfilAnoFormacao($anoFormacao);
-                        
+
                         return view('lancamentos.lancamentoConsultaFO', compact('cursos', 'rotaConsulta', 'rotaConsultaCia'))->with('ownauthcontroller', $this->_ownauthcontroller);
                     }
 
                     return view('lancamentos.lancamentoConsultaFO', compact('uetes', 'rotaConsulta', 'rotaConsultaCia'))->with('ownauthcontroller', $this->_ownauthcontroller);
                 case 'viewConsultarFATD':
-                    if(count($explode) == 1){
+                    if (count($explode) == 1) {
                         return view('lancamentos.lancamentoConsultaFATDSelecaoAno');
                     }
 
-                    if(session()->has('login.qmsID')){
+                    if (session()->has('login.qmsID')) {
                         $anoFormacao = AnoFormacao::find($explode[1]);
                         $alunos = Alunos::retornaAlunosComQmsESA($anoFormacao->id);
 
-                        if($alunos->isEmpty()){
+                        if ($alunos->isEmpty()) {
                             $uetes = OMCT::where('id', '<>', 1)->get(); //Remove a ESA
 
                             return view('lancamentos.lancamentoConsultaFATD', compact('uetes'))->with('ownauthcontroller', $this->_ownauthcontroller);
                         }
 
                         $cursos = FuncoesController::retornaCursoPerfilAnoFormacao(AnoFormacao::find($explode[1]));
-                        
+
                         return view('lancamentos.lancamentoConsultaFATD', compact('cursos'))->with('ownauthcontroller', $this->_ownauthcontroller);
                     }
 
@@ -364,21 +359,20 @@ class LancamentosController extends Controller
             return;
         }
 
-        if(isset($request->qmsID)){
+        if (isset($request->qmsID)) {
             $turmas = TurmasEsa::whereHas('alunos', function ($query) use ($request) {
                 //$query->where(['qms_id' => $request->qmsID, 'data_matricula' => $request->anoFormacaoID]);
                 $anoFormacaoID = $request->anoFormacaoID;
-                $query->where(['qms_id' => $request->qmsID])->where(function($query) use ($anoFormacaoID){
+                $query->where(['qms_id' => $request->qmsID])->where(function ($query) use ($anoFormacaoID) {
                     return $query->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
                 });
-
             })->get();
-        }else{
+        } else {
             $turmas = TurmasPB::whereHas('alunos', function ($query) use ($request) {
                 $query->where(['omcts_id' => $request->omctID, 'data_matricula' => $request->anoFormacaoID]);
             })->get();
         }
-        
+
         return view('lancamentos.lancamentoConsultaTurma', compact('turmas'));
     }
 
@@ -389,18 +383,16 @@ class LancamentosController extends Controller
             return;
         }
 
-        if($request->qmsID != 'undefined'){
-            
+        if ($request->qmsID != 'undefined') {
             $anoFormacaoID = $request->anoFormacaoID;
             $alunosTurma = Alunos::join('turmas_esa', 'alunos.turma_esa_id', '=', 'turmas_esa.id')
-            ->where(function($query) use ($anoFormacaoID){
+            ->where(function ($query) use ($anoFormacaoID) {
                 return $query->where([['data_matricula', '=', $anoFormacaoID]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacaoID]]);
             })
             ->where([['alunos.qms_id', '=', $request->qmsID], ['alunos.turma_esa_id', '=', $request->turmaID]])
             ->select(['alunos.id', 'alunos.numero', 'alunos.nome_guerra', 'turmas_esa.id as turmas_id', 'turmas_esa.turma'])
             ->get();
-
-        }else{
+        } else {
             $alunosTurma = DB::select("SELECT alunos.id, alunos.numero, alunos.nome_guerra
             , omcts.id AS omct_id, omcts.sigla_omct, omcts.omct, omcts.gu
             , turmas_pb.id AS turmas_id, turmas_pb.turma
@@ -411,7 +403,7 @@ class LancamentosController extends Controller
                 AND alunos.omcts_id = $request->omctID
                 AND alunos.turma_id = $request->turmaID");
         }
-        
+
         return view('lancamentos.lancamentoAlunosFO', compact('alunosTurma'));
     }
 
@@ -423,24 +415,24 @@ class LancamentosController extends Controller
         }
 
         if (!isset($request->omctID) && !isset($request->qmsID)) {
-            if(session()->get('login.qmsID')){
+            if (session()->get('login.qmsID')) {
                 return '<font style="color:red;font-size:14px;">Selecione um Curso</font>';
             }
             return '<font style="color:red;font-size:14px;">Selecione uma UETE</font>';
         }
 
         $anoFormacao = AnoFormacao::find($request->ano_formacao);
-        $dataFim = $anoFormacao->ano_per_basico.'-12-31';
+        $dataFim = $anoFormacao->ano_per_basico . '-12-31';
 
-        if(isset($request->omctID)){
+        if (isset($request->omctID)) {
             $whereUeteCurso = ((isset($request->omctID) && $request->omctID <> 'todas_omct') ? " AND alunos.omcts_id = $request->omctID AND lancamento_fo.data_obs BETWEEN '$anoFormacao->data_matricula' AND '$dataFim'" : null);
-        }else{
+        } else {
             $whereUeteCurso = ((isset($request->qmsID) && $request->qmsID <> 'todas_qmss') ? " AND alunos.qms_id = $request->qmsID" : null);
 
-            if(isset($request->cia)){
-                if($request->cia == 1){
+            if (isset($request->cia)) {
+                if ($request->cia == 1) {
                     $whereUeteCurso .= " AND turmas_esa.turma IN ('I1', 'I2', 'I3')";//Turma I1, I2, I3
-                }else if($request->cia == 2){
+                } elseif ($request->cia == 2) {
                     $whereUeteCurso .= " AND turmas_esa.turma IN ('I4', 'I5', 'I6')";//Turma I4, I5, I6
                 }
             }
@@ -450,23 +442,23 @@ class LancamentosController extends Controller
         $whereNomeGuerra = (isset($request->nome_aluno) ? " AND alunos.nome_guerra LIKE '%$request->nome_aluno%'" : null);
 
         $whereOpcaoRel = ' ';
-        if(isset($request->opcaoRel)){
-            switch($request->opcaoRel){
+        if (isset($request->opcaoRel)) {
+            switch ($request->opcaoRel) {
                 case 1://Listar Todos
                     $whereOpcaoRel = $whereOpcaoRel;
-                break;
+                    break;
                 case 2://Listar Resolvidos
                     $whereOpcaoRel = ' AND lancamento_fo.providencia IS NOT NULL AND lancamento_fo.cancelado = \'N\'';
-                break;
+                    break;
                 case 3://Listar Resolvidos Com FATD
                     $whereOpcaoRel = " AND lancamento_fo.fatd = 'S' AND lancamento_fo.cancelado = 'N'";
-                break;
+                    break;
                 case 4://Listar Não Resolvidos
                     $whereOpcaoRel = ' AND lancamento_fo.providencia IS NULL AND lancamento_fo.cancelado = \'N\'';
-                break;
+                    break;
                 case 5://Listar Canceladas
                     $whereOpcaoRel = ' AND lancamento_fo.cancelado = \'S\'';
-                break;
+                    break;
             }
         }
 
@@ -477,9 +469,9 @@ class LancamentosController extends Controller
                                         INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
                                         LEFT JOIN qms ON (qms.id = alunos.qms_id)
                                         LEFT JOIN turmas_esa ON (turmas_esa.id = alunos.turma_esa_id)
-                                        WHERE (alunos.data_matricula = $anoFormacao->id OR alunos.ano_formacao_reintegr_id = $anoFormacao->id)" . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra. $whereOpcaoRel
+                                        WHERE (alunos.data_matricula = $anoFormacao->id OR alunos.ano_formacao_reintegr_id = $anoFormacao->id)" . $whereUeteCurso . $whereNumeroAluno . $whereNomeGuerra . $whereOpcaoRel
                                         . 'ORDER BY lancamento_fo.data_obs DESC');
-        
+
         return view('lancamentos.lancamentoListaFatosObservados', compact('lancamentoFO'))->with('relacao', $request->relacao);
     }
 
@@ -491,7 +483,7 @@ class LancamentosController extends Controller
         }
 
         if (!isset($request->omctID) && !isset($request->qmsID)) {
-            if(session()->get('login.qmsID')){
+            if (session()->get('login.qmsID')) {
                 return '<font style="color:red;font-size:14px;">Selecione um Curso</font>';
             }
             return '<font style="color:red;font-size:14px;">Selecione uma UETE</font>';
@@ -504,11 +496,11 @@ class LancamentosController extends Controller
 
             $where = array();
 
-            if(isset($request->omctID)){
+            if (isset($request->omctID)) {
                 if (($request->omctID <> 'todas_omct')) {
                     $where['omcts_id'] = $request->omctID;
                 }
-            }else{
+            } else {
                 if (($request->qmsID <> 'todas_qmss')) {
                     $where['qms_id'] = $request->qmsID;
                 }
@@ -522,10 +514,9 @@ class LancamentosController extends Controller
                 $where[] = array('nome_completo', 'like', '%' . $request->nome_aluno . '%');
             }
 
-            $query->where(function($query) use($anoFormacao){
+            $query->where(function ($query) use ($anoFormacao) {
                 return $query->where([['data_matricula', '=', $anoFormacao->id]])->orWhere([['ano_formacao_reintegr_id', '=', $anoFormacao->id]]);
             })->where($where);
-
         })->orderByDesc('data_obs')->whereHas('fatdLancada', function ($query) {
             $query->whereNotNull('lancamento_fo_id');
         })->get();
@@ -567,27 +558,26 @@ class LancamentosController extends Controller
 
         $fatd = Fatd::where(['lancamento_fo_id' => $request->fatdID])->with('lancamentoFo')->first();
 
-        if(isset($fatd->lancamentoFo->comandante_operador_id)){
+        if (isset($fatd->lancamentoFo->comandante_operador_id)) {
             $comandanteCurso = $fatd->lancamentoFo->comandanteCurso;
-        }else{
-            if(session()->get('login.qmsID')){
+        } else {
+            if (session()->get('login.qmsID')) {
                 $comandanteCurso = QMS::find($fatd->lancamentoFo->aluno->qms_id)->comandanteCurso;
-            }else{
+            } else {
                 //$comandanteCurso = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['id_funcao_operador', '=', '2'], ['ativo', '=', 'S']])->first();
                 $operadoresAtivos = Operadores::where([['omcts_id', '=', $fatd->lancamentoFo->aluno->omcts_id], ['ativo', '=', 'S']])->get();
-    
-                foreach($operadoresAtivos as $operador){
+
+                foreach ($operadoresAtivos as $operador) {
                     $funcaoOperador = explode(',', $operador->id_funcao_operador);
-    
-                    if(in_array(2, $funcaoOperador)){
+
+                    if (in_array(2, $funcaoOperador)) {
                         $comandanteCurso = $operador;
                         break;
                     }
                 }
-    
             }
         }
-        
+
         $pdf = new PDF();
         $pdf->SetAutoPageBreak(false);
         $pdf->AddPage();
@@ -605,9 +595,9 @@ class LancamentosController extends Controller
         //Cria a Borda
         $pdf->Rect(10, 10, 190, 278);
 
-        if(session()->get('login.qmsID')){
-            $pdf->Cell(0, 4, utf8_decode('Curso de '.$fatd->lancamentoFo->aluno->qms->qms), 0, 1, 'C', false);
-        }else{
+        if (session()->get('login.qmsID')) {
+            $pdf->Cell(0, 4, utf8_decode('Curso de ' . $fatd->lancamentoFo->aluno->qms->qms), 0, 1, 'C', false);
+        } else {
             $pdf->Cell(0, 4, utf8_decode($fatd->lancamentoFo->aluno->omct->omct), 0, 1, 'C', false);
         }
 
@@ -634,7 +624,7 @@ class LancamentosController extends Controller
         $pdf->SetXY(10, 60);
         $pdf->Cell(0, 5, utf8_decode('Grau hierárquico: Aluno CFGS'), 0, 1, 'L', false);
 
-        $pdf->WriteHTML(utf8_decode('Nrº / Nome: ' .$fatd->lancamentoFo->aluno->numero.' - '. str_replace($fatd->lancamentoFo->aluno->nome_guerra, '<b>' . $fatd->lancamentoFo->aluno->nome_guerra . '</b>', $fatd->lancamentoFo->aluno->nome_completo)));
+        $pdf->WriteHTML(utf8_decode('Nrº / Nome: ' . $fatd->lancamentoFo->aluno->numero . ' - ' . str_replace($fatd->lancamentoFo->aluno->nome_guerra, '<b>' . $fatd->lancamentoFo->aluno->nome_guerra . '</b>', $fatd->lancamentoFo->aluno->nome_completo)));
         $pdf->SetXY(145, 65);
         $pdf->Cell(0, 5, 'Nr / Idt ' . $fatd->lancamentoFo->aluno->doc_idt_militar . ' ' . $fatd->lancamentoFo->aluno->doc_idt_militar_o_exp, 0, 1, 'L', false);
         $pdf->Line(10, 75, 200, 75);
@@ -650,10 +640,10 @@ class LancamentosController extends Controller
         //$pdf->Cell(145, 0, 'Nome Completo: '.utf8_decode($fatd->lancamentoFo->operador->nome), 0, 1, 'L', false);
         $pdf->SetXY(145, 93);
         $pdf->Cell(0, 0, 'Nr / Idt ' . $fatd->lancamentoFo->operador->idt_militar . ' ' . $fatd->lancamentoFo->operador->idt_militar_o_exp, 0, 1, 'L', false);
-        
-        $pdf->Cell(0, 8, 'Subunidade/OM: ' . utf8_decode((isset($fatd->lancamentoFo->operador->omcts) 
-        ? $fatd->lancamentoFo->operador->omcts->sigla_omct 
-        : $fatd->lancamentoFo->operador->qms->qms_sigla)) , 0, 1, 'L', false);
+
+        $pdf->Cell(0, 8, 'Subunidade/OM: ' . utf8_decode((isset($fatd->lancamentoFo->operador->omcts)
+        ? $fatd->lancamentoFo->operador->omcts->sigla_omct
+        : $fatd->lancamentoFo->operador->qms->qms_sigla)), 0, 1, 'L', false);
 
         $pdf->Line(10, 105, 200, 105);
 
@@ -662,17 +652,17 @@ class LancamentosController extends Controller
         $pdf->Cell(0, 4, utf8_decode('RELATO DO FATO'), 0, 1, 'C', false);
 
         $pdf->SetFont('Times', '', 10);
-        
-        
+
+
         $dataFormatada = date('d/m/Y', strtotime($fatd->lancamentoFo->data_obs));
-        
-       
+
+
         $pdf->WriteHTML(utf8_decode('<b>Data do Fato:</b> ' . $dataFormatada));
-        
-       
+
+
         $pdf->Ln(5);
-        
-        
+
+
         $pdf->WriteHTML(utf8_decode($fatd->lancamentoFo->observacao));
 
         /*$pdf->SetFont('Times', 'B', 12);
@@ -683,8 +673,8 @@ class LancamentosController extends Controller
         $pdf->WriteHTML(utf8_decode($fatd->lancamentoFo->observacao));*/
 
         $pdf->SetXY(10, 190);
-        
-        $guarnicao = explode('-', (isset($fatd->lancamentoFo->operador->omcts) ? $fatd->lancamentoFo->operador->omcts->gu : $fatd->lancamentoFo->operador->qms->gu) );
+
+        $guarnicao = explode('-', (isset($fatd->lancamentoFo->operador->omcts) ? $fatd->lancamentoFo->operador->omcts->gu : $fatd->lancamentoFo->operador->qms->gu));
 
         $pdf->Cell(0, 4, utf8_decode($guarnicao[0] . ', ' . $guarnicao[1] . strftime(', ____ de ____________________________ de %Y', strtotime($fatd->lancamentoFo->data_obs))), 0, 1, 'C', false);
         $pdf->Ln(10);
@@ -779,7 +769,7 @@ class LancamentosController extends Controller
         exit();
     }
 
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -795,7 +785,7 @@ class LancamentosController extends Controller
     private function LancarProvidencia(Request $request, $id)
     {
 
-        if($this->_ownauthcontroller->PerfilCheck([1,2,9001,9999])){
+        if ($this->_ownauthcontroller->PerfilCheck([1,2,9001,9999])) {
             $providencia = $request->textAreaProvidencias;
             $fatd = ((isset($request->btnPunir) && $request->btnPunir == 'Fatd') ? 'S' : 'N');
             $frad = ((isset($request->btnPunir) && $request->btnPunir == 'Frad') ? 'S' : 'N');
@@ -808,27 +798,26 @@ class LancamentosController extends Controller
             }
 
             return ($lancamentoFo->update(['providencia' => $providencia, 'fatd' => $fatd, 'frad' => $frad]));
-        }else{
+        } else {
             return false;
         }
-        
     }
 
     private function LancarFatd(LancamentoFo $lancamentoFo)
     {
 
-        if(session()->get('login.qmsID')){
+        if (session()->get('login.qmsID')) {
             $where = 'INNER JOIN qms ON (qms.id = alunos.qms_id)
             WHERE qms.id = ' . $lancamentoFo->aluno->qms_id;
-        }else{
+        } else {
             $where = 'INNER JOIN omcts ON (omcts.id = alunos.omcts_id)
-            WHERE omcts.id = ' . $lancamentoFo->aluno->omcts_id. ' AND alunos.data_matricula = '.$lancamentoFo->aluno->data_matricula;
+            WHERE omcts.id = ' . $lancamentoFo->aluno->omcts_id . ' AND alunos.data_matricula = ' . $lancamentoFo->aluno->data_matricula;
         }
         //Verificar o último processo da uete
         $processo = DB::select('SELECT fatd.nr_processo, fatd.ano, lancamento_fo.id, lancamento_fo.fatd FROM lancamento_fo
                             LEFT JOIN fatd ON (fatd.lancamento_fo_id = lancamento_fo.id)
                             INNER JOIN alunos ON (alunos.id = lancamento_fo.aluno_id)
-                            '.$where.'
+                            ' . $where . '
                             AND fatd.ano = ' . date('Y') . '
                             ORDER BY fatd.nr_processo DESC limit 1');
 
@@ -843,9 +832,9 @@ class LancamentosController extends Controller
 
     private function ExcluirFatd(LancamentoFo $lancamentoFo)
     {
-        if(isset($lancamentoFo->fatdLancada)){
+        if (isset($lancamentoFo->fatdLancada)) {
             return $lancamentoFo->fatdLancada->delete();
-        }else{
+        } else {
             return true;
         }
     }
@@ -883,10 +872,9 @@ class LancamentosController extends Controller
             $fatd->justificado = isset($request->justificado) ? $request->justificado : $fatd->justificado;
 
             if ($fatd->justificado == 'N') {
-                
                 $fatd->enquadramento_id = $request->enquadramento_id;
                 $fatd->enquadramento = $request->enquadramento;
-                $fatd->bi_desc = $request->bi_desc . ' do ' . (session()->has('login.omctID') ? $fatd->lancamentoFo->aluno->omct->sigla_omct : 'Curso de '.$fatd->lancamentoFo->aluno->qms->qms) ;
+                $fatd->bi_desc = $request->bi_desc . ' do ' . (session()->has('login.omctID') ? $fatd->lancamentoFo->aluno->omct->sigla_omct : 'Curso de ' . $fatd->lancamentoFo->aluno->qms->qms) ;
                 $fatd->dt_bi = FuncoesController::formatDateBrtoEn($request->dt_bi);
                 $fatd->nr_dias = $request->nr_dias;
                 $fatd->comportamento_id = $request->comportamento_id;
@@ -910,20 +898,19 @@ class LancamentosController extends Controller
     function CancelarFO(Request $request, $id)
     {
         //Se perfil sargenteante deixa cancelar...
-        if($this->_ownauthcontroller->PerfilCheck([4, 9002])){
-
+        if ($this->_ownauthcontroller->PerfilCheck([4, 9002])) {
             $lancamentoFO = LancamentoFo::find($id);
 
-            if($lancamentoFO->cancelado == 'N' && !isset($lancamentoFO->cancelado_operador_id)){
-                if($this->ExcluirFatd($lancamentoFO)){
+            if ($lancamentoFO->cancelado == 'N' && !isset($lancamentoFO->cancelado_operador_id)) {
+                if ($this->ExcluirFatd($lancamentoFO)) {
                     return ($lancamentoFO->update(['cancelado_motivo' => $request->textAreaCancelamento, 'cancelado' => 'S', 'cancelado_operador_id' => session()->get('login.operadorID')]));
-                }else{
+                } else {
                     false;
                 }
-            }else{
+            } else {
                 return false;
             }
-        }else{
+        } else {
             return false;
         }
     }
@@ -940,7 +927,7 @@ class LancamentosController extends Controller
         foreach($lancamentoFO as $lancamento){
 
             $comandanteCurso = QMS::find($lancamento->aluno->qms_id)->comandanteCurso;
-            
+
             if(isset($comandanteCurso)){
                 $lancamento->comandante_operador_id = $comandanteCurso->id;
 
@@ -948,7 +935,7 @@ class LancamentosController extends Controller
             }else{
                 dd($comandanteCurso, $lancamento->aluno, $lancamento->aluno->qms);
             }
-            
+
         }
     }*/
 }

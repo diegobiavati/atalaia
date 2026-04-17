@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ControllerDisciplinas extends Controller
 {
-
     private $_ownauthcontroller = null;
     private $_request = null;
 
@@ -96,7 +95,7 @@ class ControllerDisciplinas extends Controller
         $retorno = array('status' => 'err', 'response' => []);
 
         $disciplinas = EsaDisciplinas::whereIn('id', $this->_request->disciplinas)->get();
-        
+
         if ($disciplinas->count() > 0) {
             $cursoSelecionado = $this->_request->cursoSelecionado;
             // Filtrando apenas os registros que não existem
@@ -161,8 +160,7 @@ class ControllerDisciplinas extends Controller
             if ($validador->fails()) {
                 $retorno['response'] = $validador->errors()->all();
             } else {
-
-                $esaDisciplinas = new EsaDisciplinas;
+                $esaDisciplinas = new EsaDisciplinas();
                 $esaDisciplinas->fill(
                     [
                         'id_qms' => $this->_request->qmsID,
@@ -191,7 +189,6 @@ class ControllerDisciplinas extends Controller
         $retorno['response'] = [];
 
         if ($this->_ownauthcontroller->PermissaoCheck([34])) {
-
             $esaDisciplinas = EsaDisciplinas::find($id);
 
             if ($esaDisciplinas->delete()) {
@@ -211,7 +208,6 @@ class ControllerDisciplinas extends Controller
     public function show($id)
     {
         if ($this->_ownauthcontroller->PermissaoCheck([34])) {
-
             $esaDisciplinas = EsaDisciplinas::find($id);
             $cursoSelecionado = $esaDisciplinas->qms;
 
@@ -229,7 +225,6 @@ class ControllerDisciplinas extends Controller
         $retorno['response'] = [];
 
         if ($this->_ownauthcontroller->PermissaoCheck([34])) {
-
             $validador = $this->validaRequest();
 
             if ($validador->fails()) {
@@ -273,8 +268,8 @@ class ControllerDisciplinas extends Controller
             $this->_request->all(),
             [
                 'qmsID' => 'required|numeric|exists:qms,id',
-                'nome_disciplina' => ['required', new Uppercase],
-                'nome_disciplina_abrev' => ['required', new Uppercase],
+                'nome_disciplina' => ['required', new Uppercase()],
+                'nome_disciplina_abrev' => ['required', new Uppercase()],
                 'carga_horaria' => 'required|numeric',
                 'tipo_disciplina' => 'required'
             ],

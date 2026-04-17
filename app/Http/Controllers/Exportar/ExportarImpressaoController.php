@@ -14,7 +14,8 @@ use App\Models\TafConfiguracoes;
 
 class ExportarImpressaoController extends Controller
 {
-    public function ImprimirPortaria(Request $request){
+    public function ImprimirPortaria(Request $request)
+    {
         return view('exportar.portaria_taf')->with('id', $request->id);
     }
 }

@@ -27,6 +27,40 @@ O sistema utiliza dois bancos de dados distintos para isolar a gestão administr
 1.  **Banco `atalaia` (Conexão: `mysql`):** Dados de alunos, operadores, unidades (OMCT) e histórico básico.
 2.  **Banco `ssaa` (Conexão: `mysql_ssaa`):** Módulo Gavião, incluindo disciplinas do período de qualificação, índices de provas e GBO.
 
+## 🛠 Qualidade de Código e Testes
+
+O projeto utiliza automação para garantir que apenas código validado seja versionado.
+
+### Ferramentas Utilizadas:
+*   **PHPUnit**: Testes de feature e unitários.
+*   **PHP_CodeSniffer**: Linter seguindo o padrão PSR-12.
+*   **PHPStan**: Análise estática de código (Nível 1).
+
+### Como rodar manualmente:
+```bash
+# Linter
+docker exec -it atalaia-app ./vendor/bin/phpcs
+
+# Análise Estática
+docker exec -it atalaia-app ./vendor/bin/phpstan analyze
+
+# Testes
+docker exec -it atalaia-app ./vendor/bin/phpunit
+```
+
+### Git Hooks ###
+Um hook de pre-commit está configurado. Se as verificações falharem, o commit será abortado.
+
+## 📦 Dependências e Ativos (Assets)
+
+Para garantir o funcionamento do sistema em redes restritas (Intranet), as dependências de Front-end foram localizadas:
+
+*   **jQuery UI v1.13.2**: Movido de CDN externo para diretórios locais em `public/css/jquery/` e `public/js/jquery/`.
+*   **Protocolo Seguro**: O sistema utiliza o helper `asset()` que, em conjunto com o `URL::forceScheme('https')` configurado no `AppServiceProvider`, garante a entrega via HTTPS.
+
+### Logs do Sistema
+O sistema utiliza o Facade `Log` do Laravel para registrar inconsistências de permissão e erros críticos, centralizando-os em `storage/logs/`.
+
 ## 📊 Regras de Negócio Implementadas
 1.  **Cálculo de Notas:** Precisão de 3 casas decimais.
 2.  **Bônus Marexaer:** Atletas possuem acréscimo de pontos na média de TFM baseados na performance (Critério: +1.000 ou +2.000).
@@ -110,6 +144,16 @@ Após subir os containers, você deve preparar o banco de dados e as permissões
 ## 🔒 Segurança e Logs
 *   Todas as ações críticas (login, alterações de notas, exclusões) são registradas pela classe `ClassLog`.
 *   O middleware `CheckAuth` garante a proteção das rotas e redirecionamento correto entre os módulos Atalaia e Gavião.
+
+## 🔒 Segurança (HTTPS)
+
+O sistema está configurado para operar exclusivamente via HTTPS, inclusive em ambiente de desenvolvimento.
+
+### Gerar Certificados Locais
+Para rodar localmente, é necessário gerar um certificado autoassinado:
+```bash
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout .docker/nginx/ssl/server.key -out .docker/nginx/ssl/server.crt``
+O acesso local deve ser feito via: https://localhost:8443
 
 ## 🧪 Testes
 Para rodar os testes unitários e de integração:

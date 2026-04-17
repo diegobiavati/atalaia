@@ -36,8 +36,9 @@ class AlunosDependente extends Model
         return $this->belongsTo('App\Models\Parentesco', 'id_parentesco', 'id');
     }
 
-    public function import($nameFile){
-        Excel::import(new AlunosDependenteImport, $nameFile);
+    public function import($nameFile)
+    {
+        Excel::import(new AlunosDependenteImport(), $nameFile);
 
         return redirect('/')->with('success', 'All good!');
     }

@@ -25,15 +25,15 @@ class AtualizaMeuPerfilRequest extends FormRequest
     {
         return [
             'tel_pronto_atendimento' => 'celular_com_ddd',
-            'postograd_id'=>'numeric|min:1|max:25',
+            'postograd_id' => 'numeric|min:1|max:25',
         ];
     }
     public function messages()
     {
         return [
             'celular_com_ddd' => 'Número de celular inválido!',
-            'required' => 'Campo :attribute é inválido', 
-            'max' => 'Campo :attribute é inválido', 
+            'required' => 'Campo :attribute é inválido',
+            'max' => 'Campo :attribute é inválido',
             'min' => 'Campo :attribute é inválido',
         ];
     }

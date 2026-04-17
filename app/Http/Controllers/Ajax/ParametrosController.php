@@ -58,41 +58,39 @@ class ParametrosController extends Controller
             $parametros = new Parametros();
         }
 
-        switch($request->path()){
+        switch ($request->path()) {
             case 'ajax/rod-conteudo-atitudinal':
-                if(isset($request->conteudo)){//Caso conteúdo atitudinal
-
-                    foreach($request->conteudo as $conteudo){
+                if (isset($request->conteudo)) {//Caso conteúdo atitudinal
+                    foreach ($request->conteudo as $conteudo) {
                         $conteudoAtitudinal[] = (int)$conteudo;
                     }
 
                     $parametros->ano_formacao_id = $request->anoFormacao;
                     $parametros->conteudo_atitudinal_rod = json_encode($conteudoAtitudinal);
-            
+
                     $parametros->save();
 
                     $retorno['status'] = 'success';
                     $retorno['response'] = 'Conteúdos Atitudinais Gravados no Sistema.';
-                }else{
+                } else {
                     $retorno['status'] = 'erro';
                     $retorno['response'] = 'Informe os Conteúdos Atitudinais.';
                 }
-            break;
+                break;
             default:
-                if(isset($request->textCandidatosAguardando)){//Caso Seja somente os candidatos aguardando aprovação    
-
+                if (isset($request->textCandidatosAguardando)) {//Caso Seja somente os candidatos aguardando aprovação
                     $parametros->ano_formacao_id = $request->anoFormacao;
                     $parametros->candidato_aguar_aprov = $request->textCandidatosAguardando;
-            
+
                     $parametros->save();
-            
+
                     $retorno['status'] = 'success';
                     $retorno['response'] = 'Candidatos Gravado no Sistema.';
-                }else{
+                } else {
                     $retorno['status'] = 'erro';
                     $retorno['response'] = 'Informe os Candidatos Que Estão Aguardando Aprovação.';
                 }
-            break;
+                break;
         }
 
         return response()->json($retorno);
@@ -111,7 +109,6 @@ class ParametrosController extends Controller
 
         switch ($id[0]) {
             case 'parametros':
-
                 $data['response'] = '<form id="parametros_atalaia">
                                 <input type="hidden" name="_token" value="' . csrf_token() . '"/>' .
                     FuncoesController::retornaBotaoAnoFormacao() .
@@ -192,7 +189,7 @@ class ParametrosController extends Controller
                 foreach ($omcts as $omct) {
                     if ($this->ownauthcontroller->PermissaoCheck(1)) {
                         $options_omcts[] = $omct;
-                    } else if (session()->get('login.omctID') == $omct->id) {
+                    } elseif (session()->get('login.omctID') == $omct->id) {
                         $options_omcts[] = $omct;
                     }
                 }
@@ -349,7 +346,6 @@ class ParametrosController extends Controller
 
                 break;
             case 'grid':
-
                 $anoFormacao = AnoFormacao::find($id[1]);
 
                 $mapaOutrosDados = MapaOutrosDados::with('uete')->with('area')->where('ano_formacao_id', '=', $anoFormacao->id)->get();
@@ -357,7 +353,6 @@ class ParametrosController extends Controller
                 $parametros = Parametros::where('ano_formacao_id', '=', $anoFormacao->id)->first();
 
                 foreach ($mapaOutrosDados as $mapa) {
-
                     $lista[] = '<tr>
                                     <td>' . $mapa->uete->sigla_omct . '</td>
                                     <td>' . $mapa->area->area . '</td>
@@ -409,7 +404,7 @@ class ParametrosController extends Controller
                 $conteudoAtitudinal = ConteudoAtitudinal::all();
 
                 $data['response'] = '' . view('admin.parametros.parametroROD', compact('parametros', 'conteudoAtitudinal'));
-                break; 
+                break;
             default:
                 break;
         }
@@ -476,23 +471,22 @@ class ParametrosController extends Controller
 
         return response()->json($mapaOutrosDados);
     }
-    
-    public function sendMailBoletim(){
-        
+
+    public function sendMailBoletim()
+    {
+
         $email = $this->request->email;
         $militar = $this->request->militar;
 
         if (empty($email) || empty($militar)) {
             return false;
         }
-        
+
         try {
             Mail::to($email)->send(new VerificaBoletim($militar));
             return true;
-
         } catch (\Exception $e) {
-
-            Log::error('Erro ao enviar email militar: '.$e->getMessage());
+            Log::error('Erro ao enviar email militar: ' . $e->getMessage());
             return false;
         }
     }

@@ -10,7 +10,8 @@ class EsaAssinaturas extends Model
     protected $table = 'esa_assinaturas';
     protected $fillable = ['id_operador', 'assina_relatorio', 'caminho_assinatura'];
 
-    public function operador(){
+    public function operador()
+    {
         return ($this->belongsTo('App\Models\Operadores', 'id_operador', 'id')) ?? 'Não informado';
     }
 }

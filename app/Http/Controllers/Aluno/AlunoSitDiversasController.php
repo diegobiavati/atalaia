@@ -20,7 +20,6 @@ use Exception;
 
 class AlunoSitDiversasController extends Controller
 {
-
     protected $request;
     protected $ownauthcontroller;
     protected $classLog;
@@ -64,7 +63,6 @@ class AlunoSitDiversasController extends Controller
         $retorno['response'] = [];
 
         if ($this->ownauthcontroller->PermissaoCheck(11)) {
-
             if ($request->tipoRequisicao == 'Salvar') {
                 if (!isset($request->sitDivID)) {
                     array_push($retorno['response'], 'Informe se foi Trancamento ou Desligamento.');
@@ -110,9 +108,7 @@ class AlunoSitDiversasController extends Controller
         }
 
         if ($request->alunoID > 0) {
-
             if (($alunoSitDiv = AlunosSitDiv::find($request->alunoID))) { //Se tiver AlunoSitDiv é Para Fazer Update
-
                 $alunoSitDiv->situacoes_diversas_id = (isset($request->sitDivID) ? $request->sitDivID : $alunoSitDiv->situacoes_diversas_id);
                 $alunoSitDiv->solicitacao_situacao = (isset($request->opcao) ? $request->opcao : $alunoSitDiv->solicitacao_situacao);
                 $alunoSitDiv->adido = (isset($request->adido) ? $request->adido : $alunoSitDiv->adido);
@@ -123,7 +119,6 @@ class AlunoSitDiversasController extends Controller
                 $alunoSitDiv->amparo = (isset($request->amparo) ? $request->amparo : $alunoSitDiv->amparo);
 
                 if ($alunoSitDiv->save()) {
-
                     /* Corrigir Problema da Situações Diversas */
                     \App\Models\AlunosNFEI::where('alunos_id', $alunoSitDiv->id)->update(['alunos_situacoes_diversas_id' => $alunoSitDiv->id]);
                     \App\Models\AlunosVoluntAv::where('alunos_id', $alunoSitDiv->id)->update(['alunos_situacoes_diversas_id' => $alunoSitDiv->id]);
@@ -177,7 +172,7 @@ class AlunoSitDiversasController extends Controller
                     // DADOS A SEREM INSERIDOS NA TABELA alunos_situacoes_diversas_historico
                     $volunt_av = (AlunosVoluntAv::where('alunos_id', $aluno->id)->count() > 0) ? 'S' : 'N';
 
-                    $add_historico = new AlunosSitDivHistorico;
+                    $add_historico = new AlunosSitDivHistorico();
                     $add_historico->aluno = $aluno->nome_completo;
                     $add_historico->aluno_id = $aluno->id;
                     $add_historico->omct_id = $aluno->omcts_id;
@@ -264,7 +259,6 @@ class AlunoSitDiversasController extends Controller
         if (($aluno = AlunosSitDiv::find($id))) {
             //$situacoesDiversas = SituacoesDiversas::find($aluno->situacoes_diversas_id);
             //$motivos = Motivos::find($aluno->id_motivo);
-
         } else {
             $aluno = Alunos::find($id);
         }
@@ -305,7 +299,7 @@ class AlunoSitDiversasController extends Controller
             $alunoSitDiv = AlunosSitDiv::find($id);
             if (isset($alunoSitDiv->id)) {
                 $idAluno = $alunoSitDiv->id;
-                $aluno = new Alunos;
+                $aluno = new Alunos();
 
                 $alunoSitDivHistorico = \App\Models\AlunosSitDivHistorico::where('aluno_id', $idAluno)->first();
 
@@ -348,7 +342,7 @@ class AlunoSitDiversasController extends Controller
 
 
                 if (isset($data['avaliacoes']['taf'])) {
-                    $avaliacaoTaf = new AvaliacaoTaf;
+                    $avaliacaoTaf = new AvaliacaoTaf();
                     $avaliacaoTaf->corrida_nota = $data['avaliacoes']['taf']['corrida'];
                     $avaliacaoTaf->flexao_braco_nota = $data['avaliacoes']['taf']['flex_bra'];
                     $avaliacaoTaf->flexao_barra_nota = $data['avaliacoes']['taf']['flex_bar'];
@@ -367,13 +361,11 @@ class AlunoSitDiversasController extends Controller
                     return $retorno;
                 }
             }
-        } else if ($request->requisicao == 'repetentes') {
-
+        } elseif ($request->requisicao == 'repetentes') {
             if ($request->sistema == 'atalaia') {
                 $aluno = Alunos::with('repetentes')->find($request->idaluno);
 
                 if ($aluno->relationLoaded('repetentes') && count($aluno->repetentes) > 0) {
-
                     foreach ($aluno->repetentes as $repetente) {
                         dd($repetente->situacaoDivHistorico, $repetente->situacao);
                     }

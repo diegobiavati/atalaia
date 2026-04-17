@@ -1,4 +1,3 @@
-# tests/Unit/TfmCalculationTest.php
 <?php
 
 namespace Tests\Unit;
@@ -25,9 +24,9 @@ class TfmCalculationTest extends TestCase
         $corrida = 5.0;
         $flexBra = 5.0;
         $flexBar = 5.0;
-        
+
         $mediaBase = ($corrida + $flexBra + $flexBar) / 3;
-        
+
         // Aplicação da lógica contida no AjaxAdminController
         $mediaFinal = $mediaBase;
         if ($alunoAtleta->atleta_marexaer == 'S') {

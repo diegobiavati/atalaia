@@ -33,10 +33,10 @@ class DisciplinasRequest extends FormRequest
     public function messages()
     {
         return [
-            'required' => 'Campo :attribute é inválido', 
-            'max' => 'Campo :attribute é muito curto.', 
+            'required' => 'Campo :attribute é inválido',
+            'max' => 'Campo :attribute é muito curto.',
             'min' => 'Campo :attribute é muito curto.',
             'numeric' => 'Campo :attribute deve ser numérico.',
         ];
-    }    
+    }
 }
