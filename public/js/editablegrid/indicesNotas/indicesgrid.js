@@ -78,7 +78,7 @@ EditableGrid.prototype.initializeGrid = function()
 	
 			// add a cell validator to check that the score_total is in [0, 10[
 			addCellValidator("score_total", new CellValidator({
-				isValid: function(value) { return value == "" || (parseInt(value) >= 0 && parseInt(value) < 30); }
+				isValid: function(value) { return value == "" || (parseInt(value) >= 0 && parseInt(value) < 1000); }
 			}));
 	
 			// register the function that will handle model changes
