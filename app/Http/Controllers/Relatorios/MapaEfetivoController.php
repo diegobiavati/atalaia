@@ -249,6 +249,7 @@ FuncoesController::getSQLEloquent(AlunosSitDiv::where([['data_matricula', '=', $
 
     public function infoMapaEfetivo(int $idAnoFormacao)
     {
+        
         $alunos = Alunos::carregaAlunosVsAlunosSitDiv($idAnoFormacao);
 
         if ((session()->get('login')['omctID'] <> 1)) {
