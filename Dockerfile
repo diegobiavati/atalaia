@@ -1,3 +1,4 @@
+# Dockerfile
 FROM php:7.3-fpm
 
 # Instalar dependências (incluindo Java para o importador e smbclient para fotos)

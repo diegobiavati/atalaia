@@ -1,3 +1,4 @@
+# app/Http/Middleware/TrustProxies.php
 <?php
 
 namespace App\Http\Middleware;
@@ -12,7 +13,7 @@ class TrustProxies extends Middleware
      *
      * @var array
      */
-    protected $proxies;
+    protected $proxies = '*'; // Confia em todos os containers da rede Docker
 
     /**
      * The headers that should be used to detect proxies.
